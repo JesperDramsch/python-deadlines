@@ -66,9 +66,6 @@ description: Countdown for the Call for Participation of this conference includi
               <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
             </span>
           </h1>
-          {% if page.full_name %}
-          <h3 id="conf-full-name">{{page.full_name}}</h3>
-          {% endif %}
         </div>
       </div>
       <div class="row">
@@ -108,11 +105,11 @@ description: Countdown for the Call for Participation of this conference includi
             <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" />
             <a id="conf-website" target="_blank" href="{{page.link}}">{{page.link}}</a>
           </div>
-          {% if page.cfplink %}
+          {% if page.cfp_link %}
           <div>
             <img src="/static/img/035-file-text.svg" class="badge-link" alt="Document Icon for CfP link" width="16"
               height="16" />
-            <a id="conf-cfplink" target="_blank" href="{{page.cfplink}}">Call for Participation</a>
+            <a id="conf-cfp_link" target="_blank" href="{{page.cfp_link}}">Call for Participation</a>
           </div>
           {% endif %}
           {% if page.finaid %}
@@ -221,7 +218,7 @@ description: Countdown for the Call for Participation of this conference includi
 
       // add calendar 
       var conferenceDeadlineCalendar = createCalendarFromObject({
-        id: '{{page.id}}',
+        id: '{{conf.title | slugify}}-{{conf.year}}',
         title: '{{page.title}} {{page.year}} deadline',
         date: confDeadline.toJSDate(),
         duration: 60,
