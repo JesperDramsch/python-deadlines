@@ -70,8 +70,14 @@ def fuzzy_match(df_yml, df_remote):
     # Get closest match for titles
     df["title_match"] = df["title"].apply(lambda x: process.extract(x, df_remote["title"], limit=1))
 
+    for key, value in known_mappings.items():
+        if key in df["title"].values:
+            df.loc[df["title"] == key, "title_match"] = value
+
     # Get first match if it's over 90
     for i, row in df.copy().iterrows():
+        if isinstance(row["title_match"], str):
+            continue
         title, prob, _ = row["title_match"][0]
         if prob == 100:
             title = title
@@ -82,10 +88,6 @@ def fuzzy_match(df_yml, df_remote):
         else:
             title = i
         df.loc[i, "title_match"] = title
-
-    for key, value in known_mappings.items():
-        if key in df["title"].values:
-            df.loc[df["title"] == key, "title_match"] = value
 
     df.set_index("title_match", inplace=True)
     print(df)
@@ -112,8 +114,12 @@ def interactive_merge(df_yml, df_remote):
     except:
         pass
 
-    df_merge = pd.merge(left=df_yml, right=df_remote, how="outer", on="title_match")
+    replacements = {"United States of America": "USA",
+                    "United States": "USA",
+                    "United Kingdom": "UK",
+                    "www.": ""}
 
+    df_merge = pd.merge(left=df_yml, right=df_remote, how="outer", on="title_match", validate="one_to_one")
     for i, row in df_merge.iterrows():
         df_new.loc[i, "title"] = i
         for column in columns:
@@ -121,13 +127,22 @@ def interactive_merge(df_yml, df_remote):
             # print(i,cx,cy,cx in df_merge.columns and cy in df_merge.columns,column in df_merge.columns,)
             if cx in df_merge.columns and cy in df_merge.columns:
                 rx, ry = row[cx], row[cy]
+                for orig, replacement in replacements.items():
+                    if isinstance(rx, str):
+                        rx = rx.replace(orig, replacement)
+                    if isinstance(ry, str):
+                        ry = ry.replace(orig, replacement)
+                # Prefer my sponsor info if exists
+                if column == "sponsor":
+                    if not pd.isnull(rx):
+                        ry = rx
                 # Some text processing
                 if isinstance(rx, str) and isinstance(ry, str):
                     # Remove whitespaces
                     rx, ry = str.strip(rx), str.strip(ry)
                     # Look at strings with extra information
                     if rx.split(" ")[0] == ry.split(" ")[0] and rx.split(" ")[-1] == ry.split(" ")[-1]:
-                        if len(rx) > len(ry):
+                        if len(ry) > len(rx):
                             df_new.loc[i, column] = rx
                             ry = rx
                         else:
@@ -138,22 +153,37 @@ def interactive_merge(df_yml, df_remote):
                         ry = rx
                     elif ry.startswith(rx):
                         rx = ry
-                if type(rx) != type(ry):
+                    if rx.endswith(ry):
+                        rx = ry
+                    elif ry.endswith(rx):
+                        ry = rx
+                    if "Online" in [rx, ry]:
+                        ry, rx = "Online", "Online"
+                if rx == ry:
+                    # When both are equal just assign
+                    df_new.loc[i, column] = rx
+                elif pd.isnull(rx) and ry:
+                    # If one is empty use the other
+                    df_new.loc[i, column] = ry
+                elif rx and pd.isnull(ry):
+                    # If one is empty use the other
+                    df_new.loc[i, column] = rx
+                elif type(rx) != type(ry):
                     # Use non-string on different types
                     if str(rx).strip() == str(ry).strip():
                         if isinstance(rx, str):
                             df_new.loc[i, column] = ry
+                            rx = ry
                         elif isinstance(ry, str):
                             df_new.loc[i, column] = rx
-                elif rx == ry:
-                    # When both are equal just assign
-                    df_new.loc[i, column] = rx
-                elif (not rx or pd.isna(rx)) and ry:
-                    # If one is empty use the other
-                    df_new.loc[i, column] = ry
-                elif rx and (not ry or pd.isna(ry)):
-                    # If one is empty use the other
-                    df_new.loc[i, column] = rx
+                            ry = rx
+                    else:
+                        if query_yes_no(
+                            f"For {i} in column '{column}' would you prefer '{rx}' or keep '{ry}'?"
+                        ):
+                            df_new.loc[i, column] = rx
+                        else:
+                            df_new.loc[i, column] = ry
                 elif column == "cfp" and rx != ry:
                     # Special CFP stuff
                     if " " in rx and " " not in ry:
@@ -181,11 +211,39 @@ def interactive_merge(df_yml, df_remote):
     return df_new
 
 
+def fill_missing_required(df):
+    required = [
+        "title",
+        "year",
+        "link",
+        "cfp",
+        "timezone",
+        "place",
+        "start",
+        "end",
+        "sub",
+    ]
+
+    for i, row in df.copy().iterrows():
+        for keyword in required:
+            if pd.isna(row[keyword]):
+                user_input = input(
+                    f"What's the value of '{keyword}' for conference '{row['title']}' check {row['link']} ?: "
+                )
+                if user_input != "":
+                    df.loc[i, keyword] = user_input
+    return df
+
+
 def write_yaml(df, out_url):
     try:
         df = df.drop(["Country", "Venue"], axis=1)
     except KeyError:
         pass
+    df["end"] = pd.to_datetime(df["end"]).dt.date
+    df["start"] = pd.to_datetime(df["start"]).dt.date
+    df["year"] = df["year"].astype(int)
+    df["cfp"] = df["cfp"].astype(str)
     with open(out_url, "w") as outfile:
         for line in ordered_dump(
             [{k: v for k, v in record.items() if pd.notnull(v)} for record in df.to_dict(orient="records")],
@@ -222,7 +280,7 @@ def write_csv(df, year, csv_location):
 
 
 def main(year=None, base=""):
-    target_file = Path(base, "_data", "out.yml")
+    target_file = Path(base, "_data", "conferences.yml")
     csv_location = Path(base, "utils", "conferences")
 
     if year is None:
@@ -247,6 +305,8 @@ def main(year=None, base=""):
 
         # merged, _ = fuzzy_match(df, df_yml[df_yml["year"] == y])
         # df_csv = pd.concat([df_csv, merged], ignore_index=True)
+
+    df_new = fill_missing_required(df_new)
 
     write_yaml(df_new, target_file)
     # write_csv(df_csv, year, csv_location)
