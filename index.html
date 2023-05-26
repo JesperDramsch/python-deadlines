@@ -64,22 +64,22 @@
         <div id="coming_confs">
           {% for conf in site.data.conferences %}
           {% assign subs = conf.sub | split: "," %}
-          <div id="{{conf.id}}" class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}">
+          <div id="{{conf.title | slugify}}-{{conf.year}}" class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}">
             <div class="row conf-row">
                 <div class="col-6">
                   <span class="conf-title">
-                      <a title="{% if conf.full_name %}{{conf.full_name}}{% else %}Deadline{% endif %} Details" href="{{site.baseurl}}/conference/{{conf.title | slugify}}-{{conf.year}}/">{{conf.title}} {{conf.year}}</a>
+                      <a title="Deadline Details" href="{{site.baseurl}}/conference/{{conf.title | slugify}}-{{conf.year}}/">{{conf.title}} {{conf.year}}</a>
                   </span>
                   <span class="conf-title-small">
-                      <a title="{% if conf.full_name %}{{conf.full_name}}{% else %}Deadline{% endif %} Details" href="{{site.baseurl}}/conference/{{conf.title | slugify}}-{{conf.year}}/">{{conf.title}} '{{conf.year | slice: -2, 3}}</a>
+                      <a title="Deadline Details" href="{{site.baseurl}}/conference/{{conf.title | slugify}}-{{conf.year}}/">{{conf.title}} '{{conf.year | slice: -2, 3}}</a>
                   </span>
                   <span class="conf-title-icon">
                     <a title="Conference Website" href="{{conf.link}}" target="_blank"><img src="/static/img/203-earth.svg" class="badge-link" alt="Link to Conference Website" width="16" height="16" /></a>
                     &ZeroWidthSpace;
                   </span>
-                  {% if conf.cfplink %}
+                  {% if conf.cfp_link %}
                   <span class="conf-title-icon">
-                    <a title="Call for Participation for {{conf.title}}" href="{{conf.cfplink}}" target="_blank"><img src="/static/img/035-file-text.svg" class="badge-link" alt="Link to Call for Participation for {{conf.title}}" width="16" height="16" /></a>
+                    <a title="Call for Participation for {{conf.title}}" href="{{conf.cfp_link}}" target="_blank"><img src="/static/img/035-file-text.svg" class="badge-link" alt="Link to Call for Participation for {{conf.title}}" width="16" height="16" /></a>
                     &ZeroWidthSpace;
                   </span>
                   {% endif %}
@@ -97,12 +97,12 @@
                   {% endif %}
                   {% if conf.mastodon %}
                   <span class="conf-title-icon">
-                    <a title="Mastodon for {% if conf.full_name %}{{conf.full_name}}{% else %}{{conf.title}}{% endif %}" href="{{conf.mastodon}}" target="_blank"><img src="/static/img/407-mastodon.svg" class="badge-link" alt="Link to Conference Mastodon" width="16" height="16" /></a>
+                    <a title="Mastodon for {{conf.title}}" href="{{conf.mastodon}}" target="_blank"><img src="/static/img/407-mastodon.svg" class="badge-link" alt="Link to Conference Mastodon" width="16" height="16" /></a>
                     &ZeroWidthSpace;
                   </span>
                   {% elsif conf.twitter %}
                   <span class="conf-title-icon">
-                    <a title="Twitter for {% if conf.full_name %}{{conf.full_name}}{% else %}{{conf.title}}{% endif %}" href="https://twitter.com/{{conf.twitter}}" target="_blank"><img src="/static/img/407-twitter.svg" class="badge-link" alt="Link to Conference Twitter" width="16" height="16" /></a>
+                    <a title="Twitter for {{conf.title}}" href="https://twitter.com/{{conf.twitter}}" target="_blank"><img src="/static/img/407-twitter.svg" class="badge-link" alt="Link to Conference Twitter" width="16" height="16" /></a>
                     &ZeroWidthSpace;
                   </span>
                   {% endif %}
@@ -192,12 +192,12 @@
       {% for conf in site.data.conferences %}
         {% assign subs = conf.sub | split: "," %}
         {% for sub in subs %}
-          $('#{{conf.id}} .{{sub | strip}}-tag').html(sub2name["{{sub | strip}}"].toLocaleLowerCase());
+          $('#{{conf.title | slugify}}-{{conf.year}} .{{sub | strip}}-tag').html(sub2name["{{sub | strip}}"].toLocaleLowerCase());
         {% endfor %}
         {% if conf.cfp == "TBA" %}
-          $('#{{conf.id}} .timer').html("TBA");
-          $('#{{conf.id}} .deadline-time').html("TBA");
-          $('#{{conf.id}}').attr("cfpDiff", -Infinity);
+          $('#{{conf.title | slugify}}-{{conf.year}} .timer').html("TBA");
+          $('#{{conf.title | slugify}}-{{conf.year}} .deadline-time').html("TBA");
+          $('#{{conf.title | slugify}}-{{conf.year}}').attr("cfpDiff", -Infinity);
         {% else %}
           
           // Use specified timezone for deadlines if available else use AoE timezone
@@ -213,33 +213,33 @@
           if (cfpDate.invalid || confDate.invalid) {
             var cfpDate = DateTime.fromSQL("{{conf.cfp}}");
             var confDate = DateTime.fromSQL("{{conf.start}}");
-            console.log("Invalid timezone in {{conf.id}}. Using system timezone instead.");
+            console.log("Invalid timezone in {{conf.title | slugify}}-{{conf.year}}. Using system timezone instead.");
           }
 
           // render countdown timer
-          $('#{{conf.id}} .timer').countdown(cfpDate.toJSDate(), function (event) {
+          $('#{{conf.title | slugify}}-{{conf.year}} .timer').countdown(cfpDate.toJSDate(), function (event) {
               $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
           });
 
           // render countdown timer small
-          $('#{{conf.id}} .timer-small').countdown(cfpDate.toJSDate(), function (event) {
+          $('#{{conf.title | slugify}}-{{conf.year}} .timer-small').countdown(cfpDate.toJSDate(), function (event) {
               $(this).html(event.strftime('%Dd %H:%M:%S'));
           });
 
           // deadline in local timezone
-          $('#{{conf.id}} .deadline-time').html(cfpDate.setZone('system').toLocaleString(DateTime.DATE_HUGE));
+          $('#{{conf.title | slugify}}-{{conf.year}} .deadline-time').html(cfpDate.setZone('system').toLocaleString(DateTime.DATE_HUGE));
 
           // add calendar button
           try {
           var myCalendar = createCalendarFromObject({
-            id:  '{{conf.id}}',
+            id:  '{{conf.title | slugify}}-{{conf.year}}',
             title: '{{conf.title}} {{conf.year}} deadline',
             date: cfpDate.toJSDate(),
             duration: 60,
           });
-          document.querySelector('#{{conf.id}} .calendar').appendChild(myCalendar);
+          document.querySelector('#{{conf.title | slugify}}-{{conf.year}} .calendar').appendChild(myCalendar);
           } catch(err) {
-            document.querySelector('#{{conf.id}} .calendar').appendChild("<p>Calendar not available.</p>");
+            document.querySelector('#{{conf.title | slugify}}-{{conf.year}} .calendar').appendChild("<p>Calendar not available.</p>");
             console.log("Error in cfp date.");
           }
 
@@ -247,23 +247,23 @@
           cfpDiff = today.diff(cfpDate);
           confDiff = today.diff(confDate);
 
-          $('#{{conf.id}}').attr("cfpDiff", cfpDiff.milliseconds);
-          $('#{{conf.id}}').attr("confDiff", confDiff.milliseconds);
+          $('#{{conf.title | slugify}}-{{conf.year}}').attr("cfpDiff", cfpDiff.milliseconds);
+          $('#{{conf.title | slugify}}-{{conf.year}}').attr("confDiff", confDiff.milliseconds);
 
           if (cfpDiff > 0) {
-            $('#{{conf.id}}').addClass('pastcfp');
-            $('#{{conf.id}}').appendTo($("#past_cfps"));
-            $('#{{conf.id}} .timer').replaceWith($('#{{conf.id}} .deadline'));
-            $('#{{conf.id}} .timer-small').replaceWith($('#{{conf.id}} .deadline'));
-            $('#{{conf.id}} .calendar').remove();
+            $('#{{conf.title | slugify}}-{{conf.year}}').addClass('pastcfp');
+            $('#{{conf.title | slugify}}-{{conf.year}}').appendTo($("#past_cfps"));
+            $('#{{conf.title | slugify}}-{{conf.year}} .timer').replaceWith($('#{{conf.title | slugify}}-{{conf.year}} .deadline'));
+            $('#{{conf.title | slugify}}-{{conf.year}} .timer-small').replaceWith($('#{{conf.title | slugify}}-{{conf.year}} .deadline'));
+            $('#{{conf.title | slugify}}-{{conf.year}} .calendar').remove();
           }
           
           if (confDiff > 0) {
-            $('#{{conf.id}}').addClass('pastconf');
-            $('#{{conf.id}}').appendTo($("#past_confs"));
-            $('#{{conf.id}} .timer').replaceWith($('#{{conf.id}} .deadline'));
-            $('#{{conf.id}} .timer-small').replaceWith($('#{{conf.id}} .deadline'));
-            $('#{{conf.id}} .calendar').remove();
+            $('#{{conf.title | slugify}}-{{conf.year}}').addClass('pastconf');
+            $('#{{conf.title | slugify}}-{{conf.year}}').appendTo($("#past_confs"));
+            $('#{{conf.title | slugify}}-{{conf.year}} .timer').replaceWith($('#{{conf.title | slugify}}-{{conf.year}} .deadline'));
+            $('#{{conf.title | slugify}}-{{conf.year}} .timer-small').replaceWith($('#{{conf.title | slugify}}-{{conf.year}} .deadline'));
+            $('#{{conf.title | slugify}}-{{conf.year}} .calendar').remove();
           }
         {% endif %}
       {% endfor %}

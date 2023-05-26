@@ -13,48 +13,17 @@ from builtins import input
 from pathlib import Path
 from shutil import copyfile
 
-
 import pytz
 import requests
 import yaml
 from tqdm import tqdm
 
-sys.path.append('.')
-from utils import pretty_print, ordered_dump, Loader
+sys.path.append(".")
+from utils import pretty_print, ordered_dump, Loader, get_schema
+from date_magic import clean_dates, create_nice_date
 
 dateformat = "%Y-%m-%d %H:%M:%S"
 tba_words = ["tba", "tbd"]
-
-# Helper function for yes no questions
-def query_yes_no(question, default="no"):
-    """Ask a yes/no question via input() and return their answer.
-
-    "question" is a string that is presented to the user.
-    "default" is the presumed answer if the user just hits <Enter>.
-        It must be "yes" (the default), "no" or None (meaning
-        an answer is required of the user).
-
-    The "answer" return value is True for "yes" or False for "no".
-    """
-    valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
-
-    while True:
-        sys.stdout.write(question + prompt)
-        choice = input().lower()
-        if default is not None and choice == "":
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no' " "(or 'y' or 'n').\n")
 
 
 def sort_by_cfp(data):
@@ -75,30 +44,53 @@ def sort_by_date_passed(data):
     return sort_by_cfp(data) < right_now
 
 
+def order_keywords(data):
+    schema = get_schema().columns.tolist()
+    new_dict = {}
+    for key in schema:
+        if key in data:
+            new_dict[key] = data[key]
+    return new_dict
+
+
 def split_data(data):
     conf, tba, expired = [], [], []
     for q in tqdm(data):
-        if q.get("end", datetime.datetime.utcnow().replace(microsecond=0).date()) < datetime.datetime.utcnow().replace(
+        if q.get(
+            "end", datetime.datetime.utcnow().replace(microsecond=0).date()
+        ) < datetime.datetime.utcnow().replace(
             microsecond=0
-        ).date() - datetime.timedelta(days=37):
+        ).date() - datetime.timedelta(
+            days=37
+        ):
             expired.append(q)
             continue
+
+        q = clean_dates(q)
+        q = create_nice_date(q)
 
         try:
             if q["cfp"].lower() in tba_words:
                 tba.append(q)
             else:
+                if " " not in q["cfp"]:
+                    q["cfp"] += " 23:59:00"
                 conf.append(q)
         except:
             print(data["cfp"].lower(), tba_words)
     return conf, tba, expired
 
+
 def add_latlon(data):
-    for i, q in tqdm(enumerate(data.copy()), total = len(data)):
+    for i, q in tqdm(enumerate(data.copy()), total=len(data)):
         if ("location" in q) or ("place" not in q) or ("online" in q["place"].lower()):
             continue
         else:
-            url = "https://nominatim.openstreetmap.org/search/" + urllib.parse.quote(q["place"]) + "?format=json"
+            url = (
+                "https://nominatim.openstreetmap.org/search/"
+                + urllib.parse.quote(q["place"])
+                + "?format=json"
+            )
             response = requests.get(url).json()
             if response:
                 data[i]["location"] = {}
@@ -118,10 +110,12 @@ def sort_data(base="", prefix=""):
     with open(url, "r") as stream:
         try:
             data = yaml.load(stream, Loader=Loader)
-            
+
             print("Initial Sorting:")
-            for q in data:
+            for i, q in enumerate(data.copy()):
                 print(q["cfp"], " - ", q["title"])
+                data[i] = order_keywords(q)
+
             print("\n\n")
 
             # Geocode Data
@@ -136,11 +130,16 @@ def sort_data(base="", prefix=""):
             conf.sort(key=sort_by_cfp, reverse=True)
             pretty_print("Date Sorting:", conf, tba, expired)
             conf.sort(key=sort_by_date_passed)
-            pretty_print("Date and Passed Deadline Sorting with tba:", conf, tba, expired)
+            pretty_print(
+                "Date and Passed Deadline Sorting with tba:", conf, tba, expired
+            )
 
             with open(out_url, "w") as outfile:
                 for line in ordered_dump(
-                    conf + tba, Dumper=yaml.SafeDumper, default_flow_style=False, explicit_start=True
+                    conf + tba,
+                    Dumper=yaml.SafeDumper,
+                    default_flow_style=False,
+                    explicit_start=True,
                 ).splitlines():
                     outfile.write(line.replace("- title:", "\n- title:"))
                     outfile.write("\n")
@@ -159,7 +158,10 @@ def sort_data(base="", prefix=""):
             pretty_print("New archive:", data)
             with open(out_archive, "w") as outfile:
                 for line in ordered_dump(
-                    data, Dumper=yaml.SafeDumper, default_flow_style=False, explicit_start=True
+                    data,
+                    Dumper=yaml.SafeDumper,
+                    default_flow_style=False,
+                    explicit_start=True,
                 ).splitlines():
                     outfile.write(line.replace("- title:", "\n- title:"))
                     outfile.write("\n")

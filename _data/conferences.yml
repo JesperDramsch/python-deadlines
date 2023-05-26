@@ -1,16 +1,16 @@
 ---
 
-- title: PyCon ZA
+- title: PyCon South Africa
   year: 2023
-  id: pyconZA23
   link: https://za.pycon.org/
-  cfplink: https://za.pycon.org/talks/how-to-submit-a-talk/
+  cfp_link: https://za.pycon.org/talks/how-to-submit-a-talk
   cfp: '2023-08-18 23:59:00'
+  tutorial_deadline: '2023-08-18 23:59:00'
+  timezone: Africa/Johannesburg
+  place: Durban, South Africa
+  date: October 5 - 6, 2023
   start: 2023-10-05
   end: 2023-10-06
-  date: October 5 - 6, 2023
-  place: Durban, South Africa
-  timezone: Africa/Johannesburg
   twitter: pyconza
   mastodon: https://fosstodon.org/@pyconza
   sub: PY
@@ -20,15 +20,15 @@
 
 - title: Swiss Python Summit
   year: 2023
-  id: swissPythonSummit23
-  link: https://www.python-summit.ch
-  cfplink: https://www.python-summit.ch/cfp/
+  link: https://python-summit.ch
+  cfp_link: https://python-summit.ch/cfp
   cfp: '2023-07-01 23:59:00'
+  timezone: Europe/Zurich
+  place: Rapperswil, Switzerland
+  date: September 21, 2023
   start: 2023-09-21
   end: 2023-09-21
-  date: September 21, 2023
-  place: Rapperswil, Switzerland
-  timezone: Europe/Zurich
+  sponsor: https://python-summit.ch/helpus
   twitter: pythonsummit
   sub: PY
   location:
@@ -37,35 +37,34 @@
 
 - title: PyCon Portugal
   year: 2023
-  id: pyconportugal2023
   link: https://2023.pycon.pt/
-  cfplink: https://2023.pycon.pt/talks/cfp/
-  sponsor: https://2023.pycon.pt/sponsors/sponsorship/
-  finaid: https://2023.pycon.pt/information/grants/
+  cfp_link: https://2023.pycon.pt/talks/cfp
   cfp: '2023-06-30 23:59:00'
+  tutorial_deadline: '2023-06-30 23:59:00'
+  timezone: UTC
+  place: Coimbra, Coimbra, Portugal
+  date: September 07 - 09, 2023
   start: 2023-09-07
   end: 2023-09-09
-  date: September 07 - 09, 2023
-  timezone: UTC
-  place: Porto, Portugal
+  sponsor: https://2023.pycon.pt/sponsors/sponsorship/
+  finaid: https://2023.pycon.pt/information/grants/
   twitter: PyConPT
   sub: PY
   location:
     latitude: 41.1494512
     longitude: -8.6107884
 
-- title: PyConEs
+- title: "PyCon Espa\xF1a"
   year: 2023
-  id: pycones23
   link: https://2023.es.pycon.org/
-  cfplink: https://charlas.2023.es.pycon.org/pycones-2023/cfp
-  sponsor: https://2023.es.pycon.org/patrocinios/
+  cfp_link: https://2023.es.pycon.org/c4p
   cfp: '2023-06-23 23:59:00'
-  start: 2023-10-08
-  end: 2023-10-08
-  date: October 06 - 08, 2023
   timezone: Europe/London
   place: Tenerife, Spain
+  date: October 06 - 08, 2023
+  start: 2023-10-06
+  end: 2023-10-08
+  sponsor: https://2023.es.pycon.org/patrocinios/
   twitter: PyConES
   mastodon: https://fosstodon.org/@pycones
   sub: PY
@@ -73,50 +72,49 @@
     latitude: 28.2935785
     longitude: -16.621447121144122
 
-- title: PyCon HK
+- title: PyCon Hong Kong
   year: 2023
-  id: pyconHK23
   link: https://pycon.hk/2023/
-  cfplink: https://pycon.hk/2023/pycon-hk-2023-cfp/
+  cfp_link: https://pycon.hk/2023/pycon-hk-2023-cfp
   cfp: '2023-06-18 23:59:00'
+  timezone: Asia/Hong_Kong
+  place: Hong Kong
+  date: November 10 - 11, 2023 (tentative)
   start: 2023-11-10
   end: 2023-11-11
-  date: November 10 - 11, 2023 (tentative)
-  place: Hong Kong
-  timezone: Asia/Hong_Kong
   twitter: pyconhk
   sub: PY
   location:
     latitude: 22.2793278
     longitude: 114.1628131
 
-- title: Pydata Amsterdam
+- title: PyData Amsterdam
   year: 2023
-  id: pydataAmsterdam23
   link: https://amsterdam.pydata.org/
-  cfplink: https://amsterdam2023.pydata.org/cfp/cfp
-  sponsor: https://amsterdam.pydata.org/sponsor/
+  cfp_link: https://amsterdam2023.pydata.org/cfp/cfp
   cfp: '2023-06-11 23:59:00'
-  start: 2023-09-14
-  end: 2023-09-16
-  date: September 14 - 16, 2023
+  tutorial_deadline: '2023-06-11 23:59:00'
   timezone: Europe/Amsterdam
   place: Amsterdam, Netherlands
+  date: September 14 - 16, 2023
+  start: 2023-09-14
+  end: 2023-09-16
+  sponsor: https://amsterdam.pydata.org/sponsor/
   sub: PYDATA
   location:
     latitude: 52.3730796
     longitude: 4.8924534
 
-- title: PyCon APAC
+- title: PyCon Asia Pacific
   year: 2023
-  id: pyConApac2023
   link: https://2023-apac.pycon.jp/
-  cfplink: https://pretalx.com/pyconapac2023/cfp
+  cfp_link: https://pretalx.com/pyconapac2023/cfp
   cfp: '2023-05-31 23:59:59'
+  place: Tokyo, Japan
+  date: October 27 - 29, 2023
   start: 2023-10-27
   end: 2023-10-29
-  date: October 27 - 29, 2023
-  place: Tokyo, Japan
+  sponsor: https://pyconjp.blogspot.com/2023/05/pyconapac2023-call-for-sponsors-en.html
   sub: PY
   location:
     latitude: 35.6812665
@@ -124,32 +122,29 @@
 
 - title: PyCon MEA @GlobalDevSlam
   year: 2023
-  id: pyconMEA23
   link: https://globaldevslam.com/
-  cfplink: https://event.globaldevslam.com/Speaker-Reg-2023
   cfp: '2023-05-31 23:59:00'
-  start: 2023-10-16
-  end: 2023-10-20
-  date: October 16 - 20, 2023
   timezone: Asia/Dubai
   place: Dubai, UAE
+  date: October 16 - 20, 2023
+  start: 2023-10-16
+  end: 2023-10-20
   twitter: GlobalDevSlam
   sub: PY
   location:
     latitude: 25.074282349999997
     longitude: 55.18853865430702
 
-- title: PyCon MY
+- title: PyCon Malaysia
   year: 2023
-  id: pyconMY23
   link: https://pycon.my
-  cfplink: https://www.papercall.io/pycon-my-2023
+  cfp_link: https://papercall.io/pycon-my-2023
   cfp: '2023-05-31 23:59:00'
+  timezone: Asia/Kuala_Lumpur
+  place: Malaysia
+  date: August 26, 2023
   start: 2023-08-26
   end: 2023-08-26
-  date: August 26, 2023
-  place: Malaysia
-  timezone: Asia/Kuala_Lumpur
   twitter: pyconmy
   sub: PY
   location:
@@ -158,16 +153,15 @@
 
 - title: North Bay Python
   year: 2023
-  id: NorthBayPython23
   link: https://2023.northbaypython.org/
-  cfplink: https://2023.northbaypython.org/speak
-  sponsor: https://2023.northbaypython.org/assets/pdf/sponsor-prospectus.pdf
+  cfp_link: https://2023.northbaypython.org/speak
   cfp: '2023-05-19 23:59:00'
-  start: 2023-07-29
-  end: 2023-07-30
-  date: July 29 - 30, 2023
   timezone: America/Los_Angeles
   place: Petaluma, California, USA
+  date: July 29 - 30, 2023
+  start: 2023-07-29
+  end: 2023-07-30
+  sponsor: https://2023.northbaypython.org/assets/pdf/sponsor-prospectus.pdf
   twitter: NorthBayPython
   mastodon: https://floss.social/@northbaypython
   sub: PY
@@ -175,31 +169,66 @@
     latitude: 38.295411
     longitude: -122.61369350203252
 
-- title: PyGotham
+- title: Kiwi PyCon
   year: 2023
-  id: pyGotham23
+  link: https://kiwipycon.nz/
+  cfp_link: https://kiwipycon.nz/call-for-proposals
+  cfp: '2023-05-19 23:59:00'
+  timezone: Pacific/Auckland
+  place: "Waih\u014Dpai (Invercargill), Aotearoa, New Zealand"
+  date: September 15 - 17, 2022
+  start: 2023-09-15
+  end: 2023-09-17
+  sponsor: https://kiwipycon.nz/s/Kiwi-Pycon-XII-Sponsorship-Prospectus.pdf
+  finaid: https://kiwipycon.nz/financial-aid
+  twitter: KiwiPyCon
+  sub: PY
+  location:
+    latitude: -46.4099902
+    longitude: 168.3507773
+
+- title: PyGotham TV
+  year: 2023
   link: https://2023.pygotham.tv/
-  cfplink: https://cfp.pygotham.tv/
-  sponsor: https://2023.pygotham.tv/sponsors/prospectus/
+  cfp_link: https://cfp.pygotham.tv
   cfp: '2023-05-15 23:59:00'
+  place: Online
+  date: October 06 - 07, 2023
   start: 2023-10-06
   end: 2023-10-07
-  date: October 06 - 07, 2023
-  place: Online
+  sponsor: https://2023.pygotham.tv/sponsors/prospectus/
   sub: PY
   note: Tech talks and short film submissions
 
-- title: PyCon AU
+- title: DjangoCon US
   year: 2023
-  id: PyConAU23
+  link: https://2023.djangocon.us
+  cfp_link: https://2023.djangocon.us/speaking
+  cfp: '2023-05-15 18:00:00'
+  tutorial_deadline: '2023-05-15 23:59:00'
+  timezone: America/New_York
+  place: North Carolina, USA
+  date: October 15 - 20, 2023
+  start: 2023-10-16
+  end: 2023-10-20
+  sponsor: https://2023.djangocon.us/sponsors/information/
+  twitter: djangoCon
+  sub: WEB
+  location:
+    latitude: 35.6729639
+    longitude: -79.0392919
+
+- title: PyCon Australia
+  year: 2023
   link: https://2023.pycon.org.au/
-  cfplink: https://2023.pycon.org.au/program/
-  sponsor: https://2023.pycon.org.au/sponsor/#opportunities
+  cfp_link: https://2023.pycon.org.au/program
   cfp: '2023-05-15 23:59:00'
+  timezone: Australia/Adelaide
+  place: Tarndanya (Adelaide), Australia
+  date: August 18 - 22, 2023
   start: 2023-08-18
   end: 2023-08-22
-  date: August 18 - 22, 2023
-  place: Adelaide, Australia
+  sponsor: https://2023.pycon.org.au/sponsor/#opportunities
   twitter: PyConAU
   mastodon: https://fosstodon.org/@pyconau
   sub: PY
@@ -207,55 +236,82 @@
     latitude: -34.9281805
     longitude: 138.5999312
 
-- title: DjangoCon US
+- title: EuroSciPy
   year: 2023
-  id: djangoCon2023
-  link: https://2023.djangocon.us
-  cfplink: https://2023.djangocon.us/speaking/
-  sponsor: https://2023.djangocon.us/sponsors/information/
-  cfp: '2023-05-15 18:00:00'
-  start: 2023-10-15
-  end: 2023-10-20
-  date: October 15 - 20, 2023
-  timezone: America/New_York
-  place: North Carolina, USA
-  twitter: djangoCon
-  sub: WEB
-  location:
-    latitude: 35.6729639
-    longitude: -79.0392919
-
-- title: euroSciPy
-  year: 2023
-  id: scipyEU23
   link: https://euroscipy.org/2023/
-  cfplink: https://euroscipy.org/2023/program.html
-  sponsor: https://euroscipy.org/2023/sponsoring.html
-  finaid: https://euroscipy.org/2023/finaid.html
+  cfp_link: https://euroscipy.org/2023/program.html
   cfp: '2023-05-14 23:59:59'
-  start: 2023-08-14
-  end: 2023-08-18
-  date: Aug 14 - 18, 2023
   timezone: Europe/Berlin
   place: Basel, Switzerland
+  date: Aug 14 - 18, 2023
+  start: 2023-08-14
+  end: 2023-08-18
+  sponsor: https://euroscipy.org/2023/sponsoring.html
+  finaid: https://euroscipy.org/2023/finaid.html
   twitter: euroSciPy
   sub: SCIPY
   location:
     latitude: 47.5581077
     longitude: 7.5878261
 
-- title: PyCon Latam
+- title: PyCon Korea
   year: 2023
-  id: pyConLatam23
-  link: https://www.pylatam.org
-  cfplink: https://www.papercall.io/pyconlatam23
-  sponsor: https://www.pylatam.org/patrocinios/informacion/
+  link: https://2023.pycon.kr/
+  cfp_link: https://2023.pycon.kr/cfp/apply
+  cfp: '2023-05-14 23:59:00'
+  timezone: Asia/Seoul
+  place: Seoul, South Korea
+  date: August 11 - 13, 2023
+  start: 2023-08-11
+  end: 2023-08-13
+  sponsor: https://2023.pycon.kr/sponsor/information
+  twitter: PyConKR
+  sub: PY
+  location:
+    latitude: 37.5666791
+    longitude: 126.9782914
+
+- title: DjangoCon Australia
+  year: 2023
+  link: https://2023.djangocon.com.au
+  cfp_link: https://2023.pycon.org.au/program
+  cfp: '2023-05-14 23:59:00'
+  timezone: Australia/Adelaide
+  place: Tarndanya (Adelaide), Australia
+  date: August 18th, 2023
+  start: 2023-08-18
+  end: 2023-08-18
+  sponsor: https://2023.pycon.org.au/sponsor
+  sub: WEB
+
+- title: PyCon Estonia
+  year: 2023
+  link: https://pycon.ee/
+  cfp_link: https://pyconestonia.typeform.com/to/hBOEtTQ3
+  cfp: '2023-05-09 23:59:59'
+  tutorial_deadline: '2023-05-09 23:59:00'
+  timezone: Europe/Tallinn
+  place: Tallinn, Estonia
+  date: September 07 - 08, 2023
+  start: 2023-09-07
+  end: 2023-09-08
+  twitter: PyConEstonia
+  sub: PY
+  location:
+    latitude: 59.4372155
+    longitude: 24.7453688
+
+- title: PyCon Latin America
+  year: 2023
+  link: https://pylatam.org
+  cfp_link: https://papercall.io/pyconlatam23
   cfp: '2023-05-07 23:59:00'
+  timezone: UTC
+  place: Monterrey, Mexico
+  date: August 24 - 26, 2023
   start: 2023-08-24
   end: 2023-08-26
-  date: August 24 - 26, 2023
-  place: Monterrey, Mexico
-  timezone: UTC
+  sponsor: https://pylatam.org/patrocinios/informacion/
   twitter: PyLatam
   sub: PY
   location:
@@ -264,104 +320,60 @@
 
 - title: PyCon Uganda
   year: 2023
-  id: pyConUganda23
   link: https://ug.pycon.org
-  cfplink: https://sessionize.com/pycon-uganda
+  cfp_link: https://ug.pycon.org/speakers
   cfp: '2023-05-05 23:59:00'
+  timezone: Africa/Kampala
+  place: Kampala, Uganda
+  date: September 21 - 23, 2023
   start: 2023-09-21
   end: 2023-09-23
-  date: September 21 - 23, 2023
-  place: Kampala, Uganda
-  timezone: Africa/Kampala
+  sponsor: https://ug.pycon.org/sponsors
   sub: PY
   location:
     latitude: 0.3177137
     longitude: 32.5813539
 
-- title: PyCon Estonia
-  year: 2023
-  id: pyconestonia23
-  link: https://pycon.ee/
-  cfplink: https://pyconestonia.typeform.com/to/hBOEtTQ3?typeform-source=pythondeadlin.es
-  cfp: '2023-04-21 23:59:59'
-  start: 2023-09-07
-  end: 2023-09-08
-  date: September 07 - 08, 2023
-  timezone: Europe/Tallinn
-  place: Tallinn, Estonia
-  twitter: PyConEstonia
-  sub: PY
-  location:
-    latitude: 59.4372155
-    longitude: 24.7453688
-
-- title: Kiwi PyCon
-  year: 2023
-  id: KiwiPycon23
-  link: https://kiwipycon.nz/
-  cfplink: https://pretalx.com/kiwi-pycon-xii-2023/cfp
-  sponsor: https://kiwipycon.nz/s/Kiwi-Pycon-XII-Sponsorship-Prospectus.pdf
-  finaid: https://kiwipycon.nz/financial-aid
-  cfp: '2023-04-14 23:59:00'
-  start: 2023-09-15
-  end: 2023-09-17
-  date: September 15 - 17, 2022
-  timezone: Pacific/Auckland
-  place: Waihopai Invercargill, Aotearoa New Zealand
-  twitter: KiwiPyCon
-  sub: PY
-  location:
-    latitude: -46.4099902
-    longitude: 168.3507773
-
-- title: PyCon Korea
-  year: 2023
-  id: pyconKR23
-  link: https://2023.pycon.kr/
-  cfplink: https://2023.pycon.kr/cfp/apply
-  sponsor: https://2023.pycon.kr/sponsor/information
-  cfp: '2023-04-09 23:59:00'
-  start: 2023-08-11
-  end: 2023-08-13
-  date: August 11 - 13, 2023
-  timezone: Asia/Seoul
-  place: Seoul, South Korea
-  twitter: PyConKR
-  sub: PY
-  location:
-    latitude: 37.5666791
-    longitude: 126.9782914
-
 - title: PyCon Taiwan
   year: 2023
-  id: pyconTW2023
-  link: https://tw.pycon.org/
-  cfplink: https://tw.pycon.org/2023/en-us/speaking/cfp
-  sponsor: https://tw.pycon.org/2023/en-us/sponsor
-  finaid: https://tw.pycon.org/2023/en-us/registration/financial-aid
+  link: https://tw.pycon.org/2023
   cfp: '2023-03-31 23:59:59'
+  place: Taipei, Taiwan
+  date: September 02 - 03, 2023
   start: 2023-09-02
   end: 2023-09-03
-  date: September 02 - 03, 2023
-  place: Taipei, Taiwan
+  sponsor: https://tw.pycon.org/2023/en-us/sponsor
+  finaid: https://tw.pycon.org/2023/en-us/registration/financial-aid
   twitter: PyConTW
   sub: PY
   location:
     latitude: 25.0375198
     longitude: 121.5636796
 
+- title: PyCon Colombia
+  year: 2023
+  link: https://2023.pycon.co/
+  cfp_link: https://2023.pycon.co/call-for-proposals
+  cfp: '2023-03-30 23:59:59'
+  timezone: America/Bogota
+  place: Online
+  date: June 09 - 11, 2023
+  start: 2023-06-09
+  end: 2023-06-11
+  finaid: https://2023.pycon.co/scholarship/
+  twitter: PyConColombia
+  sub: PY
+
 - title: PyDay La Paz
   year: 2023
-  id: pydayLaPaz23
   link: https://pyday.pylapaz.org/
-  cfplink: https://docs.google.com/forms/d/e/1FAIpQLSefroTwKVT1FX2qXZgKu6FlsmbFcaRx-Bdd2-Tz5wV3XmzNnQ/viewform
-  sponsor: https://forms.gle/7SoVfzBgwYfv1Qw59
   cfp: '2023-03-30 23:59:00'
-  start: 2023-06-03
-  end: 2023-06-03
-  date: 3 June, 2023
   timezone: America/La_Paz
   place: La Paz, Bolivia
+  date: 3 June, 2023
+  start: 2023-06-03
+  end: 2023-06-03
+  sponsor: https://forms.gle/7SoVfzBgwYfv1Qw59
   twitter: PyDayLaPaz
   sub: PY
   location:
@@ -370,72 +382,65 @@
 
 - title: PyCon Poland
   year: 2023
-  id: pyconPL23
   link: https://pl.pycon.org/2023
-  cfplink: https://pl.pycon.org/2023/en/call-for-proposals/
-  sponsor: https://pl.pycon.org/2023/sponsorship.pdf
-  finaid: https://pl.pycon.org/2023/en/financial-aid/
   cfp: '2023-03-27 23:59:00'
-  start: 2023-06-29
-  end: 2023-07-02
-  date: June 29 - July 2, 2023
   timezone: Europe/Warsaw
   place: Gliwice, Poland
+  date: June 29 - July 2, 2023
+  start: 2023-06-29
+  end: 2023-07-02
+  sponsor: https://pl.pycon.org/2023/sponsorship.pdf
+  finaid: https://pl.pycon.org/2023/en/financial-aid/
   twitter: PyConPL
   sub: PY
   location:
     latitude: 50.294113
     longitude: 18.6657306
 
-- title: PyCon Israel
-  year: 2023
-  id: pyconisrael2023
-  link: https://2023.pycon.org.il/
-  cfplink: https://cfp.pycon.org.il/conference2023/cfp
-  sponsor: https://2023.pycon.org.il/#sponsorship
-  cfp: '2023-03-26 23:59:59'
-  start: 2023-07-04
-  end: 2023-07-05
-  date: July 04 - 05, 2023
-  timezone: Asia/Jerusalem
-  place: Israel
-  twitter: PyConIL
-  sub: PY
-  location:
-    latitude: 30.8124247
-    longitude: 34.8594762
-
 - title: EuroPython
   year: 2023
-  id: europython2023
   link: https://ep2023.europython.eu/
-  cfplink: https://ep2023.europython.eu/cfp
-  sponsor: https://drive.google.com/file/d/15f6HGVUjgx2OKaLoCaIa6uNG3W0xLOm6/view
-  finaid: https://ep2023.europython.eu/finaid
-  cfp: '2023-03-19 23:59:00'
+  cfp_link: https://ep2023.europython.eu/cfp
+  cfp: '2023-03-26 23:59:00'
+  place: Prague, Czech Republic
+  date: July 17 - 23, 2023
   start: 2023-07-17
   end: 2023-07-23
-  date: July 17 - 23, 2023
-  place: Prague, Czech Republic
+  sponsor: https://drive.google.com/file/d/15f6HGVUjgx2OKaLoCaIa6uNG3W0xLOm6/view
+  finaid: https://ep2023.europython.eu/finaid
   twitter: EuroPython
   sub: PY
   location:
     latitude: 50.0874654
     longitude: 14.4212535
 
+- title: PyCon Israel
+  year: 2023
+  link: https://2023.pycon.org.il/
+  cfp: '2023-03-26 23:59:59'
+  timezone: Asia/Jerusalem
+  place: Israel
+  date: July 04 - 05, 2023
+  start: 2023-07-04
+  end: 2023-07-05
+  sponsor: https://2023.pycon.org.il/#sponsorship
+  twitter: PyConIL
+  sub: PY
+  location:
+    latitude: 30.8124247
+    longitude: 34.8594762
+
 - title: PyCon Lithuania
   year: 2023
-  id: pyconlt2023
-  link: http://pycon.lt/
-  cfplink: https://pretalx.com/pycon-lt-2023/cfp
-  sponsor: https://drive.google.com/file/d/1wznoPlxfrdHd_jI7ZqP3vRKMHSaRJatm/view?usp=sharing
-  finaid: https://forms.gle/hbsYbiboLEXLGU8XA
+  link: https://pycon.lt/2023
   cfp: '2023-03-18 00:00:00'
-  start: 2023-05-17
-  end: 2023-05-20
-  date: May 17 - 20, 2023
   timezone: Europe/Vilnius
   place: Vilnius, Lithuania
+  date: May 17 - 20, 2023
+  start: 2023-05-17
+  end: 2023-05-20
+  sponsor: https://drive.google.com/file/d/1wznoPlxfrdHd_jI7ZqP3vRKMHSaRJatm/view?usp=sharing
+  finaid: https://forms.gle/hbsYbiboLEXLGU8XA
   twitter: PyConLT
   sub: PY
   location:
@@ -444,50 +449,32 @@
 
 - title: PyData London
   year: 2023
-  id: pydataLondon23
   link: https://pydata.org/london2023/
-  cfplink: https://pydata.org/london2023/call-for-proposals
-  sponsor: https://pydata.org/wp-content/uploads/2023/01/PyData-2023-Sponsorship-Prospectus.pdf
   cfp: '2023-03-13 23:59:00'
-  start: 2023-06-02
-  end: 2023-06-04
-  date: June 2 - 4, 2023
   timezone: Europe/London
   place: London, UK
+  date: June 2 - 4, 2023
+  start: 2023-06-02
+  end: 2023-06-04
+  sponsor: https://pydata.org/wp-content/uploads/2023/01/PyData-2023-Sponsorship-Prospectus.pdf
   twitter: PyDataLondon
   sub: PYDATA
   location:
     latitude: 51.5073359
     longitude: -0.12765
 
-- title: PyCon Colombia
+- title: SciPy
   year: 2023
-  id: pyconcolombia2023
-  link: https://2023.pycon.co/
-  cfplink: https://docs.google.com/forms/d/19-ujqnFIfEuCjh8SdB4uGjtK8f2Nc9Qmg09Y3DJf2E8/viewform?edit_requested=true
-  finaid: https://2023.pycon.co/scholarship/
-  cfp: '2023-03-03 23:59:59'
-  start: 2023-06-09
-  end: 2023-06-11
-  date: June 09 - 11, 2023
-  timezone: America/Bogota
-  place: Online
-  twitter: PyConColombia
-  sub: PY
-
-- title: SciPy US
-  year: 2023
-  id: scipyUS23
-  link: https://www.scipy2023.scipy.org
-  cfplink: https://www.scipy2023.scipy.org/present
-  sponsor: https://pydata.org/wp-content/uploads/2023/02/SciPy-2023-Prospectus.pdf
-  finaid: https://www.scipy2023.scipy.org/financial-aid
+  link: https://scipy2023.scipy.org
+  cfp_link: https://scipy2023.scipy.org/present
   cfp: '2023-03-01 23:59:00'
+  timezone: America/Chicago
+  place: Austin, Texas, USA
+  date: July 10 - 16, 2023
   start: 2023-07-10
   end: 2023-07-16
-  date: July 10 - 16, 2023
-  timezone: America/Chicago
-  place: Austin, Texas, United States
+  sponsor: https://pydata.org/wp-content/uploads/2023/02/SciPy-2023-Prospectus.pdf
+  finaid: https://www.scipy2023.scipy.org/financial-aid
   twitter: SciPyConf
   sub: SCIPY
   location:
@@ -496,16 +483,16 @@
 
 - title: DjangoCon Europe
   year: 2023
-  id: djangoEU23
   link: https://2023.djangocon.eu/
-  cfplink: https://pretalx.com/djangocon-europe-2023/cfp
-  sponsor: https://2023.djangocon.eu/sponsors/information/
-  finaid: https://2023.djangocon.eu/opportunity-grants/
+  cfp_link: https://2023.djangocon.eu/call-for-proposals
   cfp: '2023-02-27 23:59:59'
+  tutorial_deadline: '2023-02-27 23:59:00'
+  place: Edinburgh, Scotland, UK
+  date: May 29 - June 02, 2023
   start: 2023-05-29
   end: 2023-06-02
-  date: May 29 - June 02, 2023
-  place: Edinburgh, Scotland
+  sponsor: https://2023.djangocon.eu/sponsors/information/
+  finaid: https://2023.djangocon.eu/opportunity-grants/
   twitter: DjangoConEurope
   sub: WEB
   location:
@@ -514,17 +501,15 @@
 
 - title: PyData Seattle
   year: 2023
-  id: pydataSeattle23
   link: https://pydata.org/seattle2023/
-  cfplink: https://seattle2023.pydata.org/cfp/cfp
-  sponsor: https://pydata.org/seattle2023/wp-content/uploads/2022/12/PyData-2023-Sponsorship-Prospectus.pdf
-  finaid: https://pydata.org/seattle2023/#diversity-scholars
   cfp: '2023-02-06 23:59:00'
-  start: 2023-04-26
-  end: 2023-04-28
-  date: April 26 - 28, 2023
   timezone: America/Los_Angeles
   place: Seattle, USA
+  date: April 26 - 28, 2023
+  start: 2023-04-26
+  end: 2023-04-28
+  sponsor: https://pydata.org/seattle2023/wp-content/uploads/2022/12/PyData-2023-Sponsorship-Prospectus.pdf
+  finaid: https://pydata.org/seattle2023/#diversity-scholars
   twitter: PyDataSeattle
   sub: PYDATA
   location:
@@ -533,15 +518,16 @@
 
 - title: PyCon Italia
   year: 2023
-  id: pyconitaly23
   link: https://pycon.it/en
-  sponsor: https://pycon.it/en/sponsor
-  finaid: https://pycon.it/en/grants-info
+  cfp_link: https://pycon.it/cfp
   cfp: '2023-01-16 13:59:00'
+  tutorial_deadline: '2023-01-15 23:59:00'
+  place: Florence, Italy
+  date: May 25 - 28, 2023
   start: 2023-05-25
   end: 2023-05-28
-  date: May 25 - 28, 2023
-  place: Florence, Italy
+  sponsor: https://pycon.it/en/sponsor
+  finaid: https://pycon.it/en/grants-info
   twitter: PyConIT
   mastodon: https://social.python.it/@pycon
   sub: PY
@@ -549,18 +535,19 @@
     latitude: 43.7698712
     longitude: 11.2555757
 
-- title: PyCon DE & PyData Berlin
+- title: PyCon Germany & PyData Berlin
   year: 2023
-  id: pyconde2023
   link: https://2023.pycon.de/
-  sponsor: https://drive.google.com/file/d/1_8zqb6ORNTRfNJWaXBmKA03ow06IN4_l/view?usp=sharing
-  finaid: https://2023.pycon.de/financial-aid/
+  cfp_link: https://2023.pycon.de/blog/call-for-proposals
   cfp: '2023-01-05 23:59:59'
-  start: 2023-04-17
-  end: 2023-04-19
-  date: April 17 - 19, 2023
+  tutorial_deadline: '2023-01-05 23:59:00'
   timezone: Europe/Berlin
   place: Berlin, Germany
+  date: April 17 - 19, 2023
+  start: 2023-04-17
+  end: 2023-04-19
+  sponsor: https://drive.google.com/file/d/1_8zqb6ORNTRfNJWaXBmKA03ow06IN4_l/view?usp=sharing
+  finaid: https://2023.pycon.de/financial-aid/
   twitter: PyConDE
   sub: PY,PYDATA
   location:
@@ -569,15 +556,14 @@
 
 - title: JupyterCon
   year: 2023
-  id: jupytercon2023
-  link: https://www.jupytercon.com/
-  sponsor: https://www.jupytercon.com/s/JupyterCon-2023-Prospectus-v3.pdf
-  finaid: https://www.jupytercon.com/scholarships
+  link: https://jupytercon.com/
   cfp: '2022-12-20 23:59:00'
+  place: Paris, France
+  date: May 10 - 12, 2023
   start: 2023-05-10
   end: 2023-05-12
-  date: May 10 - 12, 2023
-  place: Paris, France
+  sponsor: https://jupytercon.com/s/JupyterCon-2023-Prospectus-v3.pdf
+  finaid: https://www.jupytercon.com/scholarships
   twitter: jupyterCon
   sub: PY
   location:
@@ -586,13 +572,15 @@
 
 - title: PyCon US
   year: 2023
-  id: pyconus23
   link: https://us.pycon.org/2023/
-  cfp: '2022-12-09 23:59:59'
-  start: 2023-04-19
-  end: 2023-04-28
-  date: April 19 - 28, 2023
+  cfp_link: https://us.pycon.org/2023/speaking/guidelines
+  cfp: '2022-12-11 23:59:59'
+  tutorial_deadline: '2022-12-11 23:59:00'
   place: Salt Lake City, Utah, USA
+  date: April 19 - 28, 2023
+  start: 2023-04-19
+  end: 2023-04-27
+  sponsor: https://us.pycon.org/2023/sponsorship/why-sponsor
   twitter: pycon
   mastodon: https://fosstodon.org/@pycon
   sub: PY
@@ -600,101 +588,186 @@
     latitude: 40.7596198
     longitude: -111.886797
 
-- title: PyData Tel Aviv
+- title: AfroPython Conf
   year: 2023
-  id: pydataTelAviv23
-  link: https://pydata.org/telaviv2023/
-  cfplink: https://pydata.org/telaviv2023/cfp
-  sponsor: https://pydata.org/telaviv2023/sponsor
-  cfp: TBA
-  start: 2023-11-14
-  end: 2023-11-14
-  date: November 14th, 2023
-  timezone: Asia/Jerusalem
-  place: Tel Aviv, Israel
-  twitter: PyDataTLV
-  sub: PYDATA
-  location:
-    latitude: 32.0852997
-    longitude: 34.7818064
-
-- title: PyCon UK
-  year: 2023
-  id: pyconUK23
-  link: https://2023.pyconuk.org/
-  sponsor: https://2023.pyconuk.org/sponsorship/
-  cfp: TBA
-  start: 2023-09-22
-  end: 2023-09-25
-  date: September 22 - 25, 2023
-  timezone: Europe/London
-  place: Cardiff, United Kingdom
-  twitter: PyConUK
-  sub: PY
-  location:
-    latitude: 51.4816546
-    longitude: -3.1791934
-
-- title: PyCon Brasil
-  year: 2023
-  id: pyconBR23
-  link: https://2023.pythonbrasil.org.br/
-  sponsor: https://2023.pythonbrasil.org.br/PYBr-2023-Sponsorship-Plan.pdf
-  cfp: TBA
-  start: 2023-10-30
-  end: 2023-11-05
-  date: October 30 - November 05, 2023
-  timezone: America/Manaus
-  place: Caxias do Sul, Brasil
-  twitter: PyConBrasil
-  sub: PY
-  location:
-    latitude: -29.1684951
-    longitude: -51.1796197
-
-- title: PyCon India
-  year: 2023
-  id: pyconIndia23
-  link: https://in.pycon.org/2023/
-  cfp: TBA
-  start: 2023-09-29
-  end: 2023-10-02
-  date: 29 September - 2 October, 2023
-  timezone: Asia/Kolkata
-  place: Hyderabad, India
-  twitter: PyConIndia
-  sub: PY
-  location:
-    latitude: 17.360589
-    longitude: 78.4740613
-
-- title: Afro Python
-  year: 2023
-  id: afroPython23
   link: https://afropython.org/conf2023/
-  sponsor: https://docs.google.com/forms/d/e/1FAIpQLSclMmFsjw5qcJaFwCC-z7zhN0Uaf8t4zF74qL_KKsBjh-y-aA/viewform
   cfp: TBA
+  timezone: America/Bahia
+  place: Salvador, Brazil
+  date: July 22, 2023
   start: 2023-07-22
   end: 2023-07-22
-  date: July 22, 2023
-  timezone: America/Bahia
-  place: Salvador, Brasil
+  sponsor: https://docs.google.com/forms/d/e/1FAIpQLSclMmFsjw5qcJaFwCC-z7zhN0Uaf8t4zF74qL_KKsBjh-y-aA/viewform
   twitter: AfroPython
   sub: PY
   location:
     latitude: -12.9822499
     longitude: -38.4812772
 
+- title: DjangoCon Africa
+  year: 2023
+  link: https://2023.djangocon.africa/
+  cfp_link: https://2023.djangocon.africa/talks
+  cfp: TBA
+  timezone: Africa/Dar_es_Salaam
+  place: Zanzibar, Tanzania
+  date: November 06 - 11, 2023
+  start: 2023-11-06
+  end: 2023-11-11
+  sponsor: https://2023.djangocon.africa/sponsor-us/
+  twitter: djcafrica
+  sub: WEB
+  location:
+    latitude: -6.09994425
+    longitude: 39.32094431715264
+
+- title: Moscow Python Conf++
+  year: 2023
+  link: https://conf.python.ru/moscow/2023
+  cfp: TBA
+  timezone: Europe/Moscow
+  place: Moscow, Central Federal District, Russia
+  date: May 19 - 20, 2023
+  start: 2023-05-19
+  end: 2023-05-20
+  sub: PY
+  location:
+    latitude: 55.7504461
+    longitude: 37.6174943
+
+- title: PyCamp Leipzig
+  year: 2023
+  link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023
+  cfp: TBA
+  timezone: Europe/Berlin
+  place: Leipzig, Saxony, Germany
+  date: July 29 - 30, 2023
+  start: 2023-07-29
+  end: 2023-07-30
+  sub: PY
+  location:
+    latitude: 51.3406321
+    longitude: 12.3747329
+
+- title: PyCon Czech Republic
+  year: 2023
+  link: https://cz.pycon.org/2023
+  cfp: TBA
+  timezone: Europe/Prague
+  place: Prague, Bohemia, Czech Republic
+  date: September 15 - 17, 2023
+  start: 2023-09-15
+  end: 2023-09-17
+  sponsor: https://cz.pycon.org/2023/pycon-cz-sponsorship-prospectus-2023.pdf
+  sub: PY
+  location:
+    latitude: 50.0596288
+    longitude: 14.446459273258009
+
+- title: PyCon India
+  year: 2023
+  link: https://in.pycon.org/2023/
+  cfp: TBA
+  timezone: Asia/Kolkata
+  place: Hyderabad, India
+  date: 29 September - 2 October, 2023
+  start: 2023-09-29
+  end: 2023-10-02
+  twitter: PyConIndia
+  sub: PY
+  location:
+    latitude: 17.360589
+    longitude: 78.4740613
+
+- title: PyCon Russia
+  year: 2023
+  link: https://pycon.ru
+  cfp_link: https://pycon.ru/cfp
+  cfp: TBA
+  timezone: Europe/Moscow
+  place: Moscow, Central Federal District, Russia
+  date: July 28 - 29, 2023
+  start: 2023-07-28
+  end: 2023-07-29
+  sponsor: https://pycon.ru/partneram
+  sub: PY
+  location:
+    latitude: 55.7504461
+    longitude: 37.6174943
+
+- title: PyCon UK
+  year: 2023
+  link: https://2023.pyconuk.org/
+  cfp: TBA
+  timezone: Europe/London
+  place: Cardiff, UK
+  date: September 22 - 25, 2023
+  start: 2023-09-22
+  end: 2023-09-25
+  sponsor: https://2023.pyconuk.org/sponsorship/
+  twitter: PyConUK
+  sub: PY
+  location:
+    latitude: 51.4816546
+    longitude: -3.1791934
+
+- title: PyData Tel Aviv
+  year: 2023
+  link: https://pydata.org/telaviv2023/
+  cfp_link: https://pydata.org/telaviv2023/cfp
+  cfp: TBA
+  timezone: Asia/Jerusalem
+  place: Tel Aviv, Israel
+  date: November 14th, 2023
+  start: 2023-11-14
+  end: 2023-11-14
+  sponsor: https://pydata.org/telaviv2023/sponsor
+  twitter: PyDataTLV
+  sub: PYDATA
+  location:
+    latitude: 32.0852997
+    longitude: 34.7818064
+
+- title: Python Brasil
+  year: 2023
+  link: https://2023.pythonbrasil.org.br/
+  cfp: TBA
+  timezone: America/Manaus
+  place: "Serra Ga\xFAcha, Rio Grande do Sul, Brazil"
+  date: October 30 - November 05, 2023
+  start: 2023-10-30
+  end: 2023-11-05
+  sponsor: https://2023.pythonbrasil.org.br/PYBr-2023-Sponsorship-Plan.pdf
+  twitter: PyConBrasil
+  sub: PY
+  location:
+    latitude: -29.1684951
+    longitude: -51.1796197
+
+- title: PyCon Slovakia
+  year: 2024
+  link: https://2024.pycon.sk/
+  cfp: TBA
+  timezone: Europe/Bratislava
+  place: Bratislava, Slovakia
+  date: March 15 - 17, 2024
+  start: 2024-03-15
+  end: 2024-03-17
+  twitter: pyconsk
+  sub: PY
+  location:
+    latitude: 48.1516988
+    longitude: 17.1093063
+
 - title: PyCon US
   year: 2024
-  id: pyconUS24
   link: https://us.pycon.org/2024/
   cfp: TBA
+  timezone: America/New_York
+  place: Pittsburgh, PA, USA
+  date: May 15 - 23, 2024
   start: 2024-05-15
   end: 2024-05-23
-  date: May 15 - 23, 2024
-  place: Pittsburgh, PA, USA
-  timezone: America/New_York
   twitter: pycon
   mastodon: https://fosstodon.org/@pycon
   sub: PY
@@ -702,35 +775,15 @@
     latitude: 40.4416941
     longitude: -79.9900861
 
-- title: DjangoCon Africa
-  year: 2023
-  id: djangoConAfrica23
-  link: https://2023.djangocon.africa/
-  sponsor: https://2023.djangocon.africa/sponsor-us/
-  cfp: TBA
-  start: 2023-11-06
-  end: 2023-11-11
-  date: November 06 - 11, 2023
-  timezone: Africa/Dar_es_Salaam
-  place: Zanzibar, Tanzania
-  twitter: djcafrica
-  sub: WEB
-  location:
-    latitude: -6.09994425
-    longitude: 39.32094431715264
-
-- title: PyCon Slovakia
+- title: PyTexas
   year: 2024
-  id: pyconsk2024
-  link: https://2024.pycon.sk/
+  link: https://pytexas.org
   cfp: TBA
-  start: 2024-03-15
-  end: 2024-03-17
-  date: March 15 - 17, 2024
-  timezone: Europe/Bratislava
-  place: Bratislava, Slovakia
-  twitter: pyconsk
+  place: Austin, Texas, USA
+  date: April 20 - 21, 2024
+  start: 2024-04-20
+  end: 2024-04-21
   sub: PY
   location:
-    latitude: 48.1516988
-    longitude: 17.1093063
+    latitude: 30.2711286
+    longitude: -97.7436995

@@ -25,9 +25,8 @@ If that is not possible you can try and submit your conference through this [Goo
 ```yaml
 - title: BestConf                          # Title of conference without year
   year: 2022                               # Year
-  id: bestconf22                           # title as lower case + last two digits of year
   link: link-to-website.com                # URL to conference
-  cfplink: link-to-cfp.com                 # URL to call for proposals (Optional)
+  cfp_link: link-to-cfp.com                 # URL to call for proposals (Optional)
   cfp: 'YYYY-MM-DD HH:mm:ss'               # Deadline for Call for Participation / Proposals
   workshop_deadline: 'YYYY-MM-DD HH:mm:ss' # Workshop deadline if different from cfp (Optional)
   tutorial_deadline: 'YYYY-MM-DD HH:mm:ss' # Tutorial deadline if different from cfp (Optional)
@@ -53,9 +52,8 @@ If that is not possible you can try and submit your conference through this [Goo
 | ----------- | ------------------------------------------------- | ------- | -------- |
 | `title`     | Title of the conference                           | `str`   | ✔       |
 | `year`      | Year of this conference                           | `int`   | ✔       |
-| `id`        | title lower case + year                           | `str`   | ✔       |
 | `link`      | URL to conference                                 | `str`   | ✔       |
-| `cfplink`   | URL to call for proposals                         | `str`   |          |
+| `cfp_link`   | URL to call for proposals                         | `str`   |          |
 | `cfp`       | Deadline for Call for Participation / Proposals   | `str`   | ✔       |
 | `workshop_deadline` | Workshop deadline if different from cfp   | `str`   |          |
 | `tutorial_deadline` | Tutorial deadline if different from cfp   | `str`   |          |

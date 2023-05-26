@@ -84,8 +84,8 @@ function load_conference_list() {
   {% for conf in site.data.conferences + site.data.archive %}
     // add deadlines in red
     conf_list_all.push({
-      id: "{{conf.id}}-deadline",
-      abbreviation: "{{conf.id}}",
+      id: "{{conf.title | slugify}}-{{conf.year}}-deadline",
+      abbreviation: "{{conf.title | slugify}}-{{conf.year}}",
       name: "{{conf.title}} {{conf.year}} CfP",
       color: "red",
       location: "{{conf.place}}",
@@ -96,8 +96,8 @@ function load_conference_list() {
     });
     {% if conf.workshop_deadline %}
     conf_list_all.push({
-      id: "{{conf.id}}-deadline",
-      abbreviation: "{{conf.id}}",
+      id: "{{conf.title | slugify}}-{{conf.year}}-deadline",
+      abbreviation: "{{conf.title | slugify}}-{{conf.year}}",
       name: "{{conf.title}} {{conf.year}} Workshop Deadline",
       color: "red",
       location: "{{conf.place}}",
@@ -109,8 +109,8 @@ function load_conference_list() {
     {% endif %}
     {% if conf.tutorial_deadline %}
     conf_list_all.push({
-      id: "{{conf.id}}-deadline",
-      abbreviation: "{{conf.id}}",
+      id: "{{conf.title | slugify}}-{{conf.year}}-deadline",
+      abbreviation: "{{conf.title | slugify}}-{{conf.year}}",
       name: "{{conf.title}} {{conf.year}} Tutorial Deadline",
       color: "red",
       location: "{{conf.place}}",
@@ -131,8 +131,8 @@ function load_conference_list() {
             {% endif %}
       {% endfor %}
       conf_list_all.push({
-        id: "{{conf.id}}-conference",
-        abbreviation: "{{conf.id}}",
+        id: "{{conf.title | slugify}}-{{conf.year}}-conference",
+        abbreviation: "{{conf.title | slugify}}-{{conf.year}}",
         name: "{{conf.title}} {{conf.year}}",
         color: color,
         location: "{{conf.place}}",

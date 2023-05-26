@@ -1,15 +1,48 @@
 ---
 
+- title: PyCon Namibia
+  year: 2023
+  link: https://na.pycon.org
+  cfp_link: https://pretalx.com/pycon-namibia-2022/cfp
+  cfp: '2023-01-22 23:59:59'
+  tutorial_deadline: '2023-01-22'
+  timezone: Africa/Windhoek
+  place: Windhoek, Namibia
+  date: February 21 - 23, 2023
+  start: 2023-02-21
+  end: 2023-02-23
+  sponsor: https://na.pycon.org/sponsorship
+  twitter: PyConNA
+  sub: PY
+  location:
+    latitude: -22.5776104
+    longitude: 17.0772739
+
+- title: PyTexas
+  year: 2023
+  link: https://pytexas.org
+  cfp_link: https://pretalx.com/pytexas-2023
+  cfp: '2023-01-15 23:59:00'
+  place: Austin, Texas, USA
+  start: 2023-04-01
+  end: 2023-04-02
+  sponsor: https://pytexas.org/sponsors/prospectus
+  sub: PY
+  location:
+    latitude: 30.2711286
+    longitude: -97.7436995
+
 - title: PyCon France
   year: 2023
-  id: pyconFrance23
-  link: https://www.pycon.fr/2023/
+  link: https://pycon.fr/2023/
+  cfp_link: https://cfp-2023.pycon.fr/cfp
   cfp: '2023-01-07 23:59:59'
+  timezone: Europe/Paris
+  place: Bordeaux, France
+  date: February 16 - 19, 2023
   start: 2023-02-16
   end: 2023-02-19
-  date: February 16 - 19, 2023
-  place: Bordeaux, France
-  timezone: Europe/Paris
+  sponsor: https://pycon.fr/2023/fr/support.html
   twitter: PyConFR
   mastodon: https://mamot.fr/@AFPy
   sub: PY
@@ -17,32 +50,15 @@
     latitude: 44.841225
     longitude: -0.5800364
 
-- title: PyCon Namibia
-  year: 2023
-  id: pyconnamibia23
-  link: https://na.pycon.org
-  cfp: '2023-01-06 23:59:59'
-  start: 2023-02-21
-  end: 2023-02-23
-  date: February 21 - 23, 2023
-  place: Windhoek, Namibia
-  timezone: Africa/Windhoek
-  twitter: PyConNA
-  sub: PY
-  location:
-    latitude: -22.5776104
-    longitude: 17.0772739
-
 - title: PyCon Philippines
   year: 2023
-  id: pyconphilippines2023
-  link: https://pycon.python.ph/
+  link: https://pycon-2023.python.ph
   cfp: '2022-12-23 23:59:00'
-  start: 2023-02-25
-  end: 2023-02-26
-  date: February 25 - 26, 2022
   timezone: Asia/Manila
   place: Manila, Philippines
+  date: February 25 - 26, 2022
+  start: 2023-02-25
+  end: 2023-02-26
   twitter: PyConPH
   sub: PY
   location:
@@ -51,29 +67,43 @@
 
 - title: GeoPython
   year: 2023
-  id: geopython2023
   link: https://2023.geopython.net/
+  cfp_link: https://submit.geopython.net/geopython-2023/cfp
   cfp: '2022-12-16 12:00:00'
+  place: Basel, Switzerland
+  date: March 06 - 08, 2023
   start: 2023-03-06
   end: 2023-03-08
-  date: March 06 - 08, 2023
-  place: Basel, Switzerland
   twitter: GeoPythonConf
   sub: PY
   location:
     latitude: 47.6081077
     longitude: 7.6378261
 
+- title: FOSDEM
+  year: 2023
+  link: https://fosdem.org/2023
+  cfp_link: https://fosdem.org/submit
+  cfp: '2022-12-15 23:59:00'
+  place: Brussels, Brussels, Belgium
+  start: 2023-02-04
+  end: 2023-02-05
+  sponsor: https://fosdem.org/2023/about/sponsors
+  sub: PY
+  location:
+    latitude: 50.8465573
+    longitude: 4.351697
+
 - title: PyCascades
   year: 2023
-  id: pycascades23
   link: https://2023.pycascades.com/
   cfp: '2022-11-16 23:59:59'
+  timezone: America/Vancouver
+  place: Vancouver, Canada
+  date: March 18 - 19, 2023
   start: 2023-03-18
   end: 2023-03-19
-  date: March 18 - 19, 2023
-  place: Vancouver, Canada
-  timezone: America/Vancouver
+  sponsor: https://2023.pycascades.com/sponsors/become-a-sponsor
   twitter: pyCascades
   mastodon: https://fosstodon.org/@pycascades
   sub: PY
@@ -81,52 +111,21 @@
     latitude: 49.2608724
     longitude: -123.113952
 
-- title: Pydata Eindhoven
-  year: 2022
-  id: pydataEindhoven22
-  link: https://pydata.org/eindhoven2022/
-  cfp: '2022-11-02 23:59:00'
-  start: 2022-12-02
-  end: 2022-12-02
-  date: December 2, 2022
-  timezone: Europe/Amsterdam
-  place: Eindhoven, Netherlands
-  sub: PYDATA
-  location:
-    latitude: 51.44855695
-    longitude: 5.450122521857143
 
-- title: PyCon Bolivia
-  year: 2022
-  id: pyconbolivia22
-  link: https://pycon.pybol.org/
-  cfp: '2022-10-31 23:59:00'
-  start: 2022-12-09
-  end: 2022-12-10
-  date: December 9 - 10, 2022
-  place: Cochabamba, Bolivia
-  timezone: America/La_Paz
-  sub: PY
-  location:
-    latitude: -17.401245799999998
-    longitude: -66.16756808852
-
-- title: Python Web Conference
+- title: Python Web Conf
   year: 2023
-  id: pythonwebconference2023
-  link: https://pythonwebconference.com/
+  link: https://2023.pythonwebconf.com/
   cfp: '2022-10-01 23:00:00'
-  start: 2023-03-13
-  end: 2023-03-17
-  date: March 13 - 17, 2023
   timezone: UTC+0
   place: Online
+  date: March 13 - 17, 2023
+  start: 2023-03-13
+  end: 2023-03-17
   twitter: PythonWebConf
   sub: WEB
 
 - title: Pyjamas Conf
   year: 2022
-  id: pyjamasconf22
   link: https://pyjamas.live
   cfp: '2022-09-19 23:59:00'
   start: 2022-11-26
@@ -139,7 +138,6 @@
 
 - title: Pydata Global
   year: 2022
-  id: pydataGlobal22
   link: https://pydata.org/global2022/
   cfp: '2022-09-12 23:59:00'
   start: 2022-12-01
@@ -151,7 +149,6 @@
 
 - title: PyData Tel Aviv
   year: 2022
-  id: pydataTelAviv22
   link: https://pydata.org/telaviv2022/
   cfp: '2022-09-12 23:59:00'
   start: 2022-12-13
@@ -166,7 +163,6 @@
 
 - title: PyCon Sweden
   year: 2022
-  id: pyconsweden22
   link: http://www.pycon.se
   cfp: '2022-09-11 23:59:59'
   start: 2022-11-03
@@ -181,7 +177,6 @@
 
 - title: PyCon Ireland
   year: 2022
-  id: pyconIE22
   link: https://python.ie/pycon-2022/
   cfp: '2022-08-29 23:59:00'
   start: 2022-11-12
@@ -196,7 +191,6 @@
 
 - title: Pydata NYC
   year: 2022
-  id: pydataNYC22
   link: https://pydata.org/nyc2022/
   cfp: '2022-08-24 23:59:00'
   start: 2022-11-09
@@ -211,7 +205,6 @@
 
 - title: PyCon ZA
   year: 2022
-  id: pyconZA22
   link: https://za.pycon.org/
   cfp: '2022-08-19 23:59:00'
   start: 2022-10-13
@@ -225,7 +218,6 @@
 
 - title: PyCon Poland
   year: 2022
-  id: pyconPL22
   link: https://pl.pycon.org/2022
   cfp: '2022-08-13 23:59:00'
   start: 2022-11-03
@@ -240,7 +232,6 @@
 
 - title: Pydata Miami
   year: 2022
-  id: pydataMiami22
   link: https://pydata.org/miami2022/
   cfp: '2022-08-08 23:59:00'
   start: 2022-09-22
@@ -255,7 +246,6 @@
 
 - title: PyCon Ghana
   year: 2022
-  id: pyconGhana22
   link: http://gh.pycon.org/
   cfp: '2022-08-08 23:59:00'
   start: 2022-10-13
@@ -270,7 +260,6 @@
 
 - title: Python at Scale
   year: 2022
-  id: pythonatscale22
   link: https://www.pythonatscale.com/
   cfp: '2022-08-01 23:59:59'
   start: 2022-10-27
@@ -282,7 +271,6 @@
 
 - title: SciPy Latin America
   year: 2022
-  id: scipyLatAm22
   link: https://pythoncientifico.ar/
   cfp: '2022-07-31 23:59:00'
   start: 2022-09-26
@@ -297,7 +285,6 @@
 
 - title: PyCon Korea
   year: 2022
-  id: pyconKR22
   link: https://2022.pycon.kr/
   cfp: '2022-07-14 23:59:00'
   start: 2022-10-01
@@ -312,7 +299,6 @@
 
 - title: PyCon Brasil
   year: 2022
-  id: pyconBR22
   link: https://2022.pythonbrasil.org.br/
   cfp: '2022-07-03 23:59:00'
   start: 2022-10-17
@@ -327,7 +313,6 @@
 
 - title: PyCon UK
   year: 2022
-  id: pyconUK22
   link: https://2022.pyconuk.org/
   cfp: '2022-07-02 16:59:59'
   start: 2022-09-16
@@ -342,7 +327,6 @@
 
 - title: PyCon Portugal
   year: 2022
-  id: pyconportugal2022
   link: https://2022.pycon.pt/
   cfp: '2022-06-30 23:59:00'
   start: 2022-09-24
@@ -357,7 +341,6 @@
 
 - title: PyCon Slovakia
   year: 2022
-  id: pyconsk2022
   link: https://2022.pycon.sk/en/
   cfp: '2022-06-30 23:59:59'
   start: 2022-09-09
@@ -372,7 +355,6 @@
 
 - title: Pydata Yerevan
   year: 2022
-  id: pydataYerevan22
   link: https://pydata.org/yerevan2022
   cfp: '2022-06-30 23:59:00'
   start: 2022-08-12
@@ -387,7 +369,6 @@
 
 - title: PyBay
   year: 2022
-  id: pybay22
   link: https://pybay.com/
   cfp: '2022-06-29 23:59:00'
   start: 2022-09-10
@@ -402,7 +383,6 @@
 
 - title: euroSciPy
   year: 2022
-  id: scipyEU22
   link: https://euroscipy.org/2022/
   cfp: '2022-06-13 23:59:59'
   start: 2022-08-29
@@ -417,7 +397,6 @@
 
 - title: PyCon Japan
   year: 2022
-  id: pyconjp2022
   link: https://2022.pycon.jp/
   cfp: '2022-06-12 23:59:59'
   start: 2022-10-14
@@ -431,7 +410,6 @@
 
 - title: DjangoCon US
   year: 2022
-  id: djangoCon2022
   link: https://2022.djangocon.us
   cfp: '2022-06-11 07:31:00'
   start: 2022-10-16
@@ -446,7 +424,6 @@
 
 - title: DjangoCon Europe
   year: 2022
-  id: djangoEU22
   link: https://2022.djangocon.eu/
   cfp: '2022-05-31 23:59:00'
   start: 2022-12-12
@@ -461,7 +438,6 @@
 
 - title: PyConEs
   year: 2022
-  id: pycones22
   link: https://2022.es.pycon.org/
   cfp: '2022-05-31 23:59:59'
   start: 2022-09-30
@@ -476,7 +452,6 @@
 
 - title: PyCon LT
   year: 2022
-  id: pyconlt2022
   link: http://pycon.lt/
   cfp: '2022-05-07 23:59:00'
   start: 2022-05-26
@@ -491,7 +466,6 @@
 
 - title: PyCon Colombia
   year: 2022
-  id: pyconcolombia2022
   link: https://2022.pycon.co/
   cfp: '2022-04-30 23:59:59'
   start: 2022-07-09
@@ -503,7 +477,6 @@
 
 - title: PyCon Israel
   year: 2022
-  id: pyconisrael2022
   link: https://pycon.org.il/2022/
   cfp: '2022-04-30 23:59:59'
   start: 2022-06-28
@@ -518,7 +491,6 @@
 
 - title: PyCon APAC
   year: 2022
-  id: pyconapac2022
   link: https://tw.pycon.org/
   cfp: '2022-04-15 23:59:59'
   start: 2022-09-03
@@ -532,7 +504,6 @@
 
 - title: PyCon Kenya Conference
   year: 2022
-  id: pyconkenyaconference2022
   link: https://www.pyconke.org/
   cfp: '2022-04-15 23:59:59'
   start: 2022-05-06
@@ -547,7 +518,6 @@
 
 - title: EuroPython
   year: 2022
-  id: europython2022
   link: https://www.europython.eu/
   cfp: '2022-04-03 23:59:59'
   start: 2022-07-11
@@ -561,7 +531,6 @@
 
 - title: PyCon Estonia
   year: 2022
-  id: pyconestonia22
   link: https://pycon.ee/
   cfp: '2022-04-01 23:59:59'
   start: 2022-08-25
@@ -576,7 +545,6 @@
 
 - title: GeoPython
   year: 2022
-  id: geopython2022
   link: https://2022.geopython.net/
   cfp: '2022-02-28 12:00:00'
   start: 2022-06-20
@@ -587,7 +555,6 @@
 
 - title: SciPy US
   year: 2022
-  id: scipyUS22
   link: https://conference.scipy.org/
   cfp: '2022-02-22 23:59:00'
   start: 2022-07-11
@@ -602,7 +569,6 @@
 
 - title: PyCon Iran
   year: 2022
-  id: pyconiran2022
   link: https://ir.pycon.org/?lang=en
   cfp: '2022-02-04 23:59:59'
   start: 2022-02-16
@@ -614,7 +580,6 @@
 
 - title: PyCon Italy
   year: 2022
-  id: pyconitaly22
   link: https://pycon.it/en
   cfp: '2022-01-16 23:59:59'
   start: 2022-06-02
@@ -628,7 +593,6 @@
 
 - title: PyCon DE & PyData Berlin
   year: 2022
-  id: pyconde2022
   link: https://2022.pycon.de/
   cfp: '2022-01-16 23:59:59'
   start: 2022-04-11
@@ -643,7 +607,6 @@
 
 - title: Scipy India
   year: 2021
-  id: pyconIN21
   link: https://scipy.in/2021
   cfp: '2022-01-07 23:59:00'
   start: 2022-01-21
@@ -655,7 +618,6 @@
 
 - title: PyCon US
   year: 2022
-  id: pyconUS22
   link: https://us.pycon.org/2022/
   cfp: '2021-12-20 23:59:00'
   start: 2022-04-27
@@ -669,7 +631,6 @@
 
 - title: Kiwi PyCon XI
   year: 2022
-  id: pyconNZ22
   link: https://kiwipycon.nz/
   cfp: '2021-11-30 23:59:00'
   start: 2022-08-19
@@ -682,9 +643,8 @@
     latitude: -43.530955
     longitude: 172.6366455
 
-- title: Python Web Conference
+- title: Python Web Conf
   year: 2022
-  id: pythonwebconference2022
   link: https://2022.pythonwebconf.com/
   cfp: '2021-11-01 23:59:59'
   start: 2022-03-21
@@ -696,7 +656,6 @@
 
 - title: PyCascades Remote
   year: 2022
-  id: pycascadesremote2022
   link: https://2022.pycascades.com/
   cfp: '2021-10-24 23:59:59'
   start: 2022-02-05
@@ -707,7 +666,6 @@
 
 - title: euroSciPy
   year: 2019
-  id: scipyEU19
   link: https://euroscipy.org/2020/
   cfp: '2019-04-28 23:59:59'
   start: 2019-09-02

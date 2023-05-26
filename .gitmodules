@@ -1,0 +1,3 @@
+[submodule "python-organizers"]
+	path = utils/conferences
+	url = https://github.com/python-organizers/conferences/
