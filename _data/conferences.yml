@@ -52,6 +52,22 @@
     latitude: 32.0852997
     longitude: 34.7818064
 
+- title: DjangoCon Africa
+  year: 2023
+  link: https://2023.djangocon.africa/
+  cfp_link: https://cfp-2023.djangocon.africa/
+  cfp: '2023-07-12 23:59:00'
+  place: Zanzibar, Tanzania
+  date: November 06 - 11, 2023
+  start: 2023-11-06
+  end: 2023-11-11
+  sponsor: https://2023.djangocon.africa/sponsor-us/
+  twitter: djcafrica
+  sub: WEB
+  location:
+    latitude: -6.09994425
+    longitude: 39.32094431715264
+
 - title: Swiss Python Summit
   year: 2023
   link: https://python-summit.ch
@@ -88,6 +104,24 @@
     latitude: 41.1494512
     longitude: -8.6107884
 
+- title: PyCon UK
+  year: 2023
+  link: https://2023.pyconuk.org/
+  cfp_link: https://2023.pyconuk.org/call-for-proposals/
+  cfp: '2023-06-30 16:59:00'
+  timezone: Europe/London
+  place: Cardiff, UK
+  date: September 22 - 25, 2023
+  start: 2023-09-22
+  end: 2023-09-25
+  sponsor: https://2023.pyconuk.org/sponsorship/
+  twitter: PyConUK
+  mastodon: https://fosstodon.org/@PyConUK
+  sub: PY
+  location:
+    latitude: 51.4816546
+    longitude: -3.1791934
+
 - title: "PyCon Espa\xF1a"
   year: 2023
   link: https://2023.es.pycon.org/
@@ -105,6 +139,23 @@
   location:
     latitude: 28.2935785
     longitude: -16.621447121144122
+
+- title: AfroPython Conf
+  year: 2023
+  link: https://afropython.org/conf2023/
+  cfp_link: https://bit.ly/conf2023-palestrantes
+  cfp: '2023-06-19 23:59:00'
+  timezone: America/Bahia
+  place: Salvador, Brazil
+  date: July 22, 2023
+  start: 2023-07-22
+  end: 2023-07-22
+  sponsor: https://docs.google.com/forms/d/e/1FAIpQLSclMmFsjw5qcJaFwCC-z7zhN0Uaf8t4zF74qL_KKsBjh-y-aA/viewform
+  twitter: AfroPython
+  sub: PY
+  location:
+    latitude: -12.9822499
+    longitude: -38.4812772
 
 - title: PyCon Hong Kong
   year: 2023
@@ -657,39 +708,6 @@
     latitude: 40.7596198
     longitude: -111.886797
 
-- title: AfroPython Conf
-  year: 2023
-  link: https://afropython.org/conf2023/
-  cfp_link: https://bit.ly/conf2023-palestrantes
-  cfp: '2023-06-19 23:59:00'
-  timezone: America/Bahia
-  place: Salvador, Brazil
-  date: July 22, 2023
-  start: 2023-07-22
-  end: 2023-07-22
-  sponsor: https://docs.google.com/forms/d/e/1FAIpQLSclMmFsjw5qcJaFwCC-z7zhN0Uaf8t4zF74qL_KKsBjh-y-aA/viewform
-  twitter: AfroPython
-  sub: PY
-  location:
-    latitude: -12.9822499
-    longitude: -38.4812772
-
-- title: DjangoCon Africa
-  year: 2023
-  link: https://2023.djangocon.africa/
-  cfp_link: https://cfp-2023.djangocon.africa/
-  cfp: '2023-07-12 23:59:00'
-  place: Zanzibar, Tanzania
-  date: November 06 - 11, 2023
-  start: 2023-11-06
-  end: 2023-11-11
-  sponsor: https://2023.djangocon.africa/sponsor-us/
-  twitter: djcafrica
-  sub: WEB
-  location:
-    latitude: -6.09994425
-    longitude: 39.32094431715264
-
 - title: PyCon Czech Republic
   year: 2023
   link: https://cz.pycon.org/2023
@@ -705,24 +723,6 @@
   location:
     latitude: 50.0596288
     longitude: 14.446459273258009
-
-- title: PyCon UK
-  year: 2023
-  link: https://2023.pyconuk.org/
-  cfp_link: https://2023.pyconuk.org/call-for-proposals/
-  cfp: '2023-06-30 16:59:00'
-  timezone: Europe/London
-  place: Cardiff, UK
-  date: September 22 - 25, 2023
-  start: 2023-09-22
-  end: 2023-09-25
-  sponsor: https://2023.pyconuk.org/sponsorship/
-  twitter: PyConUK
-  mastodon: https://fosstodon.org/@PyConUK
-  sub: PY
-  location:
-    latitude: 51.4816546
-    longitude: -3.1791934
 
 - title: PyCon Slovakia
   year: 2024
