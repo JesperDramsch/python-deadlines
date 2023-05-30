@@ -724,6 +724,21 @@
     latitude: 50.0596288
     longitude: 14.446459273258009
 
+- title: PyCon Italia
+  year: 2024
+  link: https://pycon.it/en
+  cfp: TBA
+  place: Florence, Italy
+  date: May 22 - 25, 2024
+  start: 2024-05-22
+  end: 2024-05-25
+  twitter: PyConIT
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+    latitude: 43.7698712
+    longitude: 11.2555757
+
 - title: PyCon Slovakia
   year: 2024
   link: https://2024.pycon.sk/
@@ -767,18 +782,3 @@
   location:
     latitude: 30.2711286
     longitude: -97.7436995
-
-- title: PyCon Italia
-  year: 2024
-  link: https://pycon.it/en
-  cfp: TBA
-  place: Florence, Italy
-  date: May 22 - 25, 2024
-  start: 2024-05-22
-  end: 2024-05-25
-  twitter: PyConIT
-  mastodon: https://social.python.it/@pycon
-  sub: PY
-  location:
-    latitude: 43.7698712
-    longitude: 11.2555757
