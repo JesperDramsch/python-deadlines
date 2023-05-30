@@ -660,7 +660,8 @@
 - title: AfroPython Conf
   year: 2023
   link: https://afropython.org/conf2023/
-  cfp: TBA
+  cfp_link: https://bit.ly/conf2023-palestrantes
+  cfp: '2023-06-19 23:59:00'
   timezone: America/Bahia
   place: Salvador, Brazil
   date: July 22, 2023
@@ -676,9 +677,8 @@
 - title: DjangoCon Africa
   year: 2023
   link: https://2023.djangocon.africa/
-  cfp_link: https://2023.djangocon.africa/talks
-  cfp: TBA
-  timezone: Africa/Dar_es_Salaam
+  cfp_link: https://cfp-2023.djangocon.africa/
+  cfp: '2023-07-12 23:59:00'
   place: Zanzibar, Tanzania
   date: November 06 - 11, 2023
   start: 2023-11-06
@@ -709,7 +709,8 @@
 - title: PyCon UK
   year: 2023
   link: https://2023.pyconuk.org/
-  cfp: TBA
+  cfp_link: https://2023.pyconuk.org/call-for-proposals/
+  cfp: '2023-06-30 16:59:00'
   timezone: Europe/London
   place: Cardiff, UK
   date: September 22 - 25, 2023
