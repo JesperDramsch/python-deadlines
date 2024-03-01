@@ -360,3 +360,39 @@
   location:
     latitude: 47.2266532
     longitude: 8.8164042
+
+- conference: Wagtail Space NL
+  year: 2024
+  link: https://nl.wagtail.space/
+  cfp_link: https://nl.wagtail.space/call-for-participation
+  cfp: "2024-03-08 23:59:00"
+  timezone: Europe/Amsterdam
+  place: Arnhem, The Netherlands
+  date: June 12 - 14, 2024
+  start: 2024-06-12
+  end: 2024-06-14
+  sponsor: https://nl.wagtail.space/sponsors
+  twitter: WagtailCMS
+  mastodon: https://fosstodon.org/@wagtail
+  sub: WEB
+  location:
+    latitude: 51.9851
+    longitude: 5.8987
+
+- conference: Wagtail Space US
+  year: 2024
+  link: https://us.wagtail.space/
+  cfp_link: https://us.wagtail.space/#speak
+  cfp: "2024-04-22 23:59:00"
+  timezone: America/New_York
+  place: Philadelphia, PA, USA
+  date: June 20 - 22, 2024
+  start: 2024-06-20
+  end: 2024-06-22
+  sponsor: https://us.wagtail.space/#sponsors
+  twitter: WagtailCMS
+  mastodon: https://fosstodon.org/@wagtail
+  sub: WEB
+  location:
+    latitude: 39.9533
+    longitude: -75.1980
