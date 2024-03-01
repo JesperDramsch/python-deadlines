@@ -130,6 +130,24 @@
     latitude: 42.240599
     longitude: -8.720727
 
+- conference: DjangoCon US
+  year: 2024
+  link: https://2024.djangocon.us/
+  cfp_link: https://2024.djangocon.us/speaking/
+  cfp: '2024-04-24 12:00:00'
+  timezone: America/New_York
+  place: Durham, North Carolina, USA
+  date: September 22 - 27, 2024
+  start: 2024-09-22
+  end: 2024-09-27
+  finaid: https://2024.djangocon.us/opportunity-grants/
+  twitter: DjangoCon
+  mastodon: https://fosstodon.org/@djangocon
+  sub: WEB
+  location:
+    latitude: 42.240599
+    longitude: -8.720727
+
 - conference: SciPy US
   year: 2024
   link: https://scipy2024.scipy.org
