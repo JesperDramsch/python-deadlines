@@ -116,15 +116,17 @@
 - conference: DjangoCon Europe
   year: 2024
   link: https://2024.djangocon.eu/
-  cfp_link: https://2024.djangocon.eu/call-for-proposals
+  cfp_link: https://2024.djangocon.eu/talks/cfp/
   cfp: '2024-02-29 23:59:00'
+  timezone: Europe/Madrid
   place: Vigo, Spain
   date: June 12 - 16, 2024
-  start: 2024-06-12
-  end: 2024-06-16
+  start: 2024-06-05
+  end: 2024-06-09
   sponsor: https://2024.djangocon.eu/sponsors/sponsorship/
   finaid: https://2024.djangocon.eu/information/grants/
   twitter: DjangoConEurope
+  mastodon: https://fosstodon.org/@djangoconeurope
   sub: WEB
   location:
     latitude: 42.240599
