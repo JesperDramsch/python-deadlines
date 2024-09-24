@@ -7,7 +7,7 @@ import operator
 import time
 from datetime import timezone
 from pathlib import Path
-
+from urllib.parse import urlparse
 import pydantic
 import pytz
 import yaml
@@ -146,7 +146,8 @@ def check_links(data):
         for key in ("link", "cfp_link", "sponsor", "finaid"):
             if key in q:
                 new_link = check_link_availability(q[key], q["start"], cache=cache, cache_archived=cache_archived)
-                if q[key] != new_link and "archive.org" in new_link:
+                parsed_url = urlparse(new_link)
+                if q[key] != new_link and parsed_url.hostname and parsed_url.hostname.endswith("archive.org"):
                     time.sleep(0.5)
                 q[key] = new_link
                 data[i] = q
