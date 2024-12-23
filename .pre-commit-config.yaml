@@ -1,4 +1,5 @@
 ---
+exclude: '.*[\\/]pretty_.*\.html$'
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.6.0
@@ -6,7 +7,9 @@ repos:
   - id: check-yaml # Check YAML files for syntax errors
   - id: debug-statements # Check for debugger imports and py37+ breakpoint()
   - id: end-of-file-fixer # Ensure files end in a newline
+    exclude: '^pretty_.*\.html$'
   - id: trailing-whitespace # Trailing whitespace checker
+    exclude: '^pretty_.*\.html$'
   - id: check-added-large-files # Check for large files added to git
   - id: check-merge-conflict # Check for files that contain merge conflict strings
 - repo: https://github.com/pre-commit/pygrep-hooks
