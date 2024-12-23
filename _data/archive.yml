@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Sweden
+  alt_name: PyCon SE
+  year: 2024
+  link: https://www.pycon.se/
+  cfp_link: https://pretalx.com/pyconse-2024/cfp
+  cfp: '2024-08-31 23:00:00'
+  timezone: Europe/Stockholm
+  place: Stockholm, Sweden
+  start: 2024-11-14
+  end: 2024-11-15
+  sponsor: https://www.pycon.se/#sponsorship
+  sub: PY
+  location:
+  - title: PyCon Sweden 2024
+    latitude: 59.3251172
+    longitude: 18.0710935
+
 - conference: PyData NYC
   year: 2024
   link: https://pydata.org/nyc2024/
