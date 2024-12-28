@@ -327,17 +327,6 @@
     latitude: -33.4377756
     longitude: -70.6504502
 
-- conference: Xtreme Python
-  year: 2024
-  link: https://xtremepython.dev/2024/
-  cfp: '2024-08-30 23:59:00'
-  cfp_ext: '2024-09-20 23:59:00'
-  place: Online
-  start: 2024-11-19
-  end: 2024-11-19
-  sponsor: https://xtremepython.dev/2024/sponsors/
-  sub: PY
-
 - conference: Plone Conference
   year: 2024
   link: https://2024.ploneconf.org/en
@@ -355,22 +344,6 @@
     latitude: -10.3333333
     longitude: -53.2
 
-- conference: PyCon Ireland
-  alt_name: PyCon IE
-  year: 2024
-  link: https://python.ie/
-  cfp_link: https://sessionize.com/pycon-ireland-2024
-  cfp: '2024-08-25 23:59:00'
-  timezone: Europe/Dublin
-  place: Dublin, Ireland
-  start: 2024-11-16
-  end: 2024-11-16
-  sub: PY
-  location:
-  - title: PyCon Ireland 2024
-    latitude: 53.3498006
-    longitude: -6.2602964
-
 - conference: PyCon Australia
   alt_name: PyCon AU
   year: 2024
@@ -386,24 +359,6 @@
   - title: PyCon Australia 2024
     latitude: -37.8142454
     longitude: 144.9631732
-
-- conference: PyCon Hong Kong
-  alt_name: PyCon HK
-  year: 2024
-  link: https://pycon.hk/2024/
-  cfp_link: https://pretalx.com/pyconhk2024/cfp
-  cfp: '2024-07-01 23:59:00'
-  cfp_ext: '2024-07-21 23:59:00'
-  timezone: Asia/Hong_Kong
-  place: Hong Kong, China
-  start: 2024-11-16
-  end: 2024-11-16
-  twitter: pyconhk
-  sub: PY
-  location:
-  - title: PyCon Hong Kong 2024
-    latitude: 22.2793278
-    longitude: 114.1628131
 
 - conference: Python BarCamp Karlsruhe
   year: 2024
@@ -491,18 +446,3 @@
   - title: Python Nordeste 2025
     latitude: -5.0874608
     longitude: -42.8049571
-
-- conference: PyCon Mini Tokai
-  year: 2024
-  link: https://tokai.pycon.jp/2024/
-  cfp: None
-  place: Tokai, Japan
-  start: 2024-11-16
-  end: 2024-11-16
-  sponsor: https://docs.google.com/document/d/1uPNhbdBw1P2WcUvEllZWtXnjf1zTHys5lan8FT3p0MU/
-  twitter: PyConTokai
-  sub: PY
-  location:
-  - title: PyCon Mini Tokai 2024
-    latitude: 35.044082
-    longitude: 136.90902
