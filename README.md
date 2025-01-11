@@ -135,6 +135,13 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://dramsch.net"><img src="https://avatars.githubusercontent.com/u/2620316?v=4?s=100" width="100px;" alt="Jesper Dramsch"/><br /><sub><b>Jesper Dramsch</b></sub></a><br /><a href="#a11y-JesperDramsch" title="Accessibility">️️️️♿️</a> <a href="#bug-JesperDramsch" title="Bug reports">🐛</a> <a href="#blog-JesperDramsch" title="Blogposts">📝</a> <a href="#code-JesperDramsch" title="Code">💻</a> <a href="#content-JesperDramsch" title="Content">🖋</a> <a href="#doc-JesperDramsch" title="Documentation">📖</a> <a href="#design-JesperDramsch" title="Design">🎨</a> <a href="#financial-JesperDramsch" title="Financial">💵</a> <a href="#ideas-JesperDramsch" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-JesperDramsch" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#promotion-JesperDramsch" title="Promotion">📣</a> <a href="#review-JesperDramsch" title="Reviewed Pull Requests">👀</a> <a href="#security-JesperDramsch" title="Security">🛡️</a> <a href="#tool-JesperDramsch" title="Tools">🔧</a> <a href="#translation-JesperDramsch" title="Translation">🌍</a> <a href="#talk-JesperDramsch" title="Talks">📢</a></td>
+    </tr>
+  </tbody>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
