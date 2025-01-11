@@ -140,6 +140,7 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://coefficient.ai"><img src="https://avatars.githubusercontent.com/u/2884159?v=4?s=100" width="100px;" alt="John Sandall"/><br /><sub><b>John Sandall</b></sub></a><br /><a href="#content-john-sandall" title="Content">🖋</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://thib.me/"><img src="https://avatars.githubusercontent.com/u/877585?v=4?s=100" width="100px;" alt="Thibaud Colas"/><br /><sub><b>Thibaud Colas</b></sub></a><br /><a href="#content-thibaudcolas" title="Content">🖋</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://tanka.la"><img src="https://avatars.githubusercontent.com/u/29096822?v=4?s=100" width="100px;" alt="Tankala Ashok"/><br /><sub><b>Tankala Ashok</b></sub></a><br /><a href="#content-tankala" title="Content">🖋</a></td>
     </tr>
   </tbody>
 </table>
