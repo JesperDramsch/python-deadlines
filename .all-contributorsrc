@@ -9,39 +9,19 @@
   "contributorsPerLine": 7,
   "contributors": [
     {
-      "login": "JesperDramsch",
-      "name": "Jesper Dramsch",
-      "avatar_url": "https://avatars.githubusercontent.com/u/2620316?v=4",
-      "profile": "http://dramsch.net",
-      "contributions": [
-        "a11y",
-        "bug",
-        "blog",
-        "code",
-        "content",
-        "doc",
-        "design",
-        "financial",
-        "ideas",
-        "infra",
-        "promotion",
-        "review",
-        "security",
-        "tool",
-        "translation",
-        "talk"
-      ],
-      "login": "aidiss",
-      "name": "Aidis Stukas",
-      "avatar_url": "https://avatars.githubusercontent.com/u/5175311?v=4",
-      "profile": "http://www.aidisstukas.com",
-      "contributions": [
-        "content"
-      ],
       "login": "john-sandall",
       "name": "John Sandall",
       "avatar_url": "https://avatars.githubusercontent.com/u/2884159?v=4",
       "profile": "https://coefficient.ai",
+      "contributions": [
+        "content"
+      ]
+    },
+    {
+      "login": "thibaudcolas",
+      "name": "Thibaud Colas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/877585?v=4",
+      "profile": "https://thib.me/",
       "contributions": [
         "content"
       ]
