@@ -143,6 +143,7 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
       <td align="center" valign="top" width="14.28%"><a href="http://tanka.la"><img src="https://avatars.githubusercontent.com/u/29096822?v=4?s=100" width="100px;" alt="Tankala Ashok"/><br /><sub><b>Tankala Ashok</b></sub></a><br /><a href="#content-tankala" title="Content">🖋</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://robdewit.nl"><img src="https://avatars.githubusercontent.com/u/7165065?v=4?s=100" width="100px;" alt="Rob de Wit"/><br /><sub><b>Rob de Wit</b></sub></a><br /><a href="#content-RCdeWit" title="Content">🖋</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://slides.takanory.net/"><img src="https://avatars.githubusercontent.com/u/988241?v=4?s=100" width="100px;" alt="Takanori Suzuki"/><br /><sub><b>Takanori Suzuki</b></sub></a><br /><a href="#content-takanory" title="Content">🖋</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/alanderex"><img src="https://avatars.githubusercontent.com/u/1356401?v=4?s=100" width="100px;" alt="Alexander CS Hendorf"/><br /><sub><b>Alexander CS Hendorf</b></sub></a><br /><a href="#content-alanderex" title="Content">🖋</a></td>
     </tr>
   </tbody>
 </table>
