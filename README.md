@@ -144,6 +144,7 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
       <td align="center" valign="top" width="14.28%"><a href="http://robdewit.nl"><img src="https://avatars.githubusercontent.com/u/7165065?v=4?s=100" width="100px;" alt="Rob de Wit"/><br /><sub><b>Rob de Wit</b></sub></a><br /><a href="#content-RCdeWit" title="Content">🖋</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://slides.takanory.net/"><img src="https://avatars.githubusercontent.com/u/988241?v=4?s=100" width="100px;" alt="Takanori Suzuki"/><br /><sub><b>Takanori Suzuki</b></sub></a><br /><a href="#content-takanory" title="Content">🖋</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/alanderex"><img src="https://avatars.githubusercontent.com/u/1356401?v=4?s=100" width="100px;" alt="Alexander CS Hendorf"/><br /><sub><b>Alexander CS Hendorf</b></sub></a><br /><a href="#content-alanderex" title="Content">🖋</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/radujica"><img src="https://avatars.githubusercontent.com/u/8166962?v=4?s=100" width="100px;" alt="Radu"/><br /><sub><b>Radu</b></sub></a><br /><a href="#bug-radujica" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
