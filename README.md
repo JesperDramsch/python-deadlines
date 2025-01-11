@@ -135,6 +135,13 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://www.aidisstukas.com"><img src="https://avatars.githubusercontent.com/u/5175311?v=4?s=100" width="100px;" alt="Aidis Stukas"/><br /><sub><b>Aidis Stukas</b></sub></a><br /><a href="#content-aidiss" title="Content">🖋</a></td>
+    </tr>
+  </tbody>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
