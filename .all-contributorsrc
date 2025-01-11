@@ -1,4 +1,36 @@
 {
-	"projectName": "jesperdramsch",
-	"projectOwner": "python-deadlines"
+  "projectName": "python-deadlines",
+  "projectOwner": "JesperDramsch",
+  "files": [
+    "README.md"
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": [
+    {
+      "login": "JesperDramsch",
+      "name": "Jesper Dramsch",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2620316?v=4",
+      "profile": "http://dramsch.net",
+      "contributions": [
+        "a11y",
+        "bug",
+        "blog",
+        "code",
+        "content",
+        "doc",
+        "design",
+        "financial",
+        "ideas",
+        "infra",
+        "promotion",
+        "review",
+        "security",
+        "tool",
+        "translation",
+        "talk"
+      ]
+    }
+  ]
 }
