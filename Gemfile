@@ -17,7 +17,7 @@ gem "jekyll-include-cache", "~> 0.2.1"
 
 gem "execjs", "~> 2.9"
 
-gem "nokogiri", "~> 1.16"
+gem "nokogiri", "~> 1.18"
 
 gem "tzinfo", "~> 2.0"
 
