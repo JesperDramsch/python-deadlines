@@ -1,19 +1,4 @@
 ---
-- conference: Swiss Python Summit
-  year: 2025
-  link: https://www.python-summit.ch/
-  timezone: Europe/Zurich
-  place: Rapperswil, Switzerland
-  start: 2025-10-16
-  end: 2025-10-17
-  sponsor: https://www.python-summit.ch/sponsoring/
-  twitter: pythonsummit
-  sub: PY
-  note: "Day 1: General Language Topics; Day 2: Data Science Topics"
-  location:
-      latitude: 47.223987
-      longitude: 8.817300
-
 - conference: Xtreme Python
   year: 2025
   link: https://xtremepython.dev/2025/
@@ -460,12 +445,14 @@
   place: Rapperswil, Switzerland
   start: 2025-10-16
   end: 2025-10-17
+  sponsor: https://www.python-summit.ch/sponsoring/
   twitter: pythonsummit
   sub: PY
+  note: "Day 1: General Language Topics; Day 2: Data Science Topics"
   location:
-  - title: Swiss Python Summit 2024
-    latitude: 47.2266532
-    longitude: 8.8164042
+  - title: Swiss Python Summit 2025
+    latitude: 47.223987
+    longitude: 8.817300
 
 - conference: PyCon Japan
   alt_name: PyCon JP
