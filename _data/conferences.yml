@@ -181,6 +181,7 @@
   sponsor: https://pydata.org/paris2025/sponsorship-opportunites#tiers
   mastodon: https://mastodon.social/@PyDataParis
   bluesky: https://bsky.app/profile/pydataparis.bsky.social
+  location:
   - title: PyData Paris 2025
     latitude: 48.89591923094818
     longitude: 2.388543327766867
