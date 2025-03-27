@@ -168,6 +168,17 @@
     latitude: 53.2190652
     longitude: 6.5680077
 
+- conference: PyData Paris
+  year: 2025
+  link: https://pydata.org/paris2025
+  cfp_link: https://pydata.org/paris2025/cfp
+  cfp: '2025-04-13 23:59:00'
+  timezone: Europe/Paris
+  place: Paris, France
+  start: 2025-09-30
+  end: 2025-10-02
+  sub: DATA
+
 - conference: PyCon Colombia
   year: 2025
   link: https://2025.pycon.co/
