@@ -654,3 +654,21 @@
   - title: DjangoCongress JP 2025
     latitude: 35.718741949999995
     longitude: 139.73118058112317
+
+- conference: EuroSciPy
+  year: 2025
+  link: https://euroscipy.org/2025/
+  cfp_link: https://euroscipy.org/2025/program.html
+  cfp: '2025-03-31 23:59:00'
+  cfp_ext: '2025-04-28 23:59:00'
+  timezone: Europe/Warsaw
+  place: Krakow, Poland
+  start: 2025-08-18
+  end: 2025-08-22
+  sponsor: https://euroscipy.org/2025/sponsoring.html
+  twitter: euroSciPy
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2025
+    latitude: 50.061389
+    longitude: 19.938333
