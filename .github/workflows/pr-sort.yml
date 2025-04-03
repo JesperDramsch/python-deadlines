@@ -25,11 +25,11 @@ jobs:
     # Only check for merged PR when triggered by a pull_request event
     # And skip if PR was merged by a bot
     if: >-
-      (github.event_name != 'pull_request' || 
-      (github.event.pull_request.merged == true && 
-       !contains(github.event.pull_request.user.login, '[bot]') && 
-       !contains(github.event.pull_request.user.login, '-bot') && 
-       github.event.pull_request.user.login != 'dependabot' && 
+      (github.event_name != 'pull_request' ||
+      (github.event.pull_request.merged == true &&
+       !contains(github.event.pull_request.user.login, '[bot]') &&
+       !contains(github.event.pull_request.user.login, '-bot') &&
+       github.event.pull_request.user.login != 'dependabot' &&
        github.event.pull_request.user.login != 'github-actions'))
     steps:
     - name: Checkout repository
