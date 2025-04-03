@@ -153,6 +153,7 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
       <td align="center" valign="top" width="14.28%"><a href="https://jeroenjanssens.com/"><img src="https://avatars.githubusercontent.com/u/1368256?v=4?s=100" width="100px;" alt="Jeroen Janssens"/><br /><sub><b>Jeroen Janssens</b></sub></a><br /><a href="#conference-jeroenjanssens" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/systematicguy"><img src="https://avatars.githubusercontent.com/u/12820811?v=4?s=100" width="100px;" alt="David Horvath"/><br /><sub><b>David Horvath</b></sub></a><br /><a href="#conference-systematicguy" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://ogrisel.com/"><img src="https://avatars.githubusercontent.com/u/89061?v=4?s=100" width="100px;" alt="Olivier Grisel"/><br /><sub><b>Olivier Grisel</b></sub></a><br /><a href="#conference-ogrisel" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mtsokol"><img src="https://avatars.githubusercontent.com/u/8431159?v=4?s=100" width="100px;" alt="Mateusz Sokół"/><br /><sub><b>Mateusz Sokół</b></sub></a><br /><a href="#conference-mtsokol" title="Python conference (Added or updated)">📆</a></td>
     </tr>
   </tbody>
 </table>

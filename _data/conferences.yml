@@ -219,6 +219,24 @@
     latitude: 22.6203348
     longitude: 120.3120375
 
+- conference: EuroSciPy
+  year: 2025
+  link: https://euroscipy.org/2025/
+  cfp_link: https://euroscipy.org/2025/program.html
+  cfp: '2025-03-31 23:59:00'
+  cfp_ext: '2025-04-28 23:59:00'
+  timezone: Europe/Warsaw
+  place: Krakow, Poland
+  start: 2025-08-18
+  end: 2025-08-22
+  sponsor: https://euroscipy.org/2025/sponsoring.html
+  twitter: euroSciPy
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2025
+    latitude: 50.061389
+    longitude: 19.938333
+
 - conference: DjangoCon Africa
   year: 2025
   link: https://2025.djangocon.africa/
@@ -382,21 +400,6 @@
   - title: PyCon Estonia 2025
     latitude: 59.4372155
     longitude: 24.7453688
-
-- conference: PyConf Hyderabad
-  year: 2025
-  link: https://2025.pyconfhyd.org/
-  cfp_link: https://www.papercall.io/pyconfhyd2025
-  cfp: '2025-01-13 23:30:00'
-  timezone: UTC
-  place: Hyderabad, India
-  start: 2025-02-22
-  end: 2025-02-23
-  sub: PY
-  location:
-  - title: PyConf Hyderabad 2025
-    latitude: 17.4454957
-    longitude: 78.34854697544472
 
 - conference: DjangoCon Europe
   year: 2025
@@ -641,34 +644,3 @@
   - title: PyCamp Argentina 2025
     latitude: -33.8120471
     longitude: -59.5051759
-
-- conference: DjangoCongress Japan
-  year: 2025
-  link: https://djangocongress.jp/
-  cfp: None
-  place: Tokyo, Japan
-  start: 2025-02-22
-  end: 2025-02-22
-  sub: WEB
-  location:
-  - title: DjangoCongress JP 2025
-    latitude: 35.718741949999995
-    longitude: 139.73118058112317
-
-- conference: EuroSciPy
-  year: 2025
-  link: https://euroscipy.org/2025/
-  cfp_link: https://euroscipy.org/2025/program.html
-  cfp: '2025-03-31 23:59:00'
-  cfp_ext: '2025-04-28 23:59:00'
-  timezone: Europe/Warsaw
-  place: Krakow, Poland
-  start: 2025-08-18
-  end: 2025-08-22
-  sponsor: https://euroscipy.org/2025/sponsoring.html
-  twitter: euroSciPy
-  sub: SCIPY
-  location:
-  - title: EuroSciPy 2025
-    latitude: 50.061389
-    longitude: 19.938333

@@ -1,5 +1,33 @@
 ---
 
+- conference: PyConf Hyderabad
+  year: 2025
+  link: https://2025.pyconfhyd.org/
+  cfp_link: https://www.papercall.io/pyconfhyd2025
+  cfp: '2025-01-13 23:30:00'
+  timezone: UTC
+  place: Hyderabad, India
+  start: 2025-02-22
+  end: 2025-02-23
+  sub: PY
+  location:
+  - title: PyConf Hyderabad 2025
+    latitude: 17.4454957
+    longitude: 78.34854697544472
+
+- conference: DjangoCongress Japan
+  year: 2025
+  link: https://djangocongress.jp/
+  cfp: None
+  place: Tokyo, Japan
+  start: 2025-02-22
+  end: 2025-02-22
+  sub: WEB
+  location:
+  - title: DjangoCongress JP 2025
+    latitude: 35.718741949999995
+    longitude: 139.73118058112317
+
 - conference: Python BarCamp Karlsruhe
   year: 2024
   link: https://barcamps.eu/python-barcamp-karlsruhe-2025/
