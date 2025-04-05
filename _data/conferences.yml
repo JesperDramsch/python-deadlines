@@ -526,21 +526,6 @@
     latitude: -22.611456150000002
     longitude: 17.05860104184979
 
-- conference: GeoPython
-  year: 2025
-  link: https://2025.geopython.net/
-  cfp_link: https://submit.geopython.net/geopython-2025/cfp
-  cfp: '2024-11-15 23:59:00'
-  place: Basel, Switzerland
-  start: 2025-02-24
-  end: 2025-02-26
-  twitter: GeoPythonConf
-  sub: GEO
-  location:
-  - title: GeoPython 2025
-    latitude: 47.3615882
-    longitude: 7.354445
-
 - conference: PyCon Sweden
   alt_name: PyCon SE
   year: 2025
