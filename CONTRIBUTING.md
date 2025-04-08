@@ -198,6 +198,9 @@ Example:
       <td align="center" valign="top" width="14.28%"><a href="https://ogrisel.com/"><img src="https://avatars.githubusercontent.com/u/89061?v=4?s=100" width="100px;" alt="Olivier Grisel"/><br /><sub><b>Olivier Grisel</b></sub></a><br /><a href="#conference-ogrisel" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mtsokol"><img src="https://avatars.githubusercontent.com/u/8431159?v=4?s=100" width="100px;" alt="Mateusz Sokół"/><br /><sub><b>Mateusz Sokół</b></sub></a><br /><a href="#conference-mtsokol" title="Python conference (Added or updated)">📆</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/theopinard"><img src="https://avatars.githubusercontent.com/u/16977967?v=4?s=100" width="100px;" alt="Theodore Meynard"/><br /><sub><b>Theodore Meynard</b></sub></a><br /><a href="#conference-theopinard" title="Python conference (Added or updated)">📆</a></td>
+    </tr>
   </tbody>
 </table>
 

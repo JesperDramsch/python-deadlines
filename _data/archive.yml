@@ -1,5 +1,23 @@
 ---
 
+- conference: PyCon Namibia
+  alt_name: PyCon NA
+  year: 2025
+  link: https://na.pycon.org/
+  cfp_link: https://pretalx.com/pycon-namibia-2025/cfp
+  cfp: '2024-11-17 23:59:00'
+  timezone: Africa/Windhoek
+  place: Windhoek, Namibia
+  start: 2025-02-24
+  end: 2025-02-27
+  twitter: PyConNA
+  mastodon: https://hachyderm.io/@PyConNA
+  sub: PY
+  location:
+  - title: PyCon Namibia 2025
+    latitude: -22.611456150000002
+    longitude: 17.05860104184979
+
 - conference: GeoPython
   year: 2025
   link: https://2025.geopython.net/

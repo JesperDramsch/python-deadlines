@@ -99,8 +99,8 @@
   place: Berlin, Germany
   start: 2025-09-01
   end: 2025-09-03
-  sub: DATA
   twitter: pydataberlin
+  sub: DATA
   location:
   - title: PyData Berlin 2025
     latitude: 52.520778408127605
@@ -523,24 +523,6 @@
   - title: PyTexas 2025
     latitude: 30.2711286
     longitude: -97.7436995
-
-- conference: PyCon Namibia
-  alt_name: PyCon NA
-  year: 2025
-  link: https://na.pycon.org/
-  cfp_link: https://pretalx.com/pycon-namibia-2025/cfp
-  cfp: '2024-11-17 23:59:00'
-  timezone: Africa/Windhoek
-  place: Windhoek, Namibia
-  start: 2025-02-24
-  end: 2025-02-27
-  twitter: PyConNA
-  mastodon: https://hachyderm.io/@PyConNA
-  sub: PY
-  location:
-  - title: PyCon Namibia 2025
-    latitude: -22.611456150000002
-    longitude: 17.05860104184979
 
 - conference: PyCon Sweden
   alt_name: PyCon SE

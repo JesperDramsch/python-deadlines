@@ -160,6 +160,15 @@
       "contributions": [
         "conference"
       ]
+    },
+    {
+      "login": "theopinard",
+      "name": "Theodore Meynard",
+      "avatar_url": "https://avatars.githubusercontent.com/u/16977967?v=4",
+      "profile": "https://github.com/theopinard",
+      "contributions": [
+        "conference"
+      ]
     }
   ],
   "repoType": "github"
