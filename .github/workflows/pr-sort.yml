@@ -1,7 +1,7 @@
 name: Pull Request Conference Sort & All-contrib
 
 on:
-  pull_request:
+  pull_request_target:
     paths:
     - '_data/conferences.yml'
     types:
@@ -18,6 +18,11 @@ on:
         description: 'GitHub username to add as contributor (leave empty to skip)'
         required: false
         type: string
+
+# Add permissions block here
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   process-changes:
