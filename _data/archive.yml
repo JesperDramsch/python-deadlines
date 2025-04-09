@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Asia Pacific
+  alt_name: PyCon Philippines
+  year: 2025
+  link: https://pycon-apac.python.ph/
+  cfp_link: https://pretalx.com/pycon-apac-2025/cfp
+  cfp: '2024-12-15 23:59:00'
+  timezone: Asia/Manila
+  place: Quezon City, Philippines
+  start: 2025-03-01
+  end: 2025-03-02
+  sponsor: https://docs.google.com/forms/d/e/1FAIpQLScay8a44Fvgc0IDJ0IuKlNZgxQKs1kA7ginxto60gW3cIK2Eg/viewform
+  sub: PY
+  location:
+  - title: PyCon Asia Pacific 2025
+    latitude: 14.6510546
+    longitude: 121.0486254
+
 - conference: PyCon Namibia
   alt_name: PyCon NA
   year: 2025

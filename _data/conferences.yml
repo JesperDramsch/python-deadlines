@@ -90,6 +90,21 @@
     latitude: 53.4794892
     longitude: -2.2451148
 
+- conference: PyData Amsterdam
+  year: 2025
+  link: https://amsterdam.pydata.org/
+  cfp_link: https://cfp.pydata.org/pydata-amsterdam-2025/cfp
+  cfp: '2025-05-11 23:59:59'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2025-09-24
+  end: 2025-09-26
+  sub: DATA
+  location:
+  - title: PyData Amsterdam 2025
+    latitude: 52.38331772938018
+    longitude: 4.920446388368758
+
 - conference: PyData Berlin
   year: 2025
   link: https://pydata.org/berlin2025/
@@ -105,21 +120,6 @@
   - title: PyData Berlin 2025
     latitude: 52.520778408127605
     longitude: 13.416401868537298
-
-- conference: PyData Amsterdam
-  year: 2025
-  link: https://amsterdam.pydata.org/
-  cfp_link: https://cfp.pydata.org/pydata-amsterdam-2025/cfp
-  cfp: '2025-05-11 23:59:59'
-  timezone: Europe/Amsterdam
-  place: Amsterdam, Netherlands
-  start: 2025-09-24
-  end: 2025-09-26
-  sub: DATA
-  location:
-  - title: PyData Amsterdam 2025
-    latitude: 52.38331772938018
-    longitude: 4.920446388368758
 
 - conference: PyCamp España
   year: 2025
@@ -504,23 +504,6 @@
   - title: PyCon US 2025
     latitude: 40.4416941
     longitude: -79.9900861
-
-- conference: PyCon Asia Pacific
-  alt_name: PyCon Philippines
-  year: 2025
-  link: https://pycon-apac.python.ph/
-  cfp_link: https://pretalx.com/pycon-apac-2025/cfp
-  cfp: '2024-12-15 23:59:00'
-  timezone: Asia/Manila
-  place: Quezon City, Philippines
-  start: 2025-03-01
-  end: 2025-03-02
-  sponsor: https://docs.google.com/forms/d/e/1FAIpQLScay8a44Fvgc0IDJ0IuKlNZgxQKs1kA7ginxto60gW3cIK2Eg/viewform
-  sub: PY
-  location:
-  - title: PyCon Asia Pacific 2025
-    latitude: 14.6510546
-    longitude: 121.0486254
 
 - conference: PyTexas
   year: 2025
