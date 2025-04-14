@@ -141,8 +141,7 @@
   year: 2025
   link: https://2025.pythonbrasil.org.br/
   cfp_link: https://talks.python.org.br/pythonbrasil-2025/cfp
-  cfp: '2025-04-13 23:59:00'
-  cfp_ext: '2025-04-27 23:59:00'
+  cfp: '2025-04-27 23:59:00'
   timezone: America/Sao_Paulo
   place: Sao Paulo, Brazil
   start: 2025-10-21
@@ -204,7 +203,8 @@
   year: 2025
   link: https://pydata.org/paris2025
   cfp_link: https://pydata.org/paris2025/cfp
-  cfp: '2025-04-27 23:59:00'
+  cfp: '2025-04-13 23:59:00'
+  cfp_ext: '2025-04-27 23:59:00'
   timezone: Europe/Paris
   place: Paris, France
   start: 2025-09-30
