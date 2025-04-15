@@ -43,7 +43,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Setup Pixi
-      uses: prefix-dev/setup-pixi@v0.8.5
+      uses: prefix-dev/setup-pixi@v0.8.7
 
     - name: Set variables
       id: vars
