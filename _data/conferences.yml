@@ -97,6 +97,20 @@
     latitude: 32.7174202
     longitude: -117.1627728
 
+- conference: PyHEP.dev
+  alt_name: PyHEP
+  year: 2025
+  link: https://indico.cern.ch/event/1515852/
+  cfp: '2025-07-08 23:59:00'
+  place: Seattle, USA
+  start: 2025-07-14
+  end: 2025-07-17
+  sub: SCIPY
+  location:
+  - title: PyHEP.dev 2025
+    latitude: 47.6038321
+    longitude: -122.330062
+
 - conference: PyCon Uganda
   year: 2025
   link: https://ug.pycon.org/
@@ -716,20 +730,6 @@
   - title: PyCon Lithuania 2025
     latitude: 54.6870458
     longitude: 25.2829111
-
-- conference: PyHEP.dev
-  alt_name: PyHEP
-  year: 2025
-  link: https://indico.cern.ch/event/1515852/
-  cfp: '2025-07-08 23:59:00'
-  place: Seattle, USA
-  start: 2025-07-14
-  end: 2025-07-17
-  sub: SCIPY
-  location:
-  - title: PyHEP.dev 2025
-    latitude: 47.6038321
-    longitude: -122.330062
 
 - conference: EuroPython
   year: 2025
