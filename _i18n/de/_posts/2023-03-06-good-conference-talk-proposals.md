@@ -2,7 +2,11 @@
 title: Wie man einen großartigen Python-Konferenz-Vortragsvorschlag schreibt
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'conference', 'CfP', 'audience']
+tags:
+  - Python
+  - conference
+  - CfP
+  - audience
 ---
 
 Das Schreiben eines guten Konferenzvorschlags kann herausfordernd sein. Dennoch gibt es einige Schlüsselelemente, die helfen können, Ihren Vorschlag hervorzuheben. Hier sind fünf wesentliche Komponenten eines erfolgreichen Konferenzvorschlags.
@@ -39,7 +43,7 @@ Eine detaillierte Aufschlüsselung, wie Sie Ihr Material abdecken möchten, ist 
 
 Indem Sie eine klare Struktur und einen Zeitplan für Ihre Präsentation skizzieren, werden Sie den Teilnehmern helfen, engagiert und auf Ihre Inhalte fokussiert zu bleiben. Es wird Ihnen auch helfen, auf Kurs zu bleiben und alle wichtigen Punkte zu behandeln, die Sie ansprechen möchten.
 
-## Fazit
+## Conclusion
 
 Zusammenfassend sollte ein guter Konferenzvorschlag eine klare und überzeugende Beschreibung des Themas liefern, die Zielgruppe und ihre Bedürfnisse identifizieren, die Takeaways und erforderliches Hintergrundwissen klar kommunizieren sowie eine detaillierte Aufschlüsselung des Materials bieten. Die Einbeziehung dieser wesentlichen Komponenten wird die Chancen erhöhen, dass Ihr Vorschlag angenommen wird und Sie eine erfolgreiche Präsentation auf der Konferenz halten.
 

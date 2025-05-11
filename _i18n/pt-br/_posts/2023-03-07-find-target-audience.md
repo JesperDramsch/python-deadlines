@@ -2,7 +2,11 @@
 title: Como definir seu público-alvo para uma palestra de conferência Python?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation', 'conference', 'audience']
+tags:
+  - Python
+  - presentation
+  - conference
+  - audience
 ---
 
 Quando se trata de enviar uma proposta para uma apresentação em conferência, é essencial definir seu público-alvo. Saber com quem você está falando pode ajudá-lo a adaptar sua apresentação às necessidades, interesses e conhecimentos prévios da audiência. Neste post, discutiremos como definir seu público-alvo para uma proposta de conferência e por que isso é importante.
@@ -23,7 +27,7 @@ A seguir, considere o nível de experiência do seu público-alvo. São iniciant
 
 Isso afetará como você apresenta suas ideias e quanta informação de fundo você fornece.
 
-Por exemplo, se sua apresentação for sobre um algoritmo complexo, um público avançado pode estar interessado nos detalhes técnicos e exemplos de código, enquanto iniciantes podem precisar de uma explicação simplificada dos conceitos para acompanhar a apresentação.
+For example, suppose your presentation is on a complex algorithm. Por exemplo, se sua apresentação for sobre um algoritmo complexo, um público avançado pode estar interessado nos detalhes técnicos e exemplos de código, enquanto iniciantes podem precisar de uma explicação simplificada dos conceitos para acompanhar a apresentação. At the same time, beginners may need a simplified explanation of the concepts to follow the presentation.
 
 ## Considere um nicho secundário
 
@@ -41,7 +45,7 @@ Primeiro, ajuda você a focar sua apresentação nos tópicos mais relevantes e 
 
 Segundo, ajuda potenciais participantes a decidir se sua apresentação corresponde às necessidades e interesses deles.
 
-Se eles puderem ver facilmente que sua apresentação visa seu cargo profissional e nível de experiência, é mais provável que participem e encontrem valor em sua palestra.
+Se eles puderem ver facilmente que sua apresentação visa seu cargo profissional e nível de experiência, é mais provável que participem e encontrem valor em sua palestra. In that case, they are more likely to attend and find value in your talk.
 
 ## Considere a própria conferência
 

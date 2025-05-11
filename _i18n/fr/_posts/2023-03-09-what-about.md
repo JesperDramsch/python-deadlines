@@ -2,7 +2,9 @@
 title: Sur quoi devrait porter ma présentation à une conférence Python ?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation']
+tags:
+  - Python
+  - presentation
 ---
 
 Nous sommes souvent confrontés à un paradoxe lorsque nous décidons enfin de faire une présentation lors d'une conférence Python. Nous avons appris tant de choses passionnantes. Il y a tellement de sujets intéressants. Mais sur quoi ma présentation Python devrait-elle porter?!

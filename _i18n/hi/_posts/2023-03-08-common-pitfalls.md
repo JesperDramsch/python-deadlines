@@ -2,45 +2,48 @@
 title: 9 सामान्य गलतियाँ जो आपके पायथन कॉन्फ्रेंस टॉक प्रस्ताव को अस्वीकार करवा देती हैं
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'pitfalls']
+tags:
+  - Python
+  - CfP
+  - pitfalls
 ---
 
-अगर आप कॉन्फ्रेंस टॉक के लिए प्रस्ताव जमा करने की सोच रहे हैं, तो स्वीकृति के अपने अवसरों को बढ़ाने के लिए क्या टालना है, यह जानना आवश्यक है। यहां नौ सामान्य गलतियां हैं जिन्हें देखना चाहिए:
+Suppose you're looking to submit a proposal for a conference talk. In that case, knowing what to avoid is essential to increase your chances of acceptance. Here are nine common pitfalls to watch out for:
 
 ## बिक्री प्रस्तुतियां
 
-याद रखें कि कॉन्फ्रेंस ओपन-सोर्स वैज्ञानिक कंप्यूटिंग टूल्स के निर्माताओं और उपयोगकर्ताओं का एक समुदाय है। जबकि आप अपने क्लोज्ड-सोर्स प्रोडक्ट या प्लेटफॉर्म का संदर्भ दे सकते हैं, दर्शकों को टॉक अधिक दिलचस्प लगेगा अगर वे आपकी तकनीकों को ओपन-सोर्स PyData स्टैक के साथ आजमा सकें। हार्ड सेल करने से बचें, और इसके बजाय समस्या परिभाषा, प्रस्तावित रणनीतियों और व्यापार डोमेन पर ध्यान केंद्रित करें।
+Remember that the conference is a community of creators and users of open-source scientific computing tools. While you can reference your closed-source product or platform, the audience will find the talk more interesting if they can try your techniques with the open-source PyData stack. Avoid making a hard sell, and focus on problem definition, proposed strategies, and business domain instead.
 
 ## दोहराए गए भाषण
 
-कॉन्फ्रेंस नए भाषणों और नए स्पीकरों को प्राथमिकता देती हैं। अगर आपका भाषण पहले से ही ऑनलाइन उपलब्ध है, तो इसके कॉन्फ्रेंस के लिए स्वीकार होने की संभावना कम है। ऐसे विषय पर नई अंतर्दृष्टि, तकनीकें या दृष्टिकोण लाने का प्रयास करें जिसे पहले कवर नहीं किया गया है।
+Conferences prefer new talks and new speakers. If your talk is already available online, it will unlikely be accepted for the conference. Try to bring new insights, techniques, or perspectives on a topic that hasn't been covered before.
 
 ## स्पष्टता की कमी
 
-आपका प्रस्ताव स्पष्ट रूप से बताना चाहिए कि आपका भाषण किस बारे में है और प्रतिभागी क्या सीखने की उम्मीद कर सकते हैं। अगर आपका प्रस्ताव अस्पष्ट, बिखरा हुआ, या समझने में कठिन है, तो समीक्षक यह निर्धारित नहीं कर पाएंगे कि क्या आपका भाषण कॉन्फ्रेंस के उद्देश्यों के अनुरूप है या इच्छित दर्शकों के लिए उपयुक्त है।
+Your proposal should clearly communicate what your talk is about and what attendees can expect to learn. Suppose your proposal is unclear, rambling, or difficult to follow. In that case, reviewers may be unable to determine if your talk aligns with the conference's goals or is suitable for the intended audience.
 
 ## मौलिकता की कमी
 
-समीक्षक अद्वितीय, अंतर्दृष्टिपूर्ण और नवीन भाषणों की तलाश करते हैं जो सामान्य समस्याओं के लिए ताजा दृष्टिकोण या नए समाधान प्रदान करते हैं। यदि आपका प्रस्ताव ऐसे विषय को कवर करता है जिसे पहले से ही कई बार कवर किया जा चुका है या कोई नई अंतर्दृष्टि या तकनीक प्रदान नहीं करता है, तो समीक्षक इसे अस्वीकार कर सकते हैं। इसका मतलब यह नहीं है कि एक केस स्टडी या किसी समस्या पर नया दृष्टिकोण स्वीकार नहीं किया जाएगा, लेकिन इस अतिरिक्त दृष्टिकोण पर विचार करना लाभदायक है।
+Reviewers seek unique, insightful, and innovative talks that offer fresh perspectives or new solutions to common problems. If your proposal covers a topic that has already been covered multiple times or doesn't provide any new insights or techniques, reviewers may pass on it. That doesn't mean a case study or new spin on an issue won't be accepted, but it's worth considering that added perspective.
 
 ## अत्यधिक लंबे प्रस्ताव
 
-अपने प्रस्ताव को सरल और स्पष्ट रखें। अच्छे प्रस्ताव आमतौर पर 250 शब्दों के भीतर सभी महत्वपूर्ण जानकारी प्रदान करते हैं। यह एक सख्त सीमा नहीं है और कॉन्फ्रेंस के अनुसार भिन्न होती है। यह एक सुझाव है जो आपको केंद्रित रहने और समीक्षकों का ध्यान खोने से बचने में मदद करता है।
+Keep your proposal simple and clear. Good proposals typically provide all the vital information within 250 words. This is not a strict limit and varies per conference. This is a suggestion to help you stay focused and avoid losing the attention of the reviewers.
 
 ## प्रासंगिकता की कमी
 
-सुनिश्चित करें कि आपका भाषण कॉन्फ्रेंस के थीम या फोकस के अनुरूप है। यदि आपका प्रस्ताव केवल स्पर्शरेखीय रूप से कॉन्फ्रेंस के उद्देश्यों से संबंधित है, तो समीक्षक यह नहीं देख सकते हैं कि यह बड़ी तस्वीर में कैसे फिट बैठता है या यह प्रतिभागियों को कैसे लाभ पहुंचाएगा।
+Make sure your talk aligns with the conference's theme or focus. Suppose your proposal is only tangentially related to the conference's goals. In that case, reviewers may not see how it fits into the larger picture or how it would benefit attendees.
 
 ## भविष्य का काम
 
-हालांकि भविष्य के काम पर चर्चा करना रोमांचक है और आपके भाषण में इसका उल्लेख किया जा सकता है, लेकिन भाषण की मुख्य सामग्री पहले से ही आकार ले चुकी होनी चाहिए, और आप इसे अपने प्रस्ताव में वर्णित करने में सक्षम होने चाहिए। भविष्य के डेटा संग्रह या भविष्य के प्रोटोटाइपिंग पर बहुत अधिक निर्भर न करें क्योंकि चीजें अक्सर अपेक्षा के अनुसार नहीं होतीं। सुनिश्चित करें कि आप ठोस उदाहरण और उपयोग के मामले प्रदान करें।
+While discussing future work is exciting and could be mentioned in your talk, the core content of the talk should already be shaped, and you should be able to describe it in your proposal. Don't rely too heavily on future data collection or future prototyping because things often don't go as expected. Be sure to provide concrete examples and use cases.
 
 ## अनुचित या आपत्तिजनक सामग्री
 
-अपनी भाषा और टोन को पेशेवर और सम्मानजनक रखें, और विवादास्पद या संवेदनशील विषयों से बचें जो प्रतिभागियों को नाराज या अलग-थलग कर सकते हैं। अनुचित, आपत्तिजनक या भेदभावपूर्ण सामग्री वाले प्रस्तावों को अस्वीकार कर दिया जाएगा।
+Keep your language and tone professional and respectful, and avoid controversial or sensitive topics that could offend or alienate attendees. Proposals containing inappropriate, offensive, or discriminatory content will likely be rejected.
 
 ## कॉन्फ्रेंस फॉर्मेट के साथ खराब फिट
 
-कॉन्फ्रेंस के विभिन्न फॉर्मेट होते हैं, लाइटनिंग टॉक से लेकर वर्कशॉप और कीनोट स्पीच तक। सुनिश्चित करें कि आपका प्रस्ताव कॉन्फ्रेंस के फॉर्मेट और अवधि के अनुरूप है और उस फॉर्मेट में प्रभावी ढंग से प्रस्तुत किया जा सकता है। अपने भाषण के लिए आवश्यक किसी भी उपकरण, सामग्री या संसाधनों पर विचार करें।
+Conferences have different formats, from lightning talks to workshops to keynote speeches. Ensure your proposal aligns with the format and duration of the conference and can be delivered effectively in that format. Consider any equipment, materials, or resources required for your talk.
 
 इन सामान्य गलतियों से बचकर, आप एक सफल कॉन्फ्रेंस टॉक प्रस्ताव जमा करने की अपनी संभावनाओं को बढ़ा सकते हैं जो कॉन्फ्रेंस के उद्देश्यों के अनुरूप हो, प्रतिभागियों के लिए प्रासंगिक हो, और ताजा अंतर्दृष्टि या तकनीकें प्रदान करे।

@@ -2,19 +2,21 @@
 title: मेरी पायथन कॉन्फ्रेंस टॉक किस विषय पर होनी चाहिए?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation']
+tags:
+  - Python
+  - presentation
 ---
 
-जब हम आखिरकार पायथन कॉन्फ्रेंस में एक प्रस्तुति देने का फैसला करते हैं, तो हम अक्सर एक विरोधाभासी पहेली का सामना करते हैं। हमने इतनी सारी रोमांचक चीजों के बारे में सीखा है। इतना कुछ दिलचस्प है। लेकिन मेरी पायथन टॉक किस बारे में होनी चाहिए?!
+We often get a paradox conundrum when we finally decide to give a talk at a Python conference. We learned about so many exciting things. So much is interesting. But what should my Python talk be about?!
 
-तो, पायथन पर प्रस्तुति देने का निर्णय लेने के लिए बधाई! आप अपने ज्ञान और अनुभव को दूसरों के साथ साझा करने के लिए उत्सुक हैं। आइए शुरू करें!
+So, Congratulations on deciding to present on Python! You're eager to share your knowledge and experience with others. Let's dive in!
 
-सबसे पहले, अपने दर्शकों के बारे में सोचें। आप किसे अपनी प्रस्तुति में आने के लिए चाहते हैं? क्या वे शुरुआती, मध्यम या उन्नत पायथन उपयोगकर्ता हैं? क्या उनकी कोई विशिष्ट रुचि या समस्या है जिसे वे पायथन का उपयोग करके हल करना चाहते हैं? अपने दर्शकों की विशेषज्ञता और रुचि को समझने से आपको ऐसे विषय का चयन करने में मदद मिलेगी जो उन्हें आकर्षित करेगा और उन्हें व्यस्त रखेगा।
+First things first, think about your audience. Who do you want to attend your talk? Are they beginners, intermediate or advanced Python users? Do they have a specific interest or problem they want to solve using Python? Understanding your audience's expertise and interest will help you decide on a topic that will appeal to them and keep them engaged.
 
-अगला, आप जिस प्रकार की प्रस्तुति देना चाहते हैं, उस पर विचार करें। क्या आप एक जटिल विषय में गहराई से जाना चाहते हैं या एक हैंड्स-ऑन ट्यूटोरियल के साथ इसे सरल रखना चाहते हैं? क्या आप पायथन की गणितीय क्षमताओं या व्यावहारिक अनुप्रयोगों पर ध्यान केंद्रित करना चाहते हैं? ऐसा विषय चुनना महत्वपूर्ण है जो आपकी विशेषज्ञता और जुनून के साथ मेल खाता हो और आपके दर्शकों को ध्यान में रखता हो।
+Next, consider the type of talk you want to give. Do you want to dive deep into a complex topic or keep it simple with a hands-on tutorial? Do you want to focus on Python's mathematical capabilities or practical applications? It's crucial to pick a topic that aligns with your expertise and passion and keeps your audience in mind.
 
-एक बार जब आप अपने विषय और प्रस्तुति के प्रकार पर निर्णय ले लेते हैं, तो आप जो स्वर स्थापित करना चाहते हैं, उसके बारे में सोचें। क्या आप हल्के-फुल्के और मजेदार होना चाहते हैं या अधिक गंभीर और सावधान? यहां कोई सही या गलत जवाब नहीं है, लेकिन सुनिश्चित करें कि आपका स्वर आपके विषय और दर्शकों के लिए उपयुक्त है।
+Once you've decided on your topic and type of talk, think about the tone you want to set. Do you want to be light-hearted and funny or more severe and cautionary? There's no right or wrong answer here, but ensure your tone is appropriate for your topic and audience.
 
-याद रखें, आपकी प्रस्तुति का उद्देश्य पायथन के बारे में दूसरों को शिक्षित और प्रेरित करना है, इसलिए सुनिश्चित करें कि आपके मुख्य बिंदु स्पष्ट और मूल्यवान हैं। आपके दर्शकों को आपकी प्रस्तुति से क्या सीखना या ले जाना चाहिए? वे जो सीखा है उसे अपने पायथन प्रोजेक्ट्स या करियर में कैसे लागू कर सकते हैं?
+Remember, your talk aims to educate and inspire others about Python, so make sure your takeaways are clear and valuable. What should your audience learn or take away from your talk? How can they apply what they've learned in their Python projects or careers?
 
-संक्षेप में, अपनी पायथन प्रस्तुति के विषय का निर्णय लेते समय, अपने दर्शकों, प्रस्तुति के प्रकार और आप जो स्वर स्थापित करना चाहते हैं, पर विचार करें। सुनिश्चित करें कि आपके मुख्य बिंदु आपके दर्शकों के लिए स्पष्ट और मूल्यवान हैं। और सबसे महत्वपूर्ण, मज़े करें और दूसरों के साथ पायथन के लिए अपना जुनून साझा करें!
+In summary, when deciding on the topic of your Python talk, consider your audience, the type of talk, and the tone you want to set. Make sure your takeaways are clear and valuable to your audience. And most importantly, have fun and share your passion for Python with others!

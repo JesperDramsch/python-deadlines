@@ -2,4 +2,4 @@
 
 तिथियाँ उलटी गिनती के रूप में, स्थानीय समय क्षेत्रों में और यहाँ तक कि नीचे दिए गए Google कैलेंडर के रूप में भी उपलब्ध कराई जाती हैं!
 
-समयसीमाएँ <span class="local-timezone">आपके स्थानीय</span> समय में दिखाई जाती हैं। उन्हें सम्मेलन वेबसाइट के समय क्षेत्रों में देखने के लिए, सम्मेलन पर क्लिक करें।
+Deadlines are shown in <span class="local-timezone">your local</span> time. To view them in conference website timezones, click on the conference.

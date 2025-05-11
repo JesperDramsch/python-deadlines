@@ -2,39 +2,41 @@
 title: पायथन सम्मेलनों में कैसे बात करें?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP']
+tags:
+  - Python
+  - CfP
 ---
 
-पायथन सम्मेलन ज्ञान साझा करने, साथियों के साथ नेटवर्किंग करने और पायथन समुदाय में नवीनतम विकास से अपडेट रहने के लिए एक उत्कृष्ट मंच हैं। यदि आप पायथन के प्रति जुनूनी हैं और अपनी अंतर्दृष्टि को व्यापक दर्शकों के साथ साझा करना चाहते हैं, तो पायथन सम्मेलन में बोलना एक बेहतरीन अवसर हो सकता है। इस ब्लॉग पोस्ट में, हम पता करेंगे कि पायथन सम्मेलनों में कैसे बात करें।
+Python conferences are an excellent platform for sharing knowledge, networking with peers, and staying up-to-date with the latest developments in the Python community. Speaking at a Python conference can be a great opportunity if you're passionate about Python and want to share your insights with a wider audience. In this blog post, we'll explore how to get to speak at Python conferences.
 
-### आमंत्रित किया जाना
+## आमंत्रित किया जाना
 
-पायथन सम्मेलनों में बोलने के लिए आमंत्रित किए जाने का एक तरीका समुदाय में एक स्थापित प्रतिष्ठा होना है। मान लीजिए कि आपने ओपन-सोर्स प्रोजेक्ट्स में योगदान दिया है, पायथन के बारे में लेख या ब्लॉग पोस्ट लिखे हैं, या छोटे मीटअप या इवेंट्स में बोले हैं। उस स्थिति में, आप सम्मेलन आयोजकों का ध्यान आकर्षित कर सकते हैं।
+One way to get invited to speak at Python conferences is to have an established reputation in the community. Suppose you've contributed to open-source projects, written articles or blog posts about Python, or spoken at smaller meetups or events. In that case, you may catch the attention of conference organizers.
 
-इसके अतिरिक्त, यदि आप किसी विशिष्ट क्षेत्र, जैसे मशीन लर्निंग या वेब डेवलपमेंट के विशेषज्ञ हैं, तो आपको उन विषयों पर केंद्रित सम्मेलनों में बोलने के लिए आमंत्रित किया जा सकता है। आमंत्रित किए जाने की अपनी संभावनाओं को बढ़ाने के लिए, सम्मेलनों और मीटअप्स में भाग लें, ऑनलाइन चर्चाओं में भाग लें, और जितना संभव हो सके पायथन समुदाय में योगदान दें।
+Additionally, if you're an expert in a specific field, such as machine learning or web development, you may be invited to speak at conferences that focus on those topics. To increase your chances of being invited, attend conferences and meetups, participate in online discussions, and contribute to the Python community in any way you can.
 
-### प्रस्ताव आह्वान (CfP) में प्रस्ताव जमा करें
+## प्रस्ताव आह्वान (CfP) में प्रस्ताव जमा करें
 
-पायथन सम्मेलनों में बोलने का एक और तरीका प्रस्ताव आह्वान (CfP) में प्रस्ताव जमा करना है। अधिकांश सम्मेलन इवेंट से कई महीने पहले CfP खोलते हैं, और कोई भी प्रस्ताव जमा कर सकता है।
-प्रस्ताव जमा करते समय, यह याद रखना आवश्यक है कि सम्मेलन आयोजक मौलिक और आकर्षक वार्ताओं की तलाश में होते हैं जो विविध दर्शकों को आकर्षित करें। सुनिश्चित करें कि आपका प्रस्ताव अच्छी तरह से लिखा गया है, स्पष्ट और संक्षिप्त है और एक ऐसे विषय को संबोधित करता है जो पायथन समुदाय के लिए प्रासंगिक और दिलचस्प है।
+Another way to get to speak at Python conferences is to submit a proposal to a Call for Proposals (CfP). Most conferences open up CfPs several months before the event, and anyone can submit a proposal.
+When submitting a proposal, it's essential to remember that conference organizers seek original and engaging talks that appeal to a diverse audience. Ensure your submission is well-written, clear, and concise and addresses a topic relevant and interesting to the Python community.
 
 यहां एक सफल प्रस्ताव जमा करने के लिए कुछ युक्तियां दी गई हैं:
 
--   एक ऐसा विषय चुनें जिसके बारे में आप जुनूनी हैं और जिसमें आपके पास विशेषज्ञता है।
--   सुनिश्चित करें कि आपका प्रस्ताव सम्मेलन थीम या फोकस के लिए प्रासंगिक है।
--   एक आकर्षक शीर्षक और सारांश लिखें जो सम्मेलन आयोजकों और प्रतिभागियों का ध्यान आकर्षित करेगा।
--   अपनी वार्ता का विस्तार से वर्णन करें, जिसमें यह शामिल हो कि आप क्या कवर करेंगे और इसे कैसे प्रस्तुत करेंगे।
--   कोई भी सहायक सामग्री शामिल करें, जैसे कोड के उदाहरण या स्लाइड्स, ताकि आयोजकों को आपके प्रस्तुतिकरण शैली और सामग्री का बेहतर अहसास हो।
+- एक ऐसा विषय चुनें जिसके बारे में आप जुनूनी हैं और जिसमें आपके पास विशेषज्ञता है।
+- सुनिश्चित करें कि आपका प्रस्ताव सम्मेलन थीम या फोकस के लिए प्रासंगिक है।
+- एक आकर्षक शीर्षक और सारांश लिखें जो सम्मेलन आयोजकों और प्रतिभागियों का ध्यान आकर्षित करेगा।
+- अपनी वार्ता का विस्तार से वर्णन करें, जिसमें यह शामिल हो कि आप क्या कवर करेंगे और इसे कैसे प्रस्तुत करेंगे।
+- कोई भी सहायक सामग्री शामिल करें, जैसे कोड के उदाहरण या स्लाइड्स, ताकि आयोजकों को आपके प्रस्तुतिकरण शैली और सामग्री का बेहतर अहसास हो।
 
-### अपने भाषण कौशल का निर्माण करें
+## अपने भाषण कौशल का निर्माण करें
 
 यदि आप सार्वजनिक भाषण में नए हैं, तो स्थानीय मीटअप या इवेंट्स में बोलकर छोटे से शुरुआत करना एक अच्छा विचार है।
 
-यह आपके आत्मविश्वास का निर्माण करने और आपके प्रस्तुतिकरण कौशल को परिष्कृत करने में मदद करेगा। जैसे-जैसे आप अधिक अनुभव प्राप्त करते हैं, आप बड़े इवेंट्स, जैसे क्षेत्रीय या राष्ट्रीय सम्मेलनों में बोलने का विस्तार कर सकते हैं।
+This will help you build your confidence and refine your presentation skills. As you gain more experience, you can branch out and speak at larger events, such as regional or national conferences.
 
 प्रत्येक वार्ता के बाद प्रतिभागियों और आयोजकों से प्रतिक्रिया मांगें, और उस प्रतिक्रिया का उपयोग अपने भाषण कौशल को सुधारने के लिए करें।
 
-### अन्य वक्ताओं और प्रतिभागियों के साथ नेटवर्क बनाएं
+## अन्य वक्ताओं और प्रतिभागियों के साथ नेटवर्क बनाएं
 
 अंत में, नेटवर्किंग पायथन सम्मेलनों में बोलने के लिए महत्वपूर्ण है।
 
@@ -42,7 +44,7 @@ tags: ['Python', 'CfP']
 
 पायथन समुदाय के अन्य सदस्यों के साथ संबंध बनाकर, आप अपनी दृश्यता और विश्वसनीयता बढ़ाएंगे, जिससे भविष्य में अधिक भाषण के अवसर मिल सकते हैं।
 
-### निष्कर्ष
+## निष्कर्ष
 
 निष्कर्षतः, पायथन सम्मेलनों में बोलने के लिए विशेषज्ञता, तैयारी और नेटवर्किंग का संयोजन आवश्यक है।
 

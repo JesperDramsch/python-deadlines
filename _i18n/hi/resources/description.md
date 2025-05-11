@@ -1,5 +1,5 @@
-यह पेज आपको पायथन सम्मेलनों के लिए बेहतरीन कॉल फॉर प्रपोज़ल (CfP) तैयार करने में मदद करने के लिए समर्पित है। यहाँ, आपको आकर्षक प्रस्ताव लिखने के लिए ब्लॉग पोस्ट, गाइड और सुझावों का संग्रह मिलेगा।
+This page is dedicated to helping you craft outstanding Call for Proposals (CfPs) for Python conferences. Here, you'll find a collection of blog posts, guides, and tips on writing compelling proposals.
 
-हमारे संसाधन CfP लेखन के विभिन्न पहलुओं को कवर करते हैं, जिसमें विषय चुनने से लेकर आपके सबमिशन की संरचना तक शामिल है। चाहे आप पहली बार बोलने वाले वक्ता हों या अनुभवी प्रस्तुतकर्ता, इन उपकरणों का उद्देश्य आपके प्रस्ताव-लेखन कौशल को बढ़ाना है।
+Our resources cover various aspects of CfP writing, from choosing a topic to structuring your submission. Whether you're a first-time speaker or a seasoned presenter, these tools aim to enhance your proposal-writing skills.
 
 दुनिया भर में पायथन कार्यक्रमों में अपने भाषण या कार्यशाला को स्वीकार किए जाने की संभावना बढ़ाने के लिए हमारी क्यूरेटेड सामग्री का अन्वेषण करें।

@@ -2,7 +2,9 @@
 title: Explorando recursos adicionales para fechas límite de conferencias
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'conferences']
+tags:
+  - Python
+  - conferences
 ---
 
 Pythondeadlin.es ha sido un destino popular para la comunidad Python para encontrar fechas límite de conferencias en un lugar conveniente durante el último año.
@@ -43,8 +45,8 @@ Al utilizar estos recursos, puedes mantenerte al día con los próximos eventos 
 
 Asegúrate de consultar los siguientes recursos para más información:
 
--   [GitHub de Python-Organizers](https://github.com/python-organizers/conferences)
--   [Lista oficial de eventos de Python](https://www.python.org/events/)
+- [GitHub de Python-Organizers](https://github.com/python-organizers/conferences)
+- [Lista oficial de eventos de Python](https://www.python.org/events/)
 
 Al utilizar estas plataformas, podemos mantenernos informados sobre los próximos eventos de Python, conectarnos con personas afines y contribuir activamente al éxito de nuestras conferencias. Colaboremos, compartamos nuestro conocimiento y forjemos una comunidad Python más fuerte.
 

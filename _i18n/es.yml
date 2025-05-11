@@ -21,12 +21,6 @@ titles:
   search: 'Buscar'
   about: 'Sobre las fechas de conferencias de Python'
   languages: 'Idiomas Disponibles'
-buttons:
-  ical: Obtener el iCal
-  google: Añadir al Calendario de Google
-  github: Enviar una Conferencia en GitHub
-  all_selected: Todas las Conferencias
-  none_selected: Ninguna Seleccionada
 description:
   summary: 'Resumen de la conferencia y sus instancias a lo largo de los años.'
 header:
@@ -44,6 +38,12 @@ conference:
   download_date: 'Descargar datos de la conferencia'
   deadline_tz_theirs: 'Fecha límite en la zona horaria de la conferencia'
   deadline_tz_local: "Fecha límite en sua zona horaria <span class='local-timezone'></span>"
+buttons:
+  ical: Obtener el iCal
+  google: Añadir al Calendario de Google
+  github: Enviar una Conferencia en GitHub
+  all_selected: Todas las Conferencias
+  none_selected: Ninguna Seleccionada
 summary:
   title: 'Resumen de la Conferencia'
 subs:

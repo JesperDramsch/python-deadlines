@@ -3,15 +3,6 @@ global:
   current: 'id'
   choose: 'Pilih Bahasa'
   sub_filter: 'Filter berdasarkan Subkategori:'
-  en: 'English'
-  es: 'Español'
-  de: 'Deutsch'
-  fr: 'Français'
-  pt-br: 'Português'
-  zh-cn: '中文'
-  hi: 'हिन्दी'
-  id: 'Bahasa'
-  ru: 'Русский'
   cfp: 'Undangan Partisipasi'
   cfp_ext: 'CFP diperpanjang dari'
 titles:
@@ -30,12 +21,6 @@ titles:
   search: 'Cari'
   about: 'Tentang Tenggat Waktu Konferensi Python'
   languages: 'Bahasa yang Tersedia'
-buttons:
-  ical: Dapatkan iCal
-  google: Tambahkan ke Google Calendar
-  github: Kirim Konferensi di GitHub
-  all_selected: Semua Konferensi Dipilih
-  none_selected: Tidak Ada Konferensi Dipilih
 description:
   summary: 'Ringkasan konferensi dan sejarahnya selama bertahun-tahun.'
 header:
@@ -53,6 +38,12 @@ conference:
   download_date: 'Unduh Tanggal Konferensi'
   deadline_tz_theirs: 'Tenggat waktu dalam zona waktu situs konferensi'
   deadline_tz_local: "Tenggat waktu dalam zona waktu lokal <span class='local-timezone'></span> Anda"
+buttons:
+  ical: Dapatkan iCal
+  google: Tambahkan ke Google Calendar
+  github: Kirim Konferensi di GitHub
+  all_selected: Semua Konferensi Dipilih
+  none_selected: Tidak Ada Konferensi Dipilih
 summary:
   title: 'Ringkasan Konferensi'
 subs:

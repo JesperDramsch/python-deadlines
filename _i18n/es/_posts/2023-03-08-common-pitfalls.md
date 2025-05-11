@@ -2,22 +2,25 @@
 title: 9 errores comunes que hacen que rechacen tu propuesta de charla para conferencias Python
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'pitfalls']
+tags:
+  - Python
+  - CfP
+  - pitfalls
 ---
 
-Si estás pensando en enviar una propuesta para una charla en una conferencia, es esencial saber qué evitar para aumentar tus posibilidades de aceptación. Aquí hay nueve errores comunes a tener en cuenta:
+Si estás pensando en enviar una propuesta para una charla en una conferencia, es esencial saber qué evitar para aumentar tus posibilidades de aceptación. In that case, knowing what to avoid is essential to increase your chances of acceptance. Aquí hay nueve errores comunes a tener en cuenta:
 
 ## Presentaciones de ventas
 
 Recuerda que la conferencia es una comunidad de creadores y usuarios de herramientas de computación científica de código abierto. Aunque puedes hacer referencia a tu producto o plataforma de código cerrado, la audiencia encontrará la charla más interesante si pueden probar tus técnicas con el stack PyData de código abierto. Evita hacer una venta agresiva y concéntrate en la definición del problema, estrategias propuestas y dominio del negocio.
 
-## Charlas repetidas
+## Repeated talks
 
 Las conferencias prefieren charlas nuevas y oradores nuevos. Si tu charla ya está disponible en línea, es poco probable que sea aceptada para la conferencia. Intenta aportar nuevos conocimientos, técnicas o perspectivas sobre un tema que no se haya cubierto antes.
 
 ## Falta de claridad
 
-Tu propuesta debe comunicar claramente de qué trata tu charla y qué pueden esperar aprender los asistentes. Si tu propuesta es poco clara, divaga o es difícil de seguir, los revisores pueden no ser capaces de determinar si tu charla se alinea con los objetivos de la conferencia o es adecuada para la audiencia prevista.
+Tu propuesta debe comunicar claramente de qué trata tu charla y qué pueden esperar aprender los asistentes. Suppose your proposal is unclear, rambling, or difficult to follow. Si tu propuesta es poco clara, divaga o es difícil de seguir, los revisores pueden no ser capaces de determinar si tu charla se alinea con los objetivos de la conferencia o es adecuada para la audiencia prevista.
 
 ## Falta de originalidad
 
@@ -29,7 +32,7 @@ Mantén tu propuesta simple y clara. Las buenas propuestas típicamente proporci
 
 ## Falta de relevancia
 
-Asegúrate de que tu charla se alinee con el tema o enfoque de la conferencia. Si tu propuesta está solo tangencialmente relacionada con los objetivos de la conferencia, los revisores pueden no ver cómo encaja en el panorama más amplio o cómo beneficiaría a los asistentes.
+Asegúrate de que tu charla se alinee con el tema o enfoque de la conferencia. Suppose your proposal is only tangentially related to the conference's goals. In that case, reviewers may not see how it fits into the larger picture or how it would benefit attendees.
 
 ## Trabajo futuro
 

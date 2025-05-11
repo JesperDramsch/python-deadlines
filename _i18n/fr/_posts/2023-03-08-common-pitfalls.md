@@ -2,10 +2,13 @@
 title: 9 pièges courants qui font rejeter votre proposition de présentation pour les conférences Python
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'pitfalls']
+tags:
+  - Python
+  - CfP
+  - pitfalls
 ---
 
-Si vous envisagez de soumettre une proposition pour une présentation en conférence, il est essentiel de savoir ce qu'il faut éviter pour augmenter vos chances d'acceptation. Voici neuf pièges courants à surveiller :
+Suppose you're looking to submit a proposal for a conference talk. In that case, knowing what to avoid is essential to increase your chances of acceptance. Voici neuf pièges courants à surveiller :
 
 ## Les argumentaires de vente
 
@@ -17,7 +20,7 @@ Les conférences préfèrent les nouvelles présentations et les nouveaux orateu
 
 ## Le manque de clarté
 
-Votre proposition doit communiquer clairement de quoi parle votre présentation et ce que les participants peuvent s'attendre à apprendre. Si votre proposition est peu claire, décousue ou difficile à suivre, les examinateurs peuvent ne pas être en mesure de déterminer si votre présentation s'aligne sur les objectifs de la conférence ou convient à l'audience visée.
+Votre proposition doit communiquer clairement de quoi parle votre présentation et ce que les participants peuvent s'attendre à apprendre. Suppose your proposal is unclear, rambling, or difficult to follow. Si votre proposition est peu claire, décousue ou difficile à suivre, les examinateurs peuvent ne pas être en mesure de déterminer si votre présentation s'aligne sur les objectifs de la conférence ou convient à l'audience visée.
 
 ## Le manque d'originalité
 
@@ -29,7 +32,7 @@ Gardez votre proposition simple et claire. Les bonnes propositions fournissent g
 
 ## Le manque de pertinence
 
-Assurez-vous que votre présentation s'aligne sur le thème ou le focus de la conférence. Si votre proposition n'est que tangentiellement liée aux objectifs de la conférence, les examinateurs peuvent ne pas voir comment elle s'intègre dans le tableau d'ensemble ou comment elle bénéficierait aux participants.
+Assurez-vous que votre présentation s'aligne sur le thème ou le focus de la conférence. Suppose your proposal is only tangentially related to the conference's goals. In that case, reviewers may not see how it fits into the larger picture or how it would benefit attendees.
 
 ## Les travaux futurs
 

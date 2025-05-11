@@ -2,10 +2,13 @@
 title: 9 häufige Fallstricke, die zur Ablehnung Ihres Python-Konferenz-Vortragsvorschlags führen
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'pitfalls']
+tags:
+  - Python
+  - CfP
+  - pitfalls
 ---
 
-Wenn Sie einen Vorschlag für einen Konferenzvortrag einreichen möchten, ist es wichtig zu wissen, was zu vermeiden ist, um Ihre Erfolgschancen zu erhöhen. Hier sind neun häufige Fallstricke, auf die Sie achten sollten:
+Wenn Sie einen Vorschlag für einen Konferenzvortrag einreichen möchten, ist es wichtig zu wissen, was zu vermeiden ist, um Ihre Erfolgschancen zu erhöhen. In that case, knowing what to avoid is essential to increase your chances of acceptance. Hier sind neun häufige Fallstricke, auf die Sie achten sollten:
 
 ## Verkaufspräsentationen
 
@@ -17,7 +20,7 @@ Konferenzen bevorzugen neue Vorträge und neue Redner. Wenn Ihr Vortrag bereits 
 
 ## Mangel an Klarheit
 
-Ihr Vorschlag sollte klar kommunizieren, worum es in Ihrem Vortrag geht und was die Teilnehmer erwarten können zu lernen. Wenn Ihr Vorschlag unklar, weitschweifig oder schwer zu verstehen ist, können Gutachter möglicherweise nicht feststellen, ob Ihr Vortrag mit den Zielen der Konferenz übereinstimmt oder für das beabsichtigte Publikum geeignet ist.
+Ihr Vorschlag sollte klar kommunizieren, worum es in Ihrem Vortrag geht und was die Teilnehmer erwarten können zu lernen. Suppose your proposal is unclear, rambling, or difficult to follow. Wenn Ihr Vorschlag unklar, weitschweifig oder schwer zu verstehen ist, können Gutachter möglicherweise nicht feststellen, ob Ihr Vortrag mit den Zielen der Konferenz übereinstimmt oder für das beabsichtigte Publikum geeignet ist.
 
 ## Mangel an Originalität
 
@@ -29,7 +32,7 @@ Halten Sie Ihren Vorschlag einfach und klar. Gute Vorschläge liefern typischerw
 
 ## Mangel an Relevanz
 
-Stellen Sie sicher, dass Ihr Vortrag mit dem Thema oder Fokus der Konferenz übereinstimmt. Wenn Ihr Vorschlag nur tangential mit den Zielen der Konferenz zusammenhängt, sehen Gutachter möglicherweise nicht, wie er in das größere Bild passt oder wie er den Teilnehmern nutzen würde.
+Stellen Sie sicher, dass Ihr Vortrag mit dem Thema oder Fokus der Konferenz übereinstimmt. Suppose your proposal is only tangentially related to the conference's goals. In that case, reviewers may not see how it fits into the larger picture or how it would benefit attendees.
 
 ## Zukünftige Arbeit
 

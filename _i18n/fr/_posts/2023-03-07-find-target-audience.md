@@ -2,7 +2,11 @@
 title: Comment définir votre public cible pour une présentation lors d'une conférence Python ?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation', 'conference', 'audience']
+tags:
+  - Python
+  - presentation
+  - conference
+  - audience
 ---
 
 Lorsqu'il s'agit de soumettre une proposition pour une présentation de conférence, il est essentiel de définir votre public cible. Savoir à qui vous vous adressez peut vous aider à adapter votre présentation aux besoins, aux intérêts et aux connaissances préalables de l'audience. Dans ce billet, nous discuterons de la manière de définir votre public cible pour une proposition de conférence et pourquoi c'est important.
@@ -23,7 +27,7 @@ Ensuite, considérez le niveau d'expérience de votre public cible. Sont-ils dé
 
 Cela affectera la façon dont vous présentez vos idées et la quantité d'informations contextuelles que vous fournissez.
 
-Par exemple, si votre présentation porte sur un algorithme complexe, un public avancé peut être intéressé par les détails techniques et les exemples de code, tandis que les débutants peuvent avoir besoin d'une explication simplifiée des concepts pour suivre la présentation.
+Par exemple, si votre présentation porte sur un algorithme complexe, un public avancé peut être intéressé par les détails techniques et les exemples de code, tandis que les débutants peuvent avoir besoin d'une explication simplifiée des concepts pour suivre la présentation. In that case, an advanced audience may be interested in the technical details and code examples. At the same time, beginners may need a simplified explanation of the concepts to follow the presentation.
 
 ## Envisagez une niche secondaire
 
@@ -41,7 +45,7 @@ Premièrement, cela vous aide à concentrer votre présentation sur les sujets l
 
 Deuxièmement, cela aide les participants potentiels à décider si votre présentation correspond à leurs besoins et intérêts.
 
-S'ils peuvent facilement voir que votre présentation cible leur rôle professionnel et leur niveau d'expérience, ils sont plus susceptibles d'y assister et d'y trouver de la valeur.
+S'ils peuvent facilement voir que votre présentation cible leur rôle professionnel et leur niveau d'expérience, ils sont plus susceptibles d'y assister et d'y trouver de la valeur. In that case, they are more likely to attend and find value in your talk.
 
 ## Considérez la conférence elle-même
 

@@ -2,7 +2,9 @@
 title: ¿De qué debería tratar mi charla en una conferencia Python?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation']
+tags:
+  - Python
+  - presentation
 ---
 
 A menudo enfrentamos una paradoja cuando finalmente decidimos dar una charla en una conferencia Python. Hemos aprendido tantas cosas emocionantes. Hay tanto que es interesante. Pero, ¿de qué debería tratar mi charla de Python?

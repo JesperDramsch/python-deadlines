@@ -2,39 +2,41 @@
 title: Bagaimana cara berbicara di konferensi Python?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP']
+tags:
+  - Python
+  - CfP
 ---
 
-Konferensi Python adalah platform yang sangat baik untuk berbagi pengetahuan, membangun jaringan dengan rekan-rekan, dan tetap up-to-date dengan perkembangan terbaru di komunitas Python. Jika Anda memiliki minat yang besar terhadap Python dan ingin berbagi wawasan Anda dengan audiens yang lebih luas, berbicara di konferensi Python bisa menjadi kesempatan yang bagus. Dalam blog post ini, kita akan mengeksplorasi bagaimana cara untuk berbicara di konferensi Python.
+Python conferences are an excellent platform for sharing knowledge, networking with peers, and staying up-to-date with the latest developments in the Python community. Speaking at a Python conference can be a great opportunity if you're passionate about Python and want to share your insights with a wider audience. In this blog post, we'll explore how to get to speak at Python conferences.
 
-### Diundang
+## Diundang
 
-Salah satu cara untuk diundang berbicara di konferensi Python adalah dengan memiliki reputasi yang mapan di komunitas. Misalnya, Anda telah berkontribusi pada proyek open-source, menulis artikel atau blog post tentang Python, atau berbicara di meetup atau acara yang lebih kecil. Dalam hal ini, Anda mungkin menarik perhatian penyelenggara konferensi.
+One way to get invited to speak at Python conferences is to have an established reputation in the community. Suppose you've contributed to open-source projects, written articles or blog posts about Python, or spoken at smaller meetups or events. In that case, you may catch the attention of conference organizers.
 
-Selain itu, jika Anda adalah ahli di bidang tertentu, seperti machine learning atau pengembangan web, Anda mungkin diundang untuk berbicara di konferensi yang berfokus pada topik-topik tersebut. Untuk meningkatkan peluang Anda diundang, hadirilah konferensi dan meetup, berpartisipasilah dalam diskusi online, dan berkontribusilah pada komunitas Python dengan cara apa pun yang Anda bisa.
+Additionally, if you're an expert in a specific field, such as machine learning or web development, you may be invited to speak at conferences that focus on those topics. To increase your chances of being invited, attend conferences and meetups, participate in online discussions, and contribute to the Python community in any way you can.
 
-### Mengirimkan Proposal untuk Call for Proposal (CfP)
+## Mengirimkan Proposal untuk Call for Proposal (CfP)
 
-Cara lain untuk berbicara di konferensi Python adalah dengan mengirimkan proposal untuk Call for Proposals (CfP). Kebanyakan konferensi membuka CfP beberapa bulan sebelum acara, dan siapa pun dapat mengirimkan proposal.
-Saat mengirimkan proposal, penting untuk diingat bahwa penyelenggara konferensi mencari pembicaraan yang orisinal dan menarik yang menarik bagi beragam audiens. Pastikan pengajuan Anda ditulis dengan baik, jelas, dan ringkas, serta membahas topik yang relevan dan menarik bagi komunitas Python.
+Another way to get to speak at Python conferences is to submit a proposal to a Call for Proposals (CfP). Most conferences open up CfPs several months before the event, and anyone can submit a proposal.
+When submitting a proposal, it's essential to remember that conference organizers seek original and engaging talks that appeal to a diverse audience. Ensure your submission is well-written, clear, and concise and addresses a topic relevant and interesting to the Python community.
 
 Berikut beberapa tips untuk mengirimkan proposal yang sukses:
 
--   Pilih topik yang Anda minati dan memiliki keahlian di dalamnya.
--   Pastikan proposal Anda relevan dengan tema atau fokus konferensi.
--   Tulis judul dan ringkasan yang menarik yang akan menarik perhatian penyelenggara konferensi dan peserta.
--   Jelaskan pembicaraan Anda secara detail, termasuk apa yang akan Anda bahas dan bagaimana Anda akan mempresentasikannya.
--   Sertakan materi pendukung, seperti contoh kode atau slide, untuk memberikan penyelenggara gambaran yang lebih baik tentang gaya presentasi dan konten Anda.
+- Pilih topik yang Anda minati dan memiliki keahlian di dalamnya.
+- Pastikan proposal Anda relevan dengan tema atau fokus konferensi.
+- Tulis judul dan ringkasan yang menarik yang akan menarik perhatian penyelenggara konferensi dan peserta.
+- Jelaskan pembicaraan Anda secara detail, termasuk apa yang akan Anda bahas dan bagaimana Anda akan mempresentasikannya.
+- Sertakan materi pendukung, seperti contoh kode atau slide, untuk memberikan penyelenggara gambaran yang lebih baik tentang gaya presentasi dan konten Anda.
 
-### Bangun Keterampilan Berbicara Anda
+## Bangun Keterampilan Berbicara Anda
 
 Jika Anda baru dalam berbicara di depan umum, ide yang baik adalah memulai dari yang kecil dengan berbicara di meetup atau acara lokal.
 
-Ini akan membantu Anda membangun kepercayaan diri dan menyempurnakan keterampilan presentasi Anda. Seiring dengan bertambahnya pengalaman, Anda dapat memperluas dan berbicara di acara yang lebih besar, seperti konferensi regional atau nasional.
+This will help you build your confidence and refine your presentation skills. As you gain more experience, you can branch out and speak at larger events, such as regional or national conferences.
 
 Mintalah umpan balik dari peserta dan penyelenggara setelah setiap pembicaraan, dan gunakan umpan balik itu untuk meningkatkan keterampilan berbicara Anda.
 
-### Bangun Jaringan dengan Pembicara Lain dan Peserta
+## Bangun Jaringan dengan Pembicara Lain dan Peserta
 
 Akhirnya, membangun jaringan sangat penting untuk berbicara di konferensi Python.
 
@@ -42,7 +44,7 @@ Hadiri sebanyak mungkin konferensi dan meetup, dan cobalah untuk terhubung denga
 
 Dengan membangun hubungan dengan anggota lain dari komunitas Python, Anda akan meningkatkan visibilitas dan kredibilitas Anda, yang dapat mengarah pada lebih banyak kesempatan berbicara di masa depan.
 
-### Kesimpulan
+## Kesimpulan
 
 Sebagai kesimpulan, berbicara di konferensi Python membutuhkan kombinasi keahlian, persiapan, dan membangun jaringan.
 

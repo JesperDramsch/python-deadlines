@@ -2,7 +2,9 @@
 title: Worüber sollte mein Python-Konferenzvortrag sein?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation']
+tags:
+  - Python
+  - presentation
 ---
 
 Wir stehen oft vor einem paradoxen Rätsel, wenn wir uns endlich entscheiden, einen Vortrag auf einer Python-Konferenz zu halten. Wir haben so viele spannende Dinge gelernt. Vieles ist interessant. Aber worüber sollte mein Python-Vortrag sein?!

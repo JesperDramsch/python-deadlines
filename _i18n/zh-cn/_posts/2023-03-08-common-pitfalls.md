@@ -2,45 +2,48 @@
 title: 导致Python会议演讲提案被拒绝的9个常见陷阱
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'pitfalls']
+tags:
+  - Python
+  - CfP
+  - pitfalls
 ---
 
-如果你打算提交会议演讲提案，了解应该避免什么是提高接受机会的关键。以下是九个需要注意的常见陷阱：
+Suppose you're looking to submit a proposal for a conference talk. In that case, knowing what to avoid is essential to increase your chances of acceptance. Here are nine common pitfalls to watch out for:
 
 ## 销售推介
 
-请记住，会议是开源科学计算工具的创建者和用户社区。虽然你可以提及你的闭源产品或平台，但如果观众能够使用开源 PyData 堆栈尝试你的技术，他们会发现演讲更有趣。避免进行硬性销售，而是专注于问题定义、提议的策略和业务领域。
+Remember that the conference is a community of creators and users of open-source scientific computing tools. While you can reference your closed-source product or platform, the audience will find the talk more interesting if they can try your techniques with the open-source PyData stack. Avoid making a hard sell, and focus on problem definition, proposed strategies, and business domain instead.
 
 ## 重复的演讲
 
-会议偏好新的演讲和新的讲者。如果你的演讲已经在网上可获取，它不太可能被会议接受。尝试带来尚未被覆盖过的主题的新见解、技术或视角。
+Conferences prefer new talks and new speakers. If your talk is already available online, it will unlikely be accepted for the conference. Try to bring new insights, techniques, or perspectives on a topic that hasn't been covered before.
 
 ## 缺乏清晰度
 
-你的提案应该清晰地传达你的演讲内容和参会者可以期望学到什么。如果你的提案不清晰、杂乱或难以理解，评审者可能无法确定你的演讲是否符合会议目标或适合目标受众。
+你的提案应该清晰地传达你的演讲内容和参会者可以期望学到什么。如果你的提案不清晰、杂乱或难以理解，评审者可能无法确定你的演讲是否符合会议目标或适合目标受众。 Suppose your proposal is unclear, rambling, or difficult to follow. In that case, reviewers may be unable to determine if your talk aligns with the conference's goals or is suitable for the intended audience.
 
 ## 缺乏原创性
 
-评审者寻找能提供新鲜视角或常见问题新解决方案的独特、有见地和创新的演讲。如果你的提案涵盖已经被多次讨论过的主题，或者没有提供任何新的见解或技术，评审者可能会拒绝它。这并不意味着案例研究或问题的新视角不会被接受，但值得考虑这种额外的视角。
+Reviewers seek unique, insightful, and innovative talks that offer fresh perspectives or new solutions to common problems. If your proposal covers a topic that has already been covered multiple times or doesn't provide any new insights or techniques, reviewers may pass on it. That doesn't mean a case study or new spin on an issue won't be accepted, but it's worth considering that added perspective.
 
 ## 过长的提案
 
-保持你的提案简单明了。好的提案通常在 250 字内提供所有重要信息。这不是严格的限制，会因会议而异。这是一个建议，帮助你保持专注并避免失去评审者的注意力。
+Keep your proposal simple and clear. Good proposals typically provide all the vital information within 250 words. This is not a strict limit and varies per conference. This is a suggestion to help you stay focused and avoid losing the attention of the reviewers.
 
 ## 缺乏相关性
 
-确保你的演讲与会议的主题或焦点一致。如果你的提案仅与会议目标有切线关系，评审者可能看不到它如何融入更大的图景或如何使与会者受益。
+确保你的演讲与会议的主题或焦点一致。如果你的提案仅与会议目标有切线关系，评审者可能看不到它如何融入更大的图景或如何使与会者受益。 Suppose your proposal is only tangentially related to the conference's goals. In that case, reviewers may not see how it fits into the larger picture or how it would benefit attendees.
 
 ## 未来工作
 
-虽然讨论未来工作令人兴奋，可能会在你的演讲中提及，但演讲的核心内容应该已经成型，你应该能够在提案中描述它。不要过分依赖未来的数据收集或未来的原型设计，因为事情往往不会按预期发展。确保提供具体的例子和用例。
+虽然讨论未来工作令人兴奋，可能会在你的演讲中提及，但演讲的核心内容应该已经成型，你应该能够在提案中描述它。不要过分依赖未来的数据收集或未来的原型设计，因为事情往往不会按预期发展。确保提供具体的例子和用例。 Don't rely too heavily on future data collection or future prototyping because things often don't go as expected. Be sure to provide concrete examples and use cases.
 
 ## 不适当或冒犯性内容
 
-保持你的语言和语调专业和尊重，避免可能冒犯或疏远参会者的争议性或敏感话题。含有不适当、冒犯性或歧视性内容的提案可能会被拒绝。
+保持你的语言和语调专业和尊重，避免可能冒犯或疏远参会者的争议性或敏感话题。含有不适当、冒犯性或歧视性内容的提案可能会被拒绝。 Proposals containing inappropriate, offensive, or discriminatory content will likely be rejected.
 
 ## 与会议格式不匹配
 
-会议有不同的格式，从闪电演讲到工作坊再到主题演讲。确保你的提案与会议的格式和时长相符，并能在该格式中有效传递。考虑你的演讲所需的任何设备、材料或资源。
+会议有不同的格式，从闪电演讲到工作坊再到主题演讲。确保你的提案与会议的格式和时长相符，并能在该格式中有效传递。考虑你的演讲所需的任何设备、材料或资源。 Ensure your proposal aligns with the format and duration of the conference and can be delivered effectively in that format. Consider any equipment, materials, or resources required for your talk.
 
 通过避免这些常见陷阱，你可以增加提交成功会议演讲提案的机会，使其与会议目标一致，与参会者相关，并提供新的见解或技术。

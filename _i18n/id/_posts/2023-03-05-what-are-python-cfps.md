@@ -2,7 +2,10 @@
 title: Apa itu CfP konferensi Python?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'conference']
+tags:
+  - Python
+  - CfP
+  - conference
 ---
 
 Call for Proposals (CfP) atau Call for Participation adalah istilah umum yang digunakan dalam komunitas akademis, penelitian, dan profesional untuk mengundang individu atau kelompok untuk mengirimkan proposal atau abstrak untuk konferensi, workshop, simposium, dan acara lainnya.
@@ -19,7 +22,7 @@ CfP biasanya dikeluarkan oleh penyelenggara acara, komite konferensi, atau insti
 
 Tujuan dari CfP adalah untuk mendorong berbagai peserta untuk terlibat dengan acara atau konferensi, memastikan keberagaman perspektif dan ide.
 
-CfP sering menguraikan tema acara, topik yang diminati, dan pedoman pengajuan. Mereka juga menentukan jenis pengajuan yang diterima, seperti makalah penelitian, studi kasus, poster, atau workshop.
+CfPs often outline the event's theme, the topics of interest, and the submission guidelines. They also specify the types of submissions that are accepted, such as research papers, case studies, posters, or workshops.
 
 ## Bagaimana cara berpartisipasi dalam CfP?
 
@@ -27,7 +30,7 @@ Proses pengajuan untuk CfP biasanya melibatkan persiapan proposal atau abstrak y
 
 Beberapa CfP akademis mungkin memerlukan pengajuan makalah lengkap, sementara yang lain mungkin meminta abstrak singkat atau ringkasan.
 
-CfP Python jarang memerlukan pengajuan materi lengkap, karena mereka tidak menerbitkan makalah. Namun, penting untuk menghindari jebakan umum yaitu hanya menjanjikan pekerjaan masa depan.
+Python CfPs rarely require the submission of full materials, as they do not publish papers. However, it is vital to avoid the [common pitfall](/resources/common-pitfalls/) of promising solely future work.
 
 ## Kesimpulan
 

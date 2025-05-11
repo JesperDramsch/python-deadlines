@@ -21,12 +21,6 @@ titles:
   search: 'Suche'
   about: 'Über Python-Konferenz-Deadlines'
   languages: 'Verfügbare Sprachen'
-buttons:
-  ical: Lade iCal runter
-  google: Zu Google Kalender hinzufügen
-  github: Konferenz auf GitHub einreichen
-  all_selected: Alle Konferenzen ausgewählt
-  none_selected: Keine Konferenz ausgewählt
 description:
   summary: 'Python Konferenz und ihre Instanzen im Laufe der Jahre.'
 header:
@@ -44,6 +38,12 @@ conference:
   download_date: 'Download der Konferenzdaten'
   deadline_tz_theirs: 'Deadline in der Zeitzone der Konferenz'
   deadline_tz_local: "Deadline in lokaler <span class='local-timezone'></span> Zeitzone"
+buttons:
+  ical: Lade iCal runter
+  google: Zu Google Kalender hinzufügen
+  github: Konferenz auf GitHub einreichen
+  all_selected: Alle Konferenzen ausgewählt
+  none_selected: Keine Konferenz ausgewählt
 summary:
   title: 'Konferenzübersicht'
 subs:
@@ -97,7 +97,7 @@ social:
   whatsapp: 'Konferenz per WhatsApp teilen'
   email: 'Konferenz per E-Mail teilen'
 search:
-  no-results: "Keine Suchergebnisse für gefunden."
+  no-results: 'Keine Suchergebnisse für gefunden.'
   error: 'Fehler beim Laden des Suchindex. Bitte probiere es später erneut.'
 about:
   toggle_fullscreen: "Vollbildpräsentationsmodus umschalten"

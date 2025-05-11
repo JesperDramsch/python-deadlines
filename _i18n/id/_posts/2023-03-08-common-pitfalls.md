@@ -2,45 +2,48 @@
 title: 9 Kesalahan Umum yang Membuat Proposal Presentasi Konferensi Python Anda Ditolak
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'pitfalls']
+tags:
+  - Python
+  - CfP
+  - pitfalls
 ---
 
-Jika Anda berencana untuk mengirimkan proposal untuk presentasi konferensi, penting untuk mengetahui apa yang harus dihindari untuk meningkatkan peluang penerimaan Anda. Berikut adalah sembilan kesalahan umum yang perlu diwaspadai:
+Suppose you're looking to submit a proposal for a conference talk. In that case, knowing what to avoid is essential to increase your chances of acceptance. Here are nine common pitfalls to watch out for:
 
 ## Presentasi penjualan
 
-Ingatlah bahwa konferensi adalah komunitas pembuat dan pengguna alat komputasi ilmiah open-source. Meskipun Anda dapat mereferensikan produk atau platform closed-source Anda, audiens akan menemukan presentasi lebih menarik jika mereka dapat mencoba teknik Anda dengan stack PyData open-source. Hindari melakukan hard sell, dan fokus pada definisi masalah, strategi yang diusulkan, dan domain bisnis sebagai gantinya.
+Remember that the conference is a community of creators and users of open-source scientific computing tools. While you can reference your closed-source product or platform, the audience will find the talk more interesting if they can try your techniques with the open-source PyData stack. Avoid making a hard sell, and focus on problem definition, proposed strategies, and business domain instead.
 
 ## Presentasi berulang
 
-Konferensi lebih menyukai presentasi baru dan pembicara baru. Jika presentasi Anda sudah tersedia online, kemungkinan tidak akan diterima untuk konferensi. Cobalah untuk membawa wawasan, teknik, atau perspektif baru tentang topik yang belum dibahas sebelumnya.
+Conferences prefer new talks and new speakers. If your talk is already available online, it will unlikely be accepted for the conference. Try to bring new insights, techniques, or perspectives on a topic that hasn't been covered before.
 
 ## Kurangnya kejelasan
 
-Proposal Anda harus dengan jelas mengkomunikasikan tentang apa presentasi Anda dan apa yang dapat diharapkan peserta untuk dipelajari. Jika proposal Anda tidak jelas, bertele-tele, atau sulit diikuti, peninjau mungkin tidak dapat menentukan apakah presentasi Anda selaras dengan tujuan konferensi atau cocok untuk audiens yang dituju.
+Your proposal should clearly communicate what your talk is about and what attendees can expect to learn. Suppose your proposal is unclear, rambling, or difficult to follow. In that case, reviewers may be unable to determine if your talk aligns with the conference's goals or is suitable for the intended audience.
 
 ## Kurangnya orisinalitas
 
-Peninjau mencari presentasi yang unik, berwawasan, dan inovatif yang menawarkan perspektif segar atau solusi baru untuk masalah umum. Jika proposal Anda membahas topik yang sudah dibahas beberapa kali atau tidak memberikan wawasan atau teknik baru, peninjau mungkin akan menolaknya. Ini tidak berarti studi kasus atau sudut pandang baru terhadap suatu masalah tidak akan diterima, tetapi perlu mempertimbangkan perspektif tambahan itu.
+Reviewers seek unique, insightful, and innovative talks that offer fresh perspectives or new solutions to common problems. If your proposal covers a topic that has already been covered multiple times or doesn't provide any new insights or techniques, reviewers may pass on it. That doesn't mean a case study or new spin on an issue won't be accepted, but it's worth considering that added perspective.
 
 ## Proposal yang terlalu panjang
 
-Pertahankan proposal Anda sederhana dan jelas. Proposal yang baik biasanya memberikan semua informasi penting dalam 250 kata. Ini bukan batas yang ketat dan bervariasi per konferensi. Ini adalah saran untuk membantu Anda tetap fokus dan menghindari kehilangan perhatian peninjau.
+Keep your proposal simple and clear. Good proposals typically provide all the vital information within 250 words. This is not a strict limit and varies per conference. This is a suggestion to help you stay focused and avoid losing the attention of the reviewers.
 
 ## Kurangnya relevansi
 
-Pastikan presentasi Anda selaras dengan tema atau fokus konferensi. Jika proposal Anda hanya berhubungan secara tangensial dengan tujuan konferensi, peninjau mungkin tidak melihat bagaimana hal itu cocok dalam gambaran yang lebih besar atau bagaimana hal itu akan bermanfaat bagi peserta.
+Make sure your talk aligns with the conference's theme or focus. Suppose your proposal is only tangentially related to the conference's goals. In that case, reviewers may not see how it fits into the larger picture or how it would benefit attendees.
 
 ## Pekerjaan masa depan
 
-Meskipun membahas pekerjaan masa depan itu menarik dan bisa disebutkan dalam presentasi Anda, konten inti presentasi seharusnya sudah terbentuk, dan Anda harus bisa mendeskripsikannya dalam proposal Anda. Jangan terlalu mengandalkan pengumpulan data masa depan atau pembuatan prototipe masa depan karena seringkali hal-hal tidak berjalan sesuai harapan. Pastikan untuk memberikan contoh konkret dan kasus penggunaan.
+While discussing future work is exciting and could be mentioned in your talk, the core content of the talk should already be shaped, and you should be able to describe it in your proposal. Don't rely too heavily on future data collection or future prototyping because things often don't go as expected. Be sure to provide concrete examples and use cases.
 
 ## Konten yang tidak pantas atau menyinggung
 
-Pertahankan bahasa dan nada Anda profesional dan penuh hormat, dan hindari topik kontroversial atau sensitif yang dapat menyinggung atau mengasingkan peserta. Proposal yang berisi konten yang tidak pantas, menyinggung, atau diskriminatif kemungkinan akan ditolak.
+Keep your language and tone professional and respectful, and avoid controversial or sensitive topics that could offend or alienate attendees. Proposals containing inappropriate, offensive, or discriminatory content will likely be rejected.
 
 ## Ketidaksesuaian dengan format konferensi
 
-Konferensi memiliki format yang berbeda, dari lightning talk hingga workshop hingga pidato keynote. Pastikan proposal Anda selaras dengan format dan durasi konferensi dan dapat disampaikan secara efektif dalam format tersebut. Pertimbangkan peralatan, bahan, atau sumber daya apa pun yang diperlukan untuk presentasi Anda.
+Conferences have different formats, from lightning talks to workshops to keynote speeches. Ensure your proposal aligns with the format and duration of the conference and can be delivered effectively in that format. Consider any equipment, materials, or resources required for your talk.
 
 Dengan menghindari kesalahan umum ini, Anda dapat meningkatkan peluang mengirimkan proposal presentasi konferensi yang sukses yang selaras dengan tujuan konferensi, relevan bagi peserta, dan memberikan wawasan atau teknik baru.

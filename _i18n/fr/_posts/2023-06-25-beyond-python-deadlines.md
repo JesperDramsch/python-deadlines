@@ -2,7 +2,9 @@
 title: Explorer des ressources supplémentaires pour les délais des conférences
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'conferences']
+tags:
+  - Python
+  - conferences
 ---
 
 Pythondeadlin.es est une destination populaire pour la communauté Python qui cherche à trouver les délais des conférences en un seul endroit pratique depuis l'année dernière.
@@ -43,8 +45,8 @@ En utilisant ces ressources, vous pouvez rester informé des prochains événeme
 
 Assurez-vous de consulter les ressources suivantes pour plus d'informations :
 
--   [GitHub Python-Organizers](https://github.com/python-organizers/conferences)
--   [Liste officielle des événements Python](https://www.python.org/events/)
+- [GitHub Python-Organizers](https://github.com/python-organizers/conferences)
+- [Liste officielle des événements Python](https://www.python.org/events/)
 
 En utilisant ces plateformes, nous pouvons rester informés des prochains événements Python, nous connecter avec des personnes partageant les mêmes idées et contribuer activement au succès de nos conférences. Collaborons, partageons nos connaissances et forgeons une communauté Python plus forte.
 

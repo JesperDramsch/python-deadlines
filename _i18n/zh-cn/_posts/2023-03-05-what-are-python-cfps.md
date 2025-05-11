@@ -2,7 +2,10 @@
 title: 什么是Python会议CfP？
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'conference']
+tags:
+  - Python
+  - CfP
+  - conference
 ---
 
 征集提案(CfP)或参与邀请是学术、研究和专业社区中常用的术语，用于邀请个人或团体为会议、研讨会、专题讨论会和其他活动提交提案或摘要。
@@ -19,7 +22,7 @@ CfP 通常由活动组织者、会议委员会或学术机构发布，旨在征�
 
 CfP 的目的是鼓励广泛的参与者参与活动或会议，确保观点和想法的多样性。
 
-CfP 通常概述活动的主题、感兴趣的话题和提交指南。它们还指定接受的提交类型，如研究论文、案例研究、海报或工作坊。
+CfP 通常概述活动的主题、感兴趣的话题和提交指南。它们还指定接受的提交类型，如研究论文、案例研究、海报或工作坊。 They also specify the types of submissions that are accepted, such as research papers, case studies, posters, or workshops.
 
 ## 如何参与 CfP？
 
@@ -27,7 +30,7 @@ CfP 的提交过程通常包括准备一份提案或摘要，其中包括对所�
 
 一些学术 CfP 可能需要提交完整的论文，而其他的可能只要求一个简短的摘要或总结。
 
-Python 的 CfP 很少要求提交完整的材料，因为它们不发表论文。然而，避免仅承诺未来工作这一常见陷阱是至关重要的。
+Python 的 CfP 很少要求提交完整的材料，因为它们不发表论文。然而，避免仅承诺未来工作这一常见陷阱是至关重要的。 However, it is vital to avoid the [common pitfall](/resources/common-pitfalls/) of promising solely future work.
 
 ## 结论
 

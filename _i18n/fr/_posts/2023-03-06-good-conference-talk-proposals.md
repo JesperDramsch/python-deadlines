@@ -2,7 +2,11 @@
 title: Comment rédiger une excellente proposition de présentation pour les conférences Python
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'conference', 'CfP', 'audience']
+tags:
+  - Python
+  - conference
+  - CfP
+  - audience
 ---
 
 Rédiger une bonne proposition de conférence peut être un défi. Cependant, certains éléments clés peuvent aider à faire ressortir votre proposition. Voici cinq composantes essentielles d'une proposition de conférence réussie.
@@ -19,7 +23,7 @@ Soyez précis sur qui bénéficiera de votre présentation ou tutoriel et ce qu'
 
 Comprendre votre public vous aidera à adapter votre contenu et à vous assurer que vous fournissez des idées et des points à retenir précieux.
 
-## Les bénéfices pour le public
+## The takeaway for the audience
 
 Qu'est-ce que les participants peuvent s'attendre à retirer de votre présentation ou tutoriel ? Soyez clair sur les principaux points à retenir que vous espérez fournir.
 
@@ -33,7 +37,7 @@ Lors de l'élaboration de votre proposition, il est important de considérer que
 
 Soyez clair sur les prérequis, et fournissez des liens ou des ressources que les participants peuvent utiliser pour rafraîchir leurs connaissances avant d'assister.
 
-## Répartition approximative du temps consacré à chaque partie du contenu
+## Approximate time breakdowns of how the material will be covered
 
 Une répartition détaillée de la façon dont vous prévoyez de couvrir votre matériel est vitale pour aider les participants à comprendre ce qu'ils peuvent attendre de votre présentation ou tutoriel.
 

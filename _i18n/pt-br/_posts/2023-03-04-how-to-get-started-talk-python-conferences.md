@@ -2,7 +2,9 @@
 title: Como criar uma apresentação fantástica para conferências Python?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation']
+tags:
+  - Python
+  - presentation
 ---
 
 Conferências Python oferecem uma excelente plataforma para desenvolvedores mostrarem suas habilidades, compartilharem conhecimento e se conectarem com outros profissionais.

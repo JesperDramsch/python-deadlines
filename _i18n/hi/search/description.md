@@ -1,5 +1,5 @@
-पायथन सम्मेलन की समय-सीमा और घटनाओं के हमारे व्यापक डेटाबेस से खोज परिणाम। परिणाम आपकी क्वेरी से मेल खाने वाले प्रासंगिक पृष्ठों की सूची के रूप में प्रस्तुत किए जाते हैं।
+The search results from our comprehensive database of Python conference deadlines and events. The results are presented as a list of relevant pages matching your query.
 
-प्रत्येक परिणाम में सम्मेलन का नाम, समय-सीमा तिथियां और संक्षिप्त विवरण जैसे मुख्य विवरण शामिल हैं। समय-सीमाएं <span class="local-timezone">आपके स्थानीय समय क्षेत्र</span> में दिखाई जाती हैं।
+Each result includes key details such as the conference name, deadline dates, and brief descriptions. Deadlines are shown in <span class="local-timezone">your local time zone</span>.
 
 आधिकारिक सम्मेलन वेबसाइट के लिए दिशानिर्देश और लिंक सहित अधिक विस्तृत जानकारी देखने के लिए किसी सम्मेलन के नाम पर क्लिक करें।

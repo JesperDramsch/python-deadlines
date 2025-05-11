@@ -2,7 +2,11 @@
 title: Como escrever uma ótima proposta de palestra para conferências Python
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'conference', 'CfP', 'audience']
+tags:
+  - Python
+  - conference
+  - CfP
+  - audience
 ---
 
 Escrever uma boa proposta de conferência pode ser desafiador. No entanto, existem alguns elementos-chave que podem ajudar a fazer sua proposta se destacar. Aqui estão cinco componentes essenciais de uma proposta de conferência bem-sucedida.
@@ -19,7 +23,7 @@ Seja específico sobre quem se beneficiará da sua palestra ou tutorial e o que 
 
 Entender seu público ajudará você a adaptar seu conteúdo e garantir que está fornecendo insights valiosos e conclusões importantes.
 
-## O benefício para o público
+## The takeaway for the audience
 
 O que os participantes podem esperar ganhar com sua palestra ou tutorial? Seja claro sobre as principais conclusões que você espera fornecer.
 

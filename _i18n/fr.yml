@@ -3,12 +3,6 @@ global:
   current: 'fr'
   choose: 'Choisir la langue'
   sub_filter: 'Filtrer par sous-catégorie:'
-  en: 'English'
-  es: 'Español'
-  de: 'Deutsch'
-  fr: 'Français'
-  pt-br: 'Português'
-  zh-cn: '中文'
   cfp: 'Appel à participation'
   cfp_ext: 'CfP prolongé de'
 titles:
@@ -20,19 +14,13 @@ titles:
   a404: 'Page non trouvée'
   privacy: 'Politique de confidentialité'
   resources: 'Ressources pour rédiger des CfP de qualité'
-  series: "Liste des séries d'événements Python"
+  series: 'Liste des séries d''événements Python'
   impressum: 'Mentions légales'
   past_events: 'Événements passés'
   past_cfps: 'Appels à participation passés'
   search: 'Rechercher'
   about: 'À propos des échéances des conférences Python'
   languages: 'Langues disponibles'
-buttons:
-  ical: Obtenir l'iCal
-  google: Ajouter à Google Agenda
-  github: Soumettre une conférence sur GitHub
-  all_selected: Toutes les conférences sélectionnées
-  none_selected: Aucune conférence sélectionnée
 description:
   summary: 'Résumé de la conférence et de ses éditions au fil des ans.'
 header:
@@ -46,10 +34,16 @@ conference:
   finaid: 'Aide financière'
   sponsor: 'Opportunité de parrainage'
   all: 'Toutes les conférences pour'
-  download_dl: "Télécharger l'échéance de la conférence"
+  download_dl: 'Télécharger l''échéance de la conférence'
   download_date: 'Télécharger les dates de la conférence'
   deadline_tz_theirs: 'Échéance dans le fuseau horaire du site de la conférence'
   deadline_tz_local: "Échéance dans votre fuseau horaire local <span class='local-timezone'></span>"
+buttons:
+  ical: Obtenir l'iCal
+  google: Ajouter à Google Agenda
+  github: Soumettre une conférence sur GitHub
+  all_selected: Toutes les conférences sélectionnées
+  none_selected: Aucune conférence sélectionnée
 summary:
   title: 'Résumé de la conférence'
 subs:
@@ -104,7 +98,7 @@ social:
   email: 'Envoyer la conférence par email'
 search:
   no-results: 'Aucun résultat trouvé.'
-  error: "Erreur lors du chargement de l'index de recherche. Veuillez réessayer plus tard."
+  error: 'Erreur lors du chargement de l''index de recherche. Veuillez réessayer plus tard.'
 about:
   toggle_fullscreen: "Basculer en mode présentation plein écran"
   previous_slide: "Diapositive précédente"

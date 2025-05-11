@@ -2,22 +2,25 @@
 title: 9 armadilhas comuns que fazem sua proposta de palestra para conferências Python ser rejeitada
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'pitfalls']
+tags:
+  - Python
+  - CfP
+  - pitfalls
 ---
 
-Se você está pensando em enviar uma proposta para uma palestra de conferência, é essencial saber o que evitar para aumentar suas chances de aceitação. Aqui estão nove armadilhas comuns para ficar atento:
+Suppose you're looking to submit a proposal for a conference talk. Se você está pensando em enviar uma proposta para uma palestra de conferência, é essencial saber o que evitar para aumentar suas chances de aceitação. Aqui estão nove armadilhas comuns para ficar atento:
 
 ## Apresentações de vendas
 
 Lembre-se que a conferência é uma comunidade de criadores e usuários de ferramentas de computação científica de código aberto. Embora você possa fazer referência ao seu produto ou plataforma de código fechado, o público achará a palestra mais interessante se puderem experimentar suas técnicas com o stack PyData de código aberto. Evite fazer uma venda agressiva e concentre-se na definição do problema, estratégias propostas e domínio de negócios.
 
-## Palestras repetidas
+## Repeated talks
 
 Conferências preferem novas palestras e novos palestrantes. Se sua palestra já está disponível online, é improvável que seja aceita para a conferência. Tente trazer novos insights, técnicas ou perspectivas sobre um tópico que não tenha sido coberto antes.
 
 ## Falta de clareza
 
-Sua proposta deve comunicar claramente sobre o que é sua palestra e o que os participantes podem esperar aprender. Se sua proposta for pouco clara, divagante ou difícil de seguir, os revisores podem não conseguir determinar se sua palestra se alinha com os objetivos da conferência ou é adequada para o público pretendido.
+Sua proposta deve comunicar claramente sobre o que é sua palestra e o que os participantes podem esperar aprender. Suppose your proposal is unclear, rambling, or difficult to follow. Se sua proposta for pouco clara, divagante ou difícil de seguir, os revisores podem não conseguir determinar se sua palestra se alinha com os objetivos da conferência ou é adequada para o público pretendido.
 
 ## Falta de originalidade
 
@@ -29,7 +32,7 @@ Mantenha sua proposta simples e clara. Boas propostas geralmente fornecem todas 
 
 ## Falta de relevância
 
-Certifique-se de que sua palestra se alinhe com o tema ou foco da conferência. Se sua proposta estiver apenas tangencialmente relacionada aos objetivos da conferência, os revisores podem não ver como ela se encaixa no quadro geral ou como beneficiaria os participantes.
+Certifique-se de que sua palestra se alinhe com o tema ou foco da conferência. Suppose your proposal is only tangentially related to the conference's goals. In that case, reviewers may not see how it fits into the larger picture or how it would benefit attendees.
 
 ## Trabalho futuro
 

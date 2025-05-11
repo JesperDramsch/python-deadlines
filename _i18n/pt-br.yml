@@ -3,12 +3,6 @@ global:
   current: 'pt-br'
   choose: 'Escolher idioma'
   sub_filter: 'Filtrar por subcategoria:'
-  en: 'English'
-  es: 'Español'
-  de: 'Deutsch'
-  fr: 'Français'
-  pt-br: 'Português'
-  zh-cn: '中文'
   cfp: 'Chamada para participação'
   cfp_ext: 'CfP estendido de'
 titles:
@@ -27,12 +21,6 @@ titles:
   search: 'Pesquisar'
   about: 'Sobre os prazos de conferências Python'
   languages: 'Idiomas disponíveis'
-buttons:
-  ical: Obter o iCal
-  google: Adicionar ao Google Calendar
-  github: Enviar uma conferência no GitHub
-  all_selected: Todas as conferências selecionadas
-  none_selected: Nenhuma conferência selecionada
 description:
   summary: 'Resumo da conferência e suas instâncias ao longo dos anos.'
 header:
@@ -50,6 +38,12 @@ conference:
   download_date: 'Baixar datas da conferência'
   deadline_tz_theirs: 'Prazo no fuso horário do site da conferência'
   deadline_tz_local: "Prazo no seu fuso horário local <span class='local-timezone'></span>"
+buttons:
+  ical: Obter o iCal
+  google: Adicionar ao Google Calendar
+  github: Enviar uma conferência no GitHub
+  all_selected: Todas as conferências selecionadas
+  none_selected: Nenhuma conferência selecionada
 summary:
   title: 'Resumo da conferência'
 subs:

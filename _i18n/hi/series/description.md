@@ -1,4 +1,4 @@
-हमारे समुदाय उपकरण का यह खंड आवर्ती पायथन सम्मेलन श्रृंखला की एक व्यापक निर्देशिका के रूप में कार्य करता है। यहाँ, आपको नियमित आयोजनों, उनके विशिष्ट कार्यक्रमों और ऐतिहासिक जानकारी का अवलोकन मिलेगा।
+This section of our community tool serves as a comprehensive directory of recurring Python conference series. Here, you'll find an overview of regular events, their typical schedules, and historical information.
 
-श्रृंखला को संक्षिप्त विवरण और पिछले आयोजनों के लिंक के साथ प्रस्तुत किया जाता है, जिससे आपको अपने दीर्घकालिक सम्मेलन भागीदारी की योजना बनाने में मदद मिलती है।
-अधिक विवरण देखने और इसके आगामी और पिछले आयोजनों के बारे में जानकारी प्राप्त करने के लिए एक श्रृंखला देखें।
+The series are presented with brief descriptions and links to past events, helping you plan your long-term conference participation.
+Check out a series to view more details and access information about its upcoming and past events.

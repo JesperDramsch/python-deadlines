@@ -2,7 +2,9 @@
 title: Zusätzliche Ressourcen für Konferenztermine
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'conferences']
+tags:
+  - Python
+  - conferences
 ---
 
 Pythondeadlin.es ist seit einem Jahr ein beliebtes Ziel für die Python-Community, um Konferenztermine an einem Ort zu finden.
@@ -43,11 +45,9 @@ Durch die Nutzung dieser Ressourcen können Sie sich über anstehende Python-Ver
 
 Schauen Sie sich die folgenden Ressourcen für weitere Informationen an:
 
--   [Python-Organizers GitHub](https://github.com/python-organizers/conferences)
--   [Offizielle Python-Veranstaltungsliste](https://www.python.org/events/)
+- [Python-Organizers GitHub](https://github.com/python-organizers/conferences)
+- [Offizielle Python-Veranstaltungsliste](https://www.python.org/events/)
 
 Durch die Nutzung dieser Plattformen können wir uns über anstehende Python-Veranstaltungen informieren, mit Gleichgesinnten in Kontakt treten und aktiv zum Erfolg unserer Konferenzen beitragen. Lassen Sie uns zusammenarbeiten, unser Wissen teilen und eine stärkere Python-Gemeinschaft schmieden.
 
 Gemeinsam können wir die Zukunft von Python-Veranstaltungen gestalten und ein Umfeld fördern, in dem jeder lernen, wachsen und gedeihen kann.
-
-Übersetzt mit DeepL.com (kostenlose Version)

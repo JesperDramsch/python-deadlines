@@ -35,15 +35,4 @@
         {% capture start_month %}{% t "times.months.{{ start_date | date: '%B' }}" %}{% endcapture -%}
         {% capture end_month %}{% t "times.months.{{ end_date | date: '%B' }}" %}{% endcapture -%}
         {% assign year = start_date | date: "%Y" -%}
-        {% capture pretty_date %}{{ start_day }}. {{ start_month }} – {{ end_day }}. {{ end_month }} {{ year }}{% endcapture -%}
-    
-    {% else -%}
-        {% assign start_day = start_date | date: "%-d" -%}
-        {% assign end_day = end_date | date: "%-d" -%}
-        {% capture start_month %}{% t "times.months.{{ start_date | date: '%B' }}" %}{% endcapture -%}
-        {% capture end_month %}{% t "times.months.{{ end_date | date: '%B' }}" %}{% endcapture -%}
-        {% assign start_year = start_date | date: "%Y" -%}
-        {% assign end_year = end_date | date: "%Y" -%}
-        {% capture pretty_date %}{{ start_day }}. {{ start_month }} {{ start_year }} – {{ end_day }}. {{ end_month }} {{ end_year }}{% endcapture -%}
-    {% endif -%}
-{% endif -%}{{ pretty_date | strip }}
+        {% capture pretty_date %}{{ start_day }}. {{ start_month }} – {{ end_day }}.

@@ -1,2 +1,1 @@
-
 <p>NumFOCUS, PyData e Fiscally Sponsored Projects são marcas registradas da NumFOCUS. Este site, pythondeadlin.es, não é afiliado, endossado ou patrocinado pela NumFOCUS ou por qualquer evento PyData ou afiliado. Todas as marcas comerciais e logotipos usados neste site permanecem propriedade de seus respectivos proprietários. Qualquer referência a NumFOCUS, PyData ou outras marcas é apenas para fins informativos e não implica associação com os detentores das marcas.</p>

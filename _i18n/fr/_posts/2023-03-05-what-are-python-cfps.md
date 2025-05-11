@@ -2,7 +2,10 @@
 title: Qu'est-ce qu'un CfP de conférence Python ?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'CfP', 'conference']
+tags:
+  - Python
+  - CfP
+  - conference
 ---
 
 Un Appel à Propositions (CfP) ou Appel à Participation est un terme courant utilisé dans les communautés académiques, de recherche et professionnelles pour inviter des individus ou des groupes à soumettre des propositions ou des résumés pour des conférences, des ateliers, des symposiums et d'autres événements.

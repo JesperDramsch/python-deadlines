@@ -2,7 +2,9 @@
 title: Sobre o que deve ser minha palestra na conferência Python?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation']
+tags:
+  - Python
+  - presentation
 ---
 
 Frequentemente enfrentamos um paradoxo quando finalmente decidimos dar uma palestra em uma conferência Python. Aprendemos tantas coisas empolgantes. Há tanto que é interessante. Mas sobre o que deve ser minha palestra de Python?!

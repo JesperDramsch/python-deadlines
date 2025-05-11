@@ -3,12 +3,6 @@ global:
   current: 'zh-cn'
   choose: '选择语言'
   sub_filter: '按子类别筛选:'
-  en: 'English'
-  es: 'Español'
-  de: 'Deutsch'
-  fr: 'Français'
-  pt-br: 'Português'
-  zh-cn: '中文'
   cfp: '参与征集'
   cfp_ext: '延长的征集期'
 titles:
@@ -27,12 +21,6 @@ titles:
   search: '搜索'
   about: '关于Python会议截止日期'
   languages: '可用语言'
-buttons:
-  ical: 获取iCal日历
-  google: 添加到Google日历
-  github: 在GitHub上提交会议
-  all_selected: 已选择所有会议
-  none_selected: 未选择会议
 description:
   summary: '会议及其历年实例的摘要。'
 header:
@@ -50,6 +38,12 @@ conference:
   download_date: '下载会议日期'
   deadline_tz_theirs: '会议网站时区的截止日期'
   deadline_tz_local: "您本地时区<span class='local-timezone'></span>的截止日期"
+buttons:
+  ical: 获取iCal日历
+  google: 添加到Google日历
+  github: 在GitHub上提交会议
+  all_selected: 已选择所有会议
+  none_selected: 未选择会议
 summary:
   title: '会议摘要'
 subs:
@@ -191,3 +185,4 @@ languages:
   ai_translated: '由AI翻译'
   switch_to: '切换到'
   translated_by: '翻译者:'
+  legend: 'Legend'

@@ -2,7 +2,11 @@
 title: Cómo escribir una gran propuesta de charla para conferencias Python
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'conference', 'CfP', 'audience']
+tags:
+  - Python
+  - conference
+  - CfP
+  - audience
 ---
 
 Escribir una buena propuesta de conferencia puede ser desafiante. Sin embargo, hay algunos elementos clave que pueden ayudar a que tu propuesta destaque. Aquí hay cinco componentes esenciales de una propuesta de conferencia exitosa.

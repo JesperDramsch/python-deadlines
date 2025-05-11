@@ -2,7 +2,11 @@
 title: ¿Cómo defines tu público objetivo para una charla de conferencia Python?
 author: Jesper Dramsch
 layout: post
-tags: ['Python', 'presentation', 'conference', 'audience']
+tags:
+  - Python
+  - presentation
+  - conference
+  - audience
 ---
 
 Cuando se trata de enviar una propuesta para una presentación en una conferencia, es esencial definir tu público objetivo. Saber a quién le estás hablando puede ayudarte a adaptar tu presentación a las necesidades, intereses y conocimientos previos de la audiencia. En este post, discutiremos cómo definir tu público objetivo para una propuesta de conferencia y por qué es importante.
@@ -23,7 +27,7 @@ A continuación, considera el nivel de experiencia de tu público objetivo. ¿So
 
 Esto afectará cómo presentas tus ideas y cuánta información de contexto proporcionas.
 
-Por ejemplo, si tu presentación trata sobre un algoritmo complejo, una audiencia avanzada puede estar interesada en los detalles técnicos y ejemplos de código, mientras que los principiantes pueden necesitar una explicación simplificada de los conceptos para seguir la presentación.
+For example, suppose your presentation is on a complex algorithm. Por ejemplo, si tu presentación trata sobre un algoritmo complejo, una audiencia avanzada puede estar interesada en los detalles técnicos y ejemplos de código, mientras que los principiantes pueden necesitar una explicación simplificada de los conceptos para seguir la presentación. At the same time, beginners may need a simplified explanation of the concepts to follow the presentation.
 
 ## Considera un nicho secundario
 
@@ -41,7 +45,7 @@ Primero, te ayuda a enfocar tu presentación en los temas más relevantes e inte
 
 Segundo, ayuda a los potenciales asistentes a decidir si tu presentación se ajusta a sus necesidades e intereses.
 
-Si pueden ver fácilmente que tu presentación está dirigida a su rol profesional y nivel de experiencia, es más probable que asistan y encuentren valor en tu charla.
+Si pueden ver fácilmente que tu presentación está dirigida a su rol profesional y nivel de experiencia, es más probable que asistan y encuentren valor en tu charla. In that case, they are more likely to attend and find value in your talk.
 
 ## Considera la conferencia en sí
 

@@ -1,4 +1,4 @@
-Bagian alat komunitas ini berfungsi sebagai direktori lengkap rangkaian konferensi Python yang berulang. Di sini, Anda akan menemukan ikhtisar acara rutin, jadwal tipikal, dan informasi historis.
+This section of our community tool serves as a comprehensive directory of recurring Python conference series. Here, you'll find an overview of regular events, their typical schedules, and historical information.
 
-Rangkaian ini disajikan dengan deskripsi singkat dan tautan ke acara sebelumnya, yang membantu Anda merencanakan partisipasi konferensi jangka panjang.
-Lihat rangkaian untuk melihat detail selengkapnya dan mengakses informasi tentang acara mendatang dan sebelumnya.
+The series are presented with brief descriptions and links to past events, helping you plan your long-term conference participation.
+Check out a series to view more details and access information about its upcoming and past events.

@@ -21,12 +21,6 @@ titles:
   search: 'खोजें'
   about: 'पायथन सम्मेलन समय सीमाओं के बारे में'
   languages: 'उपलब्ध भाषाएँ'
-buttons:
-  ical: iCal प्राप्त करें
-  google: Google कैलेंडर में जोड़ें
-  github: GitHub पर सम्मेलन जमा करें
-  all_selected: सभी सम्मेलन चयनित
-  none_selected: कोई सम्मेलन चयनित नहीं
 description:
   summary: 'सम्मेलन और वर्षों में इसके आयोजनों का सारांश।'
 header:
@@ -44,6 +38,12 @@ conference:
   download_date: 'सम्मेलन तिथियां डाउनलोड करें'
   deadline_tz_theirs: 'सम्मेलन वेबसाइट के समय क्षेत्र में समय सीमा'
   deadline_tz_local: "आपके स्थानीय <span class='local-timezone'></span> समय क्षेत्र में समय सीमा"
+buttons:
+  ical: iCal प्राप्त करें
+  google: Google कैलेंडर में जोड़ें
+  github: GitHub पर सम्मेलन जमा करें
+  all_selected: सभी सम्मेलन चयनित
+  none_selected: कोई सम्मेलन चयनित नहीं
 summary:
   title: 'सम्मेलन सारांश'
 subs:
