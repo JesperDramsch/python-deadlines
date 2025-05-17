@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Austria
+  alt_name: Python Conference Austria
+  year: 2025
+  link: https://at.pycon.org/
+  cfp_link: https://www.papercall.io/pycon-austria
+  cfp: '2025-03-15 13:00:00'
+  timezone: Europe/Vienna
+  place: Eisenstadt, Austria
+  start: 2025-04-06
+  end: 2025-04-07
+  sponsor: https://pycon25.uber.space/en/sponsor-information/
+  sub: PY
+  location:
+  - title: PyCon Austria 2025
+    latitude: 47.8454821
+    longitude: 16.5249288
+
 - conference: PyCamp Argentina
   year: 2025
   link: https://pyar.discourse.group/t/pycamp-2025/1373
