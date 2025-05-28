@@ -1,5 +1,21 @@
 ---
 
+- conference: PyData Virginia
+  year: 2025
+  link: https://pydata.org/virginia2025/
+  cfp_link: https://pydata.org/virginia2025/call-for-proposals
+  cfp: '2025-02-10 23:59:00'
+  timezone: America/New_York
+  place: Charlottesville, USA
+  start: 2025-04-18
+  end: 2025-04-19
+  sponsor: https://pydata.org/virginia2025/sponsorship-opportunites
+  sub: DATA
+  location:
+  - title: PyData Virginia 2025
+    latitude: 38.029306
+    longitude: -78.4766781
+
 - conference: PyTexas
   year: 2025
   link: https://www.pytexas.org/2025/
