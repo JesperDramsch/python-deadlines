@@ -1,5 +1,43 @@
 ---
 
+- conference: PyCon Lithuania
+  alt_name: PyCon LT
+  year: 2025
+  link: https://pycon.lt/2025
+  cfp_link: https://pretalx.com/pycon-lithuania-2025/cfp
+  cfp: '2025-02-11 00:00:00'
+  timezone: Europe/Vilnius
+  place: Vilnius, Lithuania
+  start: 2025-04-23
+  end: 2025-04-25
+  sponsor: https://pycon.lt/2025/partnership
+  twitter: pyconlt
+  sub: PY
+  location:
+  - title: PyCon Lithuania 2025
+    latitude: 54.6870458
+    longitude: 25.2829111
+
+- conference: PyCon Germany & PyData Conference
+  alt_name: PyCon Germany
+  year: 2025
+  link: https://2025.pycon.de/
+  cfp_link: https://pretalx.com/pyconde-pydata-2025/cfp
+  cfp: '2024-12-22 23:59:00'
+  cfp_ext: '2025-01-05 23:59:59'
+  timezone: Europe/Berlin
+  place: Darmstadt, Germany
+  start: 2025-04-23
+  end: 2025-04-25
+  sponsor: https://2025.pycon.de/sponsoring/
+  finaid: https://2025.pycon.de/financial-aid/
+  twitter: PyConDE
+  sub: PY,DATA
+  location:
+  - title: PyCon Germany & PyData Conference 2025
+    latitude: 49.872775
+    longitude: 8.651177
+
 - conference: PyData Virginia
   year: 2025
   link: https://pydata.org/virginia2025/
