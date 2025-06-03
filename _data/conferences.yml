@@ -1,5 +1,23 @@
 ---
 
+- conference: PyCon Africa
+  year: 2025
+  link: https://africa.pycon.org
+  cfp_link: https://za.pycon.org/pages/speaking/how_to_apply/
+  cfp: '2025-06-27 23:59:59'
+  timezone: Africa/Johannesburg
+  place: Johannesburg, South Africa
+  start: 2025-10-08
+  end: 2025-10-12
+  sponsor: https://za.pycon.org/sponsors/packages/
+  twitter: pyconafrica
+  mastodon: https://mastodon.social/@pyconafrica
+  sub: PY
+  location:
+  - title: PyCon Africa 2025
+      latitude: 5.6159858
+      longitude: -26.015625
+
 - conference: Xtreme Python
   year: 2025
   link: https://xtremepython.dev/2025/
