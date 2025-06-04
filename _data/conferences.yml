@@ -781,22 +781,6 @@
     latitude: 51.5074456
     longitude: -0.1277653
 
-- conference: North Bay Python
-  year: 2025
-  link: https://2025.northbaypython.org/
-  cfp_link: https://pretalx.northbaypython.org/nbpy-2025/cfp
-  cfp: '2025-02-22 23:59:00'
-  place: Petaluma, USA
-  start: 2025-04-26
-  end: 2025-04-27
-  sponsor: https://2025.northbaypython.org/sponsor
-  mastodon: https://social.northbaypython.org/@NorthBayPython
-  sub: PY
-  location:
-  - title: North Bay Python 2025
-    latitude: 38.2325829
-    longitude: -122.636465
-
 - conference: EuroPython
   year: 2025
   link: https://ep2025.europython.eu/
@@ -829,23 +813,6 @@
   - title: PyCon Estonia 2025
     latitude: 59.4372155
     longitude: 24.7453688
-
-- conference: DjangoCon Europe
-  year: 2025
-  link: https://2025.djangocon.eu/
-  cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2025/cfp
-  cfp: '2025-01-12 23:59:00'
-  place: Dublin, Ireland
-  start: 2025-04-23
-  end: 2025-04-27
-  sponsor: https://2025.djangocon.eu/sponsors/sponsorship/
-  finaid: https://2025.djangocon.eu/information/grants/
-  mastodon: https://fosstodon.org/@djangoconeurope/
-  sub: WEB
-  location:
-  - title: DjangoCon Europe 2025
-    latitude: 53.3498006
-    longitude: -6.2602964
 
 - conference: PyCon Italy
   alt_name: PyCon Italia
