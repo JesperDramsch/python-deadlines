@@ -179,6 +179,20 @@
     latitude: 34.0194704
     longitude: -118.491227
 
+- conference: PyCon Africa
+  year: 2025
+  link: https://za.pycon.org/
+  cfp: '2025-06-27 23:59:00'
+  place: Johannesburg, South Africa
+  start: 2025-10-08
+  end: 2025-10-12
+  sponsor: https://za.pycon.org/sponsors/packages/
+  sub: PY
+  location:
+  - title: PyCon Africa 2025
+    latitude: -26.205
+    longitude: 28.049722
+
 - conference: PyCon Kenya
   year: 2025
   link: https://www.pycon.ke/
