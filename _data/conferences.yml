@@ -183,10 +183,12 @@
   year: 2025
   link: https://za.pycon.org/
   cfp: '2025-06-27 23:59:00'
+  timezone: Africa/Johannesburg
   place: Johannesburg, South Africa
   start: 2025-10-08
   end: 2025-10-12
   sponsor: https://za.pycon.org/sponsors/packages/
+  mastodon: https://mastodon.social/@pyconafrica
   sub: PY
   location:
   - title: PyCon Africa 2025
