@@ -278,6 +278,24 @@
     latitude: 41.6147605
     longitude: 0.6267842
 
+- conference: PyCon Australia
+  alt_name: PyCon AU
+  year: 2025
+  link: https://2025.pycon.org.au/
+  cfp_link: https://2025.pycon.org.au/program/
+  cfp: '2025-06-23 23:59:00'
+  timezone: Australia/Melbourne
+  place: Melbourne, Australia
+  start: 2025-09-12
+  end: 2025-09-16
+  sponsor: https://2025.pycon.org.au/sponsor/
+  mastodon: https://fosstodon.org/@pyconau
+  sub: PY
+  location:
+  - title: PyCon Australia 2025
+    latitude: -37.8142454
+    longitude: 144.9631732
+
 - conference: PyCon Kenya
   year: 2025
   link: https://www.pycon.ke/
@@ -1010,37 +1028,6 @@
   - title: PyCon Sweden 2025
     latitude: 59.3251172
     longitude: 18.0710935
-
-- conference: PyCon Spain
-  alt_name: PyCon ES
-  year: 2025
-  link: https://2025.es.pycon.org/
-  cfp: TBA
-  timezone: Europe/London
-  place: Sevilla, Spain
-  start: 2025-10-17
-  end: 2025-10-19
-  sponsor: https://2025.es.pycon.org/sponsorship.html
-  mastodon: https://fosstodon.org/@pycones
-  sub: PY
-  location:
-  - title: PyCon Spain 2025
-    latitude: 41.6147605
-    longitude: 0.6267842
-
-- conference: PyCon Japan
-  alt_name: PyCon JP
-  year: 2025
-  link: https://2025.pycon.jp/
-  cfp: TBA
-  place: Hiroshima, Japan
-  start: 2025-09-26
-  end: 2025-09-27
-  sub: PY
-  location:
-  - title: PyCon Japan 2025
-    latitude: 34.3917241
-    longitude: 132.4517589
 
 - conference: Pythoncamp Rügen
   year: 2025
