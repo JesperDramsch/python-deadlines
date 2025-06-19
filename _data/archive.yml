@@ -1,5 +1,34 @@
 ---
 
+- conference: Pytorch Day
+  year: 2025
+  link: https://events.linuxfoundation.org/pytorch-day-france/
+  cfp: None
+  place: Paris, France
+  start: 2025-05-06
+  end: 2025-05-07
+  sponsor: https://paris2025.gosim.org/sponsors/
+  sub: DATA,DAY
+  location:
+  - title: Pytorch Day 2025
+    latitude: 48.8588897
+    longitude: 2.3200410217200766
+
+- conference: PyCamp España
+  year: 2025
+  link: https://pycamp.es/
+  cfp_link: https://docs.google.com/forms/d/1PpI3MstjIBH2e9J21UQaTHQLKTTEuR13od3iQkfJ8Zo/viewform
+  cfp: '2025-04-30 23:59:00'
+  place: Sevilla, Spain
+  start: 2025-05-01
+  end: 2025-05-04
+  twitter: pycampes
+  sub: CAMP
+  location:
+  - title: PyCamp España 2025
+    latitude: 41.6147605
+    longitude: 0.6267842
+
 - conference: North Bay Python
   year: 2025
   link: https://2025.northbaypython.org/
