@@ -182,6 +182,7 @@ If you'd like to add support for a new language, please open an issue.
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/theopinard"><img src="https://avatars.githubusercontent.com/u/16977967?v=4?s=100" width="100px;" alt="Theodore Meynard"/><br /><sub><b>Theodore Meynard</b></sub></a><br /><a href="#conference-theopinard" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kgawda"><img src="https://avatars.githubusercontent.com/u/3084325?v=4?s=100" width="100px;" alt="Konrad Gawda"/><br /><sub><b>Konrad Gawda</b></sub></a><br /><a href="#conference-kgawda" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/apps/github-actions"><img src="https://avatars.githubusercontent.com/in/15368?v=4?s=100" width="100px;" alt="github-actions[bot]"/><br /><sub><b>github-actions[bot]</b></sub></a><br /><a href="#conference-github-actions[bot]" title="Python conference (Added or updated)">📆</a></td>
     </tr>
   </tbody>
 </table>
