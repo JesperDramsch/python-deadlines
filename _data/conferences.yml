@@ -29,6 +29,22 @@
     latitude: -41.2887953
     longitude: 174.7772114
 
+- conference: PyCon Ghana
+  year: 2025
+  link: https://gh.pycon.org/2025/
+  cfp_link: https://gh.pycon.org/2025/talks/proposing_a_talk/
+  cfp: '2025-08-08 23:59:00'
+  timezone: Africa/Accra
+  place: Accra, Ghana
+  start: 2025-09-25
+  end: 2025-09-27
+  sponsor: https://gh.pycon.org/2025/support-us/
+  sub: PY
+  location:
+  - title: PyCon Ghana 2025
+    latitude: 5.5571096
+    longitude: -0.2012376
+
 - conference: PyCon Ireland
   alt_name: PyCon IE
   year: 2025
