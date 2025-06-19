@@ -10,6 +10,23 @@
   sponsor: https://xtremepython.dev/2025/sponsors/
   sub: PY
 
+- conference: PyCon Malaysia
+  alt_name: PyCon MY
+  year: 2025
+  link: https://www.pycon.my/
+  cfp_link: https://cfp.pycon.my/pyconmy-2025/cfp
+  cfp: '2025-09-15 00:00:00'
+  timezone: Asia/Kuala_Lumpur
+  place: Petaling Jaya, Malaysia
+  start: 2025-11-01
+  end: 2025-11-02
+  twitter: pyconmy
+  sub: PY
+  location:
+  - title: PyCon Malaysia 2025
+    latitude: 3.0988792
+    longitude: 101.6454202
+
 - conference: Kiwi PyCon
   year: 2025
   link: https://kiwipycon.nz/
