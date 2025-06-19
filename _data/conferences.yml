@@ -260,6 +260,24 @@
     latitude: -26.205
     longitude: 28.049722
 
+- conference: PyCon Spain
+  alt_name: PyCon ES
+  year: 2025
+  link: https://2025.es.pycon.org/
+  cfp_link: https://pretalx.com/pycones-2025/cfp
+  cfp: '2025-06-23 23:59:00'
+  timezone: Europe/Madrid
+  place: Sevilla, Spain
+  start: 2025-10-17
+  end: 2025-10-19
+  sponsor: https://2025.es.pycon.org/sponsorship.html
+  mastodon: https://fosstodon.org/@pycones
+  sub: PY
+  location:
+  - title: PyCon Spain 2025
+    latitude: 41.6147605
+    longitude: 0.6267842
+
 - conference: PyCon Kenya
   year: 2025
   link: https://www.pycon.ke/
