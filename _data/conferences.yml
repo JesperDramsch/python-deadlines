@@ -195,6 +195,22 @@
     latitude: 34.0194704
     longitude: -118.491227
 
+- conference: PyCon Japan
+  alt_name: PyCon JP
+  year: 2025
+  link: https://2025.pycon.jp/
+  cfp_link: https://pretalx.com/pycon-jp-2025/cfp
+  cfp: '2025-06-30 21:00:00'
+  timezone: Asia/Tokyo
+  place: Hiroshima, Japan
+  start: 2025-09-26
+  end: 2025-09-27
+  sub: PY
+  location:
+  - title: PyCon Japan 2025
+    latitude: 34.3917241
+    longitude: 132.4517589
+
 - conference: PyCon Africa
   year: 2025
   link: https://za.pycon.org/
