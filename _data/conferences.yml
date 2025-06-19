@@ -27,6 +27,22 @@
     latitude: 3.0988792
     longitude: 101.6454202
 
+- conference: PyData Vermont
+  year: 2025
+  link: https://pydata.org/vermont2025/
+  cfp_link: https://cfp.pydata.org/pydata-vermont-2025/cfp
+  cfp: '2025-08-28 23:59:00'
+  timezone: America/New_York
+  place: Burlington, USA
+  start: 2025-10-21
+  end: 2025-10-22
+  sponsor: https://pydata.org/vermont2025/sponsorship-opportunities
+  sub: DATA
+  location:
+  - title: PyData Vermont 2025
+    latitude: 43.3248924
+    longitude: -79.7966835
+
 - conference: Kiwi PyCon
   year: 2025
   link: https://kiwipycon.nz/
