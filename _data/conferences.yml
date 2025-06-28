@@ -980,6 +980,20 @@
     latitude: 49.2457818
     longitude: 15.4508988
 
+- conference: PyCon Somalia
+  year: 2025
+  link: https://pycon.org.so/
+  cfp: TBA
+  place: Mogadishu, Somalia
+  start: 2025-08-13
+  end: 2025-08-14
+  twitter: PyconSomalia
+  sub: PY
+  location:
+  - title: PyCon Somalia 2025
+    latitude: 2.0349312
+    longitude: 45.3419183
+
 - conference: PyCamp Leipzig
   year: 2025
   link: https://barcamps.eu/python-barcamp-leipzig-2025/
