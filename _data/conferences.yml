@@ -593,22 +593,6 @@
     latitude: 41.8755616
     longitude: -87.6244212
 
-- conference: Flask Con
-  year: 2025
-  link: https://flaskcon.com/2025/
-  cfp_link: https://www.papercall.io/flaskcon-pyconus2025
-  cfp: '2025-04-24 23:59:00'
-  timezone: America/New_York
-  place: Pittsburgh, USA
-  start: 2025-05-16
-  end: 2025-05-16
-  sub: WEB
-  note: Alongside PyCon US
-  location:
-  - title: Flask Con 2025
-    latitude: 40.4416941
-    longitude: -79.9900861
-
 - conference: PyCon Greece
   year: 2025
   link: https://2025.pycon.gr/en/
@@ -623,21 +607,6 @@
   - title: PyCon Greece 2025
     latitude: 37.9755648
     longitude: 23.7348324
-
-- conference: PyGrunn
-  year: 2025
-  link: https://pygrunn.org/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSdjbpV9Ump8dcAKkN0R0hYpxd8-L5eyekvz3NxbtJLK1g-PPA
-  cfp: '2025-04-16 23:59:00'
-  place: Groningen, Netherlands
-  start: 2025-05-16
-  end: 2025-05-16
-  sponsor: https://pygrunn.org/#sponsoring
-  sub: PY
-  location:
-  - title: PyGrunn 2025
-    latitude: 53.2190652
-    longitude: 6.5680077
 
 - conference: PyData Paris
   year: 2025
@@ -691,22 +660,6 @@
   - title: PyCon Taiwan 2025
     latitude: 22.6203348
     longitude: 120.3120375
-
-- conference: PyCaxias
-  year: 2025
-  link: https://pycaxias.com.br/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSeywxIgGFa6okFjhAPQrcD202ll-My_UMHhDunJBzs0FxHe9Q/
-  cfp: '2025-03-31 23:59:00'
-  place: Caxias do Sul, Brazil
-  start: 2025-05-17
-  end: 2025-05-17
-  sponsor: https://pycaxias.com.br/theme/pdf/sponsorship_package.pdf
-  sub: PY,WEB
-  note: The 18th is a DjangoGirls workshop.
-  location:
-  - title: PyCaxias 2025
-    latitude: -29.1685045
-    longitude: -51.1796385
 
 - conference: EuroSciPy
   year: 2025
@@ -790,21 +743,6 @@
   - title: Web Summer Camp 2025
     latitude: 45.3349238
     longitude: 14.3067834
-
-- conference: Piter Py
-  alt_name: PiterPy
-  year: 2025
-  link: https://piterpy.com/en/
-  cfp_link: https://piterpy.com/en/callforpapers/
-  cfp: '2025-03-12 23:59:00'
-  place: Saint Petersburg, Russia
-  start: 2025-05-16
-  end: 2025-05-17
-  sub: PY
-  location:
-  - title: Piter Py 2025
-    latitude: 59.9606739
-    longitude: 30.1586551
 
 - conference: EARL
   year: 2025
