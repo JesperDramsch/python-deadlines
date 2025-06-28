@@ -1,5 +1,21 @@
 ---
 
+- conference: PyData Eindhoven
+  year: 2025
+  link: https://pydata.org/eindhoven2025
+  cfp_link: https://pydata.org/eindhoven2025/call-for-proposals
+  cfp: '2025-10-12 16:54:00'
+  timezone: UTC
+  place: Eindhoven, Netherlands
+  start: 2025-12-09
+  end: 2025-12-09
+  sponsor: https://pydata.org/eindhoven2025/sponsorship-opportunities
+  sub: DATA
+  location:
+  - title: PyData Eindhoven 2025
+    latitude: 51.4383999131
+    longitude: 5.46712979814
+
 - conference: Xtreme Python
   year: 2025
   link: https://xtremepython.dev/2025/
