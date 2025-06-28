@@ -244,6 +244,22 @@
     latitude: 34.0194704
     longitude: -118.491227
 
+- conference: PyCon China
+  year: 2025
+  link: http://cn.pycon.org/2025/
+  cfp_link: https://jsj.top/f/bBjpo3
+  cfp: '2025-06-30 23:59:00'
+  place: Shanghai, China
+  start: 2025-09-20
+  end: 2025-09-20
+  sponsor: https://cn.pycon.org/2025/en/supporter/
+  twitter: PyConChina
+  sub: PY
+  location:
+  - title: PyCon China 2025
+    latitude: 31.2323437
+    longitude: 121.4691024
+
 - conference: PyCon Japan
   alt_name: PyCon JP
   year: 2025
