@@ -62,6 +62,23 @@
     latitude: 59.9606739
     longitude: 30.1586551
 
+- conference: PyCon US
+  year: 2025
+  link: https://us.pycon.org/2025/
+  cfp_link: https://pretalx.com/pyconus2025/
+  cfp: '2024-12-19 23:59:00'
+  timezone: America/New_York
+  place: Pittsburgh, USA
+  start: 2025-05-14
+  end: 2025-05-22
+  sponsor: https://us.pycon.org/2025/sponsorship/why-sponsor/
+  mastodon: https://fosstodon.org/@pycon
+  sub: PY
+  location:
+  - title: PyCon US 2025
+    latitude: 40.4416941
+    longitude: -79.9900861
+
 - conference: Pytorch Day
   year: 2025
   link: https://events.linuxfoundation.org/pytorch-day-france/
