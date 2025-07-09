@@ -1,5 +1,25 @@
 ---
 
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2025
+  link: https://2025.pycon.it/en
+  cfp_link: https://2025.pycon.it/en/call-for-proposals
+  cfp: '2025-01-06 23:59:00'
+  cfp_ext: '2025-01-11 23:59:00'
+  place: Bologna, Italy
+  start: 2025-05-28
+  end: 2025-05-31
+  sponsor: https://2025.pycon.it/en/sponsor
+  finaid: https://2025.pycon.it/en/grants-info/
+  twitter: PyConIT
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+  - title: PyCon Italia 2025
+    latitude: 44.4938203
+    longitude: 11.3426327
+
 - conference: PyCaxias
   year: 2025
   link: https://pycaxias.com.br/
