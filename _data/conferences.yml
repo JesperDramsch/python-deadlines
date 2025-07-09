@@ -175,6 +175,20 @@
     latitude: 60.1674881
     longitude: 24.9427473
 
+- conference: PyCon Nigeria
+  year: 2025
+  link: https://ng.pycon.org/
+  cfp: '2025-07-28 23:59:00'
+  place: Lagos, Nigeria
+  start: 2025-10-02
+  end: 2025-10-04
+  sponsor: https://ng.pycon.org/sponsors/packages/
+  sub: PY
+  location:
+  - title: PyCon Nigeria 2025
+    latitude: 6.4550575
+    longitude: 3.3941795
+
 - conference: PyCon France
   alt_name: PyCon FR
   year: 2025
