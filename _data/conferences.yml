@@ -916,6 +916,16 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
+- conference: PyLadiesCon
+  year: 2025
+  link: https://2025.conference.pyladies.com/en/
+  cfp: TBA
+  place: Online
+  start: 2025-12-05
+  end: 2025-12-07
+  sponsor: https://2025.conference.pyladies.com/en/sponsors/
+  sub: PY
+
 - conference: Python Sul
   alt_name: Python Sul (Brazil)
   year: 2025
