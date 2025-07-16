@@ -456,22 +456,6 @@
     latitude: 47.223987
     longitude: 8.8173
 
-- conference: Python Norte
-  year: 2025
-  link: https://2025.pythonnorte.org/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLScA5GtsphzUrkVqvIeOwjZ2utON8LVlM3pfjMXmhBRoclDFcg/viewform
-  cfp: '2025-05-22 23:59:00'
-  timezone: America/Fortaleza
-  place: Belém, Brazil
-  start: 2025-06-04
-  end: 2025-06-06
-  twitter: pythonnortebr
-  sub: PY
-  location:
-  - title: Python Norte 2025
-    latitude: -1.438875529
-    longitude: -48.4782039189
-
 - conference: PyCon India
   year: 2025
   link: https://in.pycon.org/2025/
@@ -834,21 +818,6 @@
     latitude: 47.2455013
     longitude: -122.438329
 
-- conference: PyData London
-  year: 2025
-  link: https://pydata.org/london2025
-  cfp_link: https://pydata.org/london2025/cfp#submit
-  cfp: '2025-02-24 23:59:00'
-  timezone: Europe/London
-  place: London, UK
-  start: 2025-06-06
-  end: 2025-06-08
-  sub: DATA
-  location:
-  - title: PyData London 2025
-    latitude: 51.5074456
-    longitude: -0.1277653
-
 - conference: EuroPython
   year: 2025
   link: https://ep2025.europython.eu/
@@ -1037,18 +1006,3 @@
   - title: PyCamp Leipzig 2025
     latitude: 51.3406321
     longitude: 12.3747329
-
-- conference: AfroPython Conf
-  year: 2025
-  link: https://afropythonconf.org/
-  cfp: None
-  place: Salvador, Brazil
-  start: 2025-06-07
-  end: 2025-06-07
-  sponsor: https://docs.google.com/forms/d/e/1FAIpQLScT25fVpVkQ18lzrvclcvGWkwe2vO0Cm4YiV8gV5X9_Q5pEyQ/viewform
-  twitter: AfroPython
-  sub: PY
-  location:
-  - title: AfroPython Conf 2023
-    latitude: -5.7944777
-    longitude: -35.2119324
