@@ -137,6 +137,21 @@
     latitude: 53.3498006
     longitude: -6.2602964
 
+- conference: PyCon Netherlands
+  alt_name: PyCon NL
+  year: 2025
+  link: https://pycon-nl.org/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSdv-shKzLId7WMwxmVNfSsWZjCd4eNuB7ExKvu_B3s4yONR-Q/viewform
+  cfp: '2025-08-01 23:59:00'
+  place: Utrecht, Netherlands
+  start: 2025-10-16
+  end: 2025-10-16
+  sub: PY
+  location:
+  - title: PyCon Netherlands 2025
+    latitude: 52.090833
+    longitude: 5.121667
+
 - conference: PyCon Togo
   year: 2025
   link: https://pycontg.pytogo.org/
