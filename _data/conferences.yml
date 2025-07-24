@@ -898,6 +898,35 @@
     latitude: 9.0953279
     longitude: -84.2003038
 
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2026
+  link: https://pycon.it/en
+  cfp: TBA
+  place: Bologna, Italy
+  start: 2026-05-27
+  end: 2026-05-30
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+  - title: PyCon Italy 2026
+    latitude: 44.4938203
+    longitude: 11.3426327
+
+- conference: PyCon US
+  year: 2026
+  link: https://us.pycon.org/2026/
+  cfp: TBA
+  place: Long Beach, USA
+  start: 2026-05-13
+  end: 2026-05-19
+  mastodon: https://fosstodon.org/@pycon
+  sub: PY
+  location:
+  - title: PyCon US 2026
+    latitude: 33.7690164
+    longitude: -118.191604
+
 - conference: PyTexas
   year: 2026
   link: https://www.pytexas.org/2026/
