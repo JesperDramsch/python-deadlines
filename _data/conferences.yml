@@ -54,6 +54,23 @@
     latitude: 3.0988792
     longitude: 101.6454202
 
+- conference: PyCon Indonesia
+  alt_name: PyCon ID
+  year: 2025
+  link: https://pycon.id/
+  cfp_link: https://papercall.io/pyconid2025
+  cfp: '2025-09-14 16:59:59'
+  timezone: UTC
+  place: Jakarta, Indonesia
+  start: 2025-12-06
+  end: 2025-12-07
+  twitter: id_pycon
+  sub: PY
+  location:
+  - title: PyCon Indonesia 2025
+    latitude: -6.175247
+    longitude: 106.8270488
+
 - conference: PyData Vermont
   year: 2025
   link: https://pydata.org/vermont2025/
