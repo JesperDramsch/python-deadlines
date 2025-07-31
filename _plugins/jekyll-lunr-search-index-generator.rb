@@ -88,7 +88,7 @@ module Jekyll
             'id' => "#{conf['conference'].to_s.downcase.gsub(/\s+/, '-')}-#{conf['year']}",
             'title' => "#{conf['conference']} #{conf['year']}",
             'content' => "#{conf['conference']} #{conf['year']}",
-            'url' => "{{ site.baseurl }}/conference/#{conf['conference'].to_s.downcase.gsub(/\s+/, '-')}-#{conf['year']}",
+            'url' => "#{site.baseurl}/conference/#{conf['conference'].to_s.downcase.gsub(/\s+/, '-')}-#{conf['year']}",
             'date' => format_conference_date(conf['start'], conf['end']),
             'place' => conf['place'].to_s,
             'subs' => conf['sub'].to_s,
