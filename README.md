@@ -183,6 +183,7 @@ If you'd like to add support for a new language, please open an issue.
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/theopinard"><img src="https://avatars.githubusercontent.com/u/16977967?v=4?s=100" width="100px;" alt="Theodore Meynard"/><br /><sub><b>Theodore Meynard</b></sub></a><br /><a href="#conference-theopinard" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/kgawda"><img src="https://avatars.githubusercontent.com/u/3084325?v=4?s=100" width="100px;" alt="Konrad Gawda"/><br /><sub><b>Konrad Gawda</b></sub></a><br /><a href="#conference-kgawda" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/thanks"><img src="https://avatars.githubusercontent.com/u/1121545?v=4?s=100" width="100px;" alt="thanks"/><br /><sub><b>thanks</b></sub></a><br /><a href="https://github.com/JesperDramsch/python-deadlines/issues?q=author%3Athanks" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/egeakman"><img src="https://avatars.githubusercontent.com/u/75242929?v=4?s=100" width="100px;" alt="Ege Akman"/><br /><sub><b>Ege Akman</b></sub></a><br /><a href="https://github.com/JesperDramsch/python-deadlines/issues?q=author%3Aegeakman" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
