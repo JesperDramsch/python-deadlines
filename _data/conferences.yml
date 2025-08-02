@@ -789,22 +789,6 @@
     latitude: 38.6968919
     longitude: -9.4204495
 
-- conference: Python Nordeste
-  year: 2025
-  link: https://2025.pythonnordeste.org/
-  cfp_link: https://talks.python.org.br/python-nordeste-2025/cfp
-  cfp: '2025-03-23 10:00:00'
-  timezone: America/Fortaleza
-  place: Teresina, Brazil
-  start: 2025-06-20
-  end: 2025-06-22
-  sponsor: https://2025.pythonnordeste.org/static/docs/sponsors-plan-en.pdf
-  sub: PY
-  location:
-  - title: Python Nordeste 2025
-    latitude: -5.0874608
-    longitude: -42.8049571
-
 - conference: Web Summer Camp
   year: 2025
   link: https://websummercamp.com/
@@ -1054,17 +1038,3 @@
   - title: PyCon Somalia 2025
     latitude: 2.0349312
     longitude: 45.3419183
-
-- conference: PyCamp Leipzig
-  year: 2025
-  link: https://barcamps.eu/python-barcamp-leipzig-2025/
-  cfp_link: https://barcamps.eu/python-barcamp-leipzig-2025/sessions
-  cfp: None
-  place: Leipzig, Germany
-  start: 2025-06-21
-  end: 2025-06-24
-  sub: CAMP
-  location:
-  - title: PyCamp Leipzig 2025
-    latitude: 51.3406321
-    longitude: 12.3747329
