@@ -106,6 +106,19 @@
     latitude: -41.2887953
     longitude: 174.7772114
 
+- conference: Wagtail Space
+  year: 2024
+  link: https://wagtail.org/wagtail-space-2025/
+  cfp_link: https://pretalx.com/wagtail-space-2025/cfp
+  cfp: '2025-08-15 23:59:00'
+  timezone: UTC
+  place: Online
+  start: 2025-10-08
+  end: 2025-10-10
+  sponsor: https://wagtail.org/wagtail-space-2025/sponsors/
+  mastodon: https://fosstodon.org/@wagtail
+  sub: WEB
+
 - conference: PyCon Ghana
   year: 2025
   link: https://gh.pycon.org/2025/
