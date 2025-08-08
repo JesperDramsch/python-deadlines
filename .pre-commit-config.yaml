@@ -60,6 +60,23 @@ repos:
     - --disable=E113 # Disable empty docstrings
     - --summary # Print a summary
 
+# Conference data validation
+- repo: local
+  hooks:
+  - id: conference-data-validation
+    name: Validate conference data schema
+    entry: python utils/sort_yaml.py --skip_links
+    language: system
+    files: '^_data/(conferences|archive|legacy)\.yml$'
+    pass_filenames: false
+
+  - id: conference-csv-validation
+    name: Validate CSV conference data
+    entry: python utils/conferences/linters/validate.py
+    language: system
+    files: '^utils/conferences/.*\.csv$'
+    pass_filenames: false
+
 ci:
   autofix_commit_msg: |
     [pre-commit.ci] auto fixes from pre-commit.com hooks
