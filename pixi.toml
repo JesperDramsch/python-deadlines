@@ -19,6 +19,7 @@ setup-hooks = "pre-commit install"
 test = "pytest tests/ -v"
 test-cov = "pytest tests/ -v --cov=utils --cov-report=term-missing"
 test-fast = "pytest tests/ -v -x"
+pre = "pre-commit run --all-files"
 
 [dependencies]
 python = ">=3.12.3,<3.13"
