@@ -54,36 +54,78 @@ def map_columns(df, reverse=False):
 
 def write_csv(df, year, csv_location):
     """Write the CSV files for the conferences."""
+    from logging_config import get_tqdm_logger
+
+    logger = get_tqdm_logger(__name__)
+
+    logger.info(f"Starting write_csv for year {year} with df shape: {df.shape}")
+    logger.debug(f"write_csv input columns: {df.columns.tolist()}")
+
+    # Validate conference names before processing
+    invalid_conferences = df[~df["conference"].apply(lambda x: isinstance(x, str) and len(str(x).strip()) > 0)]
+    if not invalid_conferences.empty:
+        logger.error(f"Found {len(invalid_conferences)} rows with invalid conference names in write_csv:")
+        for idx, row in invalid_conferences.iterrows():
+            logger.error(f"  Row {idx}: conference = {row['conference']} (type: {type(row['conference'])})")
+        # Fix invalid conference names
+        df.loc[invalid_conferences.index, "conference"] = df.loc[invalid_conferences.index, "conference"].apply(
+            lambda x: str(x) if pd.notna(x) else f"Conference_{invalid_conferences.index}",
+        )
+
     df["cfp"] = df["cfp"].str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
     df["tutorial_deadline"] = (
         df["tutorial_deadline"].fillna("").apply(str).str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
     )
     df = map_columns(df, reverse=True)
+    logger.debug(f"After map_columns, df shape: {df.shape}")
+
     for y in range(year, datetime.now(tz=timezone.utc).year + 10):
         if y in df["year"].unique():
-            df.loc[
-                df["year"] == y,
-                [
-                    "Subject",
-                    "Start Date",
-                    "End Date",
-                    "Location",
-                    "Country",
-                    "Venue",
-                    "Tutorial Deadline",
-                    "Talk Deadline",
-                    "Website URL",
-                    "Proposal URL",
-                    "Sponsorship URL",
-                ],
-            ].fillna("").astype(str).sort_values(by="Start Date").to_csv(Path(csv_location, f"{y}.csv"), index=False)
+            # Extract and prepare data for this year
+            df_year_subset = df.loc[df["year"] == y]
+            logger.debug(f"Year {y} subset shape: {df_year_subset.shape}")
+
+            csv_data = (
+                df_year_subset[
+                    [
+                        "Subject",
+                        "Start Date",
+                        "End Date",
+                        "Location",
+                        "Country",
+                        "Venue",
+                        "Tutorial Deadline",
+                        "Talk Deadline",
+                        "Website URL",
+                        "Proposal URL",
+                        "Sponsorship URL",
+                    ]
+                ]
+                .fillna("")
+                .astype(str)
+                .sort_values(by=["Start Date", "End Date", "Subject"])
+            )
+
+            logger.debug(f"Writing CSV for year {y} with {len(csv_data)} conferences")
+            logger.debug(f"Sample conference names: {csv_data['Subject'].head().tolist()}")
+
+            csv_data.to_csv(Path(csv_location, f"{y}.csv"), index=False)
+            logger.info(f"Successfully wrote {Path(csv_location, f'{y}.csv')}")
 
 
 def main(year=None, base=""):
     """Import Python conferences from a csv file Github."""
+    from logging_config import get_tqdm_logger
+
+    # Setup tqdm-compatible logging for this module
+    logger = get_tqdm_logger(__name__)
+    logger.info("🚀 Starting import_python_organizers main function")
+
     # If no year is provided, use the current year
     if year is None:
         year = datetime.now(tz=timezone.utc).year
+
+    logger.info(f"Processing conferences for year: {year}")
 
     # Load current conferences
     _data_path = Path(base, "_data")
@@ -150,15 +192,24 @@ def main(year=None, base=""):
             )
             continue
 
-        df_merged, df_remote = fuzzy_match(
-            df_yml[df_yml["year"] == y],
-            df_csv_for_merge.loc[df_csv_for_merge["year"] == y],
-        )
+        logger.info(f"Processing year {y} merge operations")
+        df_yml_year = df_yml[df_yml["year"] == y]
+        df_csv_year = df_csv_for_merge.loc[df_csv_for_merge["year"] == y]
+        logger.debug(f"Year {y}: df_yml_year shape: {df_yml_year.shape}, df_csv_year shape: {df_csv_year.shape}")
+
+        df_merged, df_remote = fuzzy_match(df_yml_year, df_csv_year)
+        logger.info(f"Fuzzy match completed for year {y}. df_merged shape: {df_merged.shape}")
+
         df_merged["year"] = y
         df_merged = df_merged.drop(["conference"], axis=1)
+        logger.debug(f"After dropping conference column: {df_merged.shape}")
+
         df_merged = deduplicate(df_merged)
         df_remote = deduplicate(df_remote)
+        logger.debug(f"After deduplication - df_merged: {df_merged.shape}, df_remote: {df_remote.shape}")
+
         df_merged = merge_conferences(df_merged, df_remote)
+        logger.info(f"Merge conferences completed for year {y}. Final shape: {df_merged.shape}")
 
         df_new = pd.concat([df_new, df_merged], ignore_index=True)
 

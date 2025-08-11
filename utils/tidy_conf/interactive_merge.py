@@ -1,3 +1,4 @@
+import logging
 import sys
 from collections import defaultdict
 
@@ -23,8 +24,15 @@ def fuzzy_match(df_yml, df_remote):
     Keeps temporary track of rejections to avoid asking the same question multiple
     times.
     """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting fuzzy_match with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
+
     df_yml = tidy_df_names(df_yml)
     df_remote = tidy_df_names(df_remote)
+
+    logger.debug(f"After tidy_df_names - df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
+    logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
+    logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
 
     _, known_rejections = load_title_mappings(path="utils/tidy_conf/data/.tmp/rejections.yml")
 
@@ -73,23 +81,46 @@ def fuzzy_match(df_yml, df_remote):
     update_title_mappings(new_rejections, path="utils/tidy_conf/data/.tmp/rejections.yml")
 
     # Combine dataframes
+    logger.info("Combining dataframes using title_match index")
     df.set_index("title_match", inplace=True)
+    logger.debug(f"df index after set_index: {df.index.tolist()[:5]}...")
+
     df_new = df.combine_first(df_remote)
+    logger.info(f"Combined dataframe shape: {df_new.shape}")
+    logger.debug(f"df_new index: {df_new.index.tolist()[:5]}...")
+
+    # Validate that the index contains actual conference names, not integers
+    integer_indices = [idx for idx in df_new.index if isinstance(idx, int)]
+    if integer_indices:
+        logger.warning(f"Found {len(integer_indices)} integer indices in df_new: {integer_indices[:5]}...")
 
     # Fill missing CFPs with "TBA"
     df_new.loc[df_new["cfp"].isna(), "cfp"] = "TBA"
 
+    logger.info("fuzzy_match completed successfully")
     return df_new, df_remote
 
 
 def merge_conferences(df_yml, df_remote):
     """Merge two dataframes on title and interactively resolve conflicts."""
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting merge_conferences with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
+
+    # Data validation before merge
+    logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
+    logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
+    logger.debug(f"df_yml index: {df_yml.index.tolist()[:5]}...")  # Show first 5 indices
+    logger.debug(f"df_remote index: {df_remote.index.tolist()[:5]}...")
+
     df_new = get_schema()
     columns = df_new.columns.tolist()
+    logger.debug(f"Schema columns: {columns}")
 
     with contextlib.suppress(KeyError):
+        logger.debug("Dropping 'conference' column from df_yml")
         df_yml = df_yml.drop(["conference"], axis=1)
     with contextlib.suppress(KeyError):
+        logger.debug("Dropping 'conference' column from df_remote")
         df_remote = df_remote.drop(["conference"], axis=1)
 
     replacements = {
@@ -98,9 +129,32 @@ def merge_conferences(df_yml, df_remote):
         "Czech Republic": "Czechia",
     }
 
+    logger.info("Performing pandas merge on 'title_match'")
     df_merge = pd.merge(left=df_yml, right=df_remote, how="outer", on="title_match", validate="one_to_one")
+    logger.info(f"Merge completed. df_merge shape: {df_merge.shape}")
+    logger.debug(f"df_merge columns: {df_merge.columns.tolist()}")
+    logger.debug(f"df_merge index: {df_merge.index.tolist()[:5]}...")
+
     for i, row in df_merge.iterrows():
-        df_new.loc[i, "conference"] = i
+        # Use the actual conference name from title_match index, not the row index
+        conference_name = df_merge.index.name if hasattr(df_merge.index, "name") and df_merge.index.name else i
+        if hasattr(row, "name") and row.name:
+            conference_name = row.name
+            logger.debug(f"Using row.name for conference: {conference_name}")
+        elif "title_match" in row and pd.notna(row["title_match"]):
+            conference_name = row["title_match"]
+            logger.debug(f"Using title_match for conference: {conference_name}")
+        else:
+            logger.warning(f"Falling back to index {i} for conference name")
+            conference_name = i
+
+        # Validate conference name is a string
+        if not isinstance(conference_name, str):
+            logger.error(f"Conference name is not a string: {type(conference_name)} = {conference_name}")
+            conference_name = str(conference_name)
+
+        df_new.loc[i, "conference"] = conference_name
+        logger.debug(f"Set conference[{i}] = {conference_name}")
         for column in columns:
             cx, cy = column + "_x", column + "_y"
             # print(i,cx,cy,cx in df_merge.columns and cy in df_merge.columns,column in df_merge.columns,)
@@ -257,4 +311,22 @@ def merge_conferences(df_yml, df_remote):
 
     # Fill in missing CFPs with TBA
     df_new.loc[df_new.cfp.isna(), "cfp"] = "TBA"
+
+    # Final validation before returning
+    logger.info(f"Merge completed. Final df_new shape: {df_new.shape}")
+    logger.debug(f"Final df_new columns: {df_new.columns.tolist()}")
+
+    # Validate conference names
+    invalid_conferences = df_new[~df_new["conference"].apply(lambda x: isinstance(x, str) and len(str(x).strip()) > 0)]
+    if not invalid_conferences.empty:
+        logger.error(f"Found {len(invalid_conferences)} rows with invalid conference names:")
+        for idx, row in invalid_conferences.iterrows():
+            logger.error(f"  Row {idx}: conference = {row['conference']} (type: {type(row['conference'])})")
+
+    # Check for null conference names
+    null_conferences = df_new[df_new["conference"].isna()]
+    if not null_conferences.empty:
+        logger.error(f"Found {len(null_conferences)} rows with null conference names")
+
+    logger.info("Merge validation completed")
     return df_new
