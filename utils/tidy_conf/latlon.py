@@ -1,16 +1,24 @@
+import sys
 import time
 import urllib
 
 import requests
 from tqdm import tqdm
 
+sys.path.append("..")
+from logging_config import get_tqdm_logger
+
 
 def add_latlon(data):
     """Add latitude and longitude to the data."""
+    logger = get_tqdm_logger(__name__)
+
     # Cache for locations
     cache = {}
     # Copy of data for unlocated conferences
     data_copy = []
+
+    logger.debug(f"Processing geolocation for {len(data)} conferences")
 
     # Go through the data and check if the location is already in the cache
     for i, q in tqdm(enumerate(data), total=len(data)):
@@ -31,7 +39,7 @@ def add_latlon(data):
         try:
             q["place"] = q["place"].split(",")[0].strip() + ", " + q["place"].split(",")[-1].strip()
         except IndexError:
-            tqdm.write(f"IndexError: {q['place']}")
+            logger.error(f"IndexError processing place: {q['place']}")
 
         # Check if the location is already in the cache
         places = [q["place"]]
@@ -69,11 +77,11 @@ def add_latlon(data):
                         cache[place] = new_location[-1]
                     except IndexError:
                         cache[place] = None
-                        tqdm.write(f"No response from Openstreetmaps for {q['place']}")
+                        logger.warning(f"No response from OpenStreetMap for {q['place']}")
                     time.sleep(2)
                 else:
                     cache[place] = None
-                    tqdm.write(f"No response from Openstreetmaps for {q['place']}")
+                    logger.warning(f"No response from OpenStreetMap for {q['place']}")
         else:
             if new_location:
                 data[i]["location"] = new_location

@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 import pydantic
 import pytz
 import yaml
+from logging_config import get_tqdm_logger
 from tidy_conf import auto_add_sub
 from tidy_conf import write_conference_yaml
 from tidy_conf.date import clean_dates
@@ -156,6 +157,8 @@ def check_links(data):
 # Sort:
 def sort_data(base="", prefix="", skip_links=False):
     """Sort and clean the conference data."""
+    logger = get_tqdm_logger(__name__)
+
     # Load different data files
     current = Path(base, "_data", "conferences.yml")
     out_current = Path(base, "_data", f"{prefix}conferences.yml")
@@ -164,72 +167,100 @@ def sort_data(base="", prefix="", skip_links=False):
     legacy = Path(base, "_data", "legacy.yml")
     out_legacy = Path(base, "_data", f"{prefix}legacy.yml")
 
+    logger.info("📊 Loading conference data files")
     data = []
+    files_loaded = 0
 
     for url in (current, archive, legacy):
-        with url.open(encoding="utf-8") as stream, contextlib.suppress(yaml.YAMLError):
-            if stream:
-                data += yaml.load(stream, Loader=Loader)  # nosec B506 # noqa: S506
+        if url.exists():
+            with url.open(encoding="utf-8") as stream, contextlib.suppress(yaml.YAMLError):
+                if stream:
+                    file_data = yaml.load(stream, Loader=Loader)  # nosec B506 # noqa: S506
+                    if file_data:
+                        data += file_data
+                        files_loaded += 1
+                        logger.debug(f"Loaded {len(file_data)} entries from {url.name}")
+
+    logger.info(f"📋 Loaded {len(data)} conferences from {files_loaded} files")
 
     from tidy_conf.schema import Conference
 
+    logger.debug("🔧 Ordering keywords")
     for i, q in enumerate(data.copy()):
         data[i] = order_keywords(q)
 
     # Clean Dates
+    logger.info("📅 Cleaning dates")
     data = tidy_dates(data)
 
     # Clean Titles
+    logger.info("🏷️  Cleaning titles")
     data = tidy_titles(data)
 
     # Add Sub
+    logger.info("🏢 Adding submission types")
     data = auto_add_sub(data)
 
     # Geocode Data
+    logger.info("🗺️  Adding geolocation data")
     data = add_latlon(data)
 
     # Merge duplicates
+    logger.info("🔄 Merging duplicates")
     data = merge_duplicates(data)
 
     # Check Links
     if not skip_links:
+        logger.info("🔗 Checking link availability")
         data = check_links(data)
+    else:
+        logger.info("⏭️  Skipping link checking")
 
     for i, q in enumerate(data.copy()):
         data[i] = order_keywords(q)
 
+    logger.info("✅ Validating conference data with Pydantic schema")
     new_data = []
+    validation_errors = 0
+
     for q in data:
         try:
             new_data.append(Conference(**q))
         except pydantic.ValidationError as e:  # noqa: PERF203
-            print(f"Error: {e}")
-            print(f"Data: \n{yaml.dump(q, default_flow_style=False)}")
-            print("\n\n")
+            validation_errors += 1
+            logger.error(f"❌ Validation error in conference: {e}")
+            logger.debug(f"Invalid data: \n{yaml.dump(q, default_flow_style=False)}")
             continue
+
+    if validation_errors > 0:
+        logger.warning(f"⚠️  {validation_errors} conferences failed validation and were skipped")
+
     data = new_data
+    logger.info(f"✅ {len(data)} conferences passed validation")
 
     # Split data by cfp
+    logger.info("📂 Splitting data by CFP status")
     conf, tba, expired, legacy = split_data(data)
+    logger.info(f"📊 Split results: {len(conf)} active, {len(tba)} TBA, {len(expired)} expired, {len(legacy)} legacy")
 
-    # just sort:
+    # Sort data
+    logger.info("🔄 Sorting conferences by CFP date")
     conf.sort(key=sort_by_cfp, reverse=True)
-    # pretty_print("Date Sorting:", conf, tba, expired, legacy)
     conf.sort(key=sort_by_date_passed)
-    # pretty_print("Date and Passed Deadline Sorting with tba:", conf, tba, expired)
     tba.sort(key=sort_by_date, reverse=True)
 
+    logger.info(f"💾 Writing {len(conf + tba)} active conferences to {out_current.name}")
     write_conference_yaml(conf + tba, out_current)
 
     expired.sort(key=sort_by_date, reverse=True)
-
-    # pretty_print("New archive:", data)
+    logger.info(f"📦 Writing {len(expired)} expired conferences to {out_archive.name}")
     write_conference_yaml(expired, out_archive)
 
     legacy.sort(key=sort_by_name, reverse=True)
-
-    # pretty_print("New legacy:", data)
+    logger.info(f"🗂️  Writing {len(legacy)} legacy conferences to {out_legacy.name}")
     write_conference_yaml(legacy, out_legacy)
+
+    logger.info("🎉 Conference data sorting and cleaning completed successfully")
 
 
 if __name__ == "__main__":

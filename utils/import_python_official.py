@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import requests
 from icalendar import Calendar
-from logging_config import get_logger
+from logging_config import get_tqdm_logger
 from tidy_conf import fuzzy_match
 from tidy_conf import load_conferences
 from tidy_conf import merge_conferences
@@ -18,7 +18,7 @@ from tidy_conf.utils import fill_missing_required
 from tidy_conf.yaml import load_title_mappings
 from tidy_conf.yaml import write_df_yaml
 
-logger = get_logger(__name__)
+logger = get_tqdm_logger(__name__)
 
 
 def ics_to_dataframe() -> pd.DataFrame:
