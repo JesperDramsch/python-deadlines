@@ -132,8 +132,14 @@ class TestYAMLIntegrity:
         invalid_types = []
         for conf in conferences:
             conf_type = conf.get("sub")
-            if conf_type not in valid_types:
-                invalid_types.append(f"{conf.get('conference')} uses invalid type: {conf_type}")
+            if conf_type:
+                # Handle comma-separated types like "PY,DATA"
+                individual_types = [t.strip() for t in conf_type.split(",")]
+                invalid_types.extend(
+                    f"{conf.get('conference')} uses invalid type: {individual_type} (from {conf_type})"
+                    for individual_type in individual_types
+                    if individual_type not in valid_types
+                )
 
         if invalid_types:
             pytest.fail("Invalid conference types:\n" + "\n".join(invalid_types[:10]))

@@ -61,30 +61,50 @@ def write_csv(df, year, csv_location):
     logger.info(f"Starting write_csv for year {year} with df shape: {df.shape}")
     logger.debug(f"write_csv input columns: {df.columns.tolist()}")
 
-    # Validate conference names before processing
-    invalid_conferences = df[~df["conference"].apply(lambda x: isinstance(x, str) and len(str(x).strip()) > 0)]
+    # Validate and fix conference names before processing
+    invalid_mask = ~df["conference"].apply(lambda x: isinstance(x, str) and len(str(x).strip()) > 0)
+    invalid_conferences = df[invalid_mask]
+
     if not invalid_conferences.empty:
         logger.error(f"Found {len(invalid_conferences)} rows with invalid conference names in write_csv:")
         for idx, row in invalid_conferences.iterrows():
             logger.error(f"  Row {idx}: conference = {row['conference']} (type: {type(row['conference'])})")
-        # Fix invalid conference names
-        df.loc[invalid_conferences.index, "conference"] = df.loc[invalid_conferences.index, "conference"].apply(
-            lambda x: str(x) if pd.notna(x) else f"Conference_{invalid_conferences.index}",
-        )
 
-    df["cfp"] = df["cfp"].str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
+        # Fix invalid conference names with proper indexing
+        for idx in invalid_conferences.index:
+            original_value = df.at[idx, "conference"]
+            if pd.notna(original_value) and str(original_value).strip():
+                df.at[idx, "conference"] = str(original_value).strip()
+            else:
+                df.at[idx, "conference"] = f"Conference_{idx}"
+
+    # Sanitize CFP and deadline data safely
+    df["cfp"] = df["cfp"].fillna("").astype(str).str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
     df["tutorial_deadline"] = (
-        df["tutorial_deadline"].fillna("").apply(str).str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
+        df["tutorial_deadline"].fillna("").astype(str).str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
     )
+
+    # Ensure empty strings instead of nan values
+    df["cfp"] = df["cfp"].replace("nan", "")
+    df["tutorial_deadline"] = df["tutorial_deadline"].replace("nan", "")
+
+    # Map columns back to CSV format
     df = map_columns(df, reverse=True)
+
+    # Additional cleaning after column mapping to ensure consistency
+    if "Talk Deadline" in df.columns:
+        df["Talk Deadline"] = df["Talk Deadline"].fillna("").astype(str).replace("nan", "")
+    if "Tutorial Deadline" in df.columns:
+        df["Tutorial Deadline"] = df["Tutorial Deadline"].fillna("").astype(str).replace("nan", "")
     logger.debug(f"After map_columns, df shape: {df.shape}")
 
     for y in range(year, datetime.now(tz=timezone.utc).year + 10):
-        if y in df["year"].unique():
-            # Extract and prepare data for this year
-            df_year_subset = df.loc[df["year"] == y]
-            logger.debug(f"Year {y} subset shape: {df_year_subset.shape}")
+        # Extract and prepare data for this year (even if empty)
+        df_year_subset = df.loc[df["year"] == y] if y in df["year"].unique() else pd.DataFrame(columns=df.columns)
+        logger.debug(f"Year {y} subset shape: {df_year_subset.shape}")
 
+        # Only create CSV if we have data or if the original df was not empty (to handle empty year subsets)
+        if not df_year_subset.empty or df.empty:
             csv_data = (
                 df_year_subset[
                     [
@@ -103,11 +123,33 @@ def write_csv(df, year, csv_location):
                 ]
                 .fillna("")
                 .astype(str)
+                .replace("nan", "")  # Convert string "nan" back to empty string
                 .sort_values(by=["Start Date", "End Date", "Subject"])
+                if not df_year_subset.empty
+                else df_year_subset[
+                    [
+                        "Subject",
+                        "Start Date",
+                        "End Date",
+                        "Location",
+                        "Country",
+                        "Venue",
+                        "Tutorial Deadline",
+                        "Talk Deadline",
+                        "Website URL",
+                        "Proposal URL",
+                        "Sponsorship URL",
+                    ]
+                ]
+                .fillna("")
+                .astype(str)
             )
 
             logger.debug(f"Writing CSV for year {y} with {len(csv_data)} conferences")
-            logger.debug(f"Sample conference names: {csv_data['Subject'].head().tolist()}")
+            if not csv_data.empty:
+                logger.debug(f"Sample conference names: {csv_data['Subject'].head().tolist()}")
+                if "Talk Deadline" in csv_data.columns:
+                    logger.debug(f"Talk Deadline values before CSV write: {csv_data['Talk Deadline'].tolist()}")
 
             csv_data.to_csv(Path(csv_location, f"{y}.csv"), index=False)
             logger.info(f"Successfully wrote {Path(csv_location, f'{y}.csv')}")

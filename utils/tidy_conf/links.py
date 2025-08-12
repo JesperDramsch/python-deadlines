@@ -70,9 +70,10 @@ def check_link_availability(url, start, cache=None, cache_archived=None):
                 tqdm.write(f"URL {url} was redirected within the same domain to: {final_url}")
                 if "?" in final_url and "?" not in url:
                     tqdm.write("Warning: The final URL contains a query string, but the original URL does not.")
-                else:
-                    return final_url  # Use the final URL for the rest of the process
-            elif response.status_code != 200:
+                    # Return original URL to avoid using redirected URL with query string
+                    return url
+                return final_url  # Use the final URL for the rest of the process
+            if response.status_code != 200:
                 tqdm.write(
                     (
                         f"Link {url} is not available (status code: {response.status_code})."
@@ -95,9 +96,11 @@ def check_link_availability(url, start, cache=None, cache_archived=None):
             data = archive_response.json()
             # Get the "closest available" snapshot URL to a date
             if (
-                data["archived_snapshots"]
+                "archived_snapshots" in data
+                and data["archived_snapshots"]
+                and "closest" in data["archived_snapshots"]
                 and data["archived_snapshots"]["closest"]
-                and data["archived_snapshots"]["closest"]["available"]
+                and data["archived_snapshots"]["closest"].get("available", False)
             ):
                 archived_url = data["archived_snapshots"]["closest"]["url"].replace(":80/", "/")
                 if archived_url[4] == ":":

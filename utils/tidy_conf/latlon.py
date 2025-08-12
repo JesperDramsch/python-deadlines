@@ -49,6 +49,9 @@ def add_latlon(data):
         new_location = []
         for place in places:
             place = place.strip()
+            # Skip online places in extra_places too
+            if "online" in place.lower():
+                continue
             if place in cache and cache[place] is not None:
                 new_location += [
                     {
@@ -66,18 +69,18 @@ def add_latlon(data):
 
                 if response:
                     try:
-                        response = response.json()
+                        response_json = response.json()
                         new_location += [
                             {
                                 "title": f'{q["conference"]} {q["year"]}',
-                                "latitude": float(response[0]["lat"]),
-                                "longitude": float(response[0]["lon"]),
+                                "latitude": float(response_json[0]["lat"]),
+                                "longitude": float(response_json[0]["lon"]),
                             },
                         ]
                         cache[place] = new_location[-1]
-                    except IndexError:
+                    except (IndexError, ValueError, KeyError) as e:
                         cache[place] = None
-                        logger.warning(f"No response from OpenStreetMap for {q['place']}")
+                        logger.warning(f"Error processing response from OpenStreetMap for {place}: {e}")
                     time.sleep(2)
                 else:
                     cache[place] = None

@@ -80,6 +80,12 @@ def fuzzy_match(df_yml, df_remote):
     update_title_mappings(new_mappings)
     update_title_mappings(new_rejections, path="utils/tidy_conf/data/.tmp/rejections.yml")
 
+    # Ensure all title_match values are strings (not lists from process.extract)
+    for i, row in df.iterrows():
+        if not isinstance(row["title_match"], str):
+            df.at[i, "title_match"] = str(i)
+            logger.debug(f"Converted title_match[{i}] to string: {df.at[i, 'title_match']}")
+
     # Combine dataframes
     logger.info("Combining dataframes using title_match index")
     df.set_index("title_match", inplace=True)

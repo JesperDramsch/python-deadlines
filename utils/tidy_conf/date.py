@@ -53,7 +53,7 @@ def clean_dates(data):
 
 def suffix(d):
     """Date utility to add ordinal suffix to a number."""
-    return "th" if 11 <= d <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(d % 10, "th")
+    return "th" if 11 <= (d % 100) <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(d % 10, "th")
 
 
 def create_nice_date(data):
@@ -62,11 +62,23 @@ def create_nice_date(data):
     This overwrites the written `date` field with a more human-readable preferred date.
     """
     try:
-        start = datetime.datetime.strptime(data["start"], dateformat.split(" ")[0]).replace(
-            tzinfo=datetime.timezone.utc,
-        )
-        end = datetime.datetime.strptime(data["end"], dateformat.split(" ")[0]).replace(tzinfo=datetime.timezone.utc)
-    except TypeError:
+        # Handle string dates
+        if isinstance(data["start"], str):
+            start = datetime.datetime.strptime(data["start"], dateformat.split(" ")[0]).replace(
+                tzinfo=datetime.timezone.utc,
+            )
+        else:
+            # Assume it's already a date object
+            start = data["start"]
+
+        if isinstance(data["end"], str):
+            end = datetime.datetime.strptime(data["end"], dateformat.split(" ")[0]).replace(
+                tzinfo=datetime.timezone.utc,
+            )
+        else:
+            # Assume it's already a date object
+            end = data["end"]
+    except (TypeError, ValueError):
         start = data["start"]
         end = data["end"]
 

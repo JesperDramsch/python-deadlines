@@ -17,6 +17,13 @@ def sample_conference():
         "end": "2025-06-03",
         "sub": "PY",
         "timezone": "America/New_York",
+        "location": [
+            {
+                "title": "PyCon Test 2025",
+                "latitude": 40.7128,
+                "longitude": -74.0060,
+            },
+        ],
     }
 
 
@@ -46,6 +53,22 @@ def temp_yaml_file(tmp_path):
         return str(yaml_file)
 
     return _create_yaml_file
+
+
+@pytest.fixture()
+def online_conference():
+    """Sample online conference data for testing."""
+    return {
+        "conference": "PyConf Online",
+        "year": 2025,
+        "link": "https://online.pyconf.org",
+        "cfp": "2025-02-15 23:59:00",
+        "place": "Online",
+        "start": "2025-06-01",
+        "end": "2025-06-03",
+        "sub": "PY",
+        "timezone": "UTC",
+    }
 
 
 @pytest.fixture()

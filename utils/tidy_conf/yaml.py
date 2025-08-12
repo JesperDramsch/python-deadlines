@@ -26,10 +26,12 @@ def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:
     """
     if isinstance(data, pd.DataFrame):
         data = [{k: v for k, v in record.items() if pd.notnull(v)} for record in data.to_dict(orient="records")]
-    if isinstance(data[0], Conference):
-        data = [record.model_dump(exclude_defaults=True, exclude_none=True) for record in data]
+
+    # Check if data is empty before accessing elements
     if not data:
         data = []
+    elif isinstance(data[0], Conference):
+        data = [record.model_dump(exclude_defaults=True, exclude_none=True) for record in data]
     with Path(url).open(
         "w",
         encoding="utf-8",
