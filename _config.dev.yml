@@ -1,0 +1,91 @@
+# Development Configuration for Python Deadlines
+# Fast build config - only English and German, no archive/legacy processing
+# Usage: bundle exec jekyll serve --config _config.yml,_config.dev.yml
+
+# Override languages for faster builds
+languages: [ "en", "de" ]
+
+# Exclude archive and legacy from page generation for faster builds
+page_gen:
+# Only process active conferences, skip archive and legacy
+- data: 'conferences'
+  template: 'summary'
+  dir: 'series'
+  name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')
+  title_expr: record['conference']+" "+"Conference Series Overview"
+- data: 'conferences'
+  template: 'conference'
+  dir: 'conference'
+  name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')+"-"+record['year'].to_s
+  title_expr: record['conference']+" "+record['year'].to_s+" Conference Deadlines"
+# Archive and legacy are commented out for dev builds
+# - data: 'archive'
+#   template: 'summary'
+#   dir: 'series'
+#   name_expr: record['conference'].downcase.gsub(/[^\p{L}]+/, ' ').strip.gsub(' ', '-')
+#   title_expr: record['conference']+" "+"Conference Series Overview"
+#   filter_condition: site.pages.none? { |page| page.relative_path.include?('/' + record['conference'].downcase.gsub(/[^\p{L}]+/, ' ').strip.gsub(' ', '-') + '/') }
+# - data: 'legacy'
+#   template: 'summary'
+#   dir: 'series'
+#   name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')
+#   title_expr: record['conference']+" "+"Conference Series Overview"
+#   filter_condition: site.pages.none? { |page| page.relative_path.include?('/' + record['conference'].downcase.gsub(/[^\p{L}]+/, ' ').strip.gsub(' ', '-') + '/') }
+# - data: 'archive'
+#   template: 'conference'
+#   dir: 'conference'
+#   name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')+"-"+record['year'].to_s
+#   title_expr: record['conference']+" "+record['year'].to_s+" Conference Deadlines"
+# - data: 'legacy'
+#   template: 'conference'
+#   dir: 'conference'
+#   name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')+"-"+record['year'].to_s
+#   title_expr: record['conference']+" "+record['year'].to_s+" Conference Deadlines"
+
+# Additional optimizations for development
+# Disable some plugins that aren't needed during development
+plugins:
+- jekyll-include-cache
+# - jekyll-seo-tag  # Can disable for even faster builds
+- jekyll-datapage-generator
+# - jekyll-maps  # Can disable if not testing maps
+- jekyll-multiple-languages-plugin
+# - jekyll-sitemap  # Not needed for dev
+
+# Faster regeneration
+incremental: true
+profile: false
+
+# Disable analytics for dev
+ga_id:
+adsense_id:
+
+# Show build time info
+show_drafts: true
+strict_front_matter: false
+
+# Exclude more files from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - utils/
+  - tests/
+  - "*.pyc"
+  - "*.pyo"
+  - ".pytest_cache"
+  - "__pycache__"
+  - ".coverage"
+  - "htmlcov/"
+  - ".git"
+  - ".github"
+  - "*.log"
+  - "*.tmp"
+  - ".DS_Store"
+  - "Thumbs.db"
+  - "_data/archive.yml"  # Exclude archive data from watch
+  - "_data/legacy.yml"   # Exclude legacy data from watch

@@ -1,0 +1,82 @@
+# Minimal Configuration for Python Deadlines
+# Ultra-fast build config - English only, no archive/legacy, minimal plugins
+# Usage: bundle exec jekyll serve --config _config.yml,_config.minimal.yml
+
+# Only English for fastest possible builds
+languages: [ "en" ]
+
+# Only process current conferences
+page_gen:
+- data: 'conferences'
+  template: 'conference'
+  dir: 'conference'
+  name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')+"-"+record['year'].to_s
+  title_expr: record['conference']+" "+record['year'].to_s+" Conference Deadlines"
+
+# Minimal plugins - only essentials
+plugins:
+- jekyll-datapage-generator
+- jekyll-multiple-languages-plugin
+
+# Maximum speed optimizations
+incremental: true
+profile: false
+safe: false
+liquid:
+  error_mode: lax
+  strict_filters: false
+  strict_variables: false
+
+# Disable all external services
+ga_id:
+adsense_id:
+maps:
+  google:
+    api_key:
+
+# Don't process these at all
+keep_files: ['.git', '.svn']
+skip_config_files: false
+
+# Minimal file watching
+watch: true
+force_polling: false
+
+# Exclude everything non-essential
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/
+  - utils/
+  - tests/
+  - "*.pyc"
+  - "*.pyo"
+  - ".pytest_cache"
+  - "__pycache__"
+  - ".coverage"
+  - "htmlcov/"
+  - ".git"
+  - ".github"
+  - "*.log"
+  - "*.tmp"
+  - ".DS_Store"
+  - "Thumbs.db"
+  - "_data/archive.yml"
+  - "_data/legacy.yml"
+  - "_i18n/es*"
+  - "_i18n/fr*"
+  - "_i18n/pt-br*"
+  - "_i18n/zh-cn*"
+  - "_i18n/hi*"
+  - "_i18n/id*"
+  - "_i18n/ru*"
+  - "_site/es"
+  - "_site/fr"
+  - "_site/pt-br"
+  - "_site/zh-cn"
+  - "_site/hi"
+  - "_site/id"
+  - "_site/ru"
+  - "crowdin.yml"
+  - "TRANSLATION.md"
