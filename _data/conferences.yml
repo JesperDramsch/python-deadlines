@@ -27,6 +27,23 @@
     latitude: 51.4383999131
     longitude: 5.46712979814
 
+- conference: PyCon Wroclaw
+  year: 2025
+  link: https://www.pyconwroclaw.com/
+  cfp_link: https://www.papercall.io/pyconwroclaw2025
+  cfp: '2025-10-05 19:54:00'
+  timezone: UTC
+  place: Wroclaw, Poland
+  start: 2025-11-15
+  end: 2025-11-15
+  finaid: https://forms.gle/jQVrF3sXSQKBCHcM7
+  twitter: pyconwroclaw
+  sub: PY
+  location:
+  - title: PyCon Wroclaw 2025
+    latitude: 51.1089776
+    longitude: 17.0326689
+
 - conference: Xtreme Python
   year: 2025
   link: https://xtremepython.dev/2025/
