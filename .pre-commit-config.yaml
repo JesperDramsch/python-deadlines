@@ -65,14 +65,14 @@ repos:
   hooks:
   - id: conference-data-validation
     name: Validate conference data schema
-    entry: python utils/sort_yaml.py --skip_links
+    entry: pixi run sort
     language: system
     files: '^_data/(conferences|archive|legacy)\.yml$'
     pass_filenames: false
 
   - id: conference-csv-validation
     name: Validate CSV conference data
-    entry: python utils/conferences/linters/validate.py
+    entry: pixi run lint
     language: system
     files: '^utils/conferences/.*\.csv$'
     pass_filenames: false

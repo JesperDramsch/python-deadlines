@@ -25,6 +25,7 @@ test = "pytest tests/ -v"
 test-cov = "pytest tests/ -v --cov=utils --cov-report=term-missing"
 test-fast = "pytest tests/ -v -x"
 pre = "pre-commit run --all-files"
+lint = "python utils/conferences/linters/validate.py"
 
 [dependencies]
 python = ">=3.12.3,<3.13"
@@ -52,3 +53,6 @@ add = "all-contributors add"
 
 [environments]
 all-contrib = ["all-contrib"]
+
+[pypi-dependencies]
+vladiate = ">=0.0.26, <0.0.27"
