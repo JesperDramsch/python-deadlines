@@ -1,0 +1,347 @@
+/* Mobile Responsiveness Fixes for Python Deadlines */
+
+/* =================================================================
+   1. NAVBAR COLLAPSE FIX
+   ================================================================= */
+
+/* Ensure navbar toggle button is visible and properly styled */
+.navbar-toggler {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+}
+
+/* Fix navbar collapse animation */
+.navbar-collapse {
+    transition: height 0.35s ease;
+}
+
+.navbar-collapse.collapsing {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.35s ease;
+}
+
+/* Ensure mobile menu items stack properly */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background-color: #343a40;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        border-radius: 0.25rem;
+    }
+
+    .navbar-nav {
+        margin-bottom: 1rem;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .navbar-nav .dropdown-menu {
+        position: static;
+        float: none;
+        width: 100%;
+        margin-top: 0.125rem;
+        background-color: rgba(52, 58, 64, 0.95);
+    }
+
+    /* Search form in mobile menu */
+    .navbar-collapse .form-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .navbar-collapse .form-inline input {
+        margin-bottom: 0.5rem;
+        width: 100%;
+    }
+
+    .navbar-collapse .form-inline button {
+        width: 100%;
+    }
+
+    /* Language selector in mobile */
+    .navbar-nav.ml-auto {
+        margin-left: 0 !important;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1rem;
+    }
+}
+
+/* =================================================================
+   2. CONFERENCE TIMER DISPLAY FIX
+   ================================================================= */
+
+/* Fix timer overflow on mobile */
+@media (max-width: 768px) {
+    .conf-timer {
+        font-size: 48px !important;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+
+    .timer, .timer-small {
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Ensure timer doesn't overlap with other elements */
+    #cfp-timer {
+        padding: 0 15px;
+        margin-bottom: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .conf-timer {
+        font-size: 32px !important;
+    }
+
+    .timer-small {
+        font-size: 14px;
+        text-align: left;
+        display: block;
+    }
+
+    /* Stack timer elements vertically on very small screens */
+    .deadline .timer,
+    .deadline .timer-small {
+        display: block;
+        margin-top: 5px;
+    }
+}
+
+@media (max-width: 375px) {
+    .conf-timer {
+        font-size: 24px !important;
+    }
+}
+
+/* =================================================================
+   3. MULTISELECT DROPDOWN OVERFLOW FIX
+   ================================================================= */
+
+/* Fix multiselect dropdown overflow on mobile */
+.multiselect-container {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+    .multiselect-container {
+        position: fixed !important;
+        left: 50% !important;
+        transform: translateX(-50%);
+        width: 90vw !important;
+        max-width: 350px;
+        z-index: 1050;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .multiselect.dropdown-toggle {
+        width: 100%;
+        text-align: left;
+    }
+
+    .multiselect-container .checkbox {
+        padding: 0.5rem 1rem;
+    }
+
+    .multiselect-container .checkbox label {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .multiselect-container .checkbox input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+}
+
+/* =================================================================
+   4. CONFERENCE CARDS MOBILE LAYOUT
+   ================================================================= */
+
+@media (max-width: 576px) {
+    /* Stack conference info vertically */
+    .conf-row {
+        flex-direction: column;
+    }
+
+    .conf-row .col-6 {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+    }
+
+    /* Improve spacing between elements */
+    .ConfItem {
+        padding: 15px 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .ConfItem hr {
+        display: none;
+    }
+
+    /* Make conference title more prominent on mobile */
+    .conf-title-small {
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+
+    /* Better badge layout on mobile */
+    .conf-sub {
+        margin: 2px;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    /* Calendar buttons on mobile */
+    .calendar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .calendar a {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+        padding: 5px;
+        background: #f8f9fa;
+        border-radius: 3px;
+    }
+}
+
+/* =================================================================
+   5. GENERAL MOBILE IMPROVEMENTS
+   ================================================================= */
+
+/* Improve touch targets for mobile */
+@media (pointer: coarse) {
+    a, button, .btn, .conf-sub, .dropdown-item {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .conf-sub {
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Fix horizontal scrolling issues */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .row {
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+}
+
+/* Improve readability on small screens */
+@media (max-width: 576px) {
+    body {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    h1 {
+        font-size: 24px;
+        line-height: 1.3;
+    }
+
+    h2 {
+        font-size: 20px;
+        line-height: 1.3;
+    }
+
+    h3 {
+        font-size: 18px;
+        line-height: 1.3;
+    }
+
+    .meta, .deadline {
+        font-size: 12px;
+    }
+}
+
+/* =================================================================
+   6. ACCESSIBILITY IMPROVEMENTS
+   ================================================================= */
+
+/* Skip navigation link for screen readers */
+.skip-nav {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #343a40;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.skip-nav:focus {
+    top: 0;
+}
+
+/* Focus styles for better keyboard navigation */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+.conf-sub:focus {
+    outline: 2px solid #0097e6;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .conf-sub {
+        border: 1px solid currentColor;
+    }
+
+    .timer {
+        font-weight: bold;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .navbar-collapse {
+        transition: none;
+    }
+}

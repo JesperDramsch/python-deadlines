@@ -1,0 +1,325 @@
+/**
+ * Theme Variables for Python Deadlines
+ * Supports light and dark modes with CSS custom properties
+ */
+
+/* =================================================================
+   ROOT VARIABLES - LIGHT MODE (DEFAULT)
+   ================================================================= */
+:root {
+    /* Primary Colors */
+    --color-primary: #0097e6;
+    --color-primary-hover: #0077b6;
+    --color-secondary: #e74c3c;
+    --color-success: #10ac84;
+    --color-warning: #ff9f43;
+    --color-danger: #bb2d3b;
+    --color-info: #3498db;
+
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --bg-dark: #343a40;
+    --bg-navbar: #343a40;
+    --bg-footer: #343a40;
+    --bg-card: #ffffff;
+    --bg-hover: #f8f9fa;
+
+    /* Text Colors */
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --text-muted: #808080;
+    --text-light: #f8f9fa;
+    --text-dark: #212529;
+    --text-on-dark: #ffffff;
+    --text-link: inherit;
+    --text-link-hover: #0097e6;
+
+    /* Border Colors */
+    --border-primary: #dee2e6;
+    --border-secondary: #ced4da;
+    --border-light: #e9ecef;
+    --border-dark: #495057;
+
+    /* Conference Type Colors */
+    --conf-py: #4B8BBE;
+    --conf-scipy: #70163C;
+    --conf-data: #341f97;
+    --conf-web: #ee5253;
+    --conf-biz: #ff9f43;
+    --conf-geo: #310c0c;
+    --conf-camp: #511868;
+    --conf-day: #10ac84;
+
+    /* Timer Colors */
+    --timer-text: #444444;
+    --timer-expired: #bb2d3b;
+
+    /* Shadow and Overlay */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    --overlay: rgba(0, 0, 0, 0.5);
+
+    /* Transitions */
+    --transition-speed: 0.3s;
+    --transition-function: ease-in-out;
+}
+
+/* =================================================================
+   DARK MODE VARIABLES
+   ================================================================= */
+[data-theme="dark"] {
+    /* Primary Colors */
+    --color-primary: #52c7ff;
+    --color-primary-hover: #2eb8ff;
+    --color-secondary: #ff6b6b;
+    --color-success: #51cf66;
+    --color-warning: #ffa94d;
+    --color-danger: #ff6b6b;
+    --color-info: #74c0fc;
+
+    /* Background Colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-tertiary: #3a3a3a;
+    --bg-dark: #0d0d0d;
+    --bg-navbar: #0d0d0d;
+    --bg-footer: #0d0d0d;
+    --bg-card: #2d2d2d;
+    --bg-hover: #3a3a3a;
+
+    /* Text Colors */
+    --text-primary: #e9ecef;
+    --text-secondary: #adb5bd;
+    --text-muted: #868e96;
+    --text-light: #e9ecef;
+    --text-dark: #e9ecef;
+    --text-on-dark: #e9ecef;
+    --text-link: #74c0fc;
+    --text-link-hover: #52c7ff;
+
+    /* Border Colors */
+    --border-primary: #495057;
+    --border-secondary: #343a40;
+    --border-light: #495057;
+    --border-dark: #212529;
+
+    /* Conference Type Colors (adjusted for dark mode) */
+    --conf-py: #6fa9dc;
+    --conf-scipy: #b85c7a;
+    --conf-data: #6b5fbf;
+    --conf-web: #ff7979;
+    --conf-biz: #ffb26b;
+    --conf-geo: #8b5a5a;
+    --conf-camp: #9b6fb8;
+    --conf-day: #52d3aa;
+
+    /* Timer Colors */
+    --timer-text: #e9ecef;
+    --timer-expired: #ff6b6b;
+
+    /* Shadow and Overlay */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+    --overlay: rgba(0, 0, 0, 0.7);
+}
+
+/* =================================================================
+   SYSTEM PREFERENCE SUPPORT
+   ================================================================= */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        /* Copy dark mode variables here for system preference */
+        --color-primary: #52c7ff;
+        --color-primary-hover: #2eb8ff;
+        --color-secondary: #ff6b6b;
+        --color-success: #51cf66;
+        --color-warning: #ffa94d;
+        --color-danger: #ff6b6b;
+        --color-info: #74c0fc;
+
+        --bg-primary: #1a1a1a;
+        --bg-secondary: #2d2d2d;
+        --bg-tertiary: #3a3a3a;
+        --bg-dark: #0d0d0d;
+        --bg-navbar: #0d0d0d;
+        --bg-footer: #0d0d0d;
+        --bg-card: #2d2d2d;
+        --bg-hover: #3a3a3a;
+
+        --text-primary: #e9ecef;
+        --text-secondary: #adb5bd;
+        --text-muted: #868e96;
+        --text-light: #e9ecef;
+        --text-dark: #e9ecef;
+        --text-on-dark: #e9ecef;
+        --text-link: #74c0fc;
+        --text-link-hover: #52c7ff;
+
+        --border-primary: #495057;
+        --border-secondary: #343a40;
+        --border-light: #495057;
+        --border-dark: #212529;
+
+        --conf-py: #6fa9dc;
+        --conf-scipy: #b85c7a;
+        --conf-data: #6b5fbf;
+        --conf-web: #ff7979;
+        --conf-biz: #ffb26b;
+        --conf-geo: #8b5a5a;
+        --conf-camp: #9b6fb8;
+        --conf-day: #52d3aa;
+
+        --timer-text: #e9ecef;
+        --timer-expired: #ff6b6b;
+
+        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+        --overlay: rgba(0, 0, 0, 0.7);
+    }
+}
+
+/* =================================================================
+   APPLY VARIABLES TO ELEMENTS
+   ================================================================= */
+
+/* Body and Main Elements */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color var(--transition-speed) var(--transition-function),
+                color var(--transition-speed) var(--transition-function);
+}
+
+/* Navigation */
+.navbar-dark {
+    background-color: var(--bg-navbar) !important;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: var(--text-on-dark);
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: var(--color-primary);
+}
+
+/* Cards and Containers */
+.container {
+    background-color: transparent;
+}
+
+.card, .ConfItem {
+    background-color: var(--bg-card);
+    border-color: var(--border-primary);
+}
+
+.ConfItem:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Page Header */
+.page-header {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Footer */
+footer {
+    background-color: var(--bg-footer);
+    color: var(--text-on-dark);
+}
+
+footer a {
+    color: var(--color-primary);
+}
+
+footer a:hover {
+    color: var(--color-primary-hover);
+}
+
+/* Links */
+a {
+    color: var(--text-link);
+    border-bottom-color: var(--border-secondary);
+}
+
+a:hover {
+    color: var(--text-link-hover);
+}
+
+/* Timers */
+.timer, .timer-small, .conf-timer {
+    color: var(--timer-text);
+}
+
+.deadline-passed, .timer.expired {
+    color: var(--timer-expired);
+}
+
+/* Badges */
+.badge-light {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+}
+
+/* Conference Type Colors */
+.PY-tag { color: var(--conf-py) !important; }
+.SCIPY-tag { color: var(--conf-scipy) !important; }
+.DATA-tag { color: var(--conf-data) !important; }
+.WEB-tag { color: var(--conf-web) !important; }
+.BIZ-tag { color: var(--conf-biz) !important; }
+.GEO-tag { color: var(--conf-geo) !important; }
+.CAMP-tag { color: var(--conf-camp) !important; }
+.DAY-tag { color: var(--conf-day) !important; }
+
+/* Forms */
+.form-control {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-primary);
+}
+
+.form-control:focus {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--color-primary);
+}
+
+/* Buttons */
+.btn-outline-dark {
+    color: var(--text-primary);
+    border-color: var(--border-primary);
+}
+
+.btn-outline-dark:hover {
+    background-color: var(--bg-hover);
+    border-color: var(--color-primary);
+}
+
+/* Dropdown Menus */
+.dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-primary);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+/* Transitions for smooth theme switching */
+* {
+    transition: background-color var(--transition-speed) var(--transition-function),
+                color var(--transition-speed) var(--transition-function),
+                border-color var(--transition-speed) var(--transition-function);
+}

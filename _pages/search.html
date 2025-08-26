@@ -13,10 +13,30 @@ permalink_hi: /खोजें/
 title: titles.search
 ---
 
-<div id="search-results"></div>
+<div id="search-results" role="region" aria-live="polite" aria-label="Search Results"></div>
 
+<script src="/static/js/search.js"></script>
 <script>
 	(function () {
+		// Initialize conference types from Jekyll data
+		if (typeof initializeConferenceTypes === 'function') {
+			const types = [
+				{% for type in site.data.types %}
+				{ name: "{{ type.name }}", sub: "{{ type.sub }}", color: "{{ type.color }}" }{% unless forloop.last %},{% endunless %}
+				{% endfor %}
+			];
+			initializeConferenceTypes(types);
+		}
+
+		// Set translation strings
+		if (typeof setSearchTranslations === 'function') {
+			setSearchTranslations({
+				noResults: '{% t search.no-results %}',
+				error: '{% t search.error %}',
+				loading: 'Loading...',
+				clickToFilter: 'Click to filter by'
+			});
+		}
 		function displaySearchResults(results, docs) {
 			var searchResults = document.getElementById('search-results');
 

@@ -21,7 +21,7 @@
 
     {% include masthead.html url=page.url title=fp_title hook=fp_hook description=fp_description %}
 
-    <div class="container">
+    <div class="container" id="main-content">
       <div id="confs">
         <div id="coming_confs">
           {% assign confs = site.data.conferences | sort: "cfp" | reverse %}
@@ -178,6 +178,10 @@
 
     });
     </script>
+
+    <!-- Lazy Loading for Performance -->
+    <script type="text/javascript" src="{{ "/static/js/lazy-load.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+
     {% include sneks.html %}
   </body>
 </html>
