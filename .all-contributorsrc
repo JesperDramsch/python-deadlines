@@ -187,6 +187,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "raviselker",
+      "name": "Ravi Selker",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4669197?v=4",
+      "profile": "https://github.com/raviselker",
+      "contributions": [
+        "conference"
+      ]
     }
   ],
   "repoType": "github"

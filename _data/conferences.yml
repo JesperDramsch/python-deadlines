@@ -270,20 +270,6 @@
     latitude: 32.7174202
     longitude: -117.1627728
 
-- conference: PyHEP.dev
-  alt_name: PyHEP
-  year: 2025
-  link: https://indico.cern.ch/event/1515852/
-  cfp: '2025-07-08 23:59:00'
-  place: Seattle, USA
-  start: 2025-07-14
-  end: 2025-07-17
-  sub: SCIPY
-  location:
-  - title: PyHEP.dev 2025
-    latitude: 47.6038321
-    longitude: -122.330062
-
 - conference: PyCon Uganda
   year: 2025
   link: https://ug.pycon.org/
@@ -715,23 +701,6 @@
     latitude: 48.89591923094818
     longitude: 2.388543327766867
 
-- conference: PyCon Colombia
-  year: 2025
-  link: https://2025.pycon.co/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSeXZshPp4RhPh68c8PuaZ86lRVRThTlEoMkzgzvodN7TLheaQ/viewform?pli=1
-  cfp: '2025-04-06 23:59:59'
-  timezone: America/Bogota
-  place: Medellín, Colombia
-  start: 2025-07-04
-  end: 2025-07-06
-  sponsor: https://2025.pycon.co/#/sponsors
-  twitter: PyConColombia
-  sub: PY
-  location:
-  - title: PyCon Colombia 2025
-    latitude: 6.2443382
-    longitude: -75.573553
-
 - conference: PyCon Taiwan
   alt_name: PyCon TW
   year: 2025
@@ -803,19 +772,6 @@
     latitude: 38.6968919
     longitude: -9.4204495
 
-- conference: Web Summer Camp
-  year: 2025
-  link: https://websummercamp.com/
-  cfp: '2025-03-15 23:59:00'
-  place: Opatija, Croatia
-  start: 2025-07-03
-  end: 2025-07-05
-  sub: WEB
-  location:
-  - title: Web Summer Camp 2025
-    latitude: 45.3349238
-    longitude: 14.3067834
-
 - conference: EARL
   year: 2025
   link: https://earl-conference.com/
@@ -830,24 +786,6 @@
   - title: EARL 2025
     latitude: 50.8214626
     longitude: -0.1400561
-
-- conference: SciPy US
-  alt_name: SciPy
-  year: 2025
-  link: https://www.scipy2025.scipy.org/
-  cfp_link: https://cfp.scipy.org/scipy2025/cfp
-  cfp: '2025-02-26 23:59:00'
-  timezone: UTC
-  place: Tacoma, USA
-  start: 2025-07-07
-  end: 2025-07-13
-  sponsor: https://www.scipy2025.scipy.org/s/SciPy-2025-Sponsorship-Prospectus.pdf
-  mastodon: https://mastodon.social/@SciPyConf
-  sub: SCIPY
-  location:
-  - title: SciPy US 2025
-    latitude: 47.2455013
-    longitude: -122.438329
 
 - conference: EuroPython
   year: 2025
