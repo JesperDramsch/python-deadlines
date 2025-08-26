@@ -71,6 +71,21 @@
     latitude: -6.175247
     longitude: 106.8270488
 
+- conference: PyCon Senegambia
+  year: 2025
+  link: https://www.pyconsenegambia.org/en
+  cfp_link: https://sessionize.com/pycon-senegambia
+  cfp: '2025-09-04 23:59:00'
+  timezone: UTC
+  place: Banjul, Gambia
+  start: 2025-11-28
+  end: 2025-11-29
+  sub: PY
+  location:
+  - title: PyCon Senegambia 2025
+    latitude: 13.45535
+    longitude: -16.575646
+
 - conference: PyData Vermont
   year: 2025
   link: https://pydata.org/vermont2025/
