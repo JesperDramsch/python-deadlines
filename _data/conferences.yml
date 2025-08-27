@@ -118,6 +118,21 @@
     latitude: 13.45535
     longitude: -16.575646
 
+- conference: PyData Seattle
+  year: 2025
+  link: https://pydata.org/seattle2025/
+  cfp_link: https://cfp.pydata.org/seattle2025/
+  cfp: '2025-09-01 23:59:00'
+  place: Bellevue, USA
+  start: 2025-11-07
+  end: 2025-11-09
+  sponsor: https://pydata.org/seattle2025/sponsorship-opportunities
+  sub: DATA
+  location:
+  - title: PyData Seattle 2025
+    latitude: 47.6144219
+    longitude: -122.192337
+
 - conference: PyCon Sweden
   alt_name: PyCon SE
   year: 2025
@@ -329,6 +344,21 @@
   - title: PyCon France 2025
     latitude: 45.7578137
     longitude: 4.8320114
+
+- conference: PyData Tel Aviv
+  year: 2025
+  link: https://pydata.org/telaviv2025/
+  cfp_link: https://cfp.pydata.org/pydata-tel-aviv-2025/cfp
+  cfp: '2025-07-13 23:59:00'
+  place: Tel Aviv, Israel
+  start: 2025-11-05
+  end: 2025-11-05
+  sponsor: https://pydata.org/telaviv2025/sponsor
+  sub: DATA
+  location:
+  - title: PyData Tel Aviv 2025
+    latitude: 32.10050375
+    longitude: 34.826677554304695
 
 - conference: JupyterCon
   year: 2025
