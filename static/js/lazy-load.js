@@ -143,16 +143,32 @@
      * Initialize JavaScript features for a loaded card
      */
     function initializeCardFeatures(element) {
-        // Initialize countdown timers
-        const timers = element.querySelectorAll('.timer, .timer-small');
-        timers.forEach(timer => {
-            const deadline = timer.getAttribute('data-deadline');
-            if (deadline && typeof $ !== 'undefined' && $.fn.countdown) {
-                $(timer).countdown(new Date(deadline), function(event) {
-                    $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
-                });
+        // Re-run the countdown initialization logic from index.html
+        // Get conference ID from element
+        const confId = element.id;
+        if (!confId) return;
+
+        // Find the timer elements
+        const timer = element.querySelector('.timer');
+        const timerSmall = element.querySelector('.timer-small');
+
+        if ((timer || timerSmall) && typeof window.conferenceData !== 'undefined') {
+            // Get conference data that was stored globally
+            const conf = window.conferenceData[confId];
+            if (conf && conf.cfpDate && typeof $ !== 'undefined' && $.fn.countdown) {
+                // Initialize countdown timers with the stored date
+                if (timer) {
+                    $(timer).countdown(conf.cfpDate, function(event) {
+                        $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
+                    });
+                }
+                if (timerSmall) {
+                    $(timerSmall).countdown(conf.cfpDate, function(event) {
+                        $(this).html(event.strftime('%Dd %H:%M:%S'));
+                    });
+                }
             }
-        });
+        }
 
         // Initialize calendar buttons
         const calendarContainers = element.querySelectorAll('.calendar');
@@ -313,7 +329,9 @@
                     to { opacity: 1; }
                 }
             `;
-            document.head.appendChild(style);
+            if (document.head) {
+                document.head.appendChild(style);
+            }
         }
     }
 

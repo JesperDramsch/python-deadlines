@@ -51,6 +51,9 @@
           {% include_cached footer.html %}
     </footer>
     <script type="text/javascript" charset="utf-8">
+    // Global conference data for lazy loading
+    window.conferenceData = window.conferenceData || {};
+
     $(function() {
       luxon.Settings.defaultLocale = "{{ site.lang }}";
       var DateTime = luxon.DateTime;
@@ -100,20 +103,34 @@
           {% endif %}
 
           // check if timezone is valid otherwise replace by system timezone
-          if (cfpDate.invalid || confDate.invalid) {
+          if (cfpDate.invalid === true || confDate.invalid === true) {
             var cfpDate = DateTime.fromSQL("{{cfp}}");
             var confDate = DateTime.fromSQL("{{conf.start}}");
             console.log("Invalid timezone in {{conf.conference | slugify: "latin"}}-{{conf.year}}. Using system timezone instead.");
           }
 
+          // Store conference data globally for lazy loading
+          window.conferenceData['{{conf.conference | slugify: "latin"}}-{{conf.year}}'] = {
+            cfpDate: cfpDate.toJSDate(),
+            confDate: confDate.toJSDate()
+          };
+
           // render countdown timer
           $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer').countdown(cfpDate.toJSDate(), function (event) {
-              $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
+              if (event.elapsed) {
+                $(this).html('Deadline passed');
+              } else {
+                $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
+              }
           });
 
           // render countdown timer small
           $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer-small').countdown(cfpDate.toJSDate(), function (event) {
-              $(this).html(event.strftime('%Dd %H:%M:%S'));
+              if (event.elapsed) {
+                $(this).html('Passed');
+              } else {
+                $(this).html(event.strftime('%Dd %H:%M:%S'));
+              }
           });
 
           // deadline in local timezone
@@ -129,9 +146,17 @@
             place: '{{conf.place}}',
             link: '{{conf.link}}'
           });
-          document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar').appendChild(myCalendar);
+          var calendarContainer = document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar');
+          if (calendarContainer) {
+            calendarContainer.appendChild(myCalendar);
+          }
           } catch(err) {
-            document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar').appendChild("<p>Calendar not available.</p>");
+            var calendarContainer = document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar');
+            if (calendarContainer) {
+              var errorMsg = document.createElement('p');
+              errorMsg.textContent = 'Calendar not available.';
+              calendarContainer.appendChild(errorMsg);
+            }
             console.log("Error in cfp date.");
           }
 

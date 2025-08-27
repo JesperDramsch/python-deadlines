@@ -1,5 +1,21 @@
 ---
 
+- conference: EuroPython
+  year: 2025
+  link: https://ep2025.europython.eu/
+  cfp: '2025-01-27 23:59:00'
+  timezone: UTC
+  place: Prague, Czechia
+  start: 2025-07-14
+  end: 2025-07-20
+  twitter: EuroPython
+  mastodon: https://fosstodon.org/@europython
+  sub: PY
+  location:
+  - title: EuroPython 2025
+    latitude: 50.0874654
+    longitude: 14.4212535
+
 - conference: PyHEP.dev
   alt_name: PyHEP
   year: 2025

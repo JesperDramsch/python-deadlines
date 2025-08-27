@@ -4,7 +4,7 @@ subs = url.searchParams.get('sub');
 if (subs == undefined) {
   data = store.get('{{site.domain}}-subs');
   if (!data || typeof data !== 'object' || isDataExpired(data)) {
-    data = { subs: data.all_subs };
+    data = { subs: all_subs };
   }
 	subs = data.subs;
 } else {

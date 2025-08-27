@@ -78,11 +78,16 @@
             return;
         }
 
-        // Find navbar
+        // Find navbar - wait for it to exist if necessary
         const navbar = document.querySelector('.navbar-nav.ml-auto') ||
                       document.querySelector('.navbar-nav:last-child');
 
         if (!navbar) {
+            // Try again after a short delay if navbar is not found
+            if (document.readyState !== 'complete') {
+                setTimeout(createThemeToggle, 100);
+                return;
+            }
             console.warn('Could not find navbar to insert theme toggle');
             return;
         }
@@ -251,7 +256,9 @@
             }
         `;
 
-        document.head.appendChild(styles);
+        if (document.head) {
+            document.head.appendChild(styles);
+        }
     }
 
     /**

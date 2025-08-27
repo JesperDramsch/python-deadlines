@@ -27,6 +27,21 @@
     latitude: 51.4383999131
     longitude: 5.46712979814
 
+- conference: Python Sul
+  alt_name: Python Sul (Brazil)
+  year: 2025
+  link: https://sul.python.org.br/
+  cfp_link: https://talks.python.org.br/pysul2025/cfp
+  cfp: '2025-10-05 23:59:00'
+  place: Porto Alegre, Brazil
+  start: 2025-11-21
+  end: 2025-11-23
+  sub: PY
+  location:
+  - title: Python Sul 2025
+    latitude: -30.0324999
+    longitude: -51.2303767
+
 - conference: PyCon Wroclaw
   year: 2025
   link: https://www.pyconwroclaw.com/
@@ -103,6 +118,24 @@
     latitude: 13.45535
     longitude: -16.575646
 
+- conference: PyCon Sweden
+  alt_name: PyCon SE
+  year: 2025
+  link: https://pycon.se/
+  cfp_link: https://pretalx.com/pycon-sweden-2025/
+  cfp: '2025-08-31 23:59:00'
+  timezone: Europe/Stockholm
+  place: Stockholm, Sweden
+  start: 2025-10-30
+  end: 2025-10-31
+  sponsor: https://pycon.se/#sponsorship
+  mastodon: https://fosstodon.org/@pyconsweden
+  sub: PY
+  location:
+  - title: PyCon Sweden 2025
+    latitude: 59.3251172
+    longitude: 18.0710935
+
 - conference: PyData Vermont
   year: 2025
   link: https://pydata.org/vermont2025/
@@ -118,6 +151,18 @@
   - title: PyData Vermont 2025
     latitude: 43.3248924
     longitude: -79.7966835
+
+- conference: PyLadiesCon
+  year: 2025
+  link: https://2025.conference.pyladies.com/en/
+  cfp_link: https://pretalx.com/pyladiescon-2025/cfp
+  cfp: '2025-08-23 12:59:00'
+  timezone: UTC
+  place: Online
+  start: 2025-12-05
+  end: 2025-12-07
+  sponsor: https://2025.conference.pyladies.com/en/sponsors/
+  sub: PY
 
 - conference: Kiwi PyCon
   year: 2025
@@ -819,22 +864,6 @@
     latitude: 50.8214626
     longitude: -0.1400561
 
-- conference: EuroPython
-  year: 2025
-  link: https://ep2025.europython.eu/
-  cfp: '2025-01-27 23:59:00'
-  timezone: UTC
-  place: Prague, Czechia
-  start: 2025-07-14
-  end: 2025-07-20
-  twitter: EuroPython
-  mastodon: https://fosstodon.org/@europython
-  sub: PY
-  location:
-  - title: EuroPython 2025
-    latitude: 50.0874654
-    longitude: 14.4212535
-
 - conference: PyCon Estonia
   alt_name: PyCon EE
   year: 2025
@@ -939,47 +968,6 @@
   - title: PyCascades 2026
     latitude: 49.27213705
     longitude: -123.13439461006233
-
-- conference: PyLadiesCon
-  year: 2025
-  link: https://2025.conference.pyladies.com/en/
-  cfp: TBA
-  place: Online
-  start: 2025-12-05
-  end: 2025-12-07
-  sponsor: https://2025.conference.pyladies.com/en/sponsors/
-  sub: PY
-
-- conference: Python Sul
-  alt_name: Python Sul (Brazil)
-  year: 2025
-  link: https://sul.python.org.br/
-  cfp: TBA
-  place: Porto Alegre, Brazil
-  start: 2025-11-21
-  end: 2025-11-23
-  sub: PY
-  location:
-  - title: Python Sul 2025
-    latitude: -30.0324999
-    longitude: -51.2303767
-
-- conference: PyCon Sweden
-  alt_name: PyCon SE
-  year: 2025
-  link: https://pycon.se/
-  cfp: TBA
-  timezone: Europe/Stockholm
-  place: Stockholm, Sweden
-  start: 2025-10-30
-  end: 2025-10-31
-  sponsor: https://pycon.se/#sponsorship
-  mastodon: https://fosstodon.org/@pyconsweden
-  sub: PY
-  location:
-  - title: PyCon Sweden 2025
-    latitude: 59.3251172
-    longitude: 18.0710935
 
 - conference: Pythoncamp Rügen
   year: 2025

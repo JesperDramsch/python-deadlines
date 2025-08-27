@@ -26,16 +26,18 @@ description: Countdown for the Call for Participation of this conference includi
           var feedContainer = document.getElementById("mastodon-feed");
           var postLimit = 2; // Number of posts to display
 
-          for (var i = 0; i < postLimit && i < items.length; i++) {
-            var item = items[i];
-            var post = item.querySelector("description").textContent;
-            var link = item.querySelector("link").textContent;
-            var pubDate = item.querySelector("pubDate").textContent;
+          if (feedContainer) {
+            for (var i = 0; i < postLimit && i < items.length; i++) {
+              var item = items[i];
+              var post = item.querySelector("description").textContent;
+              var link = item.querySelector("link").textContent;
+              var pubDate = item.querySelector("pubDate").textContent;
 
-            var feedItem = document.createElement("div");
-            feedItem.setAttribute("class", "timeline-item")
-            feedItem.innerHTML = '<div class="timeline-content">' + post + '</div><a href="' + link + '">' + pubDate + ' by {{ page.conference }}</a>';
-            feedContainer.appendChild(feedItem);
+              var feedItem = document.createElement("div");
+              feedItem.setAttribute("class", "timeline-item")
+              feedItem.innerHTML = '<div class="timeline-content">' + post + '</div><a href="' + link + '">' + pubDate + ' by {{ page.conference }}</a>';
+              feedContainer.appendChild(feedItem);
+            }
           }
         })
         .catch(function (error) {
@@ -269,7 +271,10 @@ description: Countdown for the Call for Participation of this conference includi
         place: '{{page.place}}',
         link: '{{page.link}}',
       });
-      document.querySelector('#conference-deadline').appendChild(conferenceDeadlineCalendar);
+      var deadlineContainer = document.querySelector('#conference-deadline');
+      if (deadlineContainer) {
+        deadlineContainer.appendChild(conferenceDeadlineCalendar);
+      }
 
 
       var conferenceCalendar = createCalendarFromObject({
@@ -280,7 +285,10 @@ description: Countdown for the Call for Participation of this conference includi
         place: '{{page.place}}',
         link: '{{page.link}}',
       });
-      document.querySelector('#conference-calendar').appendChild(conferenceCalendar);
+      var calendarContainer = document.querySelector('#conference-calendar');
+      if (calendarContainer) {
+        calendarContainer.appendChild(conferenceCalendar);
+      }
 
       // render countdown timer
       $('#cfp-timer').countdown(confDeadline.toJSDate(), function (event) {

@@ -192,6 +192,12 @@ function load_conference_list() {
 }
 
 function update_filtering(data) {
+  // Defensive check for data parameter
+  if (!data || typeof data !== 'object' || !data.subs || !Array.isArray(data.subs)) {
+    console.error('calendar update_filtering called with invalid data:', data);
+    return;
+  }
+
   store.set('{{site.domain}}-subs', {subs: data.subs, timestamp: new Date().getTime()});
 
   conf_list = conf_list_all.filter(v => {

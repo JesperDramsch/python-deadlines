@@ -1,4 +1,21 @@
 function update_filtering(data) {
+	// Defensive check for data parameter
+	if (!data || typeof data !== 'object') {
+		console.error('update_filtering called with invalid data:', data);
+		return;
+	}
+
+	// Ensure required properties exist
+	if (!data.subs || !Array.isArray(data.subs)) {
+		console.error('update_filtering: data.subs is not an array:', data.subs);
+		return;
+	}
+
+	if (!data.all_subs || !Array.isArray(data.all_subs)) {
+		console.error('update_filtering: data.all_subs is not an array:', data.all_subs);
+		return;
+	}
+
 	var page_url = window.location.pathname;
 	store.set('{{site.domain}}-subs', { subs: data.subs, timestamp: new Date().getTime() });
 
