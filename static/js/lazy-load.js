@@ -68,7 +68,6 @@
             } else {
                 // Prepare for lazy loading
                 conf.classList.add('lazy-load');
-                conf.style.minHeight = '150px'; // Maintain layout
                 conf.setAttribute('data-lazy-index', index);
 
                 // Create placeholder content
@@ -120,6 +119,9 @@
             element.classList.remove('lazy-load');
             element.classList.add('lazy-loaded');
 
+            // Remove the min-height that was set for lazy loading
+            element.style.minHeight = '';
+
             // Fade in
             requestAnimationFrame(() => {
                 element.style.transition = 'opacity 0.3s ease-in-out';
@@ -159,12 +161,20 @@
                 // Initialize countdown timers with the stored date
                 if (timer) {
                     $(timer).countdown(conf.cfpDate, function(event) {
-                        $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
+                        if (event.elapsed) {
+                            $(this).html('Deadline passed');
+                        } else {
+                            $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
+                        }
                     });
                 }
                 if (timerSmall) {
                     $(timerSmall).countdown(conf.cfpDate, function(event) {
-                        $(this).html(event.strftime('%Dd %H:%M:%S'));
+                        if (event.elapsed) {
+                            $(this).html('Passed');
+                        } else {
+                            $(this).html(event.strftime('%Dd %H:%M:%S'));
+                        }
                     });
                 }
             }
@@ -270,7 +280,6 @@
             style.textContent = `
                 .ConfItem.lazy-load {
                     position: relative;
-                    min-height: 150px;
                 }
 
                 .lazy-placeholder {
