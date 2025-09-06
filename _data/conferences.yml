@@ -628,21 +628,6 @@
     latitude: 50.294113
     longitude: 18.6657306
 
-- conference: PyCon Russia
-  year: 2025
-  link: https://www.pycon.ru/
-  cfp_link: https://www.pycon.ru/cfp
-  cfp: '2025-05-15 23:59:00'
-  place: Moscow, Russia
-  start: 2025-07-25
-  end: 2025-07-26
-  sponsor: https://pycon.ru/partneram
-  sub: PY
-  location:
-  - title: PyCon Russia 2025
-    latitude: 55.625578
-    longitude: 37.6063916
-
 - conference: PyCon UK
   year: 2025
   link: https://2025.pyconuk.org/
@@ -723,22 +708,6 @@
   - title: PyCon Israel 2025
     latitude: 31.9838307
     longitude: 34.7699754
-
-- conference: PyOhio
-  year: 2025
-  link: https://pyohio.org/2025/
-  cfp_link: https://pretalx.com/pyohio-2025/cfp
-  cfp: '2025-04-27 23:59:00'
-  timezone: America/New_York
-  place: Cleveland, USA
-  start: 2025-07-26
-  end: 2025-07-27
-  sponsor: https://www.pyohio.org/2025/PyOhio-2025-Sponsorship-Prospectus.pdf
-  sub: PY
-  location:
-  - title: PyOhio 2025
-    latitude: 40.2253569
-    longitude: -82.6881395
 
 - conference: Python Brasil
   alt_name: PythonBrasil
@@ -860,24 +829,6 @@
   - title: DjangoCon Africa 2025
     latitude: -6.09994425
     longitude: 39.32094431715264
-
-- conference: PyCon Portugal
-  year: 2025
-  link: https://2025.pycon.pt/
-  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2025/cfp
-  cfp: '2025-03-31 11:59:00'
-  timezone: Europe/Lisbon
-  place: Cascais, Portugal
-  start: 2025-07-24
-  end: 2025-07-26
-  sponsor: https://2025.pycon.pt/sponsors/sponsorship/
-  finaid: https://2025.pycon.pt/information/grants/
-  twitter: PyConPT
-  sub: PY
-  location:
-  - title: PyCon Portugal 2024
-    latitude: 38.6968919
-    longitude: -9.4204495
 
 - conference: EARL
   year: 2025
