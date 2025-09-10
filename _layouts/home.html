@@ -1,0 +1,27 @@
+---
+layout: default
+include_footer: true
+---
+
+{% capture fp_title %}
+  {% t titles.default %}
+{% endcapture %}
+{% capture fp_hook %}
+  {% tf frontpage/hook.md %}
+{% endcapture %}
+{% capture fp_description %}
+  {% tf frontpage/description.md %}
+{% endcapture %}
+
+{% include masthead.html url=page.url title=fp_title hook=fp_hook description=fp_description %}
+
+{{ content }}
+
+<!-- Consolidated Conference Filtering -->
+<script type="text/javascript" src="{{ "/static/js/conference-filter.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+
+<!-- Lazy Loading Countdown System -->
+<script type="text/javascript" src="{{ "/static/js/countdown-lazy.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+
+<!-- Lazy Loading for Performance -->
+<script type="text/javascript" src="{{ "/static/js/lazy-load.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>

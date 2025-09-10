@@ -1,37 +1,45 @@
 function update_filtering(data) {
-	// Defensive check for data parameter
-	if (!data || typeof data !== 'object') {
-		console.error('update_filtering called with invalid data:', data);
-		return;
-	}
-
-	// Ensure required properties exist
-	if (!data.subs || !Array.isArray(data.subs)) {
-		console.error('update_filtering: data.subs is not an array:', data.subs);
-		return;
-	}
-
-	if (!data.all_subs || !Array.isArray(data.all_subs)) {
-		console.error('update_filtering: data.all_subs is not an array:', data.all_subs);
-		return;
-	}
-
-	var page_url = window.location.pathname;
-	store.set('{{site.domain}}-subs', { subs: data.subs, timestamp: new Date().getTime() });
-
-	$('.confItem').hide();
-
-	// Loop through selected values in data.subs
-	for (const s of data.subs) {
-		// Show elements with class .s-conf (where s is the selected value)
-		$('.' + s + '-conf').show();
-	}
-
-	if (data.subs.length === 0 || data.subs.length == data.all_subs.length) {
-		window.history.pushState('', '', page_url);
+	// Delegate to consolidated ConferenceFilter module
+	if (window.ConferenceFilter && window.ConferenceFilter.updateFromMultiselect) {
+		window.ConferenceFilter.updateFromMultiselect(data.subs);
 	} else {
-		// Join the selected values into a query parameter
-		window.history.pushState('', '', page_url + '?sub=' + data.subs.join());
+		// Fallback for legacy support
+		console.warn('ConferenceFilter module not loaded, using legacy filtering');
+		
+		// Defensive check for data parameter
+		if (!data || typeof data !== 'object') {
+			console.error('update_filtering called with invalid data:', data);
+			return;
+		}
+
+		// Ensure required properties exist
+		if (!data.subs || !Array.isArray(data.subs)) {
+			console.error('update_filtering: data.subs is not an array:', data.subs);
+			return;
+		}
+
+		var page_url = window.location.pathname;
+		store.set('{{site.domain}}-subs', { subs: data.subs, timestamp: new Date().getTime() });
+
+		$('.ConfItem').hide();
+
+		// Loop through selected values in data.subs
+		for (const s of data.subs) {
+			// Show elements with class .s-conf (where s is the selected value)
+			$('.' + s + '-conf').show();
+		}
+
+		// Notify CountdownManager about filter changes for lazy loading optimization
+		if (window.CountdownManager && window.CountdownManager.onFilterUpdate) {
+			window.CountdownManager.onFilterUpdate();
+		}
+
+		if (data.subs.length === 0 || data.subs.length == data.all_subs.length) {
+			window.history.pushState('', '', page_url);
+		} else {
+			// Join the selected values into a query parameter
+			window.history.pushState('', '', page_url + '?sub=' + data.subs.join());
+		}
 	}
 }
 
