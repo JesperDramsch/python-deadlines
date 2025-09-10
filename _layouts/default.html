@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang }}">
+  <head>
+    {% include head.html %}
+    {% if page.extra_css %}
+      {% for css in page.extra_css %}
+        <link rel="stylesheet" type="text/css" href="{{ css | prepend: site.baseurl_root }}">
+      {% endfor %}
+    {% endif %}
+  </head>
+  <body>
+    {% include header.html %}
+    
+    {% if page.show_masthead %}
+      {% capture masthead_title %}
+        {% if page.masthead_title %}
+          {{ page.masthead_title }}
+        {% elsif page.title %}
+          {% t page.title %}
+        {% endif %}
+      {% endcapture %}
+      
+      {% capture masthead_hook %}
+        {% if page.masthead_hook %}
+          {{ page.masthead_hook }}
+        {% endif %}
+      {% endcapture %}
+      
+      {% capture masthead_description %}
+        {% if page.masthead_description %}
+          {{ page.masthead_description }}
+        {% endif %}
+      {% endcapture %}
+      
+      {% include masthead.html url=page.url title=masthead_title hook=masthead_hook description=masthead_description %}
+    {% endif %}
+    
+    <div class="container" id="main-content">
+      {{ content }}
+    </div>
+    
+    {% if page.extra_js %}
+      {% for js in page.extra_js %}
+        <script type="text/javascript" src="{{ js | prepend: site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+      {% endfor %}
+    {% endif %}
+    
+    {% if page.include_footer %}
+      <footer>{% include_cached footer.html %}</footer>
+    {% else %}
+      {% include sneks.html %}
+    {% endif %}
+  </body>
+</html>

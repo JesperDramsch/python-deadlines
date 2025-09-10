@@ -1,30 +1,26 @@
 ---
+layout: default
+show_masthead: true
+include_footer: true
 ---
 
-<html>
-	<head>
-		{% include head.html %}
-	</head>
-	<body>
-		{% include header.html %} {% capture search_title %} {% t titles.search %} {% endcapture %} {% capture
-		search_hook %} {% tf frontpage/hook.md %} {% endcapture %} {% capture search_description %}{% tf
-		search/description.md %}
-		<form class="form" action="{% tl search %}" method="get">
-			<input
-				type="search"
-				id="search"
-				name="query"
-				class="form-control col-md-12"
-				placeholder="{% t titles.search %}"
-				aria-label="Search"
-			/>
-			<button class="btn btn-outline-dark col-md-12" type="submit">{% t titles.search %}</button>
-		</form>
-		{% endcapture %} {% include masthead.html url=page.url title=search_title hook=search_hook
-		description=search_description %}
-		<div class="container">
-			<div id="confs">{{ content }}</div>
-		</div>
-		<footer>{% include_cached footer.html %}</footer>
-	</body>
-</html>
+{% capture search_title %}{% t titles.search %}{% endcapture %}
+{% capture search_hook %}{% tf frontpage/hook.md %}{% endcapture %}
+{% capture search_description %}
+{% tf search/description.md %}
+<form class="form" action="{% tl search %}" method="get">
+	<input
+		type="search"
+		id="search"
+		name="query"
+		class="form-control col-md-12"
+		placeholder="{% t titles.search %}"
+		aria-label="Search"
+	/>
+	<button class="btn btn-outline-dark col-md-12" type="submit">{% t titles.search %}</button>
+</form>
+{% endcapture %}
+
+{% include masthead.html url=page.url title=search_title hook=search_hook description=search_description %}
+
+<div id="confs">{{ content }}</div>

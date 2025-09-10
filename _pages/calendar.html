@@ -1,4 +1,5 @@
 ---
+layout: default
 namespace: calendar
 permalink: /calendar/
 permalink_es: /calendario/
@@ -10,20 +11,11 @@ permalink_ru: /календарь/
 permalink_id: /kalender/
 permalink_hi: /कैलेंडर/
 title: titles.calendar
+show_masthead: true
+include_footer: true
 ---
 
-<html>
-	<head>
-		{% include head.html %}
-	</head>
-
-	<body>
-		{% include header.html %} {% capture cal_title %} {% t titles.calendar %} {% endcapture %} {% capture cal_hook
-		%} {% tf frontpage/hook.md %} {% endcapture %} {% capture cal_description %} {% tf calendar/description.md %} {%
-		endcapture %} {% include masthead.html url=page.url title=cal_title description=cal_description %}
-
-		<div class="container">
-			<div id="calendar-page" class="calendar-page"></div>
+<div id="calendar-page" class="calendar-page"></div>
 
 			<div class="modal fade" id="event-modal">
 				<div class="modal-dialog">
@@ -93,30 +85,25 @@ title: titles.calendar
 				</div>
 				{% endfor %}
 			</div>
-		</div>
-		<footer>{% include_cached footer.html %}</footer>
+</div>
 
-		<script type="text/javascript" charset="utf-8">
-			let calendar = null;
-			var page_url = "{{site.baseurl}}/calendar"
-			var conf_list_all = [];
+<script type="text/javascript" charset="utf-8">
+	let calendar = null;
+	var page_url = "{{site.baseurl}}/calendar"
+	var conf_list_all = [];
 
-			{% include utils.js %}
-			{% include load_data.js %}
-			{% include multiselect_handler.js %}
-			$(function () {
-			  // Get data from URL/Cache
-			  {% include handle_url_retrieval.js %}
+	{% include utils.js %}
+	{% include load_data.js %}
+	{% include multiselect_handler.js %}
+	$(function () {
+	  // Get data from URL/Cache
+	  {% include handle_url_retrieval.js %}
 
-			  conf_list_all = load_conference_list();
-			  conf_list = conf_list_all;
+	  conf_list_all = load_conference_list();
+	  conf_list = conf_list_all;
 
-			  // Render calendar
-			  update_filtering({ subs: subs, all_subs: all_subs });
-			});
-			{% include calendar.js %}  // overwrites update_filtering
-		</script>
-
-		{% include sneks.html %}
-	</body>
-</html>
+	  // Render calendar
+	  update_filtering({ subs: subs, all_subs: all_subs });
+	});
+	{% include calendar.js %}  // overwrites update_filtering
+</script>

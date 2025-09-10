@@ -1,4 +1,5 @@
 ---
+layout: page
 title: titles.about
 author: Jesper Dramsch
 description: 'Never miss another Python conference deadline!'
@@ -13,19 +14,14 @@ permalink_zh-cn: /关于我们/
 permalink_ru: /о-нас/
 permalink_id: /tentang-kami/
 permalink_hi: /के-बारे-में/
+extra_css:
+  - /static/css/about.css
+extra_js:
+  - /static/js/about.js
+include_footer: true
 ---
 
 {% assign confs = site.data.archive | concat: site.data.conferences | concat: site.data.legacy %}
-<!DOCTYPE html>
-<html lang="{{ site.lang }}">
-	<head>
-		{% include head.html %}
-		<link rel="stylesheet" type="text/css" href="{{ "/static/css/about.css" | prepend:site.baseurl_root }}">
-	</head>
-	<body>
-		{% include header.html %}
-
-	<div class="container">
         <button class="presentation-mode-btn" id="presentation-toggle" title="{% t about.toggle_fullscreen %}">
             ⛶
         </button>
@@ -287,10 +283,3 @@ permalink_hi: /के-बारे-में/
                 </div>
             </div>
         </div>
-    </div>
-
-    <footer>{% include_cached footer.html %}</footer>
-
-    <script src="{{ "/static/js/about.js" | prepend: site.baseurl_root }}"></script>
-	</body>
-</html>
