@@ -1,0 +1,60 @@
+<!-- Minimal Action Bar -->
+{% assign conf_id = include.conf_id %}
+{% assign is_saved = false %}
+{% assign is_series = false %}
+
+<!-- Check if conference is saved/series followed (would come from JavaScript) -->
+
+<!-- Desktop: Colored Line Indicator -->
+<div class="action-indicator" 
+     role="button"
+     tabindex="0"
+     data-conf-id="{{ conf_id }}"
+     data-conf-name="{{ include.conf_name }}"
+     data-conf-cfp="{{ include.conf_cfp }}"
+     data-conf-place="{{ include.conf_place }}"
+     aria-label="Conference actions">
+    <i class="fas fa-bookmark action-icon"></i>
+</div>
+
+<!-- Desktop: Action Popover -->
+<div class="action-popover" data-conf-id="{{ conf_id }}">
+    <a href="#" class="action-popover-item" data-action="save">
+        <i class="far fa-bookmark"></i>
+        <span>Save to Favorites</span>
+    </a>
+    <a href="#" class="action-popover-item" data-action="series">
+        <i class="far fa-bell"></i>
+        <span>Follow Series</span>
+    </a>
+    <div class="action-popover-item action-popover-calendar" data-action="calendar">
+        <i class="far fa-calendar-plus"></i>
+        <span>Add to Calendar</span>
+        <i class="fas fa-chevron-right calendar-arrow"></i>
+        <div class="calendar-dropdown">
+            <a href="#" class="calendar-option" data-calendar="google">
+                <i class="fab fa-google"></i>
+                <span>Google Calendar</span>
+            </a>
+            <a href="#" class="calendar-option" data-calendar="outlook">
+                <i class="fab fa-microsoft"></i>
+                <span>Outlook</span>
+            </a>
+            <a href="#" class="calendar-option" data-calendar="apple">
+                <i class="fab fa-apple"></i>
+                <span>Apple Calendar</span>
+            </a>
+            <a href="#" class="calendar-option" data-calendar="ics">
+                <i class="fas fa-download"></i>
+                <span>Download .ics</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Mobile: Bookmark Button -->
+<button class="mobile-action-bookmark" 
+        data-conf-id="{{ conf_id }}"
+        aria-label="Save conference">
+    <i class="far fa-bookmark"></i>
+</button>

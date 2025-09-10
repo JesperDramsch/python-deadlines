@@ -1,0 +1,511 @@
+/* Minimal Action Bar Design - Progressive Disclosure */
+
+:root {
+	--action-line-width: 3px;
+	--action-line-expanded: 24px;
+	--action-color-default: #e0e0e0;
+	--action-color-saved: #3776ab;
+	--action-color-series: #ffd43b;
+	--action-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Conference Item with Action Indicator */
+.ConfItem {
+	position: relative;
+	padding-left: 30px; /* More space for the action line */
+	transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* The Minimal Action Line */
+.action-indicator {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: var(--action-line-width);
+	background: var(--action-color-default);
+	transition: var(--action-transition);
+	cursor: pointer;
+	overflow: hidden;
+}
+
+/* States for the action line */
+.action-indicator.saved {
+	background: var(--action-color-saved);
+}
+
+.action-indicator.series {
+	background: linear-gradient(
+		to bottom,
+		var(--action-color-saved) 0%,
+		var(--action-color-saved) 70%,
+		var(--action-color-series) 70%,
+		var(--action-color-series) 100%
+	);
+}
+
+/* Hover State - Line Expands */
+.ConfItem:hover .action-indicator,
+.action-indicator:hover,
+.action-indicator.active {
+	width: var(--action-line-expanded);
+}
+
+/* Subtle parallax effect on hover */
+.ConfItem:hover {
+	padding-left: 35px; /* Subtle movement, not as far as the bar */
+}
+
+/* Action Icon - Hidden by Default */
+.action-icon {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	color: white;
+	font-size: 14px;
+	pointer-events: none;
+}
+
+.action-indicator.saved .action-icon {
+	color: white;
+}
+
+/* Show icon on hover */
+.ConfItem:hover .action-icon,
+.action-indicator:hover .action-icon,
+.action-indicator.active .action-icon {
+	opacity: 1;
+	transition-delay: 0.1s;
+}
+
+/* Popover for Additional Actions */
+.action-popover {
+	position: absolute;
+	left: calc(var(--action-line-expanded) + 5px);
+	top: 50%;
+	transform: translateY(-50%);
+	background: white;
+	border: 1px solid #dee2e6;
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	padding: 8px;
+	display: none;
+	z-index: 1000;
+	min-width: 160px;
+}
+
+.action-popover.show {
+	display: block;
+	animation: popoverSlide 0.2s ease;
+}
+
+@keyframes popoverSlide {
+	from {
+		opacity: 0;
+		transform: translateY(-50%) translateX(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(-50%) translateX(0);
+	}
+}
+
+.action-popover-item {
+	display: flex;
+	align-items: center;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background 0.2s ease;
+	color: #333;
+	text-decoration: none;
+	font-size: 14px;
+}
+
+.action-popover-item:hover {
+	background: #f8f9fa;
+}
+
+.action-popover-item i {
+	width: 20px;
+	margin-right: 8px;
+	color: #495057; /* Better contrast */
+}
+
+.action-popover-item.active i {
+	color: var(--action-color-saved);
+}
+
+/* Calendar Dropdown Styles */
+.action-popover-calendar {
+	position: relative;
+}
+
+.calendar-arrow {
+	margin-left: auto;
+	font-size: 10px;
+	color: #495057; /* Better contrast */
+	transition: transform 0.2s ease;
+}
+
+.action-popover-calendar:hover .calendar-arrow {
+	transform: translateX(2px);
+}
+
+.calendar-dropdown {
+	position: absolute;
+	left: 100%;
+	top: 0;
+	margin-left: 8px;
+	background: white;
+	border: 1px solid #dee2e6;
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+	padding: 4px;
+	min-width: 180px;
+	display: none;
+	z-index: 1001;
+}
+
+.action-popover-calendar:hover .calendar-dropdown {
+	display: block;
+	animation: calendarSlide 0.2s ease;
+}
+
+@keyframes calendarSlide {
+	from {
+		opacity: 0;
+		transform: translateX(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.calendar-option {
+	display: flex;
+	align-items: center;
+	padding: 8px 12px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background 0.2s ease;
+	color: #333;
+	text-decoration: none;
+	font-size: 13px;
+	white-space: nowrap;
+}
+
+.calendar-option:hover {
+	background: #f8f9fa;
+}
+
+.calendar-option i {
+	width: 20px;
+	margin-right: 8px;
+	font-size: 14px;
+	color: #495057; /* Better contrast */
+}
+
+.calendar-option:hover i {
+	color: var(--action-color-saved);
+}
+
+/* External Links in Title Row */
+.conf-title-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.conf-external-links {
+	display: inline-flex;
+	gap: 6px;
+	margin-left: 8px;
+}
+
+.conf-external-links a {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	opacity: 0.7; /* Better initial visibility */
+	transition: opacity 0.2s ease;
+	border: none;
+}
+
+.conf-external-links a:hover {
+	opacity: 1;
+}
+
+.conf-external-links img {
+	width: 14px;
+	height: 14px;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+	.ConfItem {
+		padding-left: 15px;
+		padding-right: 45px; /* Space for mobile bookmark */
+		transition: none; /* No transition on mobile */
+	}
+	
+	/* Disable parallax effect on mobile */
+	.ConfItem:hover {
+		padding-left: 15px; /* Keep same padding, no movement */
+	}
+	
+	.action-indicator {
+		display: none; /* Hide the line on mobile */
+	}
+	
+	/* Mobile Bookmark Icon */
+	.mobile-action-bookmark {
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		width: 32px;
+		height: 32px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: transparent;
+		border: 1px solid #dee2e6;
+		border-radius: 6px;
+		color: #495057; /* Better contrast */
+		font-size: 16px;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+	
+	.mobile-action-bookmark.saved {
+		background: var(--action-color-saved);
+		border-color: var(--action-color-saved);
+		color: white;
+	}
+	
+	.mobile-action-bookmark:active {
+		transform: scale(0.95);
+	}
+	
+	/* Mobile Action Sheet */
+	.mobile-action-sheet {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background: white;
+		border-radius: 16px 16px 0 0;
+		box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.1);
+		padding: 20px;
+		transform: translateY(100%);
+		transition: transform 0.3s ease;
+		z-index: 2000;
+	}
+	
+	.mobile-action-sheet.show {
+		transform: translateY(0);
+	}
+	
+	.mobile-action-sheet-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 20px;
+		padding-bottom: 12px;
+		border-bottom: 1px solid #dee2e6;
+	}
+	
+	.mobile-action-sheet-title {
+		font-size: 18px;
+		font-weight: 500;
+	}
+	
+	.mobile-action-sheet-close {
+		width: 30px;
+		height: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: #f8f9fa;
+		border: none;
+		border-radius: 15px;
+		color: #495057; /* Better contrast */
+		cursor: pointer;
+	}
+	
+	.mobile-action-sheet-item {
+		display: flex;
+		align-items: center;
+		padding: 14px 0;
+		color: #333;
+		text-decoration: none;
+		font-size: 16px;
+	}
+	
+	.mobile-action-sheet-item i {
+		width: 24px;
+		margin-right: 12px;
+		font-size: 18px;
+		color: #495057; /* Better contrast */
+	}
+	
+	.mobile-action-sheet-item.active i {
+		color: var(--action-color-saved);
+	}
+	
+	.mobile-action-sheet-back {
+		display: flex;
+		align-items: center;
+		padding: 14px 0;
+		margin-bottom: 12px;
+		border-bottom: 1px solid #dee2e6;
+		color: var(--action-color-saved);
+		cursor: pointer;
+		font-weight: 500;
+	}
+	
+	.mobile-action-sheet-back i {
+		width: 24px;
+		margin-right: 12px;
+		font-size: 16px;
+	}
+}
+
+/* Desktop Only */
+@media (min-width: 769px) {
+	.mobile-action-bookmark,
+	.mobile-action-sheet {
+		display: none !important;
+	}
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+	.action-popover {
+		background: #2a2a2a;
+		border-color: #444;
+		color: #e0e0e0;
+	}
+	
+	.action-popover-item {
+		color: #e0e0e0;
+	}
+	
+	.action-popover-item:hover {
+		background: #333;
+	}
+	
+	.mobile-action-sheet {
+		background: #2a2a2a;
+		color: #e0e0e0;
+	}
+	
+	.mobile-action-sheet-header {
+		border-bottom-color: #444;
+	}
+	
+	.mobile-action-sheet-close {
+		background: #333;
+		color: #999;
+	}
+	
+	.mobile-action-sheet-item {
+		color: #e0e0e0;
+	}
+}
+
+/* Subtype Tags - Ensure they're visible */
+.conf-sub {
+	position: relative;
+	z-index: 10; /* Higher z-index to ensure visibility */
+	display: inline-block !important; /* Force display */
+	margin-right: 4px;
+	opacity: 1 !important; /* Ensure full opacity */
+	visibility: visible !important; /* Force visibility */
+}
+
+/* Ensure badge styling is preserved */
+.badge {
+	position: relative;
+	z-index: 10;
+	display: inline-block !important;
+}
+
+/* Ensure tags row is visible */
+.row:has(.conf-sub) {
+	position: relative;
+	z-index: 5;
+	min-height: 24px; /* Ensure space for tags */
+}
+
+/* Smooth Transitions */
+* {
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* Accessibility */
+.action-indicator:focus,
+.mobile-action-bookmark:focus {
+	outline: 2px solid var(--action-color-saved);
+	outline-offset: 2px;
+}
+
+.action-indicator[role="button"],
+.mobile-action-bookmark[role="button"] {
+	cursor: pointer;
+}
+
+/* Loading State */
+.action-indicator.loading,
+.mobile-action-bookmark.loading {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.action-indicator.loading::after,
+.mobile-action-bookmark.loading::after {
+	content: '';
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	top: 50%;
+	left: 50%;
+	margin: -8px 0 0 -8px;
+	border: 2px solid white;
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+
+/* Notification animations */
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes slideOut {
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+}

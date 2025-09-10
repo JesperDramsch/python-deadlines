@@ -1,47 +1,37 @@
 <div class="row conf-row">
     <div class="col-6">
-        <span class="conf-title">
-            <a title="Deadline Details" href="{{site.baseurl}}/conference/{{conf.conference | slugify: "latin"}}-{{conf.year}}/">{{conf.conference}} {{conf.year}}</a>
-        </span>
-        <span class="conf-title-small">
-            <a title="Deadline Details" href="{{site.baseurl}}/conference/{{conf.conference | slugify: "latin"}}-{{conf.year}}/">{{conf.conference}} '{{conf.year | slice: -2, 3}}</a>
-        </span>
-        <span class="conf-title-icon">
-        <a title="Conference Website" href="{{conf.link}}" target="_blank"><img src="/static/img/203-earth.svg" class="badge-link" alt="Link to Conference Website" width="16" height="16" /></a>
-        &ZeroWidthSpace;
-        </span>
-        {% if conf.cfp_link %}
-        <span class="conf-title-icon">
-        <a title="Call for Participation for {{conf.conference}}" href="{{conf.cfp_link}}" target="_blank"><img src="/static/img/035-file-text.svg" class="badge-link" alt="Link to Call for Participation for {{conf.conference}}" width="16" height="16" /></a>
-        &ZeroWidthSpace;
-        </span>
-        {% endif %}
-        {% if conf.finaid %}
-        <span class="conf-title-icon">
-        <a title="Financial Aid from {{conf.conference}}" href="{{conf.finaid}}" target="_blank"><img src="/static/img/066-lifebuoy.svg" class="badge-link" alt="Link to Sponsorship page of {{conf.conference}}" width="16" height="16" /></a>
-        &ZeroWidthSpace;
-        </span>
-        {% endif %}
-        {% if conf.sponsor %}
-        <span class="conf-title-icon">
-        <a title="Sponsorship Opportunity for {{conf.conference}}" href="{{conf.sponsor}}" target="_blank"><img src="/static/img/060-coin-dollar.svg" class="badge-link" alt="Link to Sponsorship page of {{conf.conference}}" width="16" height="16" /></a>
-        &ZeroWidthSpace;
-        </span>
-        {% endif %}
-        {% if conf.mastodon %}
-        <span class="conf-title-icon">
-        <a title="Mastodon for {{conf.conference}}" href="{{conf.mastodon}}" target="_blank"><img src="/static/img/407-mastodon.svg" class="badge-link" alt="Link to Conference Mastodon" width="16" height="16" /></a>
-        &ZeroWidthSpace;
-        </span>
-        {% elsif conf.twitter %}
-        <span class="conf-title-icon">
-        <a title="Twitter for {{conf.conference}}" href="https://twitter.com/{{conf.twitter}}" target="_blank"><img src="/static/img/407-twitter.svg" class="badge-link" alt="Link to Conference Twitter" width="16" height="16" /></a>
-        &ZeroWidthSpace;
-        </span>
-        {% endif %}
+        <div class="conf-title-row">
+            <span class="conf-title">
+                <a title="Deadline Details" href="{{site.baseurl}}/conference/{{conf.conference | slugify: "latin"}}-{{conf.year}}/">{{conf.conference}} {{conf.year}}</a>
+            </span>
+            <span class="conf-title-small">
+                <a title="Deadline Details" href="{{site.baseurl}}/conference/{{conf.conference | slugify: "latin"}}-{{conf.year}}/">{{conf.conference}} '{{conf.year | slice: -2, 3}}</a>
+            </span>
+            <span class="conf-external-links">
+                <a title="Conference Website" href="{{conf.link}}" target="_blank"><img src="/static/img/203-earth.svg" alt="Website" width="14" height="14" /></a>
+                {% if conf.cfp_link %}
+                <a title="Call for Participation" href="{{conf.cfp_link}}" target="_blank"><img src="/static/img/035-file-text.svg" alt="CFP" width="14" height="14" /></a>
+                {% endif %}
+                {% if conf.finaid %}
+                <a title="Financial Aid" href="{{conf.finaid}}" target="_blank"><img src="/static/img/066-lifebuoy.svg" alt="Aid" width="14" height="14" /></a>
+                {% endif %}
+                {% if conf.sponsor %}
+                <a title="Sponsorship" href="{{conf.sponsor}}" target="_blank"><img src="/static/img/060-coin-dollar.svg" alt="Sponsor" width="14" height="14" /></a>
+                {% endif %}
+                {% if conf.mastodon %}
+                <a title="Mastodon" href="{{conf.mastodon}}" target="_blank"><img src="/static/img/407-mastodon.svg" alt="Mastodon" width="14" height="14" /></a>
+                {% elsif conf.twitter %}
+                <a title="Twitter" href="https://twitter.com/{{conf.twitter}}" target="_blank"><img src="/static/img/407-twitter.svg" alt="Twitter" width="14" height="14" /></a>
+                {% endif %}
+            </span>
+        </div>
     </div>
     <div class="col-6">
         <span class="timer"></span>
         <span class="timer-small"></span>
     </div>
 </div>
+<!-- Include Minimal Action Bar (server-side rendered) -->
+{% assign conf_id = conf.conference | append: "-" | append: conf.year | slugify: "latin" %}
+{% assign cfp_date = conf.cfp_ext | default: conf.cfp %}
+{% include action_bar.html conf_id=conf_id conf_name=conf.conference conf_title=conf.conference conf_cfp=cfp_date conf_place=conf.place %}
