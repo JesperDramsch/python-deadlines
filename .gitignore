@@ -5,6 +5,8 @@ vendor
 .DS_Store
 .idea
 .tmp
+.jekyll-metadata
+.playwright-mcp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
