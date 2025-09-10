@@ -1,14 +1,17 @@
 <div class="row">
-	<div class="col-6">
+	<div class="col-12">
 		{% for sub in include.subs %}
-		<span
-			title="Click to only show {{sub | strip}} conferences"
-			data-sub="{{sub | strip}}"
-			class="badge badge-light conf-sub {{sub | strip}}-tag"
-		></span>
+		{% assign sub_trimmed = sub | strip %}
+		{% for type in site.data.types %}
+			{% if type.sub == sub_trimmed %}
+			<span
+				title="Click to only show {{type.sub}} conferences"
+				data-sub="{{type.sub}}"
+				class="badge badge-light conf-sub {{type.sub}}-tag"
+				style="background-color: {{type.color}}; color: white; cursor: pointer;"
+			>{{type.name | downcase}}</span>
+			{% endif %}
 		{% endfor %}
-	</div>
-	<div class="col-6">
-		<div class="calendar"></div>
+		{% endfor %}
 	</div>
 </div>
