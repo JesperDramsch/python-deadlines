@@ -27,8 +27,18 @@
         </div>
     </div>
     <div class="col-6">
-        <span class="timer"></span>
-        <span class="timer-small"></span>
+        {% assign cfp_deadline = conf.cfp_ext | default: conf.cfp %}
+        {% if cfp_deadline == "TBA" or cfp_deadline == "Cancelled" or cfp_deadline == "None" %}
+            <span class="timer">{{cfp_deadline}}</span>
+            <span class="timer-small">{{cfp_deadline}}</span>
+        {% else %}
+            <span class="timer">
+                <span class="countdown-display" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}">Loading...</span>
+            </span>
+            <span class="timer-small">
+                <span class="countdown-display countdown-small" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}">...</span>
+            </span>
+        {% endif %}
     </div>
 </div>
 <!-- Include Minimal Action Bar (server-side rendered) -->

@@ -103,17 +103,13 @@ layout: home
             console.log("Invalid timezone in {{conf.conference | slugify: "latin"}}-{{conf.year}}. Using system timezone instead.");
           }
 
-          // Store conference deadline data for lazy loading
+          // Store conference data for other features
           var confElement = document.getElementById('{{conf.conference | slugify: "latin"}}-{{conf.year}}');
           if (confElement) {
             confElement.dataset.confId = '{{conf.conference | slugify: "latin"}}-{{conf.year}}';
             confElement.dataset.cfpDate = cfpDate.toISO();
             confElement.dataset.confDate = confDate.toISO();
           }
-          
-          // Add countdown display containers with data attributes
-          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer').html('<span class="countdown-display" data-deadline="' + cfpDate.toISO() + '">Loading...</span>');
-          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer-small').html('<span class="countdown-display countdown-small" data-deadline="' + cfpDate.toISO() + '">...</span>');
 
           // deadline in local timezone
           $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline-time')
@@ -154,16 +150,12 @@ layout: home
           if (cfpDiff < 0) {
             $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').addClass('pastcfp');
             $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').appendTo($("#past_cfps"));
-            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer').replaceWith($('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline'));
-            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer-small').replaceWith($('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline'));
             $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar').remove();
           }
 
           if (confDiff < 0) {
             $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').addClass('pastconf');
             $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').appendTo($("#past_confs"));
-            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer').replaceWith($('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline'));
-            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer-small').replaceWith($('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline'));
             $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar').remove();
           }
         {% endif %}

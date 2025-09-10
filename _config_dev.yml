@@ -1,0 +1,2 @@
+# Development configuration - single language only
+languages: ["en"]
