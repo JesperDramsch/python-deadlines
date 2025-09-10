@@ -53,7 +53,7 @@
         if (!deadlineStr) return;
         
         // Parse deadline using Luxon (keeping existing library)
-        const deadline = luxon.DateTime.fromISO(deadlineStr);
+        const deadline = DateTime.fromISO(deadlineStr);
         
         // Store timer data for both regular and small countdown
         countdownElements.forEach((el, index) => {
@@ -84,7 +84,7 @@
         const timer = activeTimers.get(timerId);
         if (!timer) return;
         
-        const now = luxon.DateTime.now();
+        const now = DateTime.now();
         const diff = timer.deadline.diff(now, ['days', 'hours', 'minutes', 'seconds']);
         
         if (diff.toMillis() <= 0) {
