@@ -1,33 +1,29 @@
 ---
+layout: home
 ---
 
-
-<html>
-  <head>
-    {% include head.html %}
-  </head>
-  <body>
-    {% include header.html %}
-
-    {% capture fp_title %}
-      {% t titles.default %}
-    {% endcapture %}
-    {% capture fp_hook %}
-      {% tf frontpage/hook.md %}
-    {% endcapture %}
-    {% capture fp_description %}
-      {% tf frontpage/description.md %}
-    {% endcapture %}
-
-    {% include masthead.html url=page.url title=fp_title hook=fp_hook description=fp_description %}
-
-    <div class="container" id="main-content">
-      <div id="confs">
+<div id="confs">
         <div id="coming_confs">
           {% assign confs = site.data.conferences | sort: "cfp" | reverse %}
           {% for conf in confs %}
           {% assign subs = conf.sub | split: "," %}
-          <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}" class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}">
+          <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}" 
+               class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}"
+               data-conf-id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
+               data-conf-name="{{conf.conference}}"
+               data-conf-year="{{conf.year}}"
+               data-location="{{conf.place}}"
+               data-format="{% if conf.extra_places %}hybrid{% elsif conf.link contains 'virtual' or conf.place contains 'Virtual' or conf.place contains 'Online' %}virtual{% else %}in-person{% endif %}"
+               data-topics="{{conf.sub}}"
+               data-cfp="{{conf.cfp}}"
+               data-cfp-ext="{{conf.cfp_ext}}"
+               data-start="{{conf.start}}"
+               data-end="{{conf.end}}"
+               data-link="{{conf.link}}"
+               data-cfp-link="{{conf.cfp_link}}"
+               data-has-finaid="{% if conf.finaid %}true{% else %}false{% endif %}"
+               data-has-workshop="{% if conf.workshop_deadline %}true{% else %}false{% endif %}"
+               data-has-sponsor="{% if conf.sponsor %}true{% else %}false{% endif %}">
             {% include index_conf_title_row.html %}
             {% include_cached index_conf_date_place.html place=conf.place extra_places=conf.extra_places note=conf.note cfp=conf.cfp start=conf.start end=conf.end %}
             {% include index_conf_subs.html subs=subs %}
@@ -47,9 +43,7 @@
       </div>
       <br><br>
     </div>
-    <footer>
-          {% include_cached footer.html %}
-    </footer>
+    
     <script type="text/javascript" charset="utf-8">
     // Global conference data for lazy loading
     window.conferenceData = window.conferenceData || {};
@@ -109,32 +103,22 @@
             console.log("Invalid timezone in {{conf.conference | slugify: "latin"}}-{{conf.year}}. Using system timezone instead.");
           }
 
-          // Store conference data globally for lazy loading
-          window.conferenceData['{{conf.conference | slugify: "latin"}}-{{conf.year}}'] = {
-            cfpDate: cfpDate.toJSDate(),
-            confDate: confDate.toJSDate()
-          };
-
-          // render countdown timer
-          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer').countdown(cfpDate.toJSDate(), function (event) {
-              if (event.elapsed) {
-                $(this).html('Deadline passed');
-              } else {
-                $(this).html(event.strftime('%D days %Hh %Mm %Ss'));
-              }
-          });
-
-          // render countdown timer small
-          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer-small').countdown(cfpDate.toJSDate(), function (event) {
-              if (event.elapsed) {
-                $(this).html('Passed');
-              } else {
-                $(this).html(event.strftime('%Dd %H:%M:%S'));
-              }
-          });
+          // Store conference deadline data for lazy loading
+          var confElement = document.getElementById('{{conf.conference | slugify: "latin"}}-{{conf.year}}');
+          if (confElement) {
+            confElement.dataset.confId = '{{conf.conference | slugify: "latin"}}-{{conf.year}}';
+            confElement.dataset.cfpDate = cfpDate.toISO();
+            confElement.dataset.confDate = confDate.toISO();
+          }
+          
+          // Add countdown display containers with data attributes
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer').html('<span class="countdown-display" data-deadline="' + cfpDate.toISO() + '">Loading...</span>');
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .timer-small').html('<span class="countdown-display countdown-small" data-deadline="' + cfpDate.toISO() + '">...</span>');
 
           // deadline in local timezone
-          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline-time').html(cfpDate.setZone('system').toLocaleString(DateTime.DATE_HUGE));
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline-time')
+            .html(cfpDate.setZone('system').toLocaleString(DateTime.DATE_HUGE))
+            .attr('data-deadline', cfpDate.toISO());
 
           // add calendar button
           try {
@@ -203,10 +187,3 @@
 
     });
     </script>
-
-    <!-- Lazy Loading for Performance -->
-    <script type="text/javascript" src="{{ "/static/js/lazy-load.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
-
-    {% include sneks.html %}
-  </body>
-</html>

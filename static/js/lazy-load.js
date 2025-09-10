@@ -63,8 +63,15 @@
         // Initially hide conferences beyond the first batch
         conferences.forEach((conf, index) => {
             if (index < config.batchSize) {
-                // Load first batch immediately
-                loadConferenceCard(conf);
+                // First batch is already visible, just initialize features
+                conf.classList.add('lazy-loaded');
+                initializeCardFeatures(conf);
+                
+                // Emit event so FavoritesManager can apply favorite state
+                const event = new CustomEvent('conferenceLoaded', {
+                    detail: { element: conf, count: index + 1 }
+                });
+                document.dispatchEvent(event);
             } else {
                 // Prepare for lazy loading
                 conf.classList.add('lazy-load');
@@ -212,6 +219,11 @@
                 }
             });
         });
+
+        // Initialize action bar for this conference card
+        if (window.ActionBar && typeof window.ActionBar.initForConference === 'function') {
+            window.ActionBar.initForConference(element);
+        }
     }
 
     /**
