@@ -33,7 +33,11 @@
 <link rel="stylesheet" type="text/css" href="{{ "/static/css/calendar.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
 <link rel="stylesheet" type="text/css" href="{{ "/static/css/search.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
 <link rel="stylesheet" type="text/css" href="{{ "/static/css/mobile-fixes.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
+<link rel="stylesheet" type="text/css" href="{{ "/static/css/dashboard.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
+<link rel="stylesheet" type="text/css" href="{{ "/static/css/action-bar-minimal.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/fontawesome.min.css" media="screen,projection">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/solid.min.css" media="screen,projection">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/regular.min.css" media="screen,projection">
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/brands.min.css" media="screen,projection">
 
 <link rel="shortcut icon" href="{{ "/static/img/favicon.png" | prepend:site.baseurl_root }}">
@@ -63,5 +67,19 @@
 <script type="text/javascript" src="{{ "/static/js/jquery.countdown.min.js" | prepend:site.baseurl_root }}"></script>
 <script type="text/javascript" src="{{ "/static/js/luxon.js" | prepend:site.baseurl_root }}"></script>
 <script type="text/javascript" src="{{ "/static/js/store.min.js" | prepend:site.baseurl_root }}"></script>
+<script type="text/javascript">
+// Only inject active conferences to avoid performance issues
+// Archive data (592 conferences) loaded on-demand when needed
+window.conferenceData = {
+    active: {{ site.data.conferences | jsonify }},
+    types: {{ site.data.types | jsonify }}
+    // Archive will be loaded on-demand to save ~224KB initial payload
+};
+</script>
+<script type="text/javascript" src="{{ "/static/js/conference-manager.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script type="text/javascript" src="{{ "/static/js/favorites.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script type="text/javascript" src="{{ "/static/js/series-manager.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
 <script type="text/javascript" src="{{ "/static/js/ouical.min.js" | prepend:site.baseurl_root }}"></script>
+<script type="text/javascript" src="{{ "/static/js/action-bar.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script type="text/javascript" src="{{ "/static/js/notifications.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
 <script type="text/javascript" src="{{ "/static/js/bootstrap-multiselect.min.js" |prepend:site.baseurl_root }}"></script>
