@@ -1,0 +1,512 @@
+/**
+ * Dashboard Styles for Python Deadlines
+ * Personal conference dashboard styling
+ */
+
+/* Dashboard Layout */
+.dashboard-header {
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Filter Panel */
+.filter-panel {
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.filter-panel .card-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.filter-group {
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 1rem;
+}
+
+.filter-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.filter-group h6 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* Favorite and Series Button Styles */
+.favorite-btn, .series-btn {
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    padding: 0 5px;
+    opacity: 0.7;
+}
+
+.favorite-btn:hover, .series-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Favorite button (bookmark/star) */
+.favorite-btn {
+    color: #ccc;
+}
+
+.favorite-btn.favorited {
+    color: #ffd700 !important; /* Gold for favorited */
+    opacity: 1;
+}
+
+.favorite-btn.favorited i {
+    text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+}
+
+/* Series button (bell) */
+.series-btn {
+    color: #6c757d;
+}
+
+.series-btn.following {
+    color: #17a2b8 !important; /* Info blue for followed series */
+    opacity: 1;
+}
+
+.series-btn.following i {
+    animation: bellRing 0.5s ease;
+}
+
+@keyframes bellRing {
+    0% { transform: rotate(0); }
+    25% { transform: rotate(-15deg); }
+    50% { transform: rotate(15deg); }
+    75% { transform: rotate(-10deg); }
+    100% { transform: rotate(0); }
+}
+
+/* Tooltip styles for buttons */
+.favorite-btn::after, .series-btn::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.favorite-btn:hover::after, .series-btn:hover::after {
+    opacity: 1;
+}
+
+/* Series Panel */
+.series-panel {
+    /* Aligned with filter panel */
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.series-panel .card-header {
+    background-color: #e3f2fd;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+.series-item {
+    padding: 0.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 0.25rem;
+    background-color: #f8f9fa;
+}
+
+.series-item:hover {
+    background-color: #e9ecef;
+}
+
+/* Conference Cards */
+.conference-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+.conference-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.conference-card .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.conference-card .deadline-info {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+}
+
+/* View Modes */
+.view-grid .conference-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.view-list .conference-card {
+    margin-bottom: 1rem;
+}
+
+/* Favorite and Series Buttons */
+.favorite-btn,
+.series-btn {
+    background: none;
+    border: none;
+    padding: 0 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.favorite-btn:hover,
+.series-btn:hover {
+    transform: scale(1.2);
+}
+
+.favorite-btn.favorited {
+    color: #ffd700 !important;
+}
+
+.series-btn.subscribed {
+    color: #007bff !important;
+}
+
+/* Quick Subscribe Buttons */
+.quick-subscribe {
+    text-align: left;
+    margin-bottom: 0.25rem;
+}
+
+.quick-subscribe.subscribed {
+    font-weight: 600;
+}
+
+/* Notification Prompt */
+#notification-prompt {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+#notification-prompt .btn-primary {
+    background-color: white;
+    color: #667eea;
+    border: none;
+}
+
+#notification-prompt .btn-primary:hover {
+    background-color: #f8f9fa;
+}
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    max-width: 350px;
+}
+
+.toast {
+    margin-bottom: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast-header {
+    font-weight: 600;
+}
+
+/* Deadline Status Colors */
+.deadline-passed {
+    color: #dc3545;
+    text-decoration: line-through;
+}
+
+.deadline-urgent {
+    color: #dc3545;
+    font-weight: bold;
+    animation: pulse 1.5s infinite;
+}
+
+.deadline-soon {
+    color: #ffc107;
+}
+
+.deadline-upcoming {
+    color: #28a745;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Empty State */
+#empty-state {
+    padding: 3rem;
+    text-align: center;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+#empty-state i {
+    color: #dee2e6;
+}
+
+/* Loading State */
+#loading-state {
+    padding: 3rem;
+    text-align: center;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Badge Styles */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    color: white !important; /* Ensure white text on colored backgrounds */
+}
+
+#filter-count-badge {
+    font-size: 0.8rem;
+}
+
+/* Predictions Section */
+#series-predictions {
+    border-top: 2px solid #e9ecef;
+    padding-top: 2rem;
+}
+
+#predictions-container .alert {
+    border-left: 4px solid #17a2b8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .filter-panel {
+        position: relative;
+        top: 0;
+        max-height: none;
+        margin-bottom: 2rem;
+    }
+    
+    .dashboard-header .btn-group {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .dashboard-header .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .view-grid .conference-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .conference-card {
+        margin-bottom: 1rem;
+    }
+    
+    #toast-container {
+        left: 10px;
+        right: 10px;
+        top: 60px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .filter-panel,
+    .series-panel,
+    .conference-card {
+        background-color: #212529;
+        color: #f8f9fa;
+        border-color: #495057;
+    }
+    
+    .filter-panel .card-header,
+    .series-panel .card-header {
+        background-color: #343a40;
+        color: #f8f9fa;
+        border-bottom-color: #495057;
+    }
+    
+    .filter-panel .card-body,
+    .series-panel .card-body {
+        background-color: #212529;
+    }
+    
+    .form-check-label,
+    .filter-group h6 {
+        color: #dee2e6;
+    }
+    
+    .series-item {
+        background-color: #343a40 !important;
+        color: #f8f9fa !important;
+        border-color: #495057 !important;
+    }
+    
+    .series-item:hover {
+        background-color: #495057 !important;
+    }
+    
+    .conference-card .deadline-info {
+        background-color: #343a40;
+    }
+    
+    #empty-state {
+        background-color: #343a40;
+        color: #f8f9fa;
+    }
+    
+    /* Button adjustments for dark mode */
+    .btn-outline-primary {
+        color: #6ea8fe;
+        border-color: #6ea8fe;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: #6ea8fe;
+        color: #000;
+    }
+    
+    .btn-outline-secondary {
+        color: #adb5bd;
+        border-color: #6c757d;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
+    }
+    
+    /* Alert adjustments */
+    .alert-info {
+        background-color: #031633;
+        border-color: #055160;
+        color: #6edff6;
+    }
+    
+    /* Badge colors should remain readable */
+    .badge {
+        filter: brightness(1.2);
+    }
+    
+    /* Fix checkbox visibility */
+    .form-check-input {
+        background-color: #343a40;
+        border-color: #6c757d;
+    }
+    
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+}
+
+/* Accessibility */
+.favorite-btn:focus,
+.series-btn:focus,
+.btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Print Styles */
+@media print {
+    .filter-panel,
+    .series-panel,
+    .dashboard-header .btn-group,
+    #notification-prompt,
+    #toast-container {
+        display: none !important;
+    }
+    
+    .conference-card {
+        page-break-inside: avoid;
+        border: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Animations */
+.conference-card {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Filter Panel Scrollbar */
+.filter-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.filter-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.filter-panel::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.filter-panel::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
