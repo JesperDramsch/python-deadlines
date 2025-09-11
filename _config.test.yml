@@ -1,0 +1,101 @@
+# Test Configuration for Python Deadlines
+# Optimized for E2E testing - fast builds with essential features
+# Usage: bundle exec jekyll serve --config _config.yml,_config.test.yml
+
+# English only for fast builds during testing
+languages: [ "en" ]
+
+# Only process active conferences for testing
+page_gen:
+- data: 'conferences'
+  template: 'conference'
+  dir: 'conference'
+  name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')+"-"+record['year'].to_s
+  title_expr: record['conference']+" "+record['year'].to_s+" Conference Deadlines"
+- data: 'conferences'
+  template: 'summary'
+  dir: 'series'
+  name_expr: record['conference'].downcase.strip.gsub(' ', '-').gsub(/[^\p{L}]+/, '-')
+  title_expr: record['conference']+" "+"Conference Series Overview"
+
+# Essential plugins only
+plugins:
+- jekyll-datapage-generator
+- jekyll-multiple-languages-plugin
+- jekyll-include-cache
+
+# Speed optimizations
+incremental: true
+profile: false
+safe: false
+liquid:
+  error_mode: lax
+  strict_filters: false
+  strict_variables: false
+
+# Faster regeneration
+regeneration: true
+show_drafts: false
+strict_front_matter: false
+future: true  # Show future conferences for testing
+
+# Disable external services during tests
+ga_id:
+adsense_id:
+maps:
+  google:
+    api_key:
+
+# Test environment settings
+environment: test
+url: "http://localhost:4000"
+baseurl: ""
+
+# Limit posts/pages processed
+limit_posts: 0  # Don't process blog posts if any
+
+# Exclude non-essential files
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/
+  - utils/
+  - tests/
+  - "*.pyc"
+  - "*.pyo"
+  - ".pytest_cache"
+  - "__pycache__"
+  - ".coverage"
+  - "htmlcov/"
+  - ".git"
+  - ".github"
+  - "*.log"
+  - "*.tmp"
+  - ".DS_Store"
+  - "Thumbs.db"
+  - "_data/archive.yml"
+  - "_data/legacy.yml"
+  - "playwright.config.js"
+  - "jest.config.js"
+  - "package*.json"
+  - "playwright-report/"
+  - "test-results/"
+  - "coverage/"
+  - "README.md"
+  - "CONTRIBUTING.md"
+  - "TRANSLATION.md"
+  - "crowdin.yml"
+  - ".claude/"
+  - "pixi.toml"
+  - ".pre-commit-config.yaml"
+
+# Faster file watching
+watch: true
+force_polling: false
+
+# Test-specific settings
+# Ensure JavaScript files are always fresh
+sass:
+  style: expanded  # Easier to debug
+  sourcemap: never  # Don't generate sourcemaps

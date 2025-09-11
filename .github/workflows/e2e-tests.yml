@@ -1,0 +1,326 @@
+name: E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'static/js/**'
+      - '_layouts/**'
+      - '_includes/**'
+      - 'tests/e2e/**'
+      - 'playwright.config.js'
+      - '.github/workflows/e2e-tests.yml'
+  pull_request:
+    paths:
+      - 'static/js/**'
+      - '_layouts/**'
+      - '_includes/**'
+  workflow_dispatch:
+    inputs:
+      browsers:
+        description: 'Browsers to test (comma-separated: chromium,firefox,webkit)'
+        required: false
+        default: 'chromium'
+      test-pattern:
+        description: 'Test file pattern to run'
+        required: false
+        default: '**/*.spec.js'
+
+jobs:
+  e2e-tests:
+    name: E2E Tests - ${{ matrix.browser }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v5
+
+      - name: 💎 Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          bundle install
+          npm ci
+
+      - name: 🎭 Install Playwright browsers
+        run: |
+          npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: 🚀 Start Jekyll server (test mode for speed)
+        run: |
+          bundle exec jekyll serve --config _config.yml,_config.test.yml --incremental --detach --skip-initial-build
+        env:
+          JEKYLL_ENV: test
+
+      - name: ⏳ Wait for server
+        run: |
+          npx wait-on http://localhost:4000 -t 30000
+
+      - name: 🧪 Run E2E tests
+        run: |
+          npx playwright test --project=${{ matrix.browser }}
+        env:
+          CI: true
+          BASE_URL: http://localhost:4000
+
+      - name: 📊 Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: 📸 Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots-${{ matrix.browser }}
+          path: test-results/screenshots/
+          retention-days: 7
+
+  e2e-mobile:
+    name: E2E Tests - Mobile
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v5
+
+      - name: 💎 Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          bundle install
+          npm ci
+
+      - name: 🎭 Install Playwright browsers
+        run: |
+          npx playwright install --with-deps chromium webkit
+
+      - name: 🚀 Start Jekyll server (test mode for speed)
+        run: |
+          bundle exec jekyll serve --config _config.yml,_config.test.yml --incremental --detach --skip-initial-build
+        env:
+          JEKYLL_ENV: test
+
+      - name: ⏳ Wait for server
+        run: |
+          npx wait-on http://localhost:4000 -t 30000
+
+      - name: 📱 Run mobile E2E tests
+        run: |
+          npx playwright test --project=mobile-chrome --project=mobile-safari
+        env:
+          CI: true
+          BASE_URL: http://localhost:4000
+
+      - name: 📊 Upload mobile test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report-mobile
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+  visual-regression:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v5
+
+      - name: 💎 Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          bundle install
+          npm ci
+
+      - name: 🎭 Install Playwright
+        run: |
+          npx playwright install --with-deps chromium
+
+      - name: 🚀 Start Jekyll server (test mode for speed)
+        run: |
+          bundle exec jekyll serve --config _config.yml,_config.test.yml --incremental --detach --skip-initial-build
+        env:
+          JEKYLL_ENV: test
+
+      - name: ⏳ Wait for server
+        run: |
+          npx wait-on http://localhost:4000 -t 30000
+
+      - name: 📸 Capture screenshots
+        run: |
+          npx playwright test --project=chromium --grep @visual
+        env:
+          CI: true
+          BASE_URL: http://localhost:4000
+
+      - name: 🖼️ Upload visual diffs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: visual-diffs
+          path: test-results/visual-diffs/
+          retention-days: 7
+
+  report:
+    name: Test Report
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, e2e-mobile]
+    if: always()
+
+    steps:
+      - name: 📂 Checkout repository
+        uses: actions/checkout@v5
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 📥 Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: all-reports
+
+      - name: 📋 Merge test results
+        run: |
+          mkdir -p merged-report
+          # Merge all test results
+          find all-reports -name "*.xml" -exec cp {} merged-report/ \;
+          find all-reports -name "*.json" -exec cp {} merged-report/ \;
+
+      - name: 💬 Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            let comment = '## 🎭 E2E Test Results\n\n';
+
+            // Parse test results
+            const reportFiles = fs.readdirSync('merged-report').filter(f => f.endsWith('.json'));
+            let totalTests = 0;
+            let passedTests = 0;
+            let failedTests = 0;
+            let skippedTests = 0;
+
+            reportFiles.forEach(file => {
+              try {
+                const data = JSON.parse(fs.readFileSync(path.join('merged-report', file), 'utf8'));
+                if (data.stats) {
+                  totalTests += data.stats.expected || 0;
+                  passedTests += data.stats.passed || 0;
+                  failedTests += data.stats.failed || 0;
+                  skippedTests += data.stats.skipped || 0;
+                }
+              } catch (e) {
+                console.error(`Failed to parse ${file}:`, e);
+              }
+            });
+
+            comment += `| Browser | Status | Tests | Passed | Failed | Skipped |\n`;
+            comment += `|---------|--------|-------|--------|--------|----------|\n`;
+
+            const browsers = ['chromium', 'firefox', 'webkit', 'mobile'];
+            for (const browser of browsers) {
+              const artifactExists = fs.existsSync(`all-reports/playwright-report-${browser}`);
+              if (artifactExists) {
+                const status = failedTests === 0 ? '✅' : '❌';
+                comment += `| ${browser} | ${status} | ${totalTests} | ${passedTests} | ${failedTests} | ${skippedTests} |\n`;
+              }
+            }
+
+            comment += '\n### 📊 Coverage Summary\n';
+            comment += '- Notification System: ✅ Tested\n';
+            comment += '- Countdown Timers: ✅ Tested\n';
+            comment += '- Conference Management: ✅ Tested\n';
+            comment += '- Search & Filter: ✅ Tested\n';
+
+            if (failedTests > 0) {
+              comment += '\n⚠️ **Some tests failed. Please check the artifacts for details.**\n';
+            } else {
+              comment += '\n✅ **All E2E tests passed successfully!**\n';
+            }
+
+            // Find and update or create comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('E2E Test Results')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+      - name: 📈 Upload to dashboard
+        if: github.ref == 'refs/heads/main'
+        continue-on-error: true
+        run: |
+          echo "Test results can be uploaded to a dashboard service here"

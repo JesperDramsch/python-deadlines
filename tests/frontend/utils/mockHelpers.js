@@ -1,0 +1,257 @@
+/**
+ * Mock helpers for browser APIs and external dependencies
+ */
+
+/**
+ * Mock Notification API
+ */
+export function mockNotificationAPI(permission = 'default') {
+  const NotificationMock = jest.fn().mockImplementation(function(title, options) {
+    this.title = title;
+    this.body = options?.body;
+    this.icon = options?.icon;
+    this.badge = options?.badge;
+    this.tag = options?.tag;
+    this.data = options?.data;
+    this.requireInteraction = options?.requireInteraction || false;
+    this.onclick = null;
+    this.onclose = null;
+    this.onerror = null;
+    this.close = jest.fn();
+    
+    // Track created notifications
+    NotificationMock.instances.push(this);
+  });
+  
+  NotificationMock.instances = [];
+  NotificationMock.permission = permission;
+  NotificationMock.requestPermission = jest.fn().mockResolvedValue(permission);
+  
+  // Helper to clear instances
+  NotificationMock.clearInstances = () => {
+    NotificationMock.instances = [];
+  };
+  
+  global.Notification = NotificationMock;
+  
+  return NotificationMock;
+}
+
+/**
+ * Mock localStorage with persistence within test
+ */
+export function mockLocalStorage() {
+  const storage = {};
+  
+  const localStorageMock = {
+    getItem: jest.fn((key) => storage[key] || null),
+    setItem: jest.fn((key, value) => {
+      storage[key] = value.toString();
+    }),
+    removeItem: jest.fn((key) => {
+      delete storage[key];
+    }),
+    clear: jest.fn(() => {
+      Object.keys(storage).forEach(key => delete storage[key]);
+    }),
+    get length() {
+      return Object.keys(storage).length;
+    },
+    key: jest.fn((index) => {
+      const keys = Object.keys(storage);
+      return keys[index] || null;
+    }),
+    // Helper to get raw storage for assertions
+    _getStorage: () => ({ ...storage })
+  };
+  
+  Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+    writable: true
+  });
+  
+  return localStorageMock;
+}
+
+/**
+ * Mock store.js library
+ */
+export function mockStore() {
+  const storage = new Map();
+  
+  const storeMock = {
+    get: jest.fn((key) => storage.get(key)),
+    set: jest.fn((key, value) => storage.set(key, value)),
+    remove: jest.fn((key) => storage.delete(key)),
+    clear: jest.fn(() => storage.clear()),
+    // Helper methods for testing
+    _getAll: () => Object.fromEntries(storage),
+    _reset: () => storage.clear()
+  };
+  
+  global.store = storeMock;
+  window.store = storeMock;
+  
+  return storeMock;
+}
+
+/**
+ * Mock timers with control
+ */
+export class TimerController {
+  constructor() {
+    this.currentTime = new Date();
+    jest.useFakeTimers();
+  }
+  
+  setCurrentTime(date) {
+    this.currentTime = date instanceof Date ? date : new Date(date);
+    jest.setSystemTime(this.currentTime);
+    return this;
+  }
+  
+  advanceTime(ms) {
+    this.currentTime = new Date(this.currentTime.getTime() + ms);
+    jest.setSystemTime(this.currentTime);
+    jest.advanceTimersByTime(ms);
+    return this;
+  }
+  
+  advanceDays(days) {
+    return this.advanceTime(days * 24 * 60 * 60 * 1000);
+  }
+  
+  advanceToNextInterval() {
+    jest.advanceTimersToNextTimer();
+    return this;
+  }
+  
+  runAllTimers() {
+    jest.runAllTimers();
+    return this;
+  }
+  
+  runOnlyPendingTimers() {
+    jest.runOnlyPendingTimers();
+    return this;
+  }
+  
+  getCurrentTime() {
+    return new Date(this.currentTime);
+  }
+  
+  cleanup() {
+    jest.useRealTimers();
+  }
+}
+
+/**
+ * Mock Bootstrap modal
+ */
+export function mockBootstrapModal() {
+  $.fn.modal = jest.fn(function(action) {
+    if (action === 'show') {
+      $(this).addClass('show');
+      $(this).trigger('shown.bs.modal');
+    } else if (action === 'hide') {
+      $(this).removeClass('show');
+      $(this).trigger('hidden.bs.modal');
+    }
+    return this;
+  });
+  
+  $.fn.toast = jest.fn(function(action) {
+    if (action === 'show') {
+      $(this).addClass('show');
+      $(this).trigger('shown.bs.toast');
+      // Auto-hide after delay
+      const delay = $(this).data('delay') || 5000;
+      setTimeout(() => {
+        $(this).removeClass('show');
+        $(this).trigger('hidden.bs.toast');
+      }, delay);
+    } else if (action === 'hide') {
+      $(this).removeClass('show');
+      $(this).trigger('hidden.bs.toast');
+    }
+    return this;
+  });
+}
+
+/**
+ * Mock window.focus and document.hidden
+ */
+export function mockPageVisibility(isVisible = true) {
+  Object.defineProperty(document, 'hidden', {
+    configurable: true,
+    get: () => !isVisible
+  });
+  
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    get: () => isVisible ? 'visible' : 'hidden'
+  });
+  
+  window.focus = jest.fn(() => {
+    const event = new Event('focus');
+    window.dispatchEvent(event);
+  });
+  
+  window.blur = jest.fn(() => {
+    const event = new Event('blur');
+    window.dispatchEvent(event);
+  });
+  
+  return {
+    setVisible: (visible) => {
+      isVisible = visible;
+      const event = new Event('visibilitychange');
+      document.dispatchEvent(event);
+    }
+  };
+}
+
+/**
+ * Mock Luxon DateTime
+ */
+export function mockLuxonDateTime() {
+  if (!window.luxon) {
+    // Simple mock if Luxon not loaded
+    window.luxon = {
+      DateTime: {
+        now: jest.fn(() => ({
+          toISO: () => new Date().toISOString(),
+          toMillis: () => Date.now(),
+          diff: jest.fn(() => ({
+            days: 7,
+            hours: 12,
+            minutes: 30,
+            seconds: 45,
+            toMillis: () => 7 * 24 * 60 * 60 * 1000
+          }))
+        })),
+        fromSQL: jest.fn((str) => ({
+          invalid: false,
+          diff: jest.fn(() => ({
+            days: 7,
+            hours: 12,
+            minutes: 30,
+            seconds: 45,
+            toMillis: () => 7 * 24 * 60 * 60 * 1000
+          }))
+        })),
+        fromISO: jest.fn((str) => ({
+          invalid: false,
+          diff: jest.fn(() => ({
+            days: 7,
+            hours: 12,
+            minutes: 30,
+            seconds: 45,
+            toMillis: () => 7 * 24 * 60 * 60 * 1000
+          }))
+        }))
+      }
+    };
+  }
+  return window.luxon;
+}
