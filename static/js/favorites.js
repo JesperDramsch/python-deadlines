@@ -433,21 +433,3 @@ if (document.readyState === 'interactive' || document.readyState === 'complete')
     console.log('Document already loaded - checking for managers');
     setTimeout(initFavoritesWhenReady, 100);
 }
-
-// Also listen for lazy-loaded conferences to re-apply favorite states
-document.addEventListener('conferenceLoaded', function(e) {
-    if (window.FavoritesManager && window.confManager) {
-        const element = e.detail.element;
-        if (element) {
-            const confId = element.getAttribute('data-conf-id') || element.id;
-            if (confId && window.confManager.isEventSaved(confId)) {
-                const $btn = $(element).find('.favorite-btn');
-                if ($btn.length) {
-                    $btn.addClass('favorited');
-                    $btn.find('i').removeClass('far').addClass('fas');
-                    $btn.css('color', '#ffd700');
-                }
-            }
-        }
-    }
-});

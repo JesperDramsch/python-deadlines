@@ -536,17 +536,6 @@ END:VCALENDAR`;
         initializeIndicators();
     }
     
-    // Handle lazy-loaded conferences
-    document.addEventListener('conferenceLoaded', function(e) {
-        if (e.detail && e.detail.element) {
-            const indicator = e.detail.element.querySelector('.action-indicator');
-            const mobileBtn = e.detail.element.querySelector('.mobile-action-bookmark');
-            if (indicator || mobileBtn) {
-                initializeIndicators();
-            }
-        }
-    });
-    
     // Export API for other components
     window.minimalActionAPI = {
         getPrefs: getPrefs,

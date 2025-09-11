@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Conference Filtering</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/js/store.min.js"></script>
+    <style>
+        .ConfItem {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+        }
+        .ConfItem[style*="display: none"] {
+            background: #ffcccc !important;
+        }
+        .conf-sub {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .conf-sub:hover {
+            opacity: 0.8;
+        }
+        #status {
+            padding: 10px;
+            background: #e0e0e0;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Testing Conference Filtering</h1>
+    
+    <div id="status">Status will appear here...</div>
+    
+    <div>
+        <h2>Click to Filter:</h2>
+        <span class="conf-sub" data-sub="DATA">DATA</span>
+        <span class="conf-sub" data-sub="PY">PY</span>
+        <span class="conf-sub" data-sub="WEB">WEB</span>
+    </div>
+    
+    <div>
+        <h2>Conferences:</h2>
+        <div class="ConfItem DATA-conf">DATA Conference 1</div>
+        <div class="ConfItem DATA-conf">DATA Conference 2</div>
+        <div class="ConfItem DATA-conf">DATA Conference 3</div>
+        <div class="ConfItem PY-conf">PY Conference 1</div>
+        <div class="ConfItem PY-conf">PY Conference 2</div>
+        <div class="ConfItem PY-conf">PY Conference 3</div>
+        <div class="ConfItem PY-conf">PY Conference 4</div>
+        <div class="ConfItem WEB-conf">WEB Conference 1</div>
+        <div class="ConfItem WEB-conf">WEB Conference 2</div>
+    </div>
+    
+    <script src="/static/js/conference-filter.js"></script>
+    
+    <script>
+        function updateStatus() {
+            const visible = document.querySelectorAll('.ConfItem:not([style*="display: none"])').length;
+            const total = document.querySelectorAll('.ConfItem').length;
+            const filters = window.ConferenceFilter ? window.ConferenceFilter.getCurrentFilters() : null;
+            
+            document.getElementById('status').innerHTML = `
+                <strong>Visible:</strong> ${visible} / ${total}<br>
+                <strong>Current filters:</strong> ${filters ? JSON.stringify(filters.subs) : 'Not initialized'}<br>
+                <strong>URL:</strong> ${window.location.search}
+            `;
+        }
+        
+        // Monitor changes
+        setInterval(updateStatus, 500);
+        
+        // Add click logging
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('conf-sub')) {
+                console.log('Badge clicked:', e.target.dataset.sub);
+            }
+        });
+    </script>
+</body>
+</html>

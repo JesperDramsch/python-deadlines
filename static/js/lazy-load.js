@@ -209,16 +209,8 @@
             }
         });
 
-        // Initialize any click handlers
-        const badges = element.querySelectorAll('.conf-sub');
-        badges.forEach(badge => {
-            badge.addEventListener('click', function(e) {
-                const sub = this.getAttribute('data-sub');
-                if (sub && typeof window.filterBySub === 'function') {
-                    window.filterBySub(sub);
-                }
-            });
-        });
+        // Badge click handlers are managed by conference-filter.js via jQuery delegation
+        // No need to add individual handlers here
 
         // Initialize action bar for this conference card
         if (window.ActionBar && typeof window.ActionBar.initForConference === 'function') {
