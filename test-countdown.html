@@ -10,33 +10,33 @@
         <p>Test element:</p>
         <span class="countdown-display" data-deadline="2025-10-28 23:59:00" data-timezone="UTC-12">Loading...</span>
     </div>
-    
+
     <div id="log" style="margin-top: 20px; padding: 10px; background: #f0f0f0; font-family: monospace; white-space: pre-wrap;"></div>
-    
+
     <script src="/static/js/countdown-simple.js"></script>
-    
+
     <script>
         const log = document.getElementById('log');
-        
+
         // Check if Luxon loaded
         log.textContent += 'Luxon available: ' + (typeof window.luxon !== 'undefined') + '\n';
         if (window.luxon) {
             log.textContent += 'DateTime available: ' + (typeof window.luxon.DateTime !== 'undefined') + '\n';
         }
-        
+
         // Check if CountdownManager loaded
         log.textContent += 'CountdownManager available: ' + (typeof window.CountdownManager !== 'undefined') + '\n';
-        
+
         // Check countdown elements
         const elements = document.querySelectorAll('.countdown-display');
         log.textContent += 'Countdown elements found: ' + elements.length + '\n';
-        
+
         // Wait a bit and check again
         setTimeout(() => {
             const elem = document.querySelector('.countdown-display');
             log.textContent += '\nAfter 2 seconds:\n';
             log.textContent += 'Element text: ' + elem.textContent + '\n';
-            
+
             // Try manual update
             if (window.CountdownManager && window.CountdownManager.refresh) {
                 log.textContent += 'Calling CountdownManager.refresh()...\n';

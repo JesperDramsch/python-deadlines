@@ -225,7 +225,7 @@ jobs:
           node-version: '20'
 
       - name: 📥 Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: all-reports
 

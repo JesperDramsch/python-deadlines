@@ -4,13 +4,13 @@
  */
 (function() {
     'use strict';
-    
+
     const STORAGE_KEY = 'pythondeadlines-favorites'; // Use existing storage key
     const SERIES_KEY = 'pythondeadlines-series-subscriptions';
     const SAVED_CONFERENCES_KEY = 'pythondeadlines-saved-conferences';
     let currentPopover = null;
     let isMobile = window.innerWidth <= 768;
-    
+
     // Load saved preferences from existing system
     function getPrefs() {
         try {
@@ -18,7 +18,7 @@
             const favorites = store.get(STORAGE_KEY) || [];
             const savedConferences = store.get(SAVED_CONFERENCES_KEY) || {};
             const series = store.get(SERIES_KEY) || {};
-            
+
             // Convert to our format
             const prefs = {};
             favorites.forEach(confId => {
@@ -32,25 +32,25 @@
                     }
                 }
             });
-            
+
             return prefs;
         } catch(e) {
             console.error('Error loading preferences:', e);
             return {};
         }
     }
-    
+
     // Save preferences using existing system
     function savePrefs(prefs) {
         try {
             // Convert our format to FavoritesManager format
             const favorites = [];
             const savedConferences = store.get(SAVED_CONFERENCES_KEY) || {};
-            
+
             Object.keys(prefs).forEach(confId => {
                 if (prefs[confId].saved) {
                     favorites.push(confId);
-                    
+
                     // Get conference data from page if not already saved
                     if (!savedConferences[confId]) {
                         const indicator = document.querySelector(`.action-indicator[data-conf-id="${confId}"]`);
@@ -66,11 +66,11 @@
                     }
                 }
             });
-            
+
             // Save using existing storage keys
             store.set(STORAGE_KEY, favorites);
             store.set(SAVED_CONFERENCES_KEY, savedConferences);
-            
+
             // Fire events for other components
             window.dispatchEvent(new CustomEvent('favoritesUpdated', {
                 detail: { favorites, savedConferences }
@@ -79,17 +79,17 @@
             console.error('Error saving preferences:', e);
         }
     }
-    
+
     // Initialize action indicators
     function initializeIndicators() {
         const prefs = getPrefs();
-        
+
         document.querySelectorAll('.action-indicator').forEach(indicator => {
             const confId = indicator.dataset.confId;
             if (!confId) return;
-            
+
             const conf = prefs[confId] || {};
-            
+
             // Update indicator state
             if (conf.saved && conf.series) {
                 indicator.classList.add('series');
@@ -100,19 +100,19 @@
             } else {
                 indicator.classList.remove('saved', 'series');
             }
-            
+
             // Update icon
             const icon = indicator.querySelector('.action-icon');
             if (icon && conf.saved) {
                 icon.className = 'fas fa-bookmark action-icon';
             }
         });
-        
+
         // Initialize mobile bookmarks
         document.querySelectorAll('.mobile-action-bookmark').forEach(btn => {
             const confId = btn.dataset.confId;
             if (!confId) return;
-            
+
             const conf = prefs[confId] || {};
             if (conf.saved) {
                 btn.classList.add('saved');
@@ -120,7 +120,7 @@
             }
         });
     }
-    
+
     // Handle action indicator clicks (desktop)
     document.addEventListener('click', function(e) {
         // Close popover when clicking outside
@@ -129,38 +129,38 @@
             currentPopover = null;
             return;
         }
-        
+
         // Handle indicator click
         const indicator = e.target.closest('.action-indicator');
         if (indicator) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const confId = indicator.dataset.confId;
             const popover = document.querySelector(`.action-popover[data-conf-id="${confId}"]`);
-            
+
             if (popover) {
                 // Close any open popover
                 if (currentPopover && currentPopover !== popover) {
                     currentPopover.classList.remove('show');
                 }
-                
+
                 // Toggle this popover
                 popover.classList.toggle('show');
                 currentPopover = popover.classList.contains('show') ? popover : null;
-                
+
                 // Update popover items state
                 updatePopoverState(popover, confId);
             }
         }
-        
+
         // Handle popover item clicks
         const popoverItem = e.target.closest('.action-popover-item');
         if (popoverItem && !popoverItem.classList.contains('action-popover-calendar')) {
             e.preventDefault();
             handleAction(popoverItem);
         }
-        
+
         // Handle calendar option clicks
         const calendarOption = e.target.closest('.calendar-option');
         if (calendarOption) {
@@ -170,12 +170,12 @@
             const confId = popover.dataset.confId;
             const indicator = document.querySelector(`.action-indicator[data-conf-id="${confId}"]`);
             generateCalendarLinks(null, indicator, calendarType);
-            
+
             // Close popover after selection
             popover.classList.remove('show');
             currentPopover = null;
         }
-        
+
         // Handle mobile bookmark click
         const mobileBookmark = e.target.closest('.mobile-action-bookmark');
         if (mobileBookmark) {
@@ -183,16 +183,16 @@
             handleMobileBookmark(mobileBookmark);
         }
     });
-    
+
     // Update popover state based on saved preferences
     function updatePopoverState(popover, confId) {
         const prefs = getPrefs();
         const conf = prefs[confId] || {};
-        
+
         popover.querySelectorAll('.action-popover-item').forEach(item => {
             const action = item.dataset.action;
             const icon = item.querySelector('i');
-            
+
             if (action === 'save' && conf.saved) {
                 item.classList.add('active');
                 if (icon) icon.className = 'fas fa-bookmark';
@@ -206,20 +206,20 @@
             }
         });
     }
-    
+
     // Handle action from popover
     function handleAction(item) {
         const action = item.dataset.action;
         const popover = item.closest('.action-popover');
         const confId = popover.dataset.confId;
         const indicator = document.querySelector(`.action-indicator[data-conf-id="${confId}"]`);
-        
+
         const prefs = getPrefs();
         if (!prefs[confId]) prefs[confId] = {};
-        
+
         if (action === 'save') {
             prefs[confId].saved = !prefs[confId].saved;
-            
+
             // Update indicator
             if (prefs[confId].saved) {
                 indicator.classList.add('saved');
@@ -234,7 +234,7 @@
             }
         } else if (action === 'series') {
             prefs[confId].series = !prefs[confId].series;
-            
+
             // Series requires saved
             if (prefs[confId].series) {
                 prefs[confId].saved = true;
@@ -242,7 +242,7 @@
                 indicator.classList.remove('saved');
                 item.classList.add('active');
                 item.querySelector('i').className = 'fas fa-bell';
-                
+
                 // Also update save button
                 const saveItem = popover.querySelector('[data-action="save"]');
                 if (saveItem) {
@@ -258,23 +258,23 @@
                 item.querySelector('i').className = 'far fa-bell';
             }
         }
-        
+
         savePrefs(prefs);
-        
+
         // Fire event for other components using existing event names
         window.dispatchEvent(new CustomEvent('favoritesUpdated', {
             detail: { confId, action, value: prefs[confId][action] }
         }));
     }
-    
+
     // Handle mobile bookmark
     function handleMobileBookmark(btn) {
         const confId = btn.dataset.confId;
         const prefs = getPrefs();
-        
+
         if (!prefs[confId]) prefs[confId] = {};
         prefs[confId].saved = !prefs[confId].saved;
-        
+
         if (prefs[confId].saved) {
             btn.classList.add('saved');
             btn.querySelector('i').className = 'fas fa-bookmark';
@@ -283,15 +283,15 @@
             btn.querySelector('i').className = 'far fa-bookmark';
             prefs[confId].series = false; // Unsaving removes series too
         }
-        
+
         savePrefs(prefs);
-        
+
         // Show mobile action sheet for more options if saving
         if (prefs[confId].saved && isMobile) {
             showMobileActionSheet(confId);
         }
     }
-    
+
     // Show mobile action sheet
     function showMobileActionSheet(confId) {
         // Create sheet if it doesn't exist
@@ -307,18 +307,18 @@
                 <div class="mobile-action-sheet-items"></div>
             `;
             document.body.appendChild(sheet);
-            
+
             // Bind close button
             sheet.querySelector('.mobile-action-sheet-close').addEventListener('click', () => {
                 sheet.classList.remove('show');
             });
         }
-        
+
         // Update items
         const prefs = getPrefs();
         const conf = prefs[confId] || {};
         const itemsContainer = sheet.querySelector('.mobile-action-sheet-items');
-        
+
         itemsContainer.innerHTML = `
             <a href="#" class="mobile-action-sheet-item ${conf.saved ? 'active' : ''}" data-action="save" data-conf-id="${confId}">
                 <i class="${conf.saved ? 'fas' : 'far'} fa-bookmark"></i>
@@ -333,11 +333,11 @@
                 <span>Add to Calendar</span>
             </a>
         `;
-        
+
         // Show sheet
         setTimeout(() => sheet.classList.add('show'), 10);
     }
-    
+
     // Handle mobile action sheet clicks
     document.addEventListener('click', function(e) {
         const item = e.target.closest('.mobile-action-sheet-item');
@@ -345,7 +345,7 @@
             e.preventDefault();
             const action = item.dataset.action;
             const confId = item.dataset.confId;
-            
+
             if (action === 'calendar') {
                 // For mobile, show calendar options in action sheet
                 showMobileCalendarOptions(confId);
@@ -353,19 +353,19 @@
                 // Toggle action
                 const prefs = getPrefs();
                 if (!prefs[confId]) prefs[confId] = {};
-                
+
                 if (action === 'save') {
                     prefs[confId].saved = !prefs[confId].saved;
                 } else if (action === 'series') {
                     prefs[confId].series = !prefs[confId].series;
                     if (prefs[confId].series) prefs[confId].saved = true;
                 }
-                
+
                 savePrefs(prefs);
-                
+
                 // Update UI
                 initializeIndicators();
-                
+
                 // Update sheet items
                 const sheet = document.querySelector('.mobile-action-sheet');
                 if (sheet) {
@@ -374,18 +374,18 @@
             }
         }
     });
-    
+
     // Generate calendar links based on calendar type
     function generateCalendarLinks(element, indicator, calendarType) {
         const confId = indicator ? indicator.dataset.confId : element.dataset.confId;
         const confName = indicator ? indicator.dataset.confName : 'Conference';
         const cfpDate = indicator ? indicator.dataset.confCfp : null;
         const confPlace = indicator ? indicator.dataset.confPlace : '';
-        
+
         // Format the date for calendar
         const eventDate = cfpDate ? new Date(cfpDate) : new Date();
         const startDate = eventDate.toISOString().replace(/-|:|\.\d\d\d/g, '');
-        
+
         // Create event details
         const eventDetails = {
             title: `${confName} - CFP Deadline`,
@@ -394,34 +394,34 @@
             startDate: startDate,
             endDate: startDate
         };
-        
+
         let calendarUrl = '';
-        
+
         switch(calendarType) {
             case 'google':
                 calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventDetails.title)}&details=${encodeURIComponent(eventDetails.details)}&location=${encodeURIComponent(eventDetails.location)}&dates=${startDate}/${eventDetails.endDate}`;
                 window.open(calendarUrl, '_blank');
                 break;
-                
+
             case 'outlook':
                 calendarUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(eventDetails.title)}&body=${encodeURIComponent(eventDetails.details)}&location=${encodeURIComponent(eventDetails.location)}&startdt=${startDate}&enddt=${eventDetails.endDate}`;
                 window.open(calendarUrl, '_blank');
                 break;
-                
+
             case 'apple':
                 // For Apple Calendar, we'll download an ICS file
                 generateICSFile(eventDetails);
                 break;
-                
+
             case 'ics':
                 generateICSFile(eventDetails);
                 break;
         }
-        
+
         // Show success message
         showNotification('Calendar event created!', 'success');
     }
-    
+
     // Generate ICS file for download
     function generateICSFile(eventDetails) {
         const icsContent = `BEGIN:VCALENDAR
@@ -437,7 +437,7 @@ DESCRIPTION:${eventDetails.details}
 LOCATION:${eventDetails.location}
 END:VEVENT
 END:VCALENDAR`;
-        
+
         const blob = new Blob([icsContent], { type: 'text/calendar' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -448,7 +448,7 @@ END:VCALENDAR`;
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     }
-    
+
     // Show notification message
     function showNotification(text, type = 'info') {
         const message = document.createElement('div');
@@ -461,15 +461,15 @@ END:VCALENDAR`;
             setTimeout(() => message.remove(), 300);
         }, 2000);
     }
-    
+
     // Show mobile calendar options
     function showMobileCalendarOptions(confId) {
         const sheet = document.querySelector('.mobile-action-sheet');
         if (!sheet) return;
-        
+
         const itemsContainer = sheet.querySelector('.mobile-action-sheet-items');
         const indicator = document.querySelector(`.action-indicator[data-conf-id="${confId}"]`);
-        
+
         itemsContainer.innerHTML = `
             <div class="mobile-action-sheet-back">
                 <i class="fas fa-arrow-left"></i>
@@ -492,14 +492,14 @@ END:VCALENDAR`;
                 <span>Download .ics</span>
             </a>
         `;
-        
+
         // Handle back button
         const backBtn = itemsContainer.querySelector('.mobile-action-sheet-back');
         backBtn.addEventListener('click', (e) => {
             e.preventDefault();
             showMobileActionSheet(confId);
         });
-        
+
         // Handle calendar option clicks
         itemsContainer.querySelectorAll('[data-action^="calendar-"]').forEach(option => {
             option.addEventListener('click', (e) => {
@@ -510,7 +510,7 @@ END:VCALENDAR`;
             });
         });
     }
-    
+
     // Handle keyboard navigation
     document.addEventListener('keydown', function(e) {
         const indicator = document.activeElement.closest('.action-indicator');
@@ -519,7 +519,7 @@ END:VCALENDAR`;
             indicator.click();
         }
     });
-    
+
     // Handle window resize
     let resizeTimeout;
     window.addEventListener('resize', function() {
@@ -528,14 +528,14 @@ END:VCALENDAR`;
             isMobile = window.innerWidth <= 768;
         }, 100);
     });
-    
+
     // Initialize on DOM ready (only enhance existing HTML)
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeIndicators);
     } else {
         initializeIndicators();
     }
-    
+
     // Export API for other components
     window.minimalActionAPI = {
         getPrefs: getPrefs,

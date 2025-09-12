@@ -32,7 +32,7 @@ expect.extend({
       };
     }
   },
-  
+
   toHaveBeenCalledWithDate(received, expectedDate, tolerance = 1000) {
     const calls = received.mock.calls;
     const pass = calls.some(call => {
@@ -43,7 +43,7 @@ expect.extend({
       }
       return false;
     });
-    
+
     if (pass) {
       return {
         message: () => `expected not to be called with date near ${expectedDate}`,
@@ -62,17 +62,17 @@ expect.extend({
 afterEach(() => {
   // Clear all timers
   jest.clearAllTimers();
-  
+
   // Clear localStorage
   localStorage.clear();
   sessionStorage.clear();
-  
+
   // Clear all mocks
   jest.clearAllMocks();
-  
+
   // Reset document body
   document.body.innerHTML = '';
-  
+
   // Remove any event listeners
   const oldElem = document.body;
   const newElem = oldElem.cloneNode(true);
