@@ -7,8 +7,7 @@ const { TextEncoder, TextDecoder } = require('util');
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder;
 
-// Set up fetch polyfill
-global.fetch = require('node-fetch');
+// Fetch is already available in jsdom environment, no polyfill needed
 
 // Mock window.location
 delete window.location;
