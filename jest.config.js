@@ -89,11 +89,12 @@ module.exports = {
   
   // Reporter configuration
   reporters: [
-    'default',
-    ['jest-html-reporter', {
-      pageTitle: 'Python Deadlines Frontend Test Report',
-      outputPath: './coverage/test-report.html'
-    }]
+    'default'
+    // Uncomment if jest-html-reporter is installed:
+    // ['jest-html-reporter', {
+    //   pageTitle: 'Python Deadlines Frontend Test Report',
+    //   outputPath: './coverage/test-report.html'
+    // }]
   ],
   
   // Timeout for tests
