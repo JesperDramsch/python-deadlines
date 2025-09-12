@@ -34,41 +34,5 @@
     "jest-environment-jsdom": "^29.7.0",
     "jest-localstorage-mock": "^2.4.26",
     "luxon": "^3.4.4"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": [
-      "<rootDir>/tests/frontend/setup.js"
-    ],
-    "moduleNameMapper": {
-      "\\.(css|less|scss|sass)$": "<rootDir>/tests/frontend/__mocks__/styleMock.js",
-      "\\.(jpg|jpeg|png|gif|svg)$": "<rootDir>/tests/frontend/__mocks__/fileMock.js"
-    },
-    "collectCoverageFrom": [
-      "static/js/**/*.js",
-      "!static/js/**/*.min.js",
-      "!static/js/jquery*.js",
-      "!static/js/bootstrap*.js",
-      "!static/js/popper*.js",
-      "!static/js/lunr*.js",
-      "!static/js/store*.js",
-      "!static/js/luxon.js",
-      "!static/js/js-year-calendar*.js",
-      "!static/js/ouical*.js"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 70,
-        "functions": 75,
-        "lines": 80,
-        "statements": 80
-      }
-    },
-    "testMatch": [
-      "**/tests/frontend/**/*.test.js"
-    ],
-    "globals": {
-      "IS_TESTING": true
-    }
   }
 }
