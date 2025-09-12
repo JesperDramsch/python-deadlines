@@ -28,25 +28,25 @@
 </head>
 <body>
     <h1>Testing Badge Click Handlers</h1>
-    
+
     <div>
         <span class="conf-sub" data-sub="DATA">DATA</span>
         <span class="conf-sub" data-sub="PY">PY</span>
         <span class="conf-sub" data-sub="WEB">WEB</span>
     </div>
-    
+
     <div id="log">Click log will appear here...</div>
-    
+
     <script>
         // Load conference-filter.js
         var script = document.createElement('script');
         script.src = '/static/js/conference-filter.js';
         document.head.appendChild(script);
-        
+
         script.onload = function() {
             // Add logging
             var log = document.getElementById('log');
-            
+
             // Check if handlers are attached
             $(document).on('click', '.conf-sub', function(e) {
                 var sub = $(this).data('sub');
@@ -54,7 +54,7 @@
                 log.textContent += 'filterBySub exists: ' + (typeof window.filterBySub === 'function') + '\n';
                 log.textContent += 'ConferenceFilter.filterBySub exists: ' + (window.ConferenceFilter && typeof window.ConferenceFilter.filterBySub === 'function') + '\n\n';
             });
-            
+
             // Direct test
             setTimeout(function() {
                 log.textContent += 'Page loaded. Testing direct calls:\n';
