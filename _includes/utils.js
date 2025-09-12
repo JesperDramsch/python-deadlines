@@ -5,7 +5,7 @@ function update_filtering(data) {
 	} else {
 		// Fallback for legacy support
 		console.warn('ConferenceFilter module not loaded, using legacy filtering');
-		
+
 		// Defensive check for data parameter
 		if (!data || typeof data !== 'object') {
 			console.error('update_filtering called with invalid data:', data);

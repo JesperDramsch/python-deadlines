@@ -66,7 +66,7 @@
                 // First batch is already visible, just initialize features
                 conf.classList.add('lazy-loaded');
                 initializeCardFeatures(conf);
-                
+
                 // Emit event so FavoritesManager can apply favorite state
                 const event = new CustomEvent('conferenceLoaded', {
                     detail: { element: conf, count: index + 1 }

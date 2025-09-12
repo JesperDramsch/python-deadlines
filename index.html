@@ -7,7 +7,7 @@ layout: home
           {% assign confs = site.data.conferences | sort: "cfp" | reverse %}
           {% for conf in confs %}
           {% assign subs = conf.sub | split: "," %}
-          <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}" 
+          <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
                class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}"
                data-conf-id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
                data-conf-name="{{conf.conference}}"
@@ -43,7 +43,7 @@ layout: home
       </div>
       <br><br>
     </div>
-    
+
     <script type="text/javascript" charset="utf-8">
     // Global conference data for lazy loading
     window.conferenceData = window.conferenceData || {};

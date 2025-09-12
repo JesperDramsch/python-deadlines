@@ -9,37 +9,37 @@ class ConferenceStateManager {
         this.allConferences = new Map();
         this.conferenceBySeries = new Map();
         this.archiveLoaded = false;
-        
+
         // Process initial conference data (only active conferences)
         if (conferenceData) {
             this.processConferenceData(conferenceData);
         }
-        
+
         // Extract visible conference data from DOM for immediate use
         this.extractVisibleConferences();
-        
+
         // Load user preferences from localStorage
         // Also check for old storage keys for migration
         const oldFavorites = this.loadFromStorage('pythondeadlines-favorites', []);
         const newSavedEvents = this.loadFromStorage('savedEvents', []);
-        
+
         // Merge old and new favorites
         this.savedEvents = new Set([...oldFavorites, ...newSavedEvents]);
-        
+
         // If we migrated old favorites, save them to new location
         if (oldFavorites.length > 0 && newSavedEvents.length === 0) {
             this.persistToStorage('savedEvents', Array.from(this.savedEvents));
         }
-        
+
         this.followedSeries = new Set(this.loadFromStorage('followedSeries', []));
-        
+
         // Track notification preferences
         this.notificationSettings = this.loadFromStorage('notificationSettings', {
             enabled: false,
             daysBefore: [7, 3, 1]
         });
     }
-    
+
     /**
      * Extract conference data from visible DOM elements
      * This avoids needing all data in memory for basic operations
@@ -48,7 +48,7 @@ class ConferenceStateManager {
         // Extract from conference items on the page
         $('.ConfItem').each((index, element) => {
             const $conf = $(element);
-            
+
             // Extract data from individual data attributes
             const confData = {
                 id: $conf.data('conf-id'),
@@ -67,12 +67,12 @@ class ConferenceStateManager {
                 has_workshop: $conf.data('has-workshop'),
                 has_sponsor: $conf.data('has-sponsor')
             };
-            
+
             // Only process if we have essential data
             if (confData.id && confData.conference) {
                 confData.status = 'active';
                 this.allConferences.set(confData.id, confData);
-                
+
                 // Index by series
                 if (!this.conferenceBySeries.has(confData.conference)) {
                     this.conferenceBySeries.set(confData.conference, []);
@@ -81,7 +81,7 @@ class ConferenceStateManager {
             }
         });
     }
-    
+
     /**
      * Process and index conference data for efficient access
      */
@@ -93,7 +93,7 @@ class ConferenceStateManager {
                 conf.id = id;
                 conf.status = 'active';
                 this.allConferences.set(id, conf);
-                
+
                 // Index by series name
                 if (!this.conferenceBySeries.has(conf.conference)) {
                     this.conferenceBySeries.set(conf.conference, []);
@@ -101,7 +101,7 @@ class ConferenceStateManager {
                 this.conferenceBySeries.get(conf.conference).push(conf);
             });
         }
-        
+
         // Don't process archive immediately - load on demand
         if (data.archive) {
             this.archiveLoaded = true;
@@ -110,7 +110,7 @@ class ConferenceStateManager {
                 conf.id = id;
                 conf.status = 'archived';
                 this.allConferences.set(id, conf);
-                
+
                 // Index by series name
                 if (!this.conferenceBySeries.has(conf.conference)) {
                     this.conferenceBySeries.set(conf.conference, []);
@@ -119,18 +119,18 @@ class ConferenceStateManager {
             });
         }
     }
-    
+
     /**
      * Load archive data on-demand (for pattern analysis on dashboard)
      */
     async loadArchiveData() {
         if (this.archiveLoaded) return;
-        
+
         try {
             // Create a JSON endpoint for archive data
             const response = await fetch('/data/archive.json');
             const archiveData = await response.json();
-            
+
             this.processConferenceData({ archive: archiveData });
             this.archiveLoaded = true;
         } catch (error) {
@@ -138,28 +138,28 @@ class ConferenceStateManager {
             // Fall back to extracting from page if available
         }
     }
-    
+
     /**
      * Generate consistent conference ID
      */
     generateConferenceId(conf) {
         return `${conf.conference}-${conf.year}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
     }
-    
+
     /**
      * Get conference by ID
      */
     getConference(id) {
         return this.allConferences.get(id);
     }
-    
+
     /**
      * Get all conferences in a series
      */
     getConferenceSeries(seriesName) {
         return this.conferenceBySeries.get(seriesName) || [];
     }
-    
+
     /**
      * Save a specific event
      */
@@ -173,7 +173,7 @@ class ConferenceStateManager {
         }
         return false;
     }
-    
+
     /**
      * Remove a saved event
      */
@@ -185,7 +185,7 @@ class ConferenceStateManager {
         }
         return false;
     }
-    
+
     /**
      * Follow a conference series
      */
@@ -193,7 +193,7 @@ class ConferenceStateManager {
         this.followedSeries.add(seriesName);
         this.persistToStorage('followedSeries', Array.from(this.followedSeries));
         this.triggerUpdate('followedSeries', seriesName, 'added');
-        
+
         // Optionally auto-save current/future events from this series
         const seriesConfs = this.getConferenceSeries(seriesName);
         const now = new Date();
@@ -204,7 +204,7 @@ class ConferenceStateManager {
         });
         return true;
     }
-    
+
     /**
      * Unfollow a conference series
      */
@@ -216,21 +216,21 @@ class ConferenceStateManager {
         }
         return false;
     }
-    
+
     /**
      * Check if an event is saved
      */
     isEventSaved(confId) {
         return this.savedEvents.has(confId);
     }
-    
+
     /**
      * Check if a series is followed
      */
     isSeriesFollowed(seriesName) {
         return this.followedSeries.has(seriesName);
     }
-    
+
     /**
      * Get all saved events with full conference data
      */
@@ -245,7 +245,7 @@ class ConferenceStateManager {
                 return dateA - dateB;
             });
     }
-    
+
     /**
      * Get all followed series with their conferences
      */
@@ -263,7 +263,7 @@ class ConferenceStateManager {
         });
         return seriesData;
     }
-    
+
     /**
      * Analyze historical pattern for CFP opening
      */
@@ -280,28 +280,28 @@ class ConferenceStateManager {
                     daysBefore: Math.floor((start - cfp) / (1000 * 60 * 60 * 24))
                 };
             });
-        
+
         if (cfpDates.length < 2) {
             return { pattern: 'Not enough data', confidence: 'low' };
         }
-        
+
         // Find most common CFP month
         const monthCounts = {};
         cfpDates.forEach(d => {
             monthCounts[d.cfpMonth] = (monthCounts[d.cfpMonth] || 0) + 1;
         });
-        
+
         const mostCommonMonth = Object.entries(monthCounts)
             .sort((a, b) => b[1] - a[1])[0][0];
-        
+
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                           'July', 'August', 'September', 'October', 'November', 'December'];
-        
+
         // Calculate average days before conference
         const avgDaysBefore = Math.round(
             cfpDates.reduce((sum, d) => sum + d.daysBefore, 0) / cfpDates.length
         );
-        
+
         return {
             pattern: `Usually opens in ${monthNames[mostCommonMonth]}`,
             daysBefore: `About ${Math.round(avgDaysBefore / 30)} months before conference`,
@@ -309,7 +309,7 @@ class ConferenceStateManager {
             basedOn: `${cfpDates.length} previous years`
         };
     }
-    
+
     /**
      * Load data from localStorage
      */
@@ -327,7 +327,7 @@ class ConferenceStateManager {
             return defaultValue;
         }
     }
-    
+
     /**
      * Save data to localStorage
      */
@@ -338,7 +338,7 @@ class ConferenceStateManager {
             console.error(`Error saving ${key} to storage:`, e);
         }
     }
-    
+
     /**
      * Trigger update event for UI synchronization
      */
@@ -347,20 +347,20 @@ class ConferenceStateManager {
             detail: { type, target, action }
         }));
     }
-    
+
     /**
      * Get upcoming deadlines for saved events
      */
     getUpcomingDeadlines(daysAhead = 30) {
         const now = new Date();
         const future = new Date(now.getTime() + (daysAhead * 24 * 60 * 60 * 1000));
-        
+
         return this.getSavedEvents().filter(conf => {
             const cfpDate = new Date(conf.cfp_ext || conf.cfp);
             return cfpDate >= now && cfpDate <= future;
         });
     }
-    
+
     /**
      * Export saved events as ICS calendar
      */
@@ -370,7 +370,7 @@ class ConferenceStateManager {
         console.log('Export to calendar:', events.length, 'events');
         // Return ICS string or trigger download
     }
-    
+
     /**
      * Clear all saved data (for debugging/reset)
      */
@@ -388,9 +388,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Wait for conference data to be injected
     if (window.conferenceData) {
         window.confManager = new ConferenceStateManager(window.conferenceData);
-        console.log('ConferenceStateManager initialized with', 
+        console.log('ConferenceStateManager initialized with',
                    window.confManager.allConferences.size, 'conferences');
-        
+
         // Trigger event to notify that manager is ready
         window.dispatchEvent(new CustomEvent('conferenceManagerReady', {
             detail: { manager: window.confManager }

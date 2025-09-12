@@ -23,37 +23,37 @@ jobs:
   test:
     name: Run JavaScript Tests
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18, 20]
-    
+
     steps:
       - name: 📂 Checkout repository
         uses: actions/checkout@v5
-      
+
       - name: 🟢 Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: 📦 Install dependencies
         run: |
           npm ci
           # Also install optional reporter if needed
           npm install jest-html-reporter --save-dev || true
-      
+
       - name: 🧪 Run unit tests
         run: npm test -- --coverage --ci --maxWorkers=2
         env:
           CI: true
-      
+
       - name: 📊 Generate coverage report
         if: matrix.node-version == '20'  # Only run coverage on one version
         run: |
           npm run test:coverage || true
-          
+
       - name: 📤 Upload coverage to Codecov
         if: matrix.node-version == '20'
         uses: codecov/codecov-action@v5
@@ -62,7 +62,7 @@ jobs:
           flags: frontend
           name: frontend-coverage
           fail_ci_if_error: false
-      
+
       - name: 📋 Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -72,7 +72,7 @@ jobs:
             coverage/
             test-report.html
           retention-days: 7
-      
+
       - name: 💬 Comment PR with results
         if: github.event_name == 'pull_request' && matrix.node-version == '20'
         uses: actions/github-script@v7
@@ -80,19 +80,19 @@ jobs:
           script: |
             const fs = require('fs');
             let coverageText = '📊 **Frontend Test Coverage Report**\n\n';
-            
+
             try {
               // Try to read coverage summary if it exists
               const coveragePath = './coverage/coverage-summary.json';
               if (fs.existsSync(coveragePath)) {
                 const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
                 const total = coverage.total;
-                
+
                 coverageText += '| Metric | Coverage | Status |\n';
                 coverageText += '|--------|----------|--------|\n';
-                
+
                 const getStatus = (pct) => pct >= 80 ? '✅' : pct >= 70 ? '⚠️' : '❌';
-                
+
                 coverageText += `| Lines | ${total.lines.pct}% | ${getStatus(total.lines.pct)} |\n`;
                 coverageText += `| Statements | ${total.statements.pct}% | ${getStatus(total.statements.pct)} |\n`;
                 coverageText += `| Functions | ${total.functions.pct}% | ${getStatus(total.functions.pct)} |\n`;
@@ -103,19 +103,19 @@ jobs:
             } catch (error) {
               coverageText += `⚠️ Could not parse coverage report: ${error.message}\n`;
             }
-            
+
             // Find and update or create comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
               comment.body.includes('Frontend Test Coverage Report')
             );
-            
+
             if (botComment) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
@@ -135,22 +135,22 @@ jobs:
   lint-js:
     name: Lint JavaScript
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📂 Checkout repository
         uses: actions/checkout@v5
-      
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: 📦 Install ESLint
         run: |
           npm install --save-dev eslint
           npm install --save-dev eslint-plugin-jest || true
-      
+
       - name: 🔍 Run ESLint
         run: |
           npx eslint static/js/*.js --ignore-pattern "*.min.js" || true
@@ -160,39 +160,39 @@ jobs:
     name: Integration Tests
     runs-on: ubuntu-latest
     needs: test
-    
+
     steps:
       - name: 📂 Checkout repository
         uses: actions/checkout@v5
-      
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: 💎 Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
           bundler-cache: true
-      
+
       - name: 📦 Install dependencies
         run: |
           npm ci
           bundle install
-      
+
       - name: 🏗️ Build Jekyll site
         run: |
           bundle exec jekyll build
         env:
           JEKYLL_ENV: test
-      
+
       - name: 🧪 Run integration tests
         run: |
           npm run test:integration || echo "No integration tests yet"
         continue-on-error: true
-      
+
       - name: 📤 Upload built site
         uses: actions/upload-artifact@v4
         with:

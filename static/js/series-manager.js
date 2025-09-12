@@ -6,7 +6,7 @@
 const SeriesManager = {
     subscriptionsKey: 'pythondeadlines-series-subscriptions',
     processedKey: 'pythondeadlines-processed-confs',
-    
+
     /**
      * Initialize series manager
      */
@@ -17,16 +17,16 @@ const SeriesManager = {
             setTimeout(() => this.init(), 100);
             return;
         }
-        
+
         this.bindSeriesButtons();
         this.bindQuickSubscribe();
         this.detectNewConferences();
         this.renderSubscribedSeries();
         this.generatePredictions();
-        
+
         // Update series count
         this.updateSeriesCount();
-        
+
         // Listen for state updates
         window.addEventListener('conferenceStateUpdate', (e) => {
             if (e.detail.type === 'followedSeries') {
@@ -35,7 +35,7 @@ const SeriesManager = {
             }
         });
     },
-    
+
     /**
      * Bind click events to series buttons
      */
@@ -43,16 +43,16 @@ const SeriesManager = {
         $(document).on('click', '.series-btn', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const $btn = $(this);
             const confName = $btn.data('conf-name');
             const confId = $btn.data('conf-id');
-            
+
             if (!confName) return;
-            
+
             const seriesId = SeriesManager.getSeriesId(confName);
             const seriesName = SeriesManager.extractSeriesName(confName);
-            
+
             if ($btn.hasClass('subscribed')) {
                 SeriesManager.unsubscribe(seriesId);
                 $btn.removeClass('subscribed');
@@ -66,7 +66,7 @@ const SeriesManager = {
             }
         });
     },
-    
+
     /**
      * Bind quick subscribe buttons
      */
@@ -74,7 +74,7 @@ const SeriesManager = {
         $('.quick-subscribe').on('click', function() {
             const $btn = $(this);
             const seriesPattern = $btn.data('series');
-            
+
             if ($btn.hasClass('subscribed')) {
                 // Unsubscribe
                 SeriesManager.unsubscribePattern(seriesPattern);
@@ -88,7 +88,7 @@ const SeriesManager = {
             }
         });
     },
-    
+
     /**
      * Get series ID from conference name
      */
@@ -96,26 +96,26 @@ const SeriesManager = {
         const seriesName = this.extractSeriesName(confName);
         return seriesName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     },
-    
+
     /**
      * Extract series name from conference name (remove year)
      */
     extractSeriesName(confName) {
         // Remove year patterns (2020, 2021, etc.)
         let seriesName = confName.replace(/\s*20\d{2}\s*/g, '').trim();
-        
+
         // Remove common suffixes
         seriesName = seriesName.replace(/\s*(Conference|Conf|Summit|Meeting)\s*$/i, '');
-        
+
         return seriesName.trim();
     },
-    
+
     /**
      * Subscribe to a conference series
      */
     subscribe(seriesId, seriesName) {
         const subscriptions = store.get(this.subscriptionsKey) || {};
-        
+
         subscriptions[seriesId] = {
             name: seriesName,
             subscribedAt: new Date().toISOString(),
@@ -123,30 +123,30 @@ const SeriesManager = {
             notifyOnNew: true,
             pattern: false
         };
-        
+
         store.set(this.subscriptionsKey, subscriptions);
-        
+
         // Update UI
         this.highlightSubscribedSeries();
         this.renderSubscribedSeries();
         this.updateSeriesCount();
-        
+
         // Auto-favorite existing conferences in this series
         this.autoFavoriteSeriesConferences(seriesId);
-        
+
         // Safe toast call
         if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
             FavoritesManager.showToast('Series Subscribed', `You're now following ${seriesName} conferences.`);
         }
     },
-    
+
     /**
      * Subscribe to a pattern (e.g., all PyData events)
      */
     subscribeToPattern(pattern) {
         const subscriptions = store.get(this.subscriptionsKey) || {};
         const patternId = `${pattern}-all`;
-        
+
         subscriptions[patternId] = {
             name: `All ${pattern} Events`,
             pattern: pattern,
@@ -155,75 +155,75 @@ const SeriesManager = {
             notifyOnNew: true,
             isPattern: true
         };
-        
+
         store.set(this.subscriptionsKey, subscriptions);
-        
+
         // Update UI
         this.renderSubscribedSeries();
         this.updateSeriesCount();
-        
+
         // Check for matching conferences
         this.detectPatternMatches(pattern);
-        
+
         // Safe toast call
         if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
             FavoritesManager.showToast('Pattern Subscribed', `You'll be notified about new ${pattern} events.`);
         }
     },
-    
+
     /**
      * Unsubscribe from a series
      */
     unsubscribe(seriesId) {
         const subscriptions = store.get(this.subscriptionsKey) || {};
         const seriesName = subscriptions[seriesId]?.name;
-        
+
         delete subscriptions[seriesId];
         store.set(this.subscriptionsKey, subscriptions);
-        
+
         // Update UI
         this.highlightSubscribedSeries();
         this.renderSubscribedSeries();
         this.updateSeriesCount();
-        
+
         if (seriesName && typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
             FavoritesManager.showToast('Series Unsubscribed', `You've unsubscribed from ${seriesName}.`);
         }
     },
-    
+
     /**
      * Unsubscribe from a pattern
      */
     unsubscribePattern(pattern) {
         const subscriptions = store.get(this.subscriptionsKey) || {};
         const patternId = `${pattern}-all`;
-        
+
         delete subscriptions[patternId];
         store.set(this.subscriptionsKey, subscriptions);
-        
+
         this.renderSubscribedSeries();
         this.updateSeriesCount();
-        
+
         // Safe toast call
         if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
             FavoritesManager.showToast('Pattern Unsubscribed', `You've unsubscribed from ${pattern} events.`);
         }
     },
-    
+
     /**
      * Get all subscribed series
      */
     getSubscribedSeries() {
         return store.get(this.subscriptionsKey) || {};
     },
-    
+
     /**
      * Alias for getSubscribedSeries for compatibility
      */
     getSubscriptions() {
         return this.getSubscribedSeries();
     },
-    
+
     /**
      * Detect new conferences matching subscribed series
      */
@@ -231,19 +231,19 @@ const SeriesManager = {
         const subscriptions = this.getSubscribedSeries();
         const processedConfs = store.get(this.processedKey) || [];
         const newProcessed = [];
-        
+
         $('.ConfItem, .conf-item').each(function() {
             const $conf = $(this);
             const confId = $conf.data('conf-id') || $conf.attr('id');
             const confName = $conf.data('conf-name') || $conf.find('.conf-title a').first().text();
-            
+
             if (!confId || processedConfs.includes(confId)) return;
-            
+
             // Check series subscriptions
             const seriesId = SeriesManager.getSeriesId(confName);
             if (subscriptions[seriesId]) {
                 const sub = subscriptions[seriesId];
-                
+
                 if (sub.autoFavorite && !FavoritesManager.isFavorite(confId)) {
                     // Auto-favorite this conference
                     const confData = FavoritesManager.extractConferenceData(confId);
@@ -252,7 +252,7 @@ const SeriesManager = {
                         console.log(`Auto-favorited ${confName} from subscribed series`);
                     }
                 }
-                
+
                 if (sub.notifyOnNew) {
                     // Show notification about new conference
                     if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
@@ -264,7 +264,7 @@ const SeriesManager = {
                     }
                 }
             }
-            
+
             // Check pattern subscriptions
             Object.entries(subscriptions).forEach(([key, sub]) => {
                 if (sub.isPattern && confName.toLowerCase().includes(sub.pattern.toLowerCase())) {
@@ -279,32 +279,32 @@ const SeriesManager = {
                     }
                 }
             });
-            
+
             newProcessed.push(confId);
         });
-        
+
         // Update processed list
         if (newProcessed.length > 0) {
             const allProcessed = [...processedConfs, ...newProcessed];
             store.set(this.processedKey, allProcessed);
         }
     },
-    
+
     /**
      * Detect conferences matching a pattern
      */
     detectPatternMatches(pattern) {
         const matches = [];
-        
+
         $('.ConfItem, .conf-item').each(function() {
             const $conf = $(this);
             const confName = $conf.data('conf-name') || $conf.find('.conf-title a').first().text();
-            
+
             if (confName.toLowerCase().includes(pattern.toLowerCase())) {
                 matches.push(confName);
             }
         });
-        
+
         if (matches.length > 0) {
             if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
                 FavoritesManager.showToast(
@@ -315,7 +315,7 @@ const SeriesManager = {
             }
         }
     },
-    
+
     /**
      * Auto-favorite all conferences in a series
      */
@@ -324,9 +324,9 @@ const SeriesManager = {
             const $conf = $(this);
             const confId = $conf.data('conf-id') || $conf.attr('id');
             const confName = $conf.data('conf-name') || $conf.find('.conf-title a').first().text();
-            
+
             const confSeriesId = SeriesManager.getSeriesId(confName);
-            
+
             if (confSeriesId === seriesId && !FavoritesManager.isFavorite(confId)) {
                 const confData = FavoritesManager.extractConferenceData(confId);
                 if (confData) {
@@ -335,20 +335,20 @@ const SeriesManager = {
             }
         });
     },
-    
+
     /**
      * Highlight subscribed series on the page
      */
     highlightSubscribedSeries() {
         const subscriptions = this.getSubscribedSeries();
-        
+
         $('.series-btn').each(function() {
             const $btn = $(this);
             const confName = $btn.data('conf-name');
             if (!confName) return;
-            
+
             const seriesId = SeriesManager.getSeriesId(confName);
-            
+
             if (subscriptions[seriesId]) {
                 $btn.addClass('subscribed');
                 $btn.find('i').removeClass('far').addClass('fas');
@@ -359,35 +359,35 @@ const SeriesManager = {
                 $btn.css('color', '#ccc');
             }
         });
-        
+
         // Update quick subscribe buttons
         $('.quick-subscribe').each(function() {
             const $btn = $(this);
             const pattern = $btn.data('series');
             const patternId = `${pattern}-all`;
-            
+
             if (subscriptions[patternId]) {
                 $btn.removeClass('btn-outline-primary').addClass('btn-primary subscribed');
                 $btn.html(`✓ ${$btn.text().replace('+ ', '')}`);
             }
         });
     },
-    
+
     /**
      * Render subscribed series list in dashboard
      */
     renderSubscribedSeries() {
         const container = $('#subscribed-series-list');
         if (!container.length) return;
-        
+
         const subscriptions = this.getSubscribedSeries();
         container.empty();
-        
+
         if (Object.keys(subscriptions).length === 0) {
             container.html('<p class="text-muted small">No series subscriptions yet.</p>');
             return;
         }
-        
+
         Object.entries(subscriptions).forEach(([seriesId, sub]) => {
             const item = $(`
                 <div class="series-item mb-2">
@@ -396,21 +396,21 @@ const SeriesManager = {
                             <strong>${sub.name}</strong>
                             ${sub.isPattern ? '<span class="badge badge-info ml-1">Pattern</span>' : ''}
                         </div>
-                        <button class="btn btn-sm btn-link text-danger unsubscribe-series" 
+                        <button class="btn btn-sm btn-link text-danger unsubscribe-series"
                                 data-series-id="${seriesId}">
                             <i class="fa fa-times"></i>
                         </button>
                     </div>
                     <div class="small">
                         <label class="mr-3">
-                            <input type="checkbox" class="series-auto-favorite" 
+                            <input type="checkbox" class="series-auto-favorite"
                                    data-series-id="${seriesId}"
                                    ${sub.autoFavorite ? 'checked' : ''}
                                    ${sub.isPattern ? 'disabled' : ''}>
                             Auto-favorite
                         </label>
                         <label>
-                            <input type="checkbox" class="series-notify" 
+                            <input type="checkbox" class="series-notify"
                                    data-series-id="${seriesId}"
                                    ${sub.notifyOnNew ? 'checked' : ''}>
                             Notify
@@ -418,23 +418,23 @@ const SeriesManager = {
                     </div>
                 </div>
             `);
-            
+
             container.append(item);
         });
-        
+
         // Bind events for series management
         $('.unsubscribe-series').on('click', function() {
             const seriesId = $(this).data('series-id');
             SeriesManager.unsubscribe(seriesId);
         });
-        
+
         $('.series-auto-favorite').on('change', function() {
             const seriesId = $(this).data('series-id');
             const subscriptions = SeriesManager.getSubscribedSeries();
             subscriptions[seriesId].autoFavorite = $(this).is(':checked');
             store.set(SeriesManager.subscriptionsKey, subscriptions);
         });
-        
+
         $('.series-notify').on('change', function() {
             const seriesId = $(this).data('series-id');
             const subscriptions = SeriesManager.getSubscribedSeries();
@@ -442,7 +442,7 @@ const SeriesManager = {
             store.set(SeriesManager.subscriptionsKey, subscriptions);
         });
     },
-    
+
     /**
      * Update series count in dashboard
      */
@@ -451,17 +451,17 @@ const SeriesManager = {
         const count = Object.keys(subscriptions).length;
         $('#series-count').text(`${count} series subscription${count !== 1 ? 's' : ''}`);
     },
-    
+
     /**
      * Generate predictions for subscribed series
      */
     generatePredictions() {
         const container = $('#predictions-container');
         if (!container.length) return;
-        
+
         const subscriptions = this.getSubscribedSeries();
         const predictions = [];
-        
+
         // For each subscribed series, try to predict next CFP
         Object.entries(subscriptions).forEach(([seriesId, sub]) => {
             if (!sub.isPattern) {
@@ -471,15 +471,15 @@ const SeriesManager = {
                 }
             }
         });
-        
+
         if (predictions.length === 0) {
             container.html('<p class="text-muted">No predictions available yet. Predictions will appear as we learn patterns from your subscribed series.</p>');
             return;
         }
-        
+
         // Sort by predicted date
         predictions.sort((a, b) => new Date(a.cfpDate) - new Date(b.cfpDate));
-        
+
         // Render predictions
         container.empty();
         predictions.forEach(pred => {
@@ -495,21 +495,21 @@ const SeriesManager = {
             container.append(card);
         });
     },
-    
+
     /**
      * Predict next CFP for a series
      */
     predictNextCFP(seriesId, seriesName) {
         // This is a simplified prediction
         // In a real implementation, we'd analyze historical data
-        
+
         // For demo purposes, let's create some mock predictions
         const mockPredictions = {
             'pycon-us': { cfpDate: 'December 2024', confidence: 0.9 },
             'europython': { cfpDate: 'January 2025', confidence: 0.85 },
             'pydata': { cfpDate: 'Varies by location', confidence: 0.6 }
         };
-        
+
         if (mockPredictions[seriesId]) {
             return {
                 seriesId: seriesId,
@@ -518,7 +518,7 @@ const SeriesManager = {
                 confidence: mockPredictions[seriesId].confidence
             };
         }
-        
+
         return null;
     }
 };
