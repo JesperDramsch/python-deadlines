@@ -2,8 +2,8 @@
  * Tests for countdown-simple.js
  */
 
-import { TimerController, mockLuxonDateTime } from '../utils/mockHelpers';
-import { createConferenceWithDeadline, setupConferenceDOM } from '../utils/dataHelpers';
+const { TimerController, mockLuxonDateTime } = require('../utils/mockHelpers');
+const { createConferenceWithDeadline, setupConferenceDOM } = require('../utils/dataHelpers');
 
 describe('Countdown Timer System', () => {
   let timerController;

@@ -2,20 +2,20 @@
  * Tests for NotificationManager
  */
 
-import {
+const {
   mockNotificationAPI,
   mockStore,
   TimerController,
   mockBootstrapModal,
   mockPageVisibility
-} from '../utils/mockHelpers';
+} = require('../utils/mockHelpers');
 
-import {
+const {
   createConferenceWithDeadline,
   createSavedConferences,
   setupConferenceDOM,
   createConferenceSet
-} from '../utils/dataHelpers';
+} = require('../utils/dataHelpers');
 
 // We'll load the actual file in the test
 let NotificationManager;
@@ -37,11 +37,25 @@ describe('NotificationManager', () => {
     // Set current time
     timerController.setCurrentTime('2024-01-15 12:00:00');
 
-    // Load NotificationManager (it's an IIFE so it auto-initializes)
+    // Mock FavoritesManager (dependency of NotificationManager)
+    window.FavoritesManager = {
+      getSavedConferences: jest.fn(() => ({})),
+      showToast: jest.fn(),
+      init: jest.fn()
+    };
+
+    // Mock jQuery ready to prevent auto-init
+    const originalReady = $.fn.ready;
+    $.fn.ready = jest.fn();
+
+    // Load NotificationManager (it exposes itself to window)
     jest.isolateModules(() => {
       require('../../../static/js/notifications.js');
       NotificationManager = window.NotificationManager;
     });
+
+    // Restore jQuery ready
+    $.fn.ready = originalReady;
   });
 
   afterEach(() => {

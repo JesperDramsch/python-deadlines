@@ -466,3 +466,8 @@ const NotificationManager = {
 $(document).ready(function() {
     NotificationManager.init();
 });
+
+// Expose for testing
+if (typeof window !== 'undefined') {
+    window.NotificationManager = NotificationManager;
+}

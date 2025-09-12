@@ -5,7 +5,7 @@
 /**
  * Generate mock conference data
  */
-export function createMockConference(overrides = {}) {
+function createMockConference(overrides = {}) {
   const baseDate = new Date();
   const cfpDate = new Date(baseDate);
   cfpDate.setDate(cfpDate.getDate() + 30); // CFP 30 days from now
@@ -42,7 +42,7 @@ export function createMockConference(overrides = {}) {
 /**
  * Create conference with specific days until deadline
  */
-export function createConferenceWithDeadline(daysUntilDeadline, overrides = {}) {
+function createConferenceWithDeadline(daysUntilDeadline, overrides = {}) {
   const cfpDate = new Date();
   cfpDate.setDate(cfpDate.getDate() + daysUntilDeadline);
   cfpDate.setHours(23, 59, 59, 0);
@@ -56,7 +56,7 @@ export function createConferenceWithDeadline(daysUntilDeadline, overrides = {}) 
 /**
  * Create past conference
  */
-export function createPastConference(daysPast = 30, overrides = {}) {
+function createPastConference(daysPast = 30, overrides = {}) {
   const cfpDate = new Date();
   cfpDate.setDate(cfpDate.getDate() - daysPast);
 
@@ -69,7 +69,7 @@ export function createPastConference(daysPast = 30, overrides = {}) {
 /**
  * Create DOM element for conference
  */
-export function createConferenceDOM(conference) {
+function createConferenceDOM(conference) {
   const div = document.createElement('div');
   div.className = 'ConfItem';
   div.id = conference.id;
@@ -127,7 +127,7 @@ export function createConferenceDOM(conference) {
 /**
  * Create multiple conferences with varied deadlines
  */
-export function createConferenceSet() {
+function createConferenceSet() {
   return {
     upcoming7Days: createConferenceWithDeadline(7, {
       id: 'conf-7days',
@@ -155,7 +155,7 @@ export function createConferenceSet() {
 /**
  * Create saved conferences structure for localStorage
  */
-export function createSavedConferences(conferences) {
+function createSavedConferences(conferences) {
   const saved = {};
   conferences.forEach(conf => {
     saved[conf.id] = {
@@ -170,7 +170,7 @@ export function createSavedConferences(conferences) {
 /**
  * Create series subscription data
  */
-export function createSeriesSubscription(seriesName, settings = {}) {
+function createSeriesSubscription(seriesName, settings = {}) {
   return {
     [seriesName.toLowerCase()]: {
       name: seriesName,
@@ -185,7 +185,7 @@ export function createSeriesSubscription(seriesName, settings = {}) {
 /**
  * Setup DOM with multiple conferences
  */
-export function setupConferenceDOM(conferences) {
+function setupConferenceDOM(conferences) {
   const container = document.createElement('div');
   container.id = 'conference-list';
   container.className = 'conference-list';
@@ -208,3 +208,15 @@ export function setupConferenceDOM(conferences) {
 
   return container;
 }
+
+// Export all data helpers
+module.exports = {
+  createMockConference,
+  createConferenceWithDeadline,
+  createPastConference,
+  createConferenceDOM,
+  createConferenceSet,
+  createSavedConferences,
+  createSeriesSubscription,
+  setupConferenceDOM
+};

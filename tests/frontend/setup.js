@@ -3,7 +3,7 @@
  */
 
 // Add custom matchers from jest-dom
-import '@testing-library/jest-dom';
+require('@testing-library/jest-dom');
 
 // Set up global jQuery
 global.$ = global.jQuery = require('../../static/js/jquery.min.js');

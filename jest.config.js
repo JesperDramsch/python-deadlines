@@ -69,10 +69,6 @@ module.exports = {
     '**/tests/frontend/**/*.spec.js'
   ],
 
-  // Transform files
-  transform: {
-    '^.+\\.js$': ['<rootDir>/tests/frontend/utils/jsTransform.js']
-  },
 
   // Global variables available in tests
   globals: {

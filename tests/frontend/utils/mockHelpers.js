@@ -5,7 +5,7 @@
 /**
  * Mock Notification API
  */
-export function mockNotificationAPI(permission = 'default') {
+function mockNotificationAPI(permission = 'default') {
   const NotificationMock = jest.fn().mockImplementation(function(title, options) {
     this.title = title;
     this.body = options?.body;
@@ -40,7 +40,7 @@ export function mockNotificationAPI(permission = 'default') {
 /**
  * Mock localStorage with persistence within test
  */
-export function mockLocalStorage() {
+function mockLocalStorage() {
   const storage = {};
 
   const localStorageMock = {
@@ -76,7 +76,7 @@ export function mockLocalStorage() {
 /**
  * Mock store.js library
  */
-export function mockStore() {
+function mockStore() {
   const storage = new Map();
 
   const storeMock = {
@@ -98,7 +98,7 @@ export function mockStore() {
 /**
  * Mock timers with control
  */
-export class TimerController {
+class TimerController {
   constructor() {
     this.currentTime = new Date();
     jest.useFakeTimers();
@@ -148,7 +148,7 @@ export class TimerController {
 /**
  * Mock Bootstrap modal
  */
-export function mockBootstrapModal() {
+function mockBootstrapModal() {
   $.fn.modal = jest.fn(function(action) {
     if (action === 'show') {
       $(this).addClass('show');
@@ -181,7 +181,7 @@ export function mockBootstrapModal() {
 /**
  * Mock window.focus and document.hidden
  */
-export function mockPageVisibility(isVisible = true) {
+function mockPageVisibility(isVisible = true) {
   Object.defineProperty(document, 'hidden', {
     configurable: true,
     get: () => !isVisible
@@ -214,7 +214,7 @@ export function mockPageVisibility(isVisible = true) {
 /**
  * Mock Luxon DateTime
  */
-export function mockLuxonDateTime() {
+function mockLuxonDateTime() {
   if (!window.luxon) {
     // Simple mock if Luxon not loaded
     window.luxon = {
@@ -255,3 +255,14 @@ export function mockLuxonDateTime() {
   }
   return window.luxon;
 }
+
+// Export all mock helpers
+module.exports = {
+  mockNotificationAPI,
+  mockLocalStorage,
+  mockStore,
+  TimerController,
+  mockBootstrapModal,
+  mockPageVisibility,
+  mockLuxonDateTime
+};
