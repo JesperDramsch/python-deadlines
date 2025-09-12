@@ -39,7 +39,10 @@ describe('NotificationManager', () => {
 
     // Mock FavoritesManager (dependency of NotificationManager)
     window.FavoritesManager = {
-      getSavedConferences: jest.fn(() => ({})),
+      getSavedConferences: jest.fn(() => {
+        // Return conferences from the store mock
+        return storeMock.get('pythondeadlines-saved-conferences') || {};
+      }),
       showToast: jest.fn(),
       init: jest.fn()
     };
@@ -119,7 +122,12 @@ describe('NotificationManager', () => {
       const result = await NotificationManager.requestPermission();
 
       expect(result).toBe('denied');
-      expect(document.getElementById('notification-prompt').style.display).toBe('none');
+      // Check that toast was shown for denied permission
+      expect(window.FavoritesManager.showToast).toHaveBeenCalledWith(
+        'Notifications Blocked',
+        expect.any(String),
+        'warning'
+      );
     });
   });
 
@@ -132,9 +140,14 @@ describe('NotificationManager', () => {
         days: [14, 7, 3, 1],
         enabled: true
       });
+      
+      // Ensure settings are loaded
+      NotificationManager.loadSettings();
     });
 
     test('sends notification 7 days before deadline', () => {
+      // Create conference 7 days from the mocked date (2024-01-15)
+      // So the deadline should be 2024-01-22
       const conf = createConferenceWithDeadline(7, { id: 'test-7day' });
       const saved = createSavedConferences([conf]);
       storeMock.set('pythondeadlines-saved-conferences', saved);
@@ -172,6 +185,13 @@ describe('NotificationManager', () => {
     });
 
     test('sends notification for deadline today', () => {
+      // Add 0 to notification days to test "today" notifications
+      storeMock.set('pythondeadlines-notification-settings', {
+        days: [14, 7, 3, 1, 0],
+        enabled: true
+      });
+      NotificationManager.loadSettings();
+      
       const conf = createConferenceWithDeadline(0, { id: 'test-today' });
       const saved = createSavedConferences([conf]);
       storeMock.set('pythondeadlines-saved-conferences', saved);
@@ -402,6 +422,13 @@ describe('NotificationManager', () => {
 
   describe('Notification Cleanup', () => {
     test('cleans up old notifications after 30 days', () => {
+      // Ensure settings are loaded
+      storeMock.set('pythondeadlines-notification-settings', {
+        days: [14, 7, 3, 1],
+        enabled: true
+      });
+      NotificationManager.loadSettings();
+      
       const oldDate = new Date();
       oldDate.setDate(oldDate.getDate() - 35);
 
@@ -409,6 +436,11 @@ describe('NotificationManager', () => {
         'old-notification': oldDate.toISOString(),
         'recent-notification': new Date().toISOString()
       });
+      
+      // Need at least one conference for the cleanup to run
+      const conf = createConferenceWithDeadline(100, { id: 'test-cleanup' });
+      const saved = createSavedConferences([conf]);
+      storeMock.set('pythondeadlines-saved-conferences', saved);
 
       NotificationManager.checkUpcomingDeadlines();
 

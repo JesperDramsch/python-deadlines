@@ -101,12 +101,32 @@ function mockStore() {
 class TimerController {
   constructor() {
     this.currentTime = new Date();
+    this.originalDate = global.Date;
     jest.useFakeTimers();
   }
 
   setCurrentTime(date) {
     this.currentTime = date instanceof Date ? date : new Date(date);
     jest.setSystemTime(this.currentTime);
+    
+    // Mock global Date constructor to return our mocked time
+    const mockedDate = this.currentTime;
+    global.Date = class extends Date {
+      constructor(...args) {
+        if (args.length === 0) {
+          // new Date() should return mocked time
+          super(mockedDate.getTime());
+        } else {
+          // new Date(args) should work normally
+          super(...args);
+        }
+      }
+      
+      static now() {
+        return mockedDate.getTime();
+      }
+    };
+    
     return this;
   }
 
@@ -142,6 +162,10 @@ class TimerController {
 
   cleanup() {
     jest.useRealTimers();
+    // Restore original Date
+    if (this.originalDate) {
+      global.Date = this.originalDate;
+    }
   }
 }
 
