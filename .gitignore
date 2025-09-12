@@ -173,3 +173,7 @@ utils/tidy_conf/data/.tmp/
 # pixi environments
 .pixi
 *.egg-info
+
+# Node modules
+node_modules/
+
