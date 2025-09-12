@@ -331,25 +331,25 @@
         max-height: none;
         margin-bottom: 2rem;
     }
-    
+
     .dashboard-header .btn-group {
         width: 100%;
         margin-top: 1rem;
     }
-    
+
     .dashboard-header .btn {
         width: 100%;
         margin-bottom: 0.5rem;
     }
-    
+
     .view-grid .conference-cards {
         grid-template-columns: 1fr;
     }
-    
+
     .conference-card {
         margin-bottom: 1rem;
     }
-    
+
     #toast-container {
         left: 10px;
         right: 10px;
@@ -366,82 +366,82 @@
         color: #f8f9fa;
         border-color: #495057;
     }
-    
+
     .filter-panel .card-header,
     .series-panel .card-header {
         background-color: #343a40;
         color: #f8f9fa;
         border-bottom-color: #495057;
     }
-    
+
     .filter-panel .card-body,
     .series-panel .card-body {
         background-color: #212529;
     }
-    
+
     .form-check-label,
     .filter-group h6 {
         color: #dee2e6;
     }
-    
+
     .series-item {
         background-color: #343a40 !important;
         color: #f8f9fa !important;
         border-color: #495057 !important;
     }
-    
+
     .series-item:hover {
         background-color: #495057 !important;
     }
-    
+
     .conference-card .deadline-info {
         background-color: #343a40;
     }
-    
+
     #empty-state {
         background-color: #343a40;
         color: #f8f9fa;
     }
-    
+
     /* Button adjustments for dark mode */
     .btn-outline-primary {
         color: #6ea8fe;
         border-color: #6ea8fe;
     }
-    
+
     .btn-outline-primary:hover {
         background-color: #6ea8fe;
         color: #000;
     }
-    
+
     .btn-outline-secondary {
         color: #adb5bd;
         border-color: #6c757d;
     }
-    
+
     .btn-outline-secondary:hover {
         background-color: #6c757d;
         color: #fff;
     }
-    
+
     /* Alert adjustments */
     .alert-info {
         background-color: #031633;
         border-color: #055160;
         color: #6edff6;
     }
-    
+
     /* Badge colors should remain readable */
     .badge {
         filter: brightness(1.2);
     }
-    
+
     /* Fix checkbox visibility */
     .form-check-input {
         background-color: #343a40;
         border-color: #6c757d;
     }
-    
+
     .form-check-input:checked {
         background-color: #0d6efd;
         border-color: #0d6efd;
@@ -469,7 +469,7 @@
     #toast-container {
         display: none !important;
     }
-    
+
     .conference-card {
         page-break-inside: avoid;
         border: 1px solid #dee2e6;

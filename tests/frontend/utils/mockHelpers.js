@@ -18,22 +18,22 @@ export function mockNotificationAPI(permission = 'default') {
     this.onclose = null;
     this.onerror = null;
     this.close = jest.fn();
-    
+
     // Track created notifications
     NotificationMock.instances.push(this);
   });
-  
+
   NotificationMock.instances = [];
   NotificationMock.permission = permission;
   NotificationMock.requestPermission = jest.fn().mockResolvedValue(permission);
-  
+
   // Helper to clear instances
   NotificationMock.clearInstances = () => {
     NotificationMock.instances = [];
   };
-  
+
   global.Notification = NotificationMock;
-  
+
   return NotificationMock;
 }
 
@@ -42,7 +42,7 @@ export function mockNotificationAPI(permission = 'default') {
  */
 export function mockLocalStorage() {
   const storage = {};
-  
+
   const localStorageMock = {
     getItem: jest.fn((key) => storage[key] || null),
     setItem: jest.fn((key, value) => {
@@ -64,12 +64,12 @@ export function mockLocalStorage() {
     // Helper to get raw storage for assertions
     _getStorage: () => ({ ...storage })
   };
-  
+
   Object.defineProperty(window, 'localStorage', {
     value: localStorageMock,
     writable: true
   });
-  
+
   return localStorageMock;
 }
 
@@ -78,7 +78,7 @@ export function mockLocalStorage() {
  */
 export function mockStore() {
   const storage = new Map();
-  
+
   const storeMock = {
     get: jest.fn((key) => storage.get(key)),
     set: jest.fn((key, value) => storage.set(key, value)),
@@ -88,10 +88,10 @@ export function mockStore() {
     _getAll: () => Object.fromEntries(storage),
     _reset: () => storage.clear()
   };
-  
+
   global.store = storeMock;
   window.store = storeMock;
-  
+
   return storeMock;
 }
 
@@ -103,43 +103,43 @@ export class TimerController {
     this.currentTime = new Date();
     jest.useFakeTimers();
   }
-  
+
   setCurrentTime(date) {
     this.currentTime = date instanceof Date ? date : new Date(date);
     jest.setSystemTime(this.currentTime);
     return this;
   }
-  
+
   advanceTime(ms) {
     this.currentTime = new Date(this.currentTime.getTime() + ms);
     jest.setSystemTime(this.currentTime);
     jest.advanceTimersByTime(ms);
     return this;
   }
-  
+
   advanceDays(days) {
     return this.advanceTime(days * 24 * 60 * 60 * 1000);
   }
-  
+
   advanceToNextInterval() {
     jest.advanceTimersToNextTimer();
     return this;
   }
-  
+
   runAllTimers() {
     jest.runAllTimers();
     return this;
   }
-  
+
   runOnlyPendingTimers() {
     jest.runOnlyPendingTimers();
     return this;
   }
-  
+
   getCurrentTime() {
     return new Date(this.currentTime);
   }
-  
+
   cleanup() {
     jest.useRealTimers();
   }
@@ -159,7 +159,7 @@ export function mockBootstrapModal() {
     }
     return this;
   });
-  
+
   $.fn.toast = jest.fn(function(action) {
     if (action === 'show') {
       $(this).addClass('show');
@@ -186,22 +186,22 @@ export function mockPageVisibility(isVisible = true) {
     configurable: true,
     get: () => !isVisible
   });
-  
+
   Object.defineProperty(document, 'visibilityState', {
     configurable: true,
     get: () => isVisible ? 'visible' : 'hidden'
   });
-  
+
   window.focus = jest.fn(() => {
     const event = new Event('focus');
     window.dispatchEvent(event);
   });
-  
+
   window.blur = jest.fn(() => {
     const event = new Event('blur');
     window.dispatchEvent(event);
   });
-  
+
   return {
     setVisible: (visible) => {
       isVisible = visible;

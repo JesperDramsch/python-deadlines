@@ -9,13 +9,13 @@ export function createMockConference(overrides = {}) {
   const baseDate = new Date();
   const cfpDate = new Date(baseDate);
   cfpDate.setDate(cfpDate.getDate() + 30); // CFP 30 days from now
-  
+
   const startDate = new Date(cfpDate);
   startDate.setDate(startDate.getDate() + 60); // Conference 60 days after CFP
-  
+
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + 3); // 3-day conference
-  
+
   return {
     id: `conf-${Math.random().toString(36).substr(2, 9)}`,
     conference: 'PyCon Test',
@@ -46,7 +46,7 @@ export function createConferenceWithDeadline(daysUntilDeadline, overrides = {}) 
   const cfpDate = new Date();
   cfpDate.setDate(cfpDate.getDate() + daysUntilDeadline);
   cfpDate.setHours(23, 59, 59, 0);
-  
+
   return createMockConference({
     cfp: cfpDate.toISOString().replace('T', ' ').split('.')[0],
     ...overrides
@@ -59,7 +59,7 @@ export function createConferenceWithDeadline(daysUntilDeadline, overrides = {}) 
 export function createPastConference(daysPast = 30, overrides = {}) {
   const cfpDate = new Date();
   cfpDate.setDate(cfpDate.getDate() - daysPast);
-  
+
   return createMockConference({
     cfp: cfpDate.toISOString().replace('T', ' ').split('.')[0],
     ...overrides
@@ -88,7 +88,7 @@ export function createConferenceDOM(conference) {
   div.dataset.hasFinaid = conference.hasFinaid;
   div.dataset.hasWorkshop = conference.hasWorkshop;
   div.dataset.hasSponsor = conference.hasSponsor;
-  
+
   div.innerHTML = `
     <div class="row conf-row">
       <div class="col">
@@ -101,7 +101,7 @@ export function createConferenceDOM(conference) {
         </div>
         <div class="conf-cfp">
           CFP: <span class="cfp-date">${conference.cfp}</span>
-          <span class="countdown-display" 
+          <span class="countdown-display"
                 data-deadline="${conference.cfp}"
                 data-timezone="${conference.timezone || 'UTC'}">
           </span>
@@ -111,7 +111,7 @@ export function createConferenceDOM(conference) {
         <button class="btn favorite-btn" data-conf-id="${conference.id}">
           <i class="far fa-star"></i>
         </button>
-        <div class="action-indicator" 
+        <div class="action-indicator"
              data-conf-id="${conference.id}"
              data-conf-name="${conference.conference}"
              data-conf-cfp="${conference.cfp}"
@@ -120,7 +120,7 @@ export function createConferenceDOM(conference) {
       </div>
     </div>
   `;
-  
+
   return div;
 }
 
@@ -129,12 +129,12 @@ export function createConferenceDOM(conference) {
  */
 export function createConferenceSet() {
   return {
-    upcoming7Days: createConferenceWithDeadline(7, { 
+    upcoming7Days: createConferenceWithDeadline(7, {
       id: 'conf-7days',
       conference: 'PyCon Upcoming 7'
     }),
     upcoming3Days: createConferenceWithDeadline(3, {
-      id: 'conf-3days', 
+      id: 'conf-3days',
       conference: 'PyCon Upcoming 3'
     }),
     upcoming1Day: createConferenceWithDeadline(1, {
@@ -189,22 +189,22 @@ export function setupConferenceDOM(conferences) {
   const container = document.createElement('div');
   container.id = 'conference-list';
   container.className = 'conference-list';
-  
+
   conferences.forEach(conf => {
     container.appendChild(createConferenceDOM(conf));
   });
-  
+
   document.body.appendChild(container);
-  
+
   // Add other required DOM elements
   const notificationPrompt = document.createElement('div');
   notificationPrompt.id = 'notification-prompt';
   notificationPrompt.style.display = 'none';
   document.body.appendChild(notificationPrompt);
-  
+
   const toastContainer = document.createElement('div');
   toastContainer.id = 'toast-container';
   document.body.appendChild(toastContainer);
-  
+
   return container;
 }

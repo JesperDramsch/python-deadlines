@@ -8,7 +8,7 @@
 export async function waitForCountdowns(page) {
   // Wait for Luxon to be available
   await page.waitForFunction(() => window.luxon !== undefined);
-  
+
   // Wait for at least one countdown to have content
   await page.waitForFunction(() => {
     const countdowns = document.querySelectorAll('.countdown-display');
@@ -24,7 +24,7 @@ export async function mockDateTime(page, dateString) {
     // Override Date constructor
     const RealDate = Date;
     const mockedDate = new RealDate(mockDate);
-    
+
     window.Date = class extends RealDate {
       constructor(...args) {
         if (args.length === 0) {
@@ -32,16 +32,16 @@ export async function mockDateTime(page, dateString) {
         }
         return new RealDate(...args);
       }
-      
+
       static now() {
         return mockedDate.getTime();
       }
     };
-    
+
     // Preserve other Date methods
     Object.setPrototypeOf(window.Date, RealDate);
     window.Date.prototype = RealDate.prototype;
-    
+
     // Also mock performance.now if needed
     const originalPerformanceNow = performance.now;
     const performanceNowOffset = originalPerformanceNow();
@@ -74,7 +74,7 @@ export async function setupSavedConferences(page, conferences) {
     // Set up favorites
     const favoriteIds = confs.map(c => c.id);
     localStorage.setItem('pythondeadlines-favorites', JSON.stringify(favoriteIds));
-    
+
     // Set up saved conference data
     const savedData = {};
     confs.forEach(conf => {
@@ -85,7 +85,7 @@ export async function setupSavedConferences(page, conferences) {
       };
     });
     localStorage.setItem('pythondeadlines-saved-conferences', JSON.stringify(savedData));
-    
+
     // Also set up action bar preferences
     const actionBarPrefs = {};
     confs.forEach(conf => {
@@ -99,9 +99,9 @@ export async function setupSavedConferences(page, conferences) {
  * Wait for notification toast to appear
  */
 export async function waitForToast(page, timeout = 5000) {
-  return await page.waitForSelector('.toast', { 
+  return await page.waitForSelector('.toast', {
     state: 'visible',
-    timeout 
+    timeout
   });
 }
 
@@ -165,7 +165,7 @@ export async function navigateToSection(page, section) {
     'about': '/about',
     'calendar': '/calendar'
   };
-  
+
   const path = sectionMap[section] || section;
   await page.goto(path);
   await page.waitForLoadState('networkidle');
@@ -177,11 +177,11 @@ export async function navigateToSection(page, section) {
 export async function searchConferences(page, query) {
   // Navigate to search page
   await navigateToSection(page, 'search');
-  
+
   // Enter search query
   const searchInput = page.locator('#search-input, input[type="search"]').first();
   await searchInput.fill(query);
-  
+
   // Wait for search results to update
   await page.waitForTimeout(500);
 }
@@ -196,12 +196,12 @@ export async function applyFilters(page, filters) {
       await page.locator(`input[value="${topic}"]`).check();
     }
   }
-  
+
   // Format filter
   if (filters.format) {
     await page.locator(`input[value="${filters.format}"]`).check();
   }
-  
+
   // Date range filter
   if (filters.dateRange) {
     if (filters.dateRange.start) {
@@ -211,7 +211,7 @@ export async function applyFilters(page, filters) {
       await page.locator('input[name="end-date"]').fill(filters.dateRange.end);
     }
   }
-  
+
   // Wait for filters to apply
   await page.waitForTimeout(500);
 }
@@ -223,7 +223,7 @@ export function createMockConference(overrides = {}) {
   const baseDate = new Date();
   const cfpDate = new Date(baseDate);
   cfpDate.setDate(cfpDate.getDate() + 30);
-  
+
   return {
     id: `test-conf-${Date.now()}`,
     conference: 'Test Conference',
@@ -243,7 +243,7 @@ export function createMockConference(overrides = {}) {
 export async function waitForPageReady(page) {
   await page.waitForLoadState('networkidle');
   await page.waitForFunction(() => document.readyState === 'complete');
-  
+
   // Wait for jQuery to be ready if it exists
   await page.waitForFunction(() => {
     return typeof jQuery === 'undefined' || jQuery.isReady;
@@ -268,7 +268,7 @@ export async function isInViewport(page, selector) {
   return await page.evaluate((sel) => {
     const element = document.querySelector(sel);
     if (!element) return false;
-    
+
     const rect = element.getBoundingClientRect();
     return (
       rect.top >= 0 &&

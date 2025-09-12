@@ -7,7 +7,7 @@ const NotificationManager = {
     settingsKey: 'pythondeadlines-notification-settings',
     lastCheckKey: 'pythondeadlines-last-notification-check',
     scheduledKey: 'pythondeadlines-scheduled-notifications',
-    
+
     /**
      * Initialize notification system
      */
@@ -16,18 +16,18 @@ const NotificationManager = {
         this.loadSettings();
         this.bindEvents();
         this.checkUpcomingDeadlines();
-        
+
         // Schedule periodic checks
         this.schedulePeriodicChecks();
     },
-    
+
     /**
      * Check if browser supports notifications
      */
     checkBrowserSupport() {
         if ('Notification' in window) {
             console.log('Browser supports notifications');
-            
+
             // Check current permission status
             if (Notification.permission === 'default') {
                 // Show prompt to enable notifications
@@ -44,23 +44,23 @@ const NotificationManager = {
             $('#notification-prompt').hide();
         }
     },
-    
+
     /**
      * Request notification permission
      */
     async requestPermission() {
         if ('Notification' in window) {
             const permission = await Notification.requestPermission();
-            
+
             if (permission === 'granted') {
                 FavoritesManager.showToast(
                     'Notifications Enabled',
                     'You will receive notifications for upcoming CFP deadlines.',
                     'success'
                 );
-                
+
                 $('#notification-prompt').fadeOut();
-                
+
                 // Show test notification
                 this.showTestNotification();
             } else if (permission === 'denied') {
@@ -69,15 +69,15 @@ const NotificationManager = {
                     'You can enable notifications in your browser settings.',
                     'warning'
                 );
-                
+
                 $('#notification-prompt').fadeOut();
             }
-            
+
             return permission;
         }
         return 'unsupported';
     },
-    
+
     /**
      * Show test notification
      */
@@ -90,16 +90,16 @@ const NotificationManager = {
                 tag: 'test-notification',
                 requireInteraction: false
             });
-            
+
             notification.onclick = function() {
                 window.focus();
                 notification.close();
             };
-            
+
             setTimeout(() => notification.close(), 5000);
         }
     },
-    
+
     /**
      * Load notification settings
      */
@@ -112,14 +112,14 @@ const NotificationManager = {
             soundEnabled: false,
             emailEnabled: false
         };
-        
+
         const saved = store.get(this.settingsKey);
         this.settings = { ...defaultSettings, ...saved };
-        
+
         // Apply settings to UI
         this.applySettingsToUI();
     },
-    
+
     /**
      * Save notification settings
      */
@@ -127,7 +127,7 @@ const NotificationManager = {
         store.set(this.settingsKey, this.settings);
         FavoritesManager.showToast('Settings Saved', 'Notification preferences updated.');
     },
-    
+
     /**
      * Apply settings to UI
      */
@@ -137,11 +137,11 @@ const NotificationManager = {
             const value = parseInt($(el).val());
             $(el).prop('checked', this.settings.days.includes(value));
         });
-        
+
         $('#notify-new-editions').prop('checked', this.settings.newEditions);
         $('#auto-favorite-series').prop('checked', this.settings.autoFavorite);
     },
-    
+
     /**
      * Bind notification events
      */
@@ -150,25 +150,25 @@ const NotificationManager = {
         $('#enable-notifications').on('click', () => {
             this.requestPermission();
         });
-        
+
         // Save notification settings
         $('#save-notification-settings').on('click', () => {
             // Collect settings from modal
             this.settings.days = $('.notify-days:checked').map(function() {
                 return parseInt($(this).val());
             }).get();
-            
+
             this.settings.newEditions = $('#notify-new-editions').is(':checked');
             this.settings.autoFavorite = $('#auto-favorite-series').is(':checked');
-            
+
             this.saveSettings();
             $('#notificationModal').modal('hide');
-            
+
             // Reschedule notifications with new settings
             this.scheduleNotifications();
         });
     },
-    
+
     /**
      * Check notification preferences from action bar
      */
@@ -176,39 +176,39 @@ const NotificationManager = {
         const prefs = JSON.parse(localStorage.getItem('pydeadlines_actionBarPrefs') || '{}');
         const now = Date.now();
         const lastCheck = parseInt(localStorage.getItem('pydeadlines_lastNotifyCheck') || '0');
-        
+
         // Only check every 4 hours
         if (now - lastCheck < 4 * 60 * 60 * 1000) return;
-        
+
         // Get all conferences from the page
         const conferences = new Map();
         document.querySelectorAll('.ConfItem').forEach(conf => {
             const id = conf.dataset.confId || conf.id;
             const cfp = conf.dataset.cfp || conf.dataset.cfpExt;
             const name = conf.dataset.confName || conf.querySelector('.conf-title a')?.textContent;
-            
+
             if (id && cfp && cfp !== 'TBA' && cfp !== 'None') {
                 conferences.set(id, { cfp, name });
             }
         });
-        
+
         // Check each conference with save enabled (includes notifications)
         Object.entries(prefs).forEach(([confId, settings]) => {
             if (!settings.save) return;  // Changed from notify to save
             if (confId === '_series') return; // Skip series data
-            
+
             const conf = conferences.get(confId);
             if (!conf) return;
-            
+
             try {
                 const cfpDate = new Date(conf.cfp);
                 const daysUntil = Math.ceil((cfpDate - now) / (1000 * 60 * 60 * 24));
-                
+
                 // Check if we should notify (7, 3, or 1 day before)
                 if ([7, 3, 1].includes(daysUntil)) {
                     const notifyKey = `pydeadlines_notify_${confId}_${daysUntil}`;
                     const lastShown = parseInt(localStorage.getItem(notifyKey) || '0');
-                    
+
                     // Only show once per day for each notification
                     if (now - lastShown > 24 * 60 * 60 * 1000) {
                         if (Notification.permission === 'granted') {
@@ -219,7 +219,7 @@ const NotificationManager = {
                                 tag: `deadline-${confId}-${daysUntil}`,
                                 requireInteraction: false
                             });
-                            
+
                             notification.onclick = function() {
                                 window.focus();
                                 // Scroll to the conference
@@ -229,10 +229,10 @@ const NotificationManager = {
                                 }
                                 notification.close();
                             };
-                            
+
                             setTimeout(() => notification.close(), 10000);
                         }
-                        
+
                         localStorage.setItem(notifyKey, now.toString());
                     }
                 }
@@ -240,10 +240,10 @@ const NotificationManager = {
                 console.error(`Failed to check notification for ${confId}:`, e);
             }
         });
-        
+
         localStorage.setItem('pydeadlines_lastNotifyCheck', now.toString());
     },
-    
+
     /**
      * Check for upcoming deadlines
      */
@@ -252,27 +252,27 @@ const NotificationManager = {
         const favorites = FavoritesManager.getSavedConferences();
         const notifiedKey = 'pythondeadlines-notified-deadlines';
         const notified = store.get(notifiedKey) || {};
-        
+
         Object.values(favorites).forEach(conf => {
             const cfpDate = new Date(conf.cfpExt || conf.cfp);
             const daysUntil = Math.ceil((cfpDate - now) / (1000 * 60 * 60 * 24));
-            
+
             // Check if we should notify for this deadline
             this.settings.days.forEach(daysBefore => {
                 if (daysUntil === daysBefore) {
                     const notificationKey = `${conf.id}-${daysBefore}`;
-                    
+
                     // Check if we've already notified for this
                     if (!notified[notificationKey]) {
                         this.sendDeadlineNotification(conf, daysUntil);
-                        
+
                         // Mark as notified
                         notified[notificationKey] = new Date().toISOString();
                         store.set(notifiedKey, notified);
                     }
                 }
             });
-            
+
             // Clean up old notifications (older than 30 days)
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             Object.keys(notified).forEach(key => {
@@ -283,16 +283,16 @@ const NotificationManager = {
             store.set(notifiedKey, notified);
         });
     },
-    
+
     /**
      * Send deadline notification
      */
     sendDeadlineNotification(conf, daysUntil) {
         const title = `CFP Deadline: ${conf.name} ${conf.year}`;
-        const body = daysUntil === 0 
-            ? 'CFP deadline is TODAY!' 
+        const body = daysUntil === 0
+            ? 'CFP deadline is TODAY!'
             : `${daysUntil} day${daysUntil !== 1 ? 's' : ''} until CFP deadline`;
-        
+
         // Browser notification
         if (Notification.permission === 'granted') {
             const notification = new Notification(title, {
@@ -306,7 +306,7 @@ const NotificationManager = {
                     url: conf.cfpLink || conf.link
                 }
             });
-            
+
             notification.onclick = function() {
                 if (notification.data.url) {
                     window.open(notification.data.url, '_blank');
@@ -315,17 +315,17 @@ const NotificationManager = {
                 }
                 notification.close();
             };
-            
+
             // Auto-close after 10 seconds (unless urgent)
             if (daysUntil > 1) {
                 setTimeout(() => notification.close(), 10000);
             }
         }
-        
+
         // In-app toast notification
         this.showInAppNotification(title, body, daysUntil <= 3 ? 'warning' : 'info');
     },
-    
+
     /**
      * Show in-app notification
      */
@@ -334,13 +334,13 @@ const NotificationManager = {
         if (!$('#toast-container').length) {
             $('body').append('<div id="toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999;"></div>');
         }
-        
-        const bgClass = type === 'warning' ? 'bg-warning' : 
-                       type === 'danger' ? 'bg-danger' : 
+
+        const bgClass = type === 'warning' ? 'bg-warning' :
+                       type === 'danger' ? 'bg-danger' :
                        type === 'success' ? 'bg-success' : 'bg-info';
-        
+
         const textClass = type === 'warning' ? 'text-dark' : 'text-white';
-        
+
         const toast = $(`
             <div class="toast" role="alert" data-delay="5000">
                 <div class="toast-header ${bgClass} ${textClass}">
@@ -353,16 +353,16 @@ const NotificationManager = {
                 <div class="toast-body">${message}</div>
             </div>
         `);
-        
+
         $('#toast-container').append(toast);
         toast.toast('show');
-        
+
         // Remove after hidden
         toast.on('hidden.bs.toast', function() {
             $(this).remove();
         });
     },
-    
+
     /**
      * Schedule notifications for all favorites
      */
@@ -370,18 +370,18 @@ const NotificationManager = {
         const scheduled = {};
         const favorites = FavoritesManager.getSavedConferences();
         const now = new Date();
-        
+
         Object.values(favorites).forEach(conf => {
             const cfpDate = new Date(conf.cfpExt || conf.cfp);
-            
+
             // Only schedule for future deadlines
             if (cfpDate > now) {
                 scheduled[conf.id] = [];
-                
+
                 this.settings.days.forEach(daysBefore => {
                     const notifyDate = new Date(cfpDate);
                     notifyDate.setDate(notifyDate.getDate() - daysBefore);
-                    
+
                     if (notifyDate > now) {
                         scheduled[conf.id].push({
                             date: notifyDate.toISOString(),
@@ -391,11 +391,11 @@ const NotificationManager = {
                 });
             }
         });
-        
+
         store.set(this.scheduledKey, scheduled);
         console.log('Scheduled notifications for', Object.keys(scheduled).length, 'conferences');
     },
-    
+
     /**
      * Schedule periodic checks for notifications
      */
@@ -404,26 +404,26 @@ const NotificationManager = {
         setInterval(() => {
             this.checkUpcomingDeadlines();
         }, 60 * 60 * 1000);
-        
+
         // Also check when page becomes visible
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 this.checkUpcomingDeadlines();
             }
         });
-        
+
         // Check on focus
         window.addEventListener('focus', () => {
             this.checkUpcomingDeadlines();
         });
     },
-    
+
     /**
      * Send series notification
      */
     sendSeriesNotification(seriesName, message) {
         const title = `Conference Series: ${seriesName}`;
-        
+
         // Browser notification
         if (Notification.permission === 'granted') {
             const notification = new Notification(title, {
@@ -433,19 +433,19 @@ const NotificationManager = {
                 tag: `series-${seriesName}`,
                 requireInteraction: false
             });
-            
+
             notification.onclick = function() {
                 window.focus();
                 notification.close();
             };
-            
+
             setTimeout(() => notification.close(), 5000);
         }
-        
+
         // In-app notification
         this.showInAppNotification(title, message, 'info');
     },
-    
+
     /**
      * Test notification system
      */
@@ -457,7 +457,7 @@ const NotificationManager = {
             year: new Date().getFullYear(),
             cfp: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
         };
-        
+
         this.sendDeadlineNotification(testConf, 7);
     }
 };

@@ -254,16 +254,16 @@
 		padding-right: 45px; /* Space for mobile bookmark */
 		transition: none; /* No transition on mobile */
 	}
-	
+
 	/* Disable parallax effect on mobile */
 	.ConfItem:hover {
 		padding-left: 15px; /* Keep same padding, no movement */
 	}
-	
+
 	.action-indicator {
 		display: none; /* Hide the line on mobile */
 	}
-	
+
 	/* Mobile Bookmark Icon */
 	.mobile-action-bookmark {
 		position: absolute;
@@ -282,17 +282,17 @@
 		cursor: pointer;
 		transition: all 0.2s ease;
 	}
-	
+
 	.mobile-action-bookmark.saved {
 		background: var(--action-color-saved);
 		border-color: var(--action-color-saved);
 		color: white;
 	}
-	
+
 	.mobile-action-bookmark:active {
 		transform: scale(0.95);
 	}
-	
+
 	/* Mobile Action Sheet */
 	.mobile-action-sheet {
 		position: fixed;
@@ -307,11 +307,11 @@
 		transition: transform 0.3s ease;
 		z-index: 2000;
 	}
-	
+
 	.mobile-action-sheet.show {
 		transform: translateY(0);
 	}
-	
+
 	.mobile-action-sheet-header {
 		display: flex;
 		justify-content: space-between;
@@ -320,12 +320,12 @@
 		padding-bottom: 12px;
 		border-bottom: 1px solid #dee2e6;
 	}
-	
+
 	.mobile-action-sheet-title {
 		font-size: 18px;
 		font-weight: 500;
 	}
-	
+
 	.mobile-action-sheet-close {
 		width: 30px;
 		height: 30px;
@@ -338,7 +338,7 @@
 		color: #495057; /* Better contrast */
 		cursor: pointer;
 	}
-	
+
 	.mobile-action-sheet-item {
 		display: flex;
 		align-items: center;
@@ -347,18 +347,18 @@
 		text-decoration: none;
 		font-size: 16px;
 	}
-	
+
 	.mobile-action-sheet-item i {
 		width: 24px;
 		margin-right: 12px;
 		font-size: 18px;
 		color: #495057; /* Better contrast */
 	}
-	
+
 	.mobile-action-sheet-item.active i {
 		color: var(--action-color-saved);
 	}
-	
+
 	.mobile-action-sheet-back {
 		display: flex;
 		align-items: center;
@@ -369,7 +369,7 @@
 		cursor: pointer;
 		font-weight: 500;
 	}
-	
+
 	.mobile-action-sheet-back i {
 		width: 24px;
 		margin-right: 12px;
@@ -392,29 +392,29 @@
 		border-color: #444;
 		color: #e0e0e0;
 	}
-	
+
 	.action-popover-item {
 		color: #e0e0e0;
 	}
-	
+
 	.action-popover-item:hover {
 		background: #333;
 	}
-	
+
 	.mobile-action-sheet {
 		background: #2a2a2a;
 		color: #e0e0e0;
 	}
-	
+
 	.mobile-action-sheet-header {
 		border-bottom-color: #444;
 	}
-	
+
 	.mobile-action-sheet-close {
 		background: #333;
 		color: #999;
 	}
-	
+
 	.mobile-action-sheet-item {
 		color: #e0e0e0;
 	}
