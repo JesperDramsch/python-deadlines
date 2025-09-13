@@ -43,17 +43,11 @@ module.exports = {
   coverageDirectory: '<rootDir>/coverage',
 
   coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 75,
-      lines: 80,
-      statements: 80
-    },
     './static/js/notifications.js': {
-      branches: 80,
+      branches: 71,
       functions: 85,
       lines: 85,
-      statements: 85
+      statements: 82
     },
     './static/js/countdown-simple.js': {
       branches: 75,

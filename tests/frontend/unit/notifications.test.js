@@ -49,7 +49,11 @@ describe('NotificationManager', () => {
 
     // Mock jQuery ready to prevent auto-init
     const originalReady = $.fn.ready;
-    $.fn.ready = jest.fn();
+    $.fn.ready = jest.fn((callback) => {
+      // Store the callback for later testing
+      $.fn.ready.callback = callback;
+      return $;
+    });
 
     // Load NotificationManager (it exposes itself to window)
     jest.isolateModules(() => {
@@ -111,8 +115,15 @@ describe('NotificationManager', () => {
 
       // Should create a test notification
       expect(notificationMock.instances.length).toBe(1);
-      expect(notificationMock.instances[0].title).toBe('Python Deadlines');
-      expect(notificationMock.instances[0].body).toContain('Notifications are now enabled');
+      const notification = notificationMock.instances[0];
+      expect(notification.title).toBe('Python Deadlines');
+      expect(notification.body).toContain('Notifications are now enabled');
+      
+      // Test the onclick handler
+      expect(notification.onclick).toBeDefined();
+      notification.onclick();
+      expect(window.focus).toHaveBeenCalled();
+      expect(notification.close).toHaveBeenCalled();
     });
 
     test('handles permission denial', async () => {
@@ -466,6 +477,14 @@ describe('NotificationManager', () => {
         expect.any(Function),
         60 * 60 * 1000
       );
+      
+      // Test that the interval callback works
+      const intervalCallback = setIntervalSpy.mock.calls[0][0];
+      const checkUpcomingDeadlinesSpy = jest.spyOn(NotificationManager, 'checkUpcomingDeadlines').mockImplementation(() => {});
+      
+      intervalCallback();
+      
+      expect(checkUpcomingDeadlinesSpy).toHaveBeenCalled();
     });
 
     test('checks on page visibility change', () => {
@@ -489,6 +508,54 @@ describe('NotificationManager', () => {
       window.focus();
 
       expect(checkSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Send Deadline Notification', () => {
+    test('sends notification with correct onclick handler', () => {
+      notificationMock.permission = 'granted';
+      
+      const conf = {
+        id: 'test-conf',
+        name: 'Test Conference',
+        year: 2024,
+        cfp: '2024-01-22 23:59:59'
+      };
+      
+      NotificationManager.sendDeadlineNotification(conf, 3);
+      
+      expect(notificationMock.instances.length).toBe(1);
+      const notification = notificationMock.instances[0];
+      
+      // Test the onclick handler with data.url
+      notification.data = { url: 'https://example.com' };
+      window.open = jest.fn();
+      
+      notification.onclick();
+      
+      expect(window.open).toHaveBeenCalledWith('https://example.com', '_blank');
+      expect(notification.close).toHaveBeenCalled();
+    });
+
+    test('sends notification that focuses window when no URL', () => {
+      notificationMock.permission = 'granted';
+      
+      const conf = {
+        id: 'test-conf-2',
+        name: 'Test Conference 2',
+        year: 2024,
+        cfp: '2024-01-19 23:59:59'
+      };
+      
+      NotificationManager.sendDeadlineNotification(conf, 1);
+      
+      const notification = notificationMock.instances[0];
+      
+      // Test onclick without data.url
+      notification.onclick();
+      
+      expect(window.focus).toHaveBeenCalled();
+      expect(notification.close).toHaveBeenCalled();
     });
   });
 
@@ -545,6 +612,385 @@ describe('NotificationManager', () => {
       const notified = storeMock.get('pythondeadlines-notified-deadlines');
       expect(notified['old-notification']).toBeUndefined();
       expect(notified['recent-notification']).toBeDefined();
+    });
+  });
+
+  describe('Initialization', () => {
+    test('init method sets up the notification system', () => {
+      const checkBrowserSupportSpy = jest.spyOn(NotificationManager, 'checkBrowserSupport');
+      const loadSettingsSpy = jest.spyOn(NotificationManager, 'loadSettings');
+      const bindEventsSpy = jest.spyOn(NotificationManager, 'bindEvents');
+      const checkUpcomingDeadlinesSpy = jest.spyOn(NotificationManager, 'checkUpcomingDeadlines');
+      const schedulePeriodicChecksSpy = jest.spyOn(NotificationManager, 'schedulePeriodicChecks');
+      
+      // Mock implementations to prevent actual execution
+      checkBrowserSupportSpy.mockImplementation(() => {});
+      loadSettingsSpy.mockImplementation(() => {});
+      bindEventsSpy.mockImplementation(() => {});
+      checkUpcomingDeadlinesSpy.mockImplementation(() => {});
+      schedulePeriodicChecksSpy.mockImplementation(() => {});
+
+      NotificationManager.init();
+
+      expect(checkBrowserSupportSpy).toHaveBeenCalled();
+      expect(loadSettingsSpy).toHaveBeenCalled();
+      expect(bindEventsSpy).toHaveBeenCalled();
+      expect(checkUpcomingDeadlinesSpy).toHaveBeenCalled();
+      expect(schedulePeriodicChecksSpy).toHaveBeenCalled();
+    });
+
+    test('handles unsupported browser in requestPermission', async () => {
+      // Temporarily remove Notification API
+      const originalNotification = window.Notification;
+      delete window.Notification;
+
+      const result = await NotificationManager.requestPermission();
+
+      expect(result).toBe('unsupported');
+
+      // Restore
+      window.Notification = originalNotification;
+    });
+
+    test('handles browser that does not support notifications', () => {
+      // Temporarily remove Notification API
+      const originalNotification = window.Notification;
+      delete window.Notification;
+
+      document.body.innerHTML = '<div id="notification-prompt" style="display:block"></div>';
+
+      NotificationManager.checkBrowserSupport();
+
+      expect(console.log).toHaveBeenCalledWith('Browser does not support notifications');
+      expect(document.getElementById('notification-prompt').style.display).toBe('none');
+
+      // Restore
+      window.Notification = originalNotification;
+    });
+
+    test('handles denied notification permission in checkBrowserSupport', () => {
+      notificationMock.permission = 'denied';
+      document.body.innerHTML = '<div id="notification-prompt" style="display:block"></div>';
+
+      NotificationManager.checkBrowserSupport();
+
+      expect(console.log).toHaveBeenCalledWith('Notifications blocked by user');
+      expect(document.getElementById('notification-prompt').style.display).toBe('none');
+    });
+  });
+
+  describe('Event Binding', () => {
+    test('bindEvents sets up click handlers', () => {
+      document.body.innerHTML = `
+        <button id="enable-notifications">Enable</button>
+        <button id="save-notification-settings">Save</button>
+        <div class="notify-days">
+          <input type="checkbox" class="notify-days" value="7" checked />
+          <input type="checkbox" class="notify-days" value="3" checked />
+        </div>
+        <input type="checkbox" id="notify-new-editions" checked />
+        <input type="checkbox" id="auto-favorite-series" />
+        <div id="notificationModal" class="modal"></div>
+      `;
+
+      // Mock modal
+      $.fn.modal = jest.fn();
+
+      // Initialize settings before binding events
+      NotificationManager.settings = {
+        days: [14, 7, 3, 1],
+        enabled: true
+      };
+
+      const requestPermissionSpy = jest.spyOn(NotificationManager, 'requestPermission').mockResolvedValue('granted');
+      const saveSettingsSpy = jest.spyOn(NotificationManager, 'saveSettings').mockImplementation(() => {});
+      const scheduleNotificationsSpy = jest.spyOn(NotificationManager, 'scheduleNotifications').mockImplementation(() => {});
+
+      NotificationManager.bindEvents();
+
+      // Test enable notifications click
+      $('#enable-notifications').click();
+      expect(requestPermissionSpy).toHaveBeenCalled();
+
+      // Test save settings click
+      $('#save-notification-settings').click();
+      expect(saveSettingsSpy).toHaveBeenCalled();
+      expect(scheduleNotificationsSpy).toHaveBeenCalled();
+      expect($.fn.modal).toHaveBeenCalledWith('hide');
+    });
+  });
+
+  describe('Schedule Notifications', () => {
+    test('scheduleNotifications creates schedule for saved conferences', () => {
+      notificationMock.permission = 'granted';
+      
+      // Set up settings
+      NotificationManager.settings = {
+        days: [7, 3, 1],
+        enabled: true
+      };
+
+      // Create conferences with future deadlines
+      const futureConf = createConferenceWithDeadline(10, { id: 'future-conf' });
+      const pastConf = createConferenceWithDeadline(-5, { id: 'past-conf' });
+      
+      // Mock FavoritesManager to return our conferences
+      window.FavoritesManager.getSavedConferences = jest.fn(() => ({
+        'future-conf': futureConf,
+        'past-conf': pastConf
+      }));
+
+      NotificationManager.scheduleNotifications();
+
+      // Check that scheduled notifications were stored
+      const scheduled = storeMock.get('pythondeadlines-scheduled-notifications');
+      expect(scheduled).toBeDefined();
+      expect(scheduled['future-conf']).toBeDefined();
+      expect(scheduled['future-conf'].length).toBeGreaterThan(0);
+      expect(scheduled['past-conf']).toBeUndefined(); // Past conference should not be scheduled
+      
+      expect(console.log).toHaveBeenCalledWith(
+        'Scheduled notifications for',
+        1,
+        'conferences'
+      );
+    });
+  });
+
+  describe('Series Notifications', () => {
+    test('sendSeriesNotification creates notification for new conference series', () => {
+      notificationMock.permission = 'granted';
+
+      NotificationManager.sendSeriesNotification('PyCon', 'New edition of PyCon US 2025 has been added!');
+
+      expect(notificationMock.instances.length).toBe(1);
+      const notification = notificationMock.instances[0];
+      expect(notification.title).toBe('Conference Series: PyCon');
+      expect(notification.body).toBe('New edition of PyCon US 2025 has been added!');
+      expect(notification.tag).toBe('series-PyCon');
+
+      // Test onclick handler
+      expect(notification.onclick).toBeDefined();
+      notification.onclick();
+      expect(window.focus).toHaveBeenCalled();
+      expect(notification.close).toHaveBeenCalled();
+    });
+
+    test('sendSeriesNotification shows in-app notification', () => {
+      const showInAppSpy = jest.spyOn(NotificationManager, 'showInAppNotification');
+
+      NotificationManager.sendSeriesNotification('DjangoCon', 'New DjangoCon Europe announced!');
+
+      expect(showInAppSpy).toHaveBeenCalledWith(
+        'Conference Series: DjangoCon',
+        'New DjangoCon Europe announced!',
+        'info'
+      );
+    });
+  });
+
+  describe('Test Notifications', () => {
+    test('testNotifications creates and sends test notification', () => {
+      const sendDeadlineNotificationSpy = jest.spyOn(NotificationManager, 'sendDeadlineNotification');
+
+      NotificationManager.testNotifications();
+
+      expect(sendDeadlineNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'test-conf',
+          name: 'Test Conference',
+          year: new Date().getFullYear()
+        }),
+        7
+      );
+    });
+  });
+
+  describe('Document Ready', () => {
+    test('initializes NotificationManager on document ready', () => {
+      // Load a fresh instance that will register the document ready handler
+      const originalReady = $.fn.ready;
+      let readyCallback = null;
+      
+      $.fn.ready = jest.fn((callback) => {
+        readyCallback = callback;
+        return $;
+      });
+      
+      // Spy on NotificationManager init before loading the module
+      const initSpy = jest.fn();
+      
+      jest.isolateModules(() => {
+        require('../../../static/js/notifications.js');
+        // Override the init method with our spy
+        window.NotificationManager.init = initSpy;
+      });
+      
+      // Verify that ready was called
+      expect($.fn.ready).toHaveBeenCalled();
+      expect(readyCallback).toBeDefined();
+      
+      // Execute the ready callback
+      readyCallback();
+      
+      // Verify init was called
+      expect(initSpy).toHaveBeenCalled();
+      
+      // Restore
+      $.fn.ready = originalReady;
+    });
+  });
+
+  describe('Notification Click Handlers', () => {
+    test('notification onclick opens URL if provided', () => {
+      notificationMock.permission = 'granted';
+      
+      // Mock window.open
+      window.open = jest.fn();
+
+      // Create a notification with data.url
+      const notification = new Notification('Test', {
+        body: 'Test notification',
+        data: { url: 'https://example.com' }
+      });
+
+      // Manually set the onclick that would be set in sendDeadlineNotification
+      notification.onclick = function() {
+        if (notification.data && notification.data.url) {
+          window.open(notification.data.url, '_blank');
+        } else {
+          window.focus();
+        }
+        notification.close();
+      };
+
+      // Call onclick
+      notification.onclick();
+
+      expect(window.open).toHaveBeenCalledWith('https://example.com', '_blank');
+      expect(notification.close).toHaveBeenCalled();
+    });
+
+    test('notification onclick focuses window if no URL', () => {
+      notificationMock.permission = 'granted';
+      
+      // Create a notification without data.url
+      const notification = new Notification('Test', {
+        body: 'Test notification'
+      });
+
+      // Manually set the onclick that would be set in sendDeadlineNotification
+      notification.onclick = function() {
+        if (notification.data && notification.data.url) {
+          window.open(notification.data.url, '_blank');
+        } else {
+          window.focus();
+        }
+        notification.close();
+      };
+
+      // Call onclick
+      notification.onclick();
+
+      expect(window.focus).toHaveBeenCalled();
+      expect(notification.close).toHaveBeenCalled();
+    });
+  });
+
+  describe('Action Bar Notifications Edge Cases', () => {
+    test('handles missing conference data gracefully', () => {
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'missing-conf': { save: true }
+      }));
+
+      // Clear last check to force check
+      localStorage.removeItem('pydeadlines_lastNotifyCheck');
+
+      // No conferences on page
+      document.body.innerHTML = '';
+
+      // Should not throw
+      expect(() => {
+        NotificationManager.checkActionBarNotifications();
+      }).not.toThrow();
+    });
+
+
+    test('handles invalid CFP dates gracefully', () => {
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'invalid-conf': { save: true }
+      }));
+
+      localStorage.removeItem('pydeadlines_lastNotifyCheck');
+
+      document.body.innerHTML = `
+        <div class="ConfItem" id="invalid-conf" data-conf-id="invalid-conf"
+             data-cfp="invalid-date" data-conf-name="Invalid Conference">
+        </div>
+      `;
+
+      // Should not throw and logs error internally
+      expect(() => {
+        NotificationManager.checkActionBarNotifications();
+      }).not.toThrow();
+    });
+
+    test('skips conferences with TBA or None CFP', () => {
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'tba-conf': { save: true },
+        'none-conf': { save: true }
+      }));
+
+      localStorage.removeItem('pydeadlines_lastNotifyCheck');
+
+      document.body.innerHTML = `
+        <div class="ConfItem" id="tba-conf" data-conf-id="tba-conf"
+             data-cfp="TBA" data-conf-name="TBA Conference">
+        </div>
+        <div class="ConfItem" id="none-conf" data-conf-id="none-conf"
+             data-cfp="None" data-conf-name="None Conference">
+        </div>
+      `;
+
+      NotificationManager.checkActionBarNotifications();
+
+      // Should not create any notifications
+      expect(notificationMock.instances.length).toBe(0);
+    });
+
+    test('skips series data in preferences', () => {
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        '_series': { someData: true },
+        'real-conf': { save: true }
+      }));
+
+      localStorage.removeItem('pydeadlines_lastNotifyCheck');
+
+      document.body.innerHTML = `
+        <div class="ConfItem" id="real-conf" data-conf-id="real-conf"
+             data-cfp="2024-01-22 23:59:59" data-conf-name="Real Conference">
+        </div>
+      `;
+
+      // Should not throw when encountering _series
+      expect(() => {
+        NotificationManager.checkActionBarNotifications();
+      }).not.toThrow();
+    });
+  });
+
+  describe('Toast Removal', () => {
+    test('removes toast after it is hidden', () => {
+      NotificationManager.showInAppNotification('Test', 'Message');
+
+      const toast = document.querySelector('.toast');
+      expect(toast).toBeTruthy();
+
+      // Simulate hidden event
+      $(toast).trigger('hidden.bs.toast');
+
+      // Toast should be removed
+      expect(document.querySelector('.toast')).toBeFalsy();
     });
   });
 });

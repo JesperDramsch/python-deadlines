@@ -486,4 +486,194 @@ describe('Countdown Timer System', () => {
       );
     });
   });
+
+  describe('Visibility API Integration', () => {
+    test('stops timer when page becomes hidden', () => {
+      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      
+      document.body.innerHTML = `
+        <div class="countdown-display"
+             data-deadline="2024-01-22 23:59:59">
+        </div>
+      `;
+
+      jest.isolateModules(() => {
+        require('../../../static/js/countdown-simple.js');
+      });
+
+      // Simulate page becoming hidden
+      Object.defineProperty(document, 'hidden', {
+        configurable: true,
+        writable: true,
+        value: true
+      });
+      
+      const event = new Event('visibilitychange');
+      document.dispatchEvent(event);
+
+      expect(clearIntervalSpy).toHaveBeenCalled();
+    });
+
+    test('restarts timer when page becomes visible', () => {
+      const setIntervalSpy = jest.spyOn(global, 'setInterval');
+      
+      document.body.innerHTML = `
+        <div class="countdown-display"
+             data-deadline="2024-01-22 23:59:59">
+        </div>
+      `;
+
+      jest.isolateModules(() => {
+        require('../../../static/js/countdown-simple.js');
+      });
+
+      // Clear the spy count from initial load
+      setIntervalSpy.mockClear();
+
+      // First hide the page
+      Object.defineProperty(document, 'hidden', {
+        configurable: true,
+        writable: true,
+        value: true
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+
+      // Then show it again
+      Object.defineProperty(document, 'hidden', {
+        configurable: true,
+        writable: true,
+        value: false
+      });
+      document.dispatchEvent(new Event('visibilitychange'));
+
+      // Should restart the timer
+      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+    });
+  });
+
+  describe('CountdownManager Public API', () => {
+    test('refresh method updates all countdowns', () => {
+      document.body.innerHTML = `
+        <div class="countdown-display" id="test1"
+             data-deadline="2024-01-22 23:59:59">
+        </div>
+        <div class="countdown-display" id="test2"
+             data-deadline="2024-01-25 23:59:59">
+        </div>
+      `;
+
+      jest.isolateModules(() => {
+        require('../../../static/js/countdown-simple.js');
+      });
+
+      // Clear existing content
+      document.getElementById('test1').textContent = '';
+      document.getElementById('test2').textContent = '';
+
+      // Call refresh
+      window.CountdownManager.refresh();
+
+      // Both should be updated
+      expect(document.getElementById('test1').textContent).toBeTruthy();
+      expect(document.getElementById('test2').textContent).toBeTruthy();
+    });
+
+    test('destroy method clears timer', () => {
+      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      
+      document.body.innerHTML = `
+        <div class="countdown-display"
+             data-deadline="2024-01-22 23:59:59">
+        </div>
+      `;
+
+      jest.isolateModules(() => {
+        require('../../../static/js/countdown-simple.js');
+      });
+
+      // Clear spy from initialization
+      clearIntervalSpy.mockClear();
+
+      // Destroy timers
+      window.CountdownManager.destroy();
+
+      expect(clearIntervalSpy).toHaveBeenCalled();
+    });
+
+    test('init clears existing timer before creating new one', () => {
+      const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+      const setIntervalSpy = jest.spyOn(global, 'setInterval');
+      
+      document.body.innerHTML = `
+        <div class="countdown-display"
+             data-deadline="2024-01-22 23:59:59">
+        </div>
+      `;
+
+      jest.isolateModules(() => {
+        require('../../../static/js/countdown-simple.js');
+      });
+
+      // Clear spies
+      clearIntervalSpy.mockClear();
+      setIntervalSpy.mockClear();
+
+      // Call init again (should clear existing timer)
+      window.CountdownManager.init();
+
+      // Should clear and then set
+      expect(clearIntervalSpy).toHaveBeenCalled();
+      expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+    });
+
+    test('onFilterUpdate method exists for compatibility', () => {
+      jest.isolateModules(() => {
+        require('../../../static/js/countdown-simple.js');
+      });
+
+      expect(window.CountdownManager.onFilterUpdate).toBeDefined();
+      expect(typeof window.CountdownManager.onFilterUpdate).toBe('function');
+      
+      // Should not throw when called
+      expect(() => {
+        window.CountdownManager.onFilterUpdate();
+      }).not.toThrow();
+    });
+  });
+
+  describe('Document Ready State', () => {
+    test('waits for DOMContentLoaded when document is loading', () => {
+      // Save original readyState
+      const originalReadyState = document.readyState;
+      
+      // Mock document.readyState
+      Object.defineProperty(document, 'readyState', {
+        configurable: true,
+        writable: true,
+        value: 'loading'
+      });
+
+      const addEventListenerSpy = jest.spyOn(document, 'addEventListener');
+
+      document.body.innerHTML = `
+        <div class="countdown-display"
+             data-deadline="2024-01-22 23:59:59">
+        </div>
+      `;
+
+      jest.isolateModules(() => {
+        require('../../../static/js/countdown-simple.js');
+      });
+
+      // Should have added DOMContentLoaded listener
+      expect(addEventListenerSpy).toHaveBeenCalledWith('DOMContentLoaded', expect.any(Function));
+
+      // Restore original readyState
+      Object.defineProperty(document, 'readyState', {
+        configurable: true,
+        writable: true,
+        value: originalReadyState
+      });
+    });
+  });
 });
