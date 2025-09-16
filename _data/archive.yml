@@ -1193,6 +1193,7 @@
     longitude: 30.1586551
 
 - conference: PyConf Mini Davao
+  alt_name: PyCon Davao
   year: 2024
   link: https://pyconf-mini-2024.durianpy.org/
   cfp: None

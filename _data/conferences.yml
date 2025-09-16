@@ -11,6 +11,22 @@
   sponsor: https://pydata.org/global2025/sponsor
   sub: DATA
 
+- conference: PyData Boston
+  year: 2025
+  link: https://pydata.org/boston2025
+  cfp_link: https://pretalx.com/pydata-boston-2025/cfp
+  cfp: '2025-10-12 23:59:59'
+  timezone: America/New_York
+  place: Boston, USA
+  start: 2025-12-08
+  end: 2025-12-10
+  sponsor: https://pydata.org/boston2025/sponsorship-opportunities
+  sub: DATA
+  location:
+  - title: PyData Boston 2025
+    latitude: 42.3554334
+    longitude: -71.060511
+
 - conference: PyData Eindhoven
   year: 2025
   link: https://pydata.org/eindhoven2025
@@ -150,6 +166,20 @@
   - title: PyCon Sweden 2025
     latitude: 59.3251172
     longitude: 18.0710935
+
+- conference: PyCon Davao
+  year: 2025
+  link: https://pycon-davao.durianpy.org/
+  cfp: '2025-08-30 23:59:00'
+  place: Davao City, Philippines
+  start: 2025-10-25
+  end: 2025-10-26
+  sponsor: https://pycon-davao.durianpy.org/sponsorship-prospectus
+  sub: PY
+  location:
+  - title: PyCon Davao 2025
+    latitude: 7.0648306
+    longitude: 125.6080623
 
 - conference: PyData Vermont
   year: 2025
@@ -876,6 +906,36 @@
     latitude: 9.0953279
     longitude: -84.2003038
 
+- conference: PyCon Australia
+  alt_name: PyCon AU
+  year: 2026
+  link: https://2026.pycon.org.au/
+  cfp: TBA
+  place: Brisbane, Australia
+  start: 2026-08-26
+  end: 2026-08-30
+  mastodon: https://fosstodon.org/@pyconau
+  bluesky: https://bsky.app/profile/pyconau.bsky.social
+  sub: PY
+  location:
+  - title: PyCon Australia 2026
+    latitude: -27.4689682
+    longitude: 153.0234991
+
+- conference: PyOhio
+  year: 2026
+  link: https://pyohio.org/2026/
+  cfp: TBA
+  place: Cleveland, USA
+  start: 2026-07-25
+  end: 2026-07-26
+  sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
+  sub: PY
+  location:
+  - title: PyOhio 2026
+    latitude: 41.4996574
+    longitude: -81.6936772
+
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2026
@@ -940,8 +1000,8 @@
   link: https://2026.pycascades.com/
   cfp: TBA
   place: Vancouver, Canada
-  start: 2026-03-20
-  end: 2026-03-21
+  start: 2026-03-21
+  end: 2026-03-22
   sponsor: https://2026.pycascades.com/sponsors/become-a-sponsor/
   mastodon: https://fosstodon.org/@pycascades
   sub: PY
@@ -981,7 +1041,7 @@
 - conference: PyCon Somalia
   year: 2025
   link: https://pycon.org.so/
-  cfp: TBA
+  cfp: None
   place: Mogadishu, Somalia
   start: 2025-08-13
   end: 2025-08-14
