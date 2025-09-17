@@ -293,7 +293,7 @@ describe('Countdown Timer System', () => {
           }))
         };
       });
-      
+
       window.luxon.DateTime.fromSQL = fromSQLMock;
       window.luxon.DateTime.fromISO = jest.fn(() => ({ invalid: true })); // Also mock fromISO to fail
 
@@ -490,7 +490,7 @@ describe('Countdown Timer System', () => {
   describe('Visibility API Integration', () => {
     test('stops timer when page becomes hidden', () => {
       const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
-      
+
       document.body.innerHTML = `
         <div class="countdown-display"
              data-deadline="2024-01-22 23:59:59">
@@ -507,7 +507,7 @@ describe('Countdown Timer System', () => {
         writable: true,
         value: true
       });
-      
+
       const event = new Event('visibilitychange');
       document.dispatchEvent(event);
 
@@ -516,7 +516,7 @@ describe('Countdown Timer System', () => {
 
     test('restarts timer when page becomes visible', () => {
       const setIntervalSpy = jest.spyOn(global, 'setInterval');
-      
+
       document.body.innerHTML = `
         <div class="countdown-display"
              data-deadline="2024-01-22 23:59:59">
@@ -580,7 +580,7 @@ describe('Countdown Timer System', () => {
 
     test('destroy method clears timer', () => {
       const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
-      
+
       document.body.innerHTML = `
         <div class="countdown-display"
              data-deadline="2024-01-22 23:59:59">
@@ -603,7 +603,7 @@ describe('Countdown Timer System', () => {
     test('init clears existing timer before creating new one', () => {
       const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
       const setIntervalSpy = jest.spyOn(global, 'setInterval');
-      
+
       document.body.innerHTML = `
         <div class="countdown-display"
              data-deadline="2024-01-22 23:59:59">
@@ -633,7 +633,7 @@ describe('Countdown Timer System', () => {
 
       expect(window.CountdownManager.onFilterUpdate).toBeDefined();
       expect(typeof window.CountdownManager.onFilterUpdate).toBe('function');
-      
+
       // Should not throw when called
       expect(() => {
         window.CountdownManager.onFilterUpdate();
@@ -645,7 +645,7 @@ describe('Countdown Timer System', () => {
     test('waits for DOMContentLoaded when document is loading', () => {
       // Save original readyState
       const originalReadyState = document.readyState;
-      
+
       // Mock document.readyState
       Object.defineProperty(document, 'readyState', {
         configurable: true,
