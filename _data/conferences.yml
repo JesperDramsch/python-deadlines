@@ -407,22 +407,6 @@
     latitude: 32.7174202
     longitude: -117.1627728
 
-- conference: PyCon Uganda
-  year: 2025
-  link: https://ug.pycon.org/
-  cfp_link: https://ug.pycon.org/2025/talks/proposing_a_talk/
-  cfp: '2025-06-30 23:59:00'
-  place: Kampala, Uganda
-  start: 2025-08-06
-  end: 2025-08-10
-  sponsor: https://ug.pycon.org/2025/sponsor-us/
-  finaid: https://ug.pycon.org/2025/fin-aid/
-  sub: PY
-  location:
-  - title: PyCon Uganda 2025
-    latitude: 0.3177137
-    longitude: 32.5813539
-
 - conference: PyBeach
   year: 2025
   link: https://2025.pybeach.org/
