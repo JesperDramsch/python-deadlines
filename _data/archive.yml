@@ -1,5 +1,54 @@
 ---
 
+- conference: PyCon South Korea
+  alt_name: PyCon KR
+  year: 2025
+  link: https://2025.pycon.kr/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLScNJaiMQkEGS9GypzCiAF_w8Z5KhPXxmUSyAJtjASS08_H9Ag/viewform
+  cfp: '2025-05-11 23:59:00'
+  timezone: Asia/Seoul
+  place: Seoul, South Korea
+  start: 2025-08-15
+  end: 2025-08-17
+  sponsor: https://2025.pycon.kr/sponsor/prospectus
+  sub: PY
+  location:
+  - title: PyCon South Korea 2025
+    latitude: 37.5666791
+    longitude: 126.9782914
+
+- conference: PyCon Somalia
+  year: 2025
+  link: https://pycon.org.so/
+  cfp: None
+  place: Mogadishu, Somalia
+  start: 2025-08-13
+  end: 2025-08-14
+  twitter: PyconSomalia
+  sub: PY
+  location:
+  - title: PyCon Somalia 2025
+    latitude: 2.0349312
+    longitude: 45.3419183
+
+- conference: DjangoCon Africa
+  year: 2025
+  link: https://2025.djangocon.africa/
+  cfp_link: https://pretalx.com/djangocon-africa-2025/cfp
+  cfp: '2025-03-31 23:59:00'
+  timezone: Africa/Dar_es_Salaam
+  place: Arusha, Tanzania
+  start: 2025-08-11
+  end: 2025-08-15
+  sponsor: https://2025.djangocon.africa/sponsor_us
+  finaid: https://2025.djangocon.africa/opportunity_grants
+  twitter: djcafrica
+  sub: WEB
+  location:
+  - title: DjangoCon Africa 2025
+    latitude: -6.09994425
+    longitude: 39.32094431715264
+
 - conference: PyCon Uganda
   year: 2025
   link: https://ug.pycon.org/
