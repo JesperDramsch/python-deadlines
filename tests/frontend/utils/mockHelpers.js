@@ -108,7 +108,7 @@ class TimerController {
   setCurrentTime(date) {
     this.currentTime = date instanceof Date ? date : new Date(date);
     jest.setSystemTime(this.currentTime);
-    
+
     // Mock global Date constructor to return our mocked time
     const mockedDate = this.currentTime;
     global.Date = class extends Date {
@@ -121,16 +121,16 @@ class TimerController {
           super(...args);
         }
       }
-      
+
       static now() {
         return mockedDate.getTime();
       }
     };
-    
+
     // Also explicitly override Date.now at the global level
     // This ensures it works even when called as Date.now()
     global.Date.now = () => mockedDate.getTime();
-    
+
     return this;
   }
 
@@ -138,11 +138,11 @@ class TimerController {
     this.currentTime = new Date(this.currentTime.getTime() + ms);
     jest.setSystemTime(this.currentTime);
     jest.advanceTimersByTime(ms);
-    
+
     // Update Date.now() to return the new time
     const mockedDate = this.currentTime;
     global.Date.now = () => mockedDate.getTime();
-    
+
     return this;
   }
 

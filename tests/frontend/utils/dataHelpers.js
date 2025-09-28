@@ -47,7 +47,7 @@ function createConferenceWithDeadline(daysUntilDeadline, overrides = {}) {
   cfpDate.setDate(cfpDate.getDate() + daysUntilDeadline);
   // Keep the same time as current time to get exact day calculation
   // Don't change to 23:59:59 as that causes rounding issues with Math.ceil
-  
+
   return createMockConference({
     cfp: cfpDate.toISOString().replace('T', ' ').split('.')[0],
     ...overrides
