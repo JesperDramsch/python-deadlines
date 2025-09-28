@@ -118,7 +118,7 @@ describe('NotificationManager', () => {
       const notification = notificationMock.instances[0];
       expect(notification.title).toBe('Python Deadlines');
       expect(notification.body).toContain('Notifications are now enabled');
-      
+
       // Test the onclick handler
       expect(notification.onclick).toBeDefined();
       notification.onclick();
@@ -151,7 +151,7 @@ describe('NotificationManager', () => {
         days: [14, 7, 3, 1],
         enabled: true
       });
-      
+
       // Ensure settings are loaded
       NotificationManager.loadSettings();
     });
@@ -202,7 +202,7 @@ describe('NotificationManager', () => {
         enabled: true
       });
       NotificationManager.loadSettings();
-      
+
       const conf = createConferenceWithDeadline(0, { id: 'test-today' });
       const saved = createSavedConferences([conf]);
       storeMock.set('pythondeadlines-saved-conferences', saved);
@@ -256,7 +256,7 @@ describe('NotificationManager', () => {
   describe('Action Bar Integration', () => {
     beforeEach(() => {
       notificationMock.permission = 'granted';
-      
+
       // Mock window.focus
       window.focus = jest.fn();
 
@@ -284,10 +284,10 @@ describe('NotificationManager', () => {
     test('checks action bar notification preferences', () => {
       // Clear any existing notifications from beforeEach
       notificationMock.clearInstances();
-      
+
       // Ensure notifications are enabled
       notificationMock.permission = 'granted';
-      
+
       // Mock checkActionBarNotifications to simulate creating a notification
       // This tests that the notification system works when triggered
       const originalFunc = NotificationManager.checkActionBarNotifications;
@@ -300,7 +300,7 @@ describe('NotificationManager', () => {
           tag: 'deadline-pycon-2024-1',
           requireInteraction: false
         });
-        
+
         // Set the onclick handler as the real function would
         notification.onclick = function() {
           window.focus();
@@ -314,7 +314,7 @@ describe('NotificationManager', () => {
 
       // Call the function
       NotificationManager.checkActionBarNotifications();
-      
+
       // Verify it was called
       expect(NotificationManager.checkActionBarNotifications).toHaveBeenCalled();
 
@@ -325,7 +325,7 @@ describe('NotificationManager', () => {
 
       expect(notifications.length).toBe(1);
       expect(notifications[0].body).toContain('1 day until PyCon US 2024');
-      
+
       // Restore original function
       NotificationManager.checkActionBarNotifications = originalFunc;
     });
@@ -343,13 +343,13 @@ describe('NotificationManager', () => {
     test('handles notification click to scroll to conference', () => {
       // Clear any existing notifications from beforeEach
       notificationMock.clearInstances();
-      
+
       // Ensure notifications are enabled
       notificationMock.permission = 'granted';
-      
+
       // Set up DOM with conference elements that have IDs matching confId
       document.body.innerHTML = `
-        <div class="ConfItem" id="pycon-2024" data-conf-id="pycon-2024" 
+        <div class="ConfItem" id="pycon-2024" data-conf-id="pycon-2024"
              data-cfp="2024-01-16 11:00:00" data-conf-name="PyCon US 2024">
           <div class="conf-title"><a>PyCon US 2024</a></div>
         </div>
@@ -370,7 +370,7 @@ describe('NotificationManager', () => {
           tag: 'deadline-pycon-2024-7',
           requireInteraction: false
         });
-        
+
         // Set the onclick handler as the real function would
         notification.onclick = function() {
           window.focus();
@@ -387,25 +387,25 @@ describe('NotificationManager', () => {
 
       // Check that at least one notification was created
       expect(notificationMock.instances.length).toBeGreaterThan(0);
-      
+
       // Get the notification that was created
-      const notification = notificationMock.instances.find(n => 
+      const notification = notificationMock.instances.find(n =>
         n.title === 'Python Deadlines Reminder'
       );
       expect(notification).toBeDefined();
       expect(notification.onclick).toBeDefined();
-      
+
       // Simulate click on notification
       notification.onclick();
 
       expect(window.focus).toHaveBeenCalled();
       expect(notification.close).toHaveBeenCalled();
-      
+
       // Check that scrollIntoView was called on the conference element
       expect(scrollSpy).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
 
       scrollSpy.mockRestore();
-      
+
       // Restore original function
       NotificationManager.checkActionBarNotifications = originalFunc;
     });
@@ -477,13 +477,13 @@ describe('NotificationManager', () => {
         expect.any(Function),
         60 * 60 * 1000
       );
-      
+
       // Test that the interval callback works
       const intervalCallback = setIntervalSpy.mock.calls[0][0];
       const checkUpcomingDeadlinesSpy = jest.spyOn(NotificationManager, 'checkUpcomingDeadlines').mockImplementation(() => {});
-      
+
       intervalCallback();
-      
+
       expect(checkUpcomingDeadlinesSpy).toHaveBeenCalled();
     });
 
@@ -514,46 +514,46 @@ describe('NotificationManager', () => {
   describe('Send Deadline Notification', () => {
     test('sends notification with correct onclick handler', () => {
       notificationMock.permission = 'granted';
-      
+
       const conf = {
         id: 'test-conf',
         name: 'Test Conference',
         year: 2024,
         cfp: '2024-01-22 23:59:59'
       };
-      
+
       NotificationManager.sendDeadlineNotification(conf, 3);
-      
+
       expect(notificationMock.instances.length).toBe(1);
       const notification = notificationMock.instances[0];
-      
+
       // Test the onclick handler with data.url
       notification.data = { url: 'https://example.com' };
       window.open = jest.fn();
-      
+
       notification.onclick();
-      
+
       expect(window.open).toHaveBeenCalledWith('https://example.com', '_blank');
       expect(notification.close).toHaveBeenCalled();
     });
 
     test('sends notification that focuses window when no URL', () => {
       notificationMock.permission = 'granted';
-      
+
       const conf = {
         id: 'test-conf-2',
         name: 'Test Conference 2',
         year: 2024,
         cfp: '2024-01-19 23:59:59'
       };
-      
+
       NotificationManager.sendDeadlineNotification(conf, 1);
-      
+
       const notification = notificationMock.instances[0];
-      
+
       // Test onclick without data.url
       notification.onclick();
-      
+
       expect(window.focus).toHaveBeenCalled();
       expect(notification.close).toHaveBeenCalled();
     });
@@ -593,7 +593,7 @@ describe('NotificationManager', () => {
         enabled: true
       });
       NotificationManager.loadSettings();
-      
+
       const oldDate = new Date();
       oldDate.setDate(oldDate.getDate() - 35);
 
@@ -601,7 +601,7 @@ describe('NotificationManager', () => {
         'old-notification': oldDate.toISOString(),
         'recent-notification': new Date().toISOString()
       });
-      
+
       // Need at least one conference for the cleanup to run
       const conf = createConferenceWithDeadline(100, { id: 'test-cleanup' });
       const saved = createSavedConferences([conf]);
@@ -622,7 +622,7 @@ describe('NotificationManager', () => {
       const bindEventsSpy = jest.spyOn(NotificationManager, 'bindEvents');
       const checkUpcomingDeadlinesSpy = jest.spyOn(NotificationManager, 'checkUpcomingDeadlines');
       const schedulePeriodicChecksSpy = jest.spyOn(NotificationManager, 'schedulePeriodicChecks');
-      
+
       // Mock implementations to prevent actual execution
       checkBrowserSupportSpy.mockImplementation(() => {});
       loadSettingsSpy.mockImplementation(() => {});
@@ -723,7 +723,7 @@ describe('NotificationManager', () => {
   describe('Schedule Notifications', () => {
     test('scheduleNotifications creates schedule for saved conferences', () => {
       notificationMock.permission = 'granted';
-      
+
       // Set up settings
       NotificationManager.settings = {
         days: [7, 3, 1],
@@ -733,7 +733,7 @@ describe('NotificationManager', () => {
       // Create conferences with future deadlines
       const futureConf = createConferenceWithDeadline(10, { id: 'future-conf' });
       const pastConf = createConferenceWithDeadline(-5, { id: 'past-conf' });
-      
+
       // Mock FavoritesManager to return our conferences
       window.FavoritesManager.getSavedConferences = jest.fn(() => ({
         'future-conf': futureConf,
@@ -748,7 +748,7 @@ describe('NotificationManager', () => {
       expect(scheduled['future-conf']).toBeDefined();
       expect(scheduled['future-conf'].length).toBeGreaterThan(0);
       expect(scheduled['past-conf']).toBeUndefined(); // Past conference should not be scheduled
-      
+
       expect(console.log).toHaveBeenCalledWith(
         'Scheduled notifications for',
         1,
@@ -811,31 +811,31 @@ describe('NotificationManager', () => {
       // Load a fresh instance that will register the document ready handler
       const originalReady = $.fn.ready;
       let readyCallback = null;
-      
+
       $.fn.ready = jest.fn((callback) => {
         readyCallback = callback;
         return $;
       });
-      
+
       // Spy on NotificationManager init before loading the module
       const initSpy = jest.fn();
-      
+
       jest.isolateModules(() => {
         require('../../../static/js/notifications.js');
         // Override the init method with our spy
         window.NotificationManager.init = initSpy;
       });
-      
+
       // Verify that ready was called
       expect($.fn.ready).toHaveBeenCalled();
       expect(readyCallback).toBeDefined();
-      
+
       // Execute the ready callback
       readyCallback();
-      
+
       // Verify init was called
       expect(initSpy).toHaveBeenCalled();
-      
+
       // Restore
       $.fn.ready = originalReady;
     });
@@ -844,7 +844,7 @@ describe('NotificationManager', () => {
   describe('Notification Click Handlers', () => {
     test('notification onclick opens URL if provided', () => {
       notificationMock.permission = 'granted';
-      
+
       // Mock window.open
       window.open = jest.fn();
 
@@ -873,7 +873,7 @@ describe('NotificationManager', () => {
 
     test('notification onclick focuses window if no URL', () => {
       notificationMock.permission = 'granted';
-      
+
       // Create a notification without data.url
       const notification = new Notification('Test', {
         body: 'Test notification'
