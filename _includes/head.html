@@ -71,8 +71,38 @@
 <script type="text/javascript">
 // Only inject active conferences to avoid performance issues
 // Archive data (592 conferences) loaded on-demand when needed
+
+// Create conference data with Jekyll-generated IDs
+var conferencesWithIds = [];
+{% for conf in site.data.conferences %}
+conferencesWithIds.push({
+    id: "{{ conf.conference | slugify: 'latin' }}-{{ conf.year }}",
+    conference: {{ conf.conference | jsonify }},
+    year: {{ conf.year | jsonify }},
+    link: {{ conf.link | jsonify }},
+    cfp: {{ conf.cfp | jsonify }},
+    place: {{ conf.place | jsonify }},
+    start: {{ conf.start | jsonify }},
+    end: {{ conf.end | jsonify }},
+    sub: {{ conf.sub | jsonify }},
+    cfp_ext: {{ conf.cfp_ext | jsonify }},
+    cfp_link: {{ conf.cfp_link | jsonify }},
+    note: {{ conf.note | jsonify }},
+    sponsor: {{ conf.sponsor | jsonify }},
+    finaid: {{ conf.finaid | jsonify }},
+    twitter: {{ conf.twitter | jsonify }},
+    mastodon: {{ conf.mastodon | jsonify }},
+    bluesky: {{ conf.bluesky | jsonify }},
+    location: {{ conf.location | jsonify }},
+    extra_places: {{ conf.extra_places | jsonify }},
+    workshop_deadline: {{ conf.workshop_deadline | jsonify }},
+    tutorial_deadline: {{ conf.tutorial_deadline | jsonify }},
+    timezone: {{ conf.timezone | jsonify }}
+});
+{% endfor %}
+
 window.conferenceData = {
-    active: {{ site.data.conferences | jsonify }},
+    active: conferencesWithIds,
     types: {{ site.data.types | jsonify }}
     // Archive will be loaded on-demand to save ~224KB initial payload
 };

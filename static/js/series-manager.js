@@ -6,34 +6,96 @@
 const SeriesManager = {
     subscriptionsKey: 'pythondeadlines-series-subscriptions',
     processedKey: 'pythondeadlines-processed-confs',
+    storeLock: false,
+
+    /**
+     * Atomic store update to prevent race conditions
+     */
+    atomicStoreUpdate(key, updateFn) {
+        // Simple lock mechanism
+        const maxRetries = 10;
+        let retries = 0;
+
+        const performUpdate = () => {
+            if (this.storeLock && retries < maxRetries) {
+                retries++;
+                setTimeout(performUpdate, 10);
+                return;
+            }
+
+            if (retries >= maxRetries) {
+                return false;
+            }
+
+            try {
+                this.storeLock = true;
+                const current = store.get(key) || {};
+                const updated = updateFn(current);
+                store.set(key, updated);
+                return true;
+            } catch (error) {
+                return false;
+            } finally {
+                this.storeLock = false;
+            }
+        };
+
+        return performUpdate();
+    },
 
     /**
      * Initialize series manager
      */
     init() {
+        // Prevent infinite recursion with max retries
+        if (!this.initRetryCount) {
+            this.initRetryCount = 0;
+        }
+
         // Wait for ConferenceStateManager to be ready
         if (!window.confManager) {
-            console.log('Waiting for ConferenceStateManager...');
+            this.initRetryCount++;
+
+            if (this.initRetryCount > 50) { // Max 5 seconds wait
+                return;
+            }
+
             setTimeout(() => this.init(), 100);
             return;
         }
 
-        this.bindSeriesButtons();
-        this.bindQuickSubscribe();
-        this.detectNewConferences();
-        this.renderSubscribedSeries();
-        this.generatePredictions();
+        // Reset retry count on successful init
+        this.initRetryCount = 0;
 
-        // Update series count
-        this.updateSeriesCount();
+        try {
+            this.bindSeriesButtons();
+            this.bindQuickSubscribe();
+            this.detectNewConferences();
+            this.renderSubscribedSeries();
+            this.generatePredictions();
 
-        // Listen for state updates
-        window.addEventListener('conferenceStateUpdate', (e) => {
-            if (e.detail.type === 'followedSeries') {
-                this.updateSeriesCount();
-                this.renderSubscribedSeries();
+            // Update series count
+            this.updateSeriesCount();
+
+            // Listen for state updates
+            window.addEventListener('conferenceStateUpdate', (e) => {
+                try {
+                    if (e.detail && e.detail.type === 'followedSeries') {
+                        this.updateSeriesCount();
+                        this.renderSubscribedSeries();
+                    }
+                } catch (error) {
+                    // Error handling state update
+                }
+            });
+        } catch (error) {
+            // Try to at least bind critical event handlers
+            try {
+                this.bindSeriesButtons();
+            } catch (fallbackError) {
+                // Critical SeriesManager initialization failure
             }
-        });
+        }
     },
 
     /**
@@ -114,17 +176,40 @@ const SeriesManager = {
      * Subscribe to a conference series
      */
     subscribe(seriesId, seriesName) {
-        const subscriptions = store.get(this.subscriptionsKey) || {};
+        // Input validation
+        if (!seriesId || typeof seriesId !== 'string') {
+            return false;
+        }
 
-        subscriptions[seriesId] = {
-            name: seriesName,
-            subscribedAt: new Date().toISOString(),
-            autoFavorite: true,
-            notifyOnNew: true,
-            pattern: false
-        };
+        if (!seriesName || typeof seriesName !== 'string') {
+            return false;
+        }
 
-        store.set(this.subscriptionsKey, subscriptions);
+        // Sanitize input to prevent XSS
+        seriesId = seriesId.replace(/[<>'"]/g, '');
+        seriesName = seriesName.replace(/[<>'"]/g, '');
+
+        // Use atomic update to prevent race conditions
+        const success = this.atomicStoreUpdate(this.subscriptionsKey, (subscriptions) => {
+            // Check for duplicate subscription
+            if (subscriptions[seriesId]) {
+                // Update the subscription instead of creating duplicate
+                subscriptions[seriesId].subscribedAt = new Date().toISOString();
+            } else {
+                subscriptions[seriesId] = {
+                    name: seriesName,
+                    subscribedAt: new Date().toISOString(),
+                    autoFavorite: true,
+                    notifyOnNew: true,
+                    pattern: false
+                };
+            }
+            return subscriptions;
+        });
+
+        if (!success) {
+            return false;
+        }
 
         // Update UI
         this.highlightSubscribedSeries();
@@ -144,8 +229,21 @@ const SeriesManager = {
      * Subscribe to a pattern (e.g., all PyData events)
      */
     subscribeToPattern(pattern) {
+        // Input validation
+        if (!pattern || typeof pattern !== 'string') {
+            return false;
+        }
+
+        // Sanitize input to prevent XSS
+        pattern = pattern.replace(/[<>'"]/g, '');
+
         const subscriptions = store.get(this.subscriptionsKey) || {};
         const patternId = `${pattern}-all`;
+
+        // Check for duplicate subscription
+        if (subscriptions[patternId]) {
+            return false;
+        }
 
         subscriptions[patternId] = {
             name: `All ${pattern} Events`,
@@ -175,11 +273,25 @@ const SeriesManager = {
      * Unsubscribe from a series
      */
     unsubscribe(seriesId) {
-        const subscriptions = store.get(this.subscriptionsKey) || {};
-        const seriesName = subscriptions[seriesId]?.name;
+        // Input validation
+        if (!seriesId || typeof seriesId !== 'string') {
+            return false;
+        }
 
-        delete subscriptions[seriesId];
-        store.set(this.subscriptionsKey, subscriptions);
+        let seriesName = null;
+
+        // Use atomic update to prevent race conditions
+        const success = this.atomicStoreUpdate(this.subscriptionsKey, (subscriptions) => {
+            if (subscriptions[seriesId]) {
+                seriesName = subscriptions[seriesId].name;
+                delete subscriptions[seriesId];
+            }
+            return subscriptions;
+        });
+
+        if (!success) {
+            return false;
+        }
 
         // Update UI
         this.highlightSubscribedSeries();
@@ -244,12 +356,15 @@ const SeriesManager = {
             if (subscriptions[seriesId]) {
                 const sub = subscriptions[seriesId];
 
-                if (sub.autoFavorite && !FavoritesManager.isFavorite(confId)) {
+                if (sub.autoFavorite && typeof FavoritesManager !== 'undefined') {
                     // Auto-favorite this conference
-                    const confData = FavoritesManager.extractConferenceData(confId);
-                    if (confData) {
-                        FavoritesManager.add(confId, confData);
-                        console.log(`Auto-favorited ${confName} from subscribed series`);
+                    if (FavoritesManager.isFavorite && !FavoritesManager.isFavorite(confId)) {
+                        if (FavoritesManager.extractConferenceData && FavoritesManager.add) {
+                            const confData = FavoritesManager.extractConferenceData(confId);
+                            if (confData) {
+                                FavoritesManager.add(confId, confData);
+                            }
+                        }
                     }
                 }
 
@@ -327,10 +442,14 @@ const SeriesManager = {
 
             const confSeriesId = SeriesManager.getSeriesId(confName);
 
-            if (confSeriesId === seriesId && !FavoritesManager.isFavorite(confId)) {
-                const confData = FavoritesManager.extractConferenceData(confId);
-                if (confData) {
-                    FavoritesManager.add(confId, confData);
+            if (confSeriesId === seriesId && typeof FavoritesManager !== 'undefined') {
+                if (FavoritesManager.isFavorite && !FavoritesManager.isFavorite(confId)) {
+                    if (FavoritesManager.extractConferenceData && FavoritesManager.add) {
+                        const confData = FavoritesManager.extractConferenceData(confId);
+                        if (confData) {
+                            FavoritesManager.add(confId, confData);
+                        }
+                    }
                 }
             }
         });

@@ -130,6 +130,82 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
 -   [se-deadlines.github.io (Software engineering conferences)][20] by @sivanahamer and @imranur-rahman
 -   [awesome-mlss (Machine Learning Summer Schools)][21] by @sshkhr and @gmberton
 
+## Testing
+
+### Frontend JavaScript Tests
+
+```bash
+# Run all frontend tests
+npm test
+
+# Run with coverage report
+npm run test:coverage
+
+# Run tests in watch mode (for development)
+npm run test:watch
+
+# Debug tests
+npm run test:debug
+```
+
+### End-to-End Tests
+
+```bash
+# Install Playwright browsers (first time only)
+npm run playwright:install-all
+
+# Run E2E tests
+npm run e2e
+
+# Run E2E tests with UI (for debugging)
+npm run e2e:ui
+
+# Run E2E tests for specific browser
+npm run e2e:fast  # Chromium only
+npm run e2e:all   # All browsers
+npm run e2e:mobile # Mobile viewports
+
+# Generate E2E test code
+npm run e2e:codegen
+```
+
+### Python Tests
+
+```bash
+# Using pixi (recommended)
+pixi run test
+pixi run test-cov  # With coverage
+pixi run test-fast # Stop on first failure
+
+# Or using pytest directly
+python -m pytest tests/
+python -m pytest tests/ --cov=utils --cov-report=html
+```
+
+### Jekyll Build Test
+
+```bash
+# Test Jekyll build
+bundle exec jekyll build
+
+# Serve for local testing
+pixi run serve
+# Or with test configuration
+npm run serve:test
+```
+
+### Continuous Integration
+
+The project uses GitHub Actions for automated testing:
+
+- **Smart Test Runner**: Intelligently skips tests for data-only changes
+- **Frontend Tests**: Run on JavaScript changes
+- **E2E Tests**: Run on frontend/template changes
+- **Python Tests**: Run on utility changes
+- **Data Validation**: Always runs to ensure conference data integrity
+
+See [CI Optimization Documentation](.claude/docs/ci-optimization.md) for details on how we save CI costs.
+
 ## Translations
 
 Python Deadlines is available in multiple languages to make Python conference information accessible to a global audience. We use [Crowdin](https://crowdin.com) to manage our translations.

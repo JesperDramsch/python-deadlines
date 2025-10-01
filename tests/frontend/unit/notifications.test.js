@@ -11,11 +11,24 @@ const {
 } = require('../utils/mockHelpers');
 
 const {
+  EnhancedTimerController,
+  createEnhancedLocalStorage,
+  createEnhancedJQueryMock
+} = require('../utils/enhancedMocks');
+
+const {
   createConferenceWithDeadline,
   createSavedConferences,
   setupConferenceDOM,
   createConferenceSet
 } = require('../utils/dataHelpers');
+
+const {
+  formatCfpDate,
+  createConferenceDateForThreshold,
+  createConferenceElement,
+  setupConferencesAtThresholds
+} = require('../utils/testDateHelpers');
 
 // We'll load the actual file in the test
 let NotificationManager;
@@ -28,14 +41,18 @@ describe('NotificationManager', () => {
 
   beforeEach(() => {
     // Set up mocks
-    notificationMock = mockNotificationAPI('default');
+    notificationMock = mockNotificationAPI('granted');  // Changed to granted for tests
     storeMock = mockStore();
-    timerController = new TimerController();
+
+    // Use enhanced timer controller for better Date mocking
+    timerController = new EnhancedTimerController();
+    timerController.setCurrentTime('2024-01-15T12:00:00');
+
+    // Use enhanced localStorage mock
+    createEnhancedLocalStorage();
+
     pageVisibility = mockPageVisibility(true);
     mockBootstrapModal();
-
-    // Set current time
-    timerController.setCurrentTime('2024-01-15 12:00:00');
 
     // Mock FavoritesManager (dependency of NotificationManager)
     window.FavoritesManager = {
@@ -893,6 +910,262 @@ describe('NotificationManager', () => {
       notification.onclick();
 
       expect(window.focus).toHaveBeenCalled();
+      expect(notification.close).toHaveBeenCalled();
+    });
+  });
+
+  describe('checkActionBarNotifications Coverage', () => {
+    beforeEach(() => {
+      notificationMock.permission = 'granted';
+
+      // Set up notification settings
+      storeMock.set('pythondeadlines-notification-settings', {
+        days: [14, 7, 3, 1],
+        enabled: true
+      });
+      NotificationManager.loadSettings();
+
+      // Clear any existing localStorage items
+      localStorage.clear();
+
+      // Ensure Date.now() is properly mocked
+      const currentTime = timerController.getTimeMillis();
+      global.Date.now = jest.fn(() => currentTime);
+    });
+
+    test('should check action bar notifications after 4 hours', () => {
+      const currentTime = timerController.getTimeMillis();
+
+      // Set last check to 5 hours ago to ensure we pass the 4-hour check
+      const fiveHoursAgo = currentTime - (5 * 60 * 60 * 1000);
+      localStorage.setItem('pydeadlines_lastNotifyCheck', fiveHoursAgo.toString());
+
+      // Even with no preferences, the function should update the timestamp
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({}));
+
+      NotificationManager.checkActionBarNotifications();
+
+      // The function should have updated the last check time
+      const newCheckTime = localStorage.getItem('pydeadlines_lastNotifyCheck');
+      expect(newCheckTime).toBeTruthy();
+      expect(parseInt(newCheckTime)).toBe(currentTime);
+    });
+
+    test('should not check before 4 hour interval', () => {
+      const currentTime = timerController.getTimeMillis();
+
+      // Set last check to 2 hours ago
+      const twoHoursAgo = currentTime - (2 * 60 * 60 * 1000);
+      localStorage.setItem('pydeadlines_lastNotifyCheck', twoHoursAgo.toString());
+
+      // Set up action bar preferences
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'test-conf': { save: true }
+      }));
+
+      // Add conference element at 7-day threshold
+      const cfpDate = createConferenceDateForThreshold(currentTime, 7);
+      document.body.innerHTML = createConferenceElement('test-conf', 'Test Conference', cfpDate);
+
+      NotificationManager.checkActionBarNotifications();
+
+      // Should not create any notifications
+      expect(notificationMock.instances.length).toBe(0);
+
+      // Should not update last check time
+      const checkTime = parseInt(localStorage.getItem('pydeadlines_lastNotifyCheck') || '0');
+      expect(checkTime).toBe(twoHoursAgo);
+    });
+
+    test('should handle conferences at each notification threshold', () => {
+      const currentTime = timerController.getTimeMillis();
+
+      // Set last check to 5 hours ago to allow checking
+      const fiveHoursAgo = currentTime - (5 * 60 * 60 * 1000);
+      localStorage.setItem('pydeadlines_lastNotifyCheck', fiveHoursAgo.toString());
+
+      // Set up action bar preferences for multiple conferences
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'conf-7days': { save: true },
+        'conf-3days': { save: true },
+        'conf-1days': { save: true }  // Changed to match the generated ID
+      }));
+
+      // Add conference elements at different thresholds using helper
+      setupConferencesAtThresholds(currentTime, [7, 3, 1]);
+
+      NotificationManager.checkActionBarNotifications();
+
+      // Should create notifications for conferences at thresholds
+      expect(localStorage.getItem('pydeadlines_notify_conf-7days_7')).toBeTruthy();
+      expect(localStorage.getItem('pydeadlines_notify_conf-3days_3')).toBeTruthy();
+      expect(localStorage.getItem('pydeadlines_notify_conf-1days_1')).toBeTruthy();  // Note: 1days not 1day
+    });
+
+    test('should not notify for same conference threshold twice', () => {
+      const currentTime = timerController.getTimeMillis();
+
+      // Set last check to 5 hours ago to allow checking
+      const fiveHoursAgo = currentTime - (5 * 60 * 60 * 1000);
+      localStorage.setItem('pydeadlines_lastNotifyCheck', fiveHoursAgo.toString());
+
+      // Set up action bar preferences
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'test-conf': { save: true }
+      }));
+
+      // Add conference element at 7-day threshold
+      const cfpDate = createConferenceDateForThreshold(currentTime, 7);
+      document.body.innerHTML = createConferenceElement('test-conf', 'Test Conference', cfpDate);
+
+      // First check
+      NotificationManager.checkActionBarNotifications();
+      expect(notificationMock.instances.length).toBe(1);
+
+      // Clear instances
+      notificationMock.clearInstances();
+
+      // Advance time by 5 hours and check again
+      timerController.advanceHours(5);
+      const newTime = timerController.getTimeMillis();
+      global.Date.now = jest.fn(() => newTime);
+
+      // Second check - should not notify again for same threshold
+      NotificationManager.checkActionBarNotifications();
+      expect(notificationMock.instances.length).toBe(0);
+    });
+
+    test('should parse conference data from DOM elements correctly', () => {
+      const currentTime = timerController.getTimeMillis();
+
+      // Set last check to 5 hours ago to allow checking
+      const fiveHoursAgo = currentTime - (5 * 60 * 60 * 1000);
+      localStorage.setItem('pydeadlines_lastNotifyCheck', fiveHoursAgo.toString());
+
+      // Set up action bar preferences
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'complex-conf': { save: true }
+      }));
+
+      // Add conference element with all data attributes at 7-day threshold
+      const cfpDate = createConferenceDateForThreshold(currentTime, 7);
+      document.body.innerHTML = createConferenceElement(
+        'complex-conf',
+        'Complex Conference 2025',
+        cfpDate,
+        {
+          location: 'San Francisco, CA',
+          link: 'https://example.com'
+        }
+      );
+
+      NotificationManager.checkActionBarNotifications();
+
+      // Should parse the data correctly and create notification
+      expect(notificationMock.instances.length).toBeGreaterThan(0);
+
+      if (notificationMock.instances.length > 0) {
+        const notification = notificationMock.instances[0];
+        expect(notification.body).toContain('7 day');
+        expect(notification.body).toContain('Complex Conference 2025');
+      }
+    });
+
+    test('should handle conferences with past deadlines', () => {
+      const currentTime = timerController.getTimeMillis();
+
+      // Set last check to 5 hours ago to allow checking
+      const fiveHoursAgo = currentTime - (5 * 60 * 60 * 1000);
+      localStorage.setItem('pydeadlines_lastNotifyCheck', fiveHoursAgo.toString());
+
+      // Ensure Date.now() returns our mocked time
+      global.Date.now = jest.fn(() => currentTime);
+      window.Date.now = jest.fn(() => currentTime);
+
+      // Set up action bar preferences
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'past-conf': { save: true },
+        'conf-7days': { save: true }  // Changed to match the generated ID
+      }));
+
+      // Add conferences - one past, one future at 7-day threshold
+      const pastDate = formatCfpDate(new Date(currentTime - 7 * 24 * 60 * 60 * 1000));
+      const futureDate = createConferenceDateForThreshold(currentTime, 7);
+
+      document.body.innerHTML =
+        createConferenceElement('past-conf', 'Past Conference', pastDate) +
+        createConferenceElement('conf-7days', '7 Day Conference', futureDate);
+
+      NotificationManager.checkActionBarNotifications();
+
+      // Should only notify for future conference
+      expect(localStorage.getItem('pydeadlines_notify_conf-7days_7')).toBeTruthy();
+      expect(localStorage.getItem('pydeadlines_notify_past-conf_7')).toBeFalsy();
+    });
+
+    test('should handle conferences not at exact thresholds', () => {
+      // Clear last check to allow notification
+      localStorage.removeItem('pydeadlines_lastNotifyCheck');
+
+      // Set up action bar preferences
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'conf-5days': { save: true },
+        'conf-10days': { save: true }
+      }));
+
+      // Add conferences not at exact thresholds (5 and 10 days)
+      document.body.innerHTML = `
+        <div class="ConfItem" data-conf-id="conf-5days" data-conf-name="5 Day Conference"
+             data-cfp="${new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} 23:59:59">
+        </div>
+        <div class="ConfItem" data-conf-id="conf-10days" data-conf-name="10 Day Conference"
+             data-cfp="${new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]} 23:59:59">
+        </div>
+      `;
+
+      NotificationManager.checkActionBarNotifications();
+
+      // Should not create notifications for conferences not at thresholds
+      expect(notificationMock.instances.length).toBe(0);
+    });
+
+    test('should create notification with correct onclick handler', () => {
+      const currentTime = timerController.getTimeMillis();
+
+      // Ensure Date.now() returns our mocked time
+      global.Date.now = jest.fn(() => currentTime);
+      window.Date.now = jest.fn(() => currentTime);
+
+      // Set last check to 5 hours ago to allow checking
+      const fiveHoursAgo = currentTime - (5 * 60 * 60 * 1000);
+      localStorage.setItem('pydeadlines_lastNotifyCheck', fiveHoursAgo.toString());
+
+      // Set up action bar preferences
+      localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify({
+        'scroll-conf': { save: true }
+      }));
+
+      // Add conference element at 7-day threshold
+      const cfpDate = createConferenceDateForThreshold(currentTime, 7);
+      document.body.innerHTML = createConferenceElement('scroll-conf', 'Scroll Conference', cfpDate);
+
+      // Mock scrollIntoView
+      Element.prototype.scrollIntoView = jest.fn();
+
+      NotificationManager.checkActionBarNotifications();
+
+      // Get the notification
+      const notification = notificationMock.instances[0];
+      expect(notification).toBeDefined();
+      expect(notification.onclick).toBeDefined();
+
+      // Call onclick
+      notification.onclick();
+
+      // Should focus window and scroll to element
+      expect(window.focus).toHaveBeenCalled();
+      const element = document.getElementById('scroll-conf');
+      expect(element.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'center' });
       expect(notification.close).toHaveBeenCalled();
     });
   });

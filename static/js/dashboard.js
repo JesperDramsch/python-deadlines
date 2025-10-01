@@ -18,8 +18,6 @@ const DashboardManager = {
             return;
         }
 
-        console.log('Initializing Dashboard...');
-
         this.loadConferences();
         this.setupViewToggle();
         this.setupNotifications();
@@ -36,11 +34,8 @@ const DashboardManager = {
      * Load favorite conferences using ConferenceStateManager
      */
     loadConferences() {
-        console.log('Loading conferences...');
-
         // Wait for ConferenceStateManager
         if (!window.confManager) {
-            console.log('Waiting for ConferenceStateManager...');
             setTimeout(() => this.loadConferences(), 100);
             return;
         }
@@ -52,8 +47,6 @@ const DashboardManager = {
 
         // Get saved events from ConferenceStateManager
         this.conferences = window.confManager.getSavedEvents();
-
-        console.log(`Found ${this.conferences.length} saved conferences`);
 
         // Apply initial filters
         this.applyFilters();

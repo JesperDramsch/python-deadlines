@@ -12,13 +12,24 @@ const NotificationManager = {
      * Initialize notification system
      */
     init() {
-        this.checkBrowserSupport();
-        this.loadSettings();
-        this.bindEvents();
-        this.checkUpcomingDeadlines();
+        try {
+            this.checkBrowserSupport();
+            this.loadSettings();
+            this.bindEvents();
+            this.checkUpcomingDeadlines();
 
-        // Schedule periodic checks
-        this.schedulePeriodicChecks();
+            // Schedule periodic checks
+            this.schedulePeriodicChecks();
+        } catch (error) {
+            console.error('Failed to initialize NotificationManager:', error);
+            // Try to at least set up basic functionality
+            try {
+                this.loadSettings();
+                this.bindEvents();
+            } catch (fallbackError) {
+                console.error('Critical initialization failure:', fallbackError);
+            }
+        }
     },
 
     /**
@@ -53,22 +64,28 @@ const NotificationManager = {
             const permission = await Notification.requestPermission();
 
             if (permission === 'granted') {
-                FavoritesManager.showToast(
-                    'Notifications Enabled',
-                    'You will receive notifications for upcoming CFP deadlines.',
-                    'success'
-                );
+                // Defensive check for FavoritesManager
+                if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
+                    FavoritesManager.showToast(
+                        'Notifications Enabled',
+                        'You will receive notifications for upcoming CFP deadlines.',
+                        'success'
+                    );
+                }
 
                 $('#notification-prompt').fadeOut();
 
                 // Show test notification
                 this.showTestNotification();
             } else if (permission === 'denied') {
-                FavoritesManager.showToast(
-                    'Notifications Blocked',
-                    'You can enable notifications in your browser settings.',
-                    'warning'
-                );
+                // Defensive check for FavoritesManager
+                if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
+                    FavoritesManager.showToast(
+                        'Notifications Blocked',
+                        'You can enable notifications in your browser settings.',
+                        'warning'
+                    );
+                }
 
                 $('#notification-prompt').fadeOut();
             }
@@ -125,7 +142,10 @@ const NotificationManager = {
      */
     saveSettings() {
         store.set(this.settingsKey, this.settings);
-        FavoritesManager.showToast('Settings Saved', 'Notification preferences updated.');
+        // Defensive check for FavoritesManager
+        if (typeof FavoritesManager !== 'undefined' && FavoritesManager.showToast) {
+            FavoritesManager.showToast('Settings Saved', 'Notification preferences updated.');
+        }
     },
 
     /**
@@ -201,7 +221,18 @@ const NotificationManager = {
             if (!conf) return;
 
             try {
+                // Validate date string before parsing
+                if (!conf.cfp || conf.cfp === 'TBA' || conf.cfp === 'None') {
+                    return; // Skip invalid date entries
+                }
+
                 const cfpDate = new Date(conf.cfp);
+                // Check for Invalid Date
+                if (isNaN(cfpDate.getTime())) {
+                    console.warn(`Invalid CFP date for conference ${confId}: ${conf.cfp}`);
+                    return;
+                }
+
                 const daysUntil = Math.ceil((cfpDate - now) / (1000 * 60 * 60 * 24));
 
                 // Check if we should notify (7, 3, or 1 day before)
@@ -248,13 +279,29 @@ const NotificationManager = {
      * Check for upcoming deadlines
      */
     checkUpcomingDeadlines() {
-        const now = new Date();
-        const favorites = FavoritesManager.getSavedConferences();
-        const notifiedKey = 'pythondeadlines-notified-deadlines';
-        const notified = store.get(notifiedKey) || {};
+        try {
+            const now = new Date();
+            // Defensive check for FavoritesManager
+            const favorites = (typeof FavoritesManager !== 'undefined' && FavoritesManager.getSavedConferences)
+                ? FavoritesManager.getSavedConferences()
+                : {};
+            const notifiedKey = 'pythondeadlines-notified-deadlines';
+            const notified = store.get(notifiedKey) || {};
 
         Object.values(favorites).forEach(conf => {
-            const cfpDate = new Date(conf.cfpExt || conf.cfp);
+            // Validate date strings before parsing
+            const dateString = conf.cfpExt || conf.cfp;
+            if (!dateString || dateString === 'TBA' || dateString === 'None') {
+                return; // Skip invalid date entries
+            }
+
+            const cfpDate = new Date(dateString);
+            // Check for Invalid Date
+            if (isNaN(cfpDate.getTime())) {
+                console.warn(`Invalid CFP date for conference ${conf.name}: ${dateString}`);
+                return;
+            }
+
             const daysUntil = Math.ceil((cfpDate - now) / (1000 * 60 * 60 * 24));
 
             // Check if we should notify for this deadline
@@ -282,6 +329,10 @@ const NotificationManager = {
             });
             store.set(notifiedKey, notified);
         });
+        } catch (error) {
+            console.error('Error checking upcoming deadlines:', error);
+            // Don't let errors crash the entire system
+        }
     },
 
     /**
@@ -368,11 +419,25 @@ const NotificationManager = {
      */
     scheduleNotifications() {
         const scheduled = {};
-        const favorites = FavoritesManager.getSavedConferences();
+        // Defensive check for FavoritesManager
+        const favorites = (typeof FavoritesManager !== 'undefined' && FavoritesManager.getSavedConferences)
+            ? FavoritesManager.getSavedConferences()
+            : {};
         const now = new Date();
 
         Object.values(favorites).forEach(conf => {
-            const cfpDate = new Date(conf.cfpExt || conf.cfp);
+            // Validate date strings before parsing
+            const dateString = conf.cfpExt || conf.cfp;
+            if (!dateString || dateString === 'TBA' || dateString === 'None') {
+                return; // Skip invalid date entries
+            }
+
+            const cfpDate = new Date(dateString);
+            // Check for Invalid Date
+            if (isNaN(cfpDate.getTime())) {
+                console.warn(`Invalid CFP date for conference ${conf.name}: ${dateString}`);
+                return;
+            }
 
             // Only schedule for future deadlines
             if (cfpDate > now) {
@@ -400,8 +465,13 @@ const NotificationManager = {
      * Schedule periodic checks for notifications
      */
     schedulePeriodicChecks() {
+        // Clear any existing interval to prevent memory leaks
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+        }
+
         // Check every hour
-        setInterval(() => {
+        this.checkInterval = setInterval(() => {
             this.checkUpcomingDeadlines();
         }, 60 * 60 * 1000);
 
@@ -459,12 +529,34 @@ const NotificationManager = {
         };
 
         this.sendDeadlineNotification(testConf, 7);
+    },
+
+    /**
+     * Cleanup method to prevent memory leaks
+     */
+    cleanup() {
+        // Clear interval timer
+        if (this.checkInterval) {
+            clearInterval(this.checkInterval);
+            this.checkInterval = null;
+        }
+
+        // Remove event listeners (using named functions would make this easier)
+        // For now, we'll just log that cleanup occurred
+        console.log('NotificationManager cleanup completed');
     }
 };
 
 // Initialize on document ready
 $(document).ready(function() {
     NotificationManager.init();
+});
+
+// Cleanup on page unload to prevent memory leaks
+$(window).on('beforeunload', function() {
+    if (NotificationManager && NotificationManager.cleanup) {
+        NotificationManager.cleanup();
+    }
 });
 
 // Expose for testing

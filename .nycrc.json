@@ -1,0 +1,31 @@
+{
+  "all": true,
+  "include": [
+    "static/js/**/*.js"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/*.min.js",
+    "**/vendor/**",
+    "tests/**",
+    "coverage/**"
+  ],
+  "reporter": [
+    "text",
+    "lcov",
+    "html",
+    "json-summary"
+  ],
+  "report-dir": "coverage",
+  "check-coverage": true,
+  "branches": 70,
+  "lines": 75,
+  "functions": 75,
+  "statements": 75,
+  "watermarks": {
+    "lines": [75, 90],
+    "functions": [75, 90],
+    "branches": [70, 85],
+    "statements": [75, 90]
+  }
+}

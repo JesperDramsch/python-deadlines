@@ -20,13 +20,36 @@ on:
     # Allow manual trigger for testing
 
 jobs:
-  test:
-    name: Run JavaScript Tests
+  # Determine which tests to run based on changed files
+  changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
+    outputs:
+      js: ${{ steps.filter.outputs.js }}
+      test: ${{ steps.filter.outputs.test }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            js:
+              - 'static/js/**'
+            test:
+              - 'tests/frontend/**'
+              - 'jest.config.js'
+
+  test:
+    name: Run JavaScript Tests (Node ${{ matrix.node-version }}, Shard ${{ matrix.shard }})
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.js == 'true' || needs.changes.outputs.test == 'true' || github.event_name == 'workflow_dispatch'
 
     strategy:
+      fail-fast: true  # Stop all jobs if one fails
       matrix:
         node-version: [18, 20]
+        shard: [1, 2, 3]  # Split tests into 3 shards for parallel execution
 
     steps:
       - name: 📂 Checkout repository
@@ -37,25 +60,36 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: 📦 Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v5
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.node-version }}-
 
       - name: 📦 Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
           npm ci
           # Also install optional reporter if needed
           npm install jest-html-reporter --save-dev || true
 
-      - name: 🧪 Run unit tests
-        run: npm test -- --coverage --ci --maxWorkers=2
+      - name: 🧪 Run unit tests (Shard ${{ matrix.shard }}/3)
+        run: npm test -- --coverage --ci --maxWorkers=1 --shard=${{ matrix.shard }}/3
         env:
           CI: true
 
       - name: 📊 Generate coverage report
-        if: matrix.node-version == '20'  # Only run coverage on one version
+        if: matrix.node-version == '20' && matrix.shard == 1  # Only run coverage on one shard/version combo
         run: |
           npm run test:coverage || true
 
       - name: 📤 Upload coverage to Codecov
-        if: matrix.node-version == '20'
+        if: matrix.node-version == '20' && matrix.shard == 1
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage/lcov.info
@@ -67,14 +101,14 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-node-${{ matrix.node-version }}
+          name: test-results-node-${{ matrix.node-version }}-shard-${{ matrix.shard }}
           path: |
             coverage/
             test-report.html
           retention-days: 7
 
       - name: 💬 Comment PR with results
-        if: github.event_name == 'pull_request' && matrix.node-version == '20'
+        if: github.event_name == 'pull_request' && matrix.node-version == '20' && matrix.shard == 1
         uses: actions/github-script@v8
         with:
           script: |

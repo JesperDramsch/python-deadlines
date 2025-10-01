@@ -12,25 +12,19 @@ const FavoritesManager = {
     init() {
         // Prevent multiple initializations
         if (this.initialized) {
-            console.log('FavoritesManager already initialized');
             return;
         }
 
         // Wait for ConferenceStateManager to be ready
         if (!window.confManager) {
-            console.error('ConferenceStateManager not found, cannot initialize FavoritesManager');
             return;
         }
 
         this.initialized = true;
-        console.log('Initializing FavoritesManager');
 
         this.bindFavoriteButtons();
         this.updateFavoriteCounts();
         this.highlightFavorites();
-
-        // Check for import/export functionality
-        this.setupImportExport();
 
         // Listen for state updates from ConferenceStateManager
         window.addEventListener('conferenceStateUpdate', (e) => {
@@ -51,22 +45,26 @@ const FavoritesManager = {
             const confId = $btn.data('conf-id');
 
             if (!confId) {
-                console.error('No conference ID found on favorite button');
                 return;
             }
 
             if (window.confManager.isEventSaved(confId)) {
-                // Remove from saved events
-                window.confManager.removeSavedEvent(confId);
+                // Remove from saved events using FavoritesManager method
+                FavoritesManager.remove(confId);
                 $btn.removeClass('favorited');
                 $btn.find('i').removeClass('fas').addClass('far');
                 $btn.css('color', '#ccc');
             } else {
-                // Add to saved events
-                window.confManager.saveEvent(confId);
-                $btn.addClass('favorited');
-                $btn.find('i').removeClass('far').addClass('fas');
-                $btn.css('color', '#ffd700');
+                // Add to saved events using FavoritesManager method
+                // Get conference data from ConferenceStateManager
+                const confData = window.confManager.getConference(confId) ||
+                                 FavoritesManager.extractConferenceData(confId);
+                if (confData) {
+                    FavoritesManager.add(confId, confData);
+                    $btn.addClass('favorited');
+                    $btn.find('i').removeClass('far').addClass('fas');
+                    $btn.css('color', '#ffd700');
+                }
             }
 
             FavoritesManager.updateFavoriteCounts();
@@ -80,7 +78,6 @@ const FavoritesManager = {
         const $confElement = $(`[data-conf-id="${confId}"]`).first();
 
         if (!$confElement.length) {
-            console.error('Conference element not found:', confId);
             return null;
         }
 
@@ -136,10 +133,16 @@ const FavoritesManager = {
 
                 // If on dashboard, remove the card
                 if (window.location.pathname.includes('/my-conferences')) {
-                    $(`#conference-cards [data-conf-id="${confId}"]`).fadeOut(300, function() {
-                        $(this).remove();
-                        DashboardManager.checkEmptyState();
-                    });
+                    // Find the card with the conf-id and get its parent column
+                    const $card = $(`#conference-cards .conference-card[data-conf-id="${confId}"]`).closest('.col-md-6, .col-lg-4, .col-12');
+                    if ($card.length) {
+                        $card.fadeOut(300, function() {
+                            $(this).remove();
+                            if (typeof DashboardManager !== 'undefined') {
+                                DashboardManager.checkEmptyState();
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -213,96 +216,6 @@ const FavoritesManager = {
         }
     },
 
-    /**
-     * Setup import/export functionality
-     */
-    setupImportExport() {
-        // Export favorites
-        $('#export-favorites').on('click', function() {
-            FavoritesManager.exportFavorites();
-        });
-
-        // Import favorites (would need file input)
-        $('#import-favorites').on('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                FavoritesManager.importFavorites(file);
-            }
-        });
-    },
-
-    /**
-     * Export favorites as JSON
-     */
-    exportFavorites() {
-        const data = {
-            version: '1.0',
-            exportDate: new Date().toISOString(),
-            favorites: this.getFavorites(),
-            conferences: this.getSavedConferences(),
-            settings: store.get('pythondeadlines-settings') || {}
-        };
-
-        const json = JSON.stringify(data, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `python-deadlines-favorites-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        this.showToast('Export Complete', 'Your favorites have been downloaded.');
-    },
-
-    /**
-     * Import favorites from JSON file
-     */
-    importFavorites(file) {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-
-                // Validate data structure
-                if (!data.favorites || !data.conferences) {
-                    throw new Error('Invalid import file format');
-                }
-
-                // Merge with existing favorites
-                const existingFavorites = this.getFavorites();
-                const existingConferences = this.getSavedConferences();
-
-                // Add new favorites
-                const newFavorites = [...new Set([...existingFavorites, ...data.favorites])];
-                const newConferences = { ...existingConferences, ...data.conferences };
-
-                // Save
-                store.set(this.storageKey, newFavorites);
-                store.set(this.conferencesKey, newConferences);
-
-                // Update UI
-                this.updateFavoriteCounts();
-                this.highlightFavorites();
-
-                // Reload dashboard if on dashboard page
-                if (window.location.pathname.includes('/dashboard')) {
-                    DashboardManager.loadConferences();
-                }
-
-                this.showToast('Import Complete', `Imported ${data.favorites.length} favorites.`);
-            } catch (error) {
-                console.error('Import error:', error);
-                this.showToast('Import Failed', 'Could not import the file. Please check the format.', 'error');
-            }
-        };
-
-        reader.readAsText(file);
-    },
 
     /**
      * Show toast notification
@@ -339,7 +252,6 @@ const FavoritesManager = {
                     $(this).remove();
                 });
             } catch (error) {
-                console.warn('Bootstrap toast failed, using fallback:', error);
                 this.showFallbackToast(toast);
             }
         } else {
@@ -407,10 +319,8 @@ window.FavoritesManager = FavoritesManager;
 // Initialize favorites manager when ConferenceStateManager is ready
 function initFavoritesWhenReady() {
     if (window.confManager && window.FavoritesManager && !window.FavoritesManager.initialized) {
-        console.log('Both managers ready, initializing FavoritesManager');
         window.FavoritesManager.init();
     } else if (!window.confManager) {
-        console.log('Waiting for ConferenceStateManager...');
         setTimeout(initFavoritesWhenReady, 50);
     }
 }
@@ -418,18 +328,15 @@ function initFavoritesWhenReady() {
 // Try multiple initialization strategies to ensure it works
 // Strategy 1: Listen for conferenceManagerReady event
 window.addEventListener('conferenceManagerReady', function(e) {
-    console.log('Conference manager ready event received');
     initFavoritesWhenReady();
 });
 
 // Strategy 2: Check on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded - checking for managers');
     initFavoritesWhenReady();
 });
 
 // Strategy 3: If script loads after DOM is ready
 if (document.readyState === 'interactive' || document.readyState === 'complete') {
-    console.log('Document already loaded - checking for managers');
     setTimeout(initFavoritesWhenReady, 100);
 }

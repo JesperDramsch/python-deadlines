@@ -3,265 +3,346 @@ layout: default
 title: My Conferences
 permalink: /my-conferences/
 extra_css:
-  - /static/css/dashboard.css
+    - /static/css/dashboard.css
 extra_js:
-  - /static/js/dashboard.js
-  - /static/js/dashboard-filters.js
-  - /static/js/notifications.js
+    - /static/js/dashboard.js
+    - /static/js/dashboard-filters.js
+    - /static/js/notifications.js
 ---
 
 <!-- Initialize conference data for JavaScript -->
 <script>
-  // Load conference data from Jekyll
-  window.conferenceTypes = {{ site.data.types | jsonify }};
-  window.conferenceData = {
-    active: {{ site.data.conferences | jsonify }},
-    types: {{ site.data.types | jsonify }}
-  };
+	// Load conference data from Jekyll
+	window.conferenceTypes = {{ site.data.types | jsonify }};
+
+	// Create conference data with Jekyll-generated IDs
+	var conferencesWithIds = [];
+	{% for conf in site.data.conferences %}
+	conferencesWithIds.push({
+		id: "{{ conf.conference | slugify: 'latin' }}-{{ conf.year }}",
+		conference: {{ conf.conference | jsonify }},
+		year: {{ conf.year | jsonify }},
+		link: {{ conf.link | jsonify }},
+		cfp: {{ conf.cfp | jsonify }},
+		place: {{ conf.place | jsonify }},
+		start: {{ conf.start | jsonify }},
+		end: {{ conf.end | jsonify }},
+		sub: {{ conf.sub | jsonify }},
+		cfp_ext: {{ conf.cfp_ext | jsonify }},
+		cfp_link: {{ conf.cfp_link | jsonify }},
+		note: {{ conf.note | jsonify }},
+		sponsor: {{ conf.sponsor | jsonify }},
+		finaid: {{ conf.finaid | jsonify }},
+		twitter: {{ conf.twitter | jsonify }},
+		mastodon: {{ conf.mastodon | jsonify }},
+		bluesky: {{ conf.bluesky | jsonify }},
+		location: {{ conf.location | jsonify }},
+		extra_places: {{ conf.extra_places | jsonify }},
+		workshop_deadline: {{ conf.workshop_deadline | jsonify }},
+		tutorial_deadline: {{ conf.tutorial_deadline | jsonify }},
+		timezone: {{ conf.timezone | jsonify }}
+	});
+	{% endfor %}
+
+	window.conferenceData = {
+		active: conferencesWithIds,
+		types: {{ site.data.types | jsonify }}
+	};
 </script>
 
 <div class="container-fluid">
-  <div class="row">
-    <!-- Filter Sidebar -->
-    <div class="col-md-3 col-sm-12">
-      <div class="card filter-panel mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Filters</h5>
-          <button id="clear-filters" class="btn btn-sm btn-link text-danger">Clear All</button>
-        </div>
-        <div class="card-body">
-          <!-- Format Filter -->
-          <div class="filter-group mb-3">
-            <h6>Conference Format</h6>
-            <div class="form-check">
-              <input class="form-check-input format-filter" type="checkbox" value="virtual" id="filter-virtual">
-              <label class="form-check-label" for="filter-virtual">
-                <i class="fas fa-video"></i> Virtual
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input format-filter" type="checkbox" value="hybrid" id="filter-hybrid">
-              <label class="form-check-label" for="filter-hybrid">
-                <i class="fas fa-globe"></i> Hybrid
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input format-filter" type="checkbox" value="in-person" id="filter-in-person">
-              <label class="form-check-label" for="filter-in-person">
-                <i class="fas fa-users"></i> In-Person
-              </label>
-            </div>
-          </div>
+	<div class="row">
+		<!-- Filter Sidebar -->
+		<div class="col-md-3 col-sm-12">
+			<div class="card filter-panel mb-3">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Filters</h5>
+					<button id="clear-filters" class="btn btn-sm btn-link text-danger">Clear All</button>
+				</div>
+				<div class="card-body">
+					<!-- Format Filter -->
+					<div class="filter-group mb-3">
+						<h6>Conference Format</h6>
+						<div class="form-check">
+							<input
+								class="form-check-input format-filter"
+								type="checkbox"
+								value="virtual"
+								id="filter-virtual"
+							/>
+							<label class="form-check-label" for="filter-virtual">
+								<i class="fas fa-video"></i> Virtual
+							</label>
+						</div>
+						<div class="form-check">
+							<input
+								class="form-check-input format-filter"
+								type="checkbox"
+								value="hybrid"
+								id="filter-hybrid"
+							/>
+							<label class="form-check-label" for="filter-hybrid">
+								<i class="fas fa-globe"></i> Hybrid
+							</label>
+						</div>
+						<div class="form-check">
+							<input
+								class="form-check-input format-filter"
+								type="checkbox"
+								value="in-person"
+								id="filter-in-person"
+							/>
+							<label class="form-check-label" for="filter-in-person">
+								<i class="fas fa-users"></i> In-Person
+							</label>
+						</div>
+					</div>
 
-          <!-- Topic Filter -->
-          <div class="filter-group mb-3">
-            <h6>Topics</h6>
-            {% for type in site.data.types %}
-            <div class="form-check">
-              <input class="form-check-input topic-filter" type="checkbox" value="{{ type.sub }}" id="filter-{{ type.sub }}">
-              <label class="form-check-label" for="filter-{{ type.sub }}">
-                <span class="badge" style="background-color: {{ type.color }}">{{ type.sub }}</span> {{ type.name }}
-              </label>
-            </div>
-            {% endfor %}
-          </div>
+					<!-- Topic Filter -->
+					<div class="filter-group mb-3">
+						<h6>Topics</h6>
+						{% for type in site.data.types %}
+						<div class="form-check">
+							<input
+								class="form-check-input topic-filter"
+								type="checkbox"
+								value="{{ type.sub }}"
+								id="filter-{{ type.sub }}"
+							/>
+							<label class="form-check-label" for="filter-{{ type.sub }}">
+								<span class="badge" style="background-color: {{ type.color }}">{{ type.sub }}</span> {{
+								type.name }}
+							</label>
+						</div>
+						{% endfor %}
+					</div>
 
-          <!-- Features Filter -->
-          <div class="filter-group mb-3">
-            <h6>Features</h6>
-            <div class="form-check">
-              <input class="form-check-input feature-filter" type="checkbox" value="finaid" id="filter-finaid">
-              <label class="form-check-label" for="filter-finaid">
-                <i class="fas fa-hand-holding-dollar"></i> Financial Aid
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input feature-filter" type="checkbox" value="workshop" id="filter-workshop">
-              <label class="form-check-label" for="filter-workshop">
-                <i class="fas fa-chalkboard-user"></i> Workshops
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input feature-filter" type="checkbox" value="sponsor" id="filter-sponsor">
-              <label class="form-check-label" for="filter-sponsor">
-                <i class="fas fa-handshake"></i> Sponsorship
-              </label>
-            </div>
-          </div>
+					<!-- Features Filter -->
+					<div class="filter-group mb-3">
+						<h6>Features</h6>
+						<div class="form-check">
+							<input
+								class="form-check-input feature-filter"
+								type="checkbox"
+								value="finaid"
+								id="filter-finaid"
+							/>
+							<label class="form-check-label" for="filter-finaid">
+								<i class="fas fa-hand-holding-dollar"></i> Financial Aid
+							</label>
+						</div>
+						<div class="form-check">
+							<input
+								class="form-check-input feature-filter"
+								type="checkbox"
+								value="workshop"
+								id="filter-workshop"
+							/>
+							<label class="form-check-label" for="filter-workshop">
+								<i class="fas fa-chalkboard-user"></i> Workshops
+							</label>
+						</div>
+						<div class="form-check">
+							<input
+								class="form-check-input feature-filter"
+								type="checkbox"
+								value="sponsor"
+								id="filter-sponsor"
+							/>
+							<label class="form-check-label" for="filter-sponsor">
+								<i class="fas fa-handshake"></i> Sponsorship
+							</label>
+						</div>
+					</div>
 
-          <!-- Series Filter -->
-          <div class="filter-group mb-3">
-            <h6>Series</h6>
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="filter-subscribed-series">
-              <label class="form-check-label" for="filter-subscribed-series">
-                <i class="fas fa-bell"></i> Only Subscribed Series
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
+					<!-- Series Filter -->
+					<div class="filter-group mb-3">
+						<h6>Series</h6>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" id="filter-subscribed-series" />
+							<label class="form-check-label" for="filter-subscribed-series">
+								<i class="fas fa-bell"></i> Only Subscribed Series
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>
 
-      <!-- Series Subscriptions Card -->
-      <div class="card series-panel mb-3">
-        <div class="card-header">
-          <h5 class="mb-0">Conference Series</h5>
-        </div>
-        <div class="card-body">
-          <div id="subscribed-series-list">
-            <!-- Populated by JavaScript -->
-          </div>
-          <hr>
-          <h6>Quick Subscribe</h6>
-          <div class="btn-group-vertical w-100" role="group">
-            <button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="pycon">
-              + PyCon Events
-            </button>
-            <button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="pydata">
-              + PyData Events
-            </button>
-            <button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="europython">
-              + EuroPython
-            </button>
-            <button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="djangocon">
-              + DjangoCon Events
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+			<!-- Series Subscriptions Card -->
+			<div class="card series-panel mb-3">
+				<div class="card-header">
+					<h5 class="mb-0">Conference Series</h5>
+				</div>
+				<div class="card-body">
+					<div id="subscribed-series-list">
+						<!-- Populated by JavaScript -->
+					</div>
+					<hr />
+					<h6>Quick Subscribe</h6>
+					<div class="btn-group-vertical w-100" role="group">
+						<button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="pycon">
+							+ PyCon Events
+						</button>
+						<button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="pydata">
+							+ PyData Events
+						</button>
+						<button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="europython">
+							+ EuroPython
+						</button>
+						<button class="btn btn-sm btn-outline-primary quick-subscribe" data-series="djangocon">
+							+ DjangoCon Events
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-    <!-- Main Content Area -->
-    <div class="col-md-9 col-sm-12">
-      <!-- Dashboard Header -->
-      <div class="dashboard-header mb-4">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <h2>My Conference Dashboard</h2>
-            <p class="text-muted">
-              <span id="conference-count">0</span> favorite conferences |
-              <span id="series-count">0</span> series subscriptions
-            </p>
-          </div>
-          <div class="col-md-6 text-md-right">
-            <div class="btn-group" role="group">
-              <button id="view-grid" class="btn btn-outline-secondary active">
-                <i class="fas fa-th"></i> Grid
-              </button>
-              <button id="view-list" class="btn btn-outline-secondary">
-                <i class="fas fa-list"></i> List
-              </button>
-            </div>
-            <button id="notification-settings" class="btn btn-outline-primary ml-2">
-              <i class="fas fa-bell"></i> Notifications
-            </button>
-            <button id="export-favorites" class="btn btn-outline-success ml-2">
-              <i class="fas fa-download"></i> Export
-            </button>
-          </div>
-        </div>
-      </div>
+		<!-- Main Content Area -->
+		<div class="col-md-9 col-sm-12">
+			<!-- Beta Testing Banner -->
+			<div class="alert alert-warning alert-dismissible fade show mt-3 mb-3" role="alert">
+				<div class="d-flex align-items-center">
+					<i class="fas fa-flask mr-2"></i>
+					<div>
+						<strong>Beta Feature:</strong> This personalized dashboard is currently in testing. Features may
+						change based on user feedback.
+						<a href="https://github.com/jesperdramsch/python-deadlines/issues" class="alert-link"
+							>Share your feedback!</a
+						>
+					</div>
+				</div>
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
 
-      <!-- Notification Permission Alert -->
-      <div id="notification-prompt" class="alert alert-info alert-dismissible fade show" style="display: none;">
-        <strong>Stay Updated!</strong> Enable browser notifications to never miss a CFP deadline.
-        <button id="enable-notifications" class="btn btn-sm btn-primary ml-2">Enable Notifications</button>
-        <button type="button" class="close" data-dismiss="alert">
-          <span>&times;</span>
-        </button>
-      </div>
+			<!-- Dashboard Header -->
+			<div class="dashboard-header mb-4">
+				<div class="row align-items-center">
+					<div class="col-md-6">
+						<h2>My Conference Dashboard</h2>
+						<p class="text-muted">
+							<span id="conference-count">0</span> favorite conferences |
+							<span id="series-count">0</span> series subscriptions
+						</p>
+					</div>
+					<div class="col-md-6 text-md-right">
+						<div class="btn-group" role="group">
+							<button id="view-grid" class="btn btn-outline-secondary active">
+								<i class="fas fa-th"></i> Grid
+							</button>
+							<button id="view-list" class="btn btn-outline-secondary">
+								<i class="fas fa-list"></i> List
+							</button>
+						</div>
+						<button id="notification-settings" class="btn btn-outline-primary ml-2">
+							<i class="fas fa-bell"></i> Notifications
+						</button>
+					</div>
+				</div>
+			</div>
 
-      <!-- Conference Container -->
-      <div id="conference-container" class="view-grid">
-        <!-- Loading State -->
-        <div id="loading-state" class="text-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="sr-only">Loading...</span>
-          </div>
-          <p class="mt-2">Loading your conferences...</p>
-        </div>
+			<!-- Notification Permission Alert -->
+			<div id="notification-prompt" class="alert alert-info alert-dismissible fade show" style="display: none">
+				<strong>Stay Updated!</strong> Enable browser notifications to never miss a CFP deadline.
+				<button id="enable-notifications" class="btn btn-sm btn-primary ml-2">Enable Notifications</button>
+				<button type="button" class="close" data-dismiss="alert">
+					<span>&times;</span>
+				</button>
+			</div>
 
-        <!-- Empty State (shown when no favorites) -->
-        <div id="empty-state" class="text-center py-5" style="display: none;">
-          <i class="far fa-star fa-4x text-muted mb-3"></i>
-          <h4>No Favorite Conferences Yet</h4>
-          <p class="text-muted">
-            Start by browsing the <a href="/">conference list</a> and clicking the star icon to add favorites.
-          </p>
-          <p class="text-muted">
-            Or subscribe to a conference series above to automatically track new editions!
-          </p>
-        </div>
+			<!-- Conference Container -->
+			<div id="conference-container" class="view-grid">
+				<!-- Loading State -->
+				<div id="loading-state" class="text-center py-5">
+					<div class="spinner-border text-primary" role="status">
+						<span class="sr-only">Loading...</span>
+					</div>
+					<p class="mt-2">Loading your conferences...</p>
+				</div>
 
-        <!-- Conference Cards Container -->
-        <div id="conference-cards" class="row">
-          <!-- Populated by JavaScript -->
-        </div>
-      </div>
+				<!-- Empty State (shown when no favorites) -->
+				<div id="empty-state" class="text-center py-5" style="display: none">
+					<i class="far fa-star fa-4x text-muted mb-3"></i>
+					<h4>No Favorite Conferences Yet</h4>
+					<p class="text-muted">
+						Start by browsing the <a href="/">conference list</a> and clicking the star icon to add
+						favorites.
+					</p>
+					<p class="text-muted">
+						Or subscribe to a conference series above to automatically track new editions!
+					</p>
+				</div>
 
-      <!-- Series Predictions Section -->
-      <div id="series-predictions" class="mt-4">
-        <h4>Predicted Upcoming CFPs</h4>
-        <div id="predictions-container">
-          <!-- Populated by JavaScript based on series history -->
-        </div>
-      </div>
-    </div>
-  </div>
+				<!-- Conference Cards Container -->
+				<div id="conference-cards" class="row">
+					<!-- Populated by JavaScript -->
+				</div>
+			</div>
+
+			<!-- Series Predictions Section -->
+			<div id="series-predictions" class="mt-4">
+				<h4>Predicted Upcoming CFPs</h4>
+				<div id="predictions-container">
+					<!-- Populated by JavaScript based on series history -->
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- Notification Settings Modal -->
 <div class="modal fade" id="notificationModal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Notification Settings</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span>&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <h6>Notify me before CFP deadlines:</h6>
-        <div class="form-check">
-          <input class="form-check-input notify-days" type="checkbox" value="14" id="notify-14" checked>
-          <label class="form-check-label" for="notify-14">14 days before</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input notify-days" type="checkbox" value="7" id="notify-7" checked>
-          <label class="form-check-label" for="notify-7">7 days before</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input notify-days" type="checkbox" value="3" id="notify-3" checked>
-          <label class="form-check-label" for="notify-3">3 days before</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input notify-days" type="checkbox" value="1" id="notify-1">
-          <label class="form-check-label" for="notify-1">1 day before</label>
-        </div>
-        <hr>
-        <h6>Series Notifications:</h6>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="notify-new-editions" checked>
-          <label class="form-check-label" for="notify-new-editions">
-            Notify when new editions of subscribed series are added
-          </label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" id="auto-favorite-series" checked>
-          <label class="form-check-label" for="auto-favorite-series">
-            Auto-favorite new editions of subscribed series
-          </label>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="save-notification-settings">Save Settings</button>
-      </div>
-    </div>
-  </div>
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Notification Settings</h5>
+				<button type="button" class="close" data-dismiss="modal">
+					<span>&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<h6>Notify me before CFP deadlines:</h6>
+				<div class="form-check">
+					<input class="form-check-input notify-days" type="checkbox" value="14" id="notify-14" checked />
+					<label class="form-check-label" for="notify-14">14 days before</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input notify-days" type="checkbox" value="7" id="notify-7" checked />
+					<label class="form-check-label" for="notify-7">7 days before</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input notify-days" type="checkbox" value="3" id="notify-3" checked />
+					<label class="form-check-label" for="notify-3">3 days before</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input notify-days" type="checkbox" value="1" id="notify-1" />
+					<label class="form-check-label" for="notify-1">1 day before</label>
+				</div>
+				<hr />
+				<h6>Series Notifications:</h6>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="notify-new-editions" checked />
+					<label class="form-check-label" for="notify-new-editions">
+						Notify when new editions of subscribed series are added
+					</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="auto-favorite-series" checked />
+					<label class="form-check-label" for="auto-favorite-series">
+						Auto-favorite new editions of subscribed series
+					</label>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary" id="save-notification-settings">Save Settings</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- Toast Container for Notifications -->
-<div id="toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999;">
-  <!-- Toasts will be added here dynamically -->
+<div id="toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 9999">
+	<!-- Toasts will be added here dynamically -->
 </div>

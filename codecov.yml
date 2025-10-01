@@ -1,0 +1,94 @@
+# Codecov configuration for Python Deadlines
+
+coverage:
+  # Coverage precision
+  precision: 2
+  round: down
+  range: "70...90"
+
+  status:
+    # Overall project coverage
+    project:
+      default:
+        target: 75%
+        threshold: 2%
+        base: auto
+        if_not_found: success
+        if_ci_failed: error
+        only_pulls: false
+
+      # Frontend JavaScript coverage
+      frontend:
+        target: 75%
+        threshold: 2%
+        paths:
+          - "static/js/**/*.js"
+        flags:
+          - frontend
+
+      # Python utilities coverage
+      python:
+        target: 80%
+        threshold: 2%
+        paths:
+          - "utils/**/*.py"
+        flags:
+          - python
+
+    # Patch coverage for PRs
+    patch:
+      default:
+        target: 80%
+        threshold: 5%
+        base: auto
+        if_not_found: success
+
+# Flags configuration
+flags:
+  frontend:
+    paths:
+      - "static/js/**/*.js"
+    carryforward: true
+
+  python:
+    paths:
+      - "utils/**/*.py"
+    carryforward: true
+
+  e2e:
+    paths:
+      - "tests/e2e/**"
+    carryforward: false
+
+# Comment configuration
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+  hide_project_coverage: false
+
+# Ignore certain files
+ignore:
+  - "**/*.min.js"
+  - "**/vendor/**"
+  - "**/node_modules/**"
+  - "tests/**"
+  - "_site/**"
+  - "**/__pycache__/**"
+  - "*.egg-info/**"
+
+# Codecov behavior
+behavior:
+  default_rules:
+    flag_coverage_not_uploaded_behavior: include
+  individual_flags:
+    - name: frontend
+      after_n_builds: 1
+    - name: python
+      after_n_builds: 1
+
+# GitHub integration
+github_checks:
+  annotations: true
