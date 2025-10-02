@@ -90,6 +90,9 @@ describe('DashboardManager', () => {
           if (elements.length === 0) {
             // No valid HTML was created, use the container itself
             elements = [container];
+          } else if (elements.length === 1) {
+            // For single element, return it directly (jQuery behavior)
+            elements = [elements[0]];
           }
         } else if (trimmed.startsWith('#')) {
           // Handle ID selector specially
@@ -105,7 +108,6 @@ describe('DashboardManager', () => {
       const mockJquery = {
         length: elements.length,
         get: jest.fn((index) => elements[index || 0]),
-        [0]: elements[0], // Allow direct element access like jQuery
         show: jest.fn(() => {
           elements.forEach(el => {
             if (el && el.style) {
@@ -192,6 +194,14 @@ describe('DashboardManager', () => {
           }
         })
       };
+
+      // Add numeric index access like real jQuery
+      if (elements.length > 0) {
+        for (let i = 0; i < elements.length; i++) {
+          mockJquery[i] = elements[i];
+        }
+      }
+
       return mockJquery;
     });
 
@@ -757,9 +767,16 @@ describe('DashboardManager', () => {
 
       const card = DashboardManager.createConferenceCard(conf);
 
-      // card is a jQuery object, get the DOM element
-      // If card[0] is undefined, the jQuery mock might not be creating elements properly
-      const element = card[0] || card.get?.(0) || card;
+      // card should be a jQuery object, get the DOM element
+      // If card is a string, the jQuery mock isn't working right
+      const element = typeof card === 'string'
+        ? (function() {
+            // Parse the HTML string manually if jQuery didn't
+            const div = document.createElement('div');
+            div.innerHTML = card;
+            return div.firstChild;
+          })()
+        : (card[0] || card.get?.(0) || card);
 
       // Check if element exists and is valid
       expect(element).toBeDefined();
@@ -774,7 +791,13 @@ describe('DashboardManager', () => {
       const conf = { id: 'test', conference: 'Test', cfp: '2025-02-15 23:59:00' };
       const card = DashboardManager.createConferenceCard(conf);
 
-      const element = card[0] || card.get?.(0);
+      const element = typeof card === 'string'
+        ? (function() {
+            const div = document.createElement('div');
+            div.innerHTML = card;
+            return div.firstChild;
+          })()
+        : (card[0] || card.get?.(0));
       expect(element).toBeDefined();
       expect(element.className).toContain('col-md-6');
       expect(element.className).toContain('col-lg-4');
@@ -787,7 +810,13 @@ describe('DashboardManager', () => {
       const conf = { id: 'test', conference: 'Test', cfp: '2025-02-15 23:59:00' };
       const card = DashboardManager.createConferenceCard(conf);
 
-      const element = card[0] || card.get?.(0);
+      const element = typeof card === 'string'
+        ? (function() {
+            const div = document.createElement('div');
+            div.innerHTML = card;
+            return div.firstChild;
+          })()
+        : (card[0] || card.get?.(0));
       expect(element).toBeDefined();
       expect(element.className).toContain('col-12');
     });

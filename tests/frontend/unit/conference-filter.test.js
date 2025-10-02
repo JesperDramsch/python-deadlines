@@ -133,6 +133,8 @@ describe('ConferenceFilter', () => {
                 opts.forEach(opt => {
                   opt.selected = Array.isArray(value) ? value.includes(opt.value) : value === opt.value;
                 });
+                // Store the value for later retrieval
+                el._mockValue = value;
               } else {
                 el.value = value;
               }
@@ -141,6 +143,10 @@ describe('ConferenceFilter', () => {
           } else {
             // Get value
             if (elements[0] && elements[0].tagName === 'SELECT') {
+              // Return the mock value if it was set
+              if (elements[0]._mockValue !== undefined) {
+                return elements[0]._mockValue;
+              }
               const selected = [];
               elements[0].querySelectorAll('option:checked').forEach(opt => {
                 selected.push(opt.value);
@@ -241,6 +247,23 @@ describe('ConferenceFilter', () => {
           const visible = Array.from(elements).filter(el => el.style.display !== 'none');
           return $(visible);
         }
+        return mockJquery;
+      });
+
+      // Add trigger method for event handling
+      mockJquery.trigger = jest.fn((event) => {
+        elements.forEach(el => {
+          // Use appropriate event type for different events
+          let evt;
+          if (event === 'click') {
+            evt = new MouseEvent(event, { bubbles: true, cancelable: true });
+          } else if (event === 'change') {
+            evt = new Event(event, { bubbles: true, cancelable: true });
+          } else {
+            evt = new CustomEvent(event, { bubbles: true, cancelable: true });
+          }
+          el.dispatchEvent(evt);
+        });
         return mockJquery;
       });
 
@@ -477,8 +500,8 @@ describe('ConferenceFilter', () => {
       const badge = document.querySelector('.conf-sub[data-sub="PY"]');
       expect(badge).toBeTruthy();
 
-      const clickEvent = new MouseEvent('click', { bubbles: true });
-      badge.dispatchEvent(clickEvent);
+      // Use jQuery to trigger the click since the handler is bound via jQuery
+      $(badge).trigger('click');
 
       const filters = ConferenceFilter.getCurrentFilters();
       expect(filters.subs).toEqual(['PY']);
@@ -511,14 +534,17 @@ describe('ConferenceFilter', () => {
       // Fast-forward past initialization
       jest.runAllTimers();
 
-      ConferenceFilter.search('pycon');
-
+      // Ensure elements are initially visible (not hidden)
       const pyConf = document.querySelector('.PY-conf');
       const dataConf = document.querySelector('.DATA-conf');
+      pyConf.style.display = '';
+      dataConf.style.display = '';
 
-      // PyCon should be visible (contains 'pycon')
+      ConferenceFilter.search('pycon');
+
+      // PyCon should be visible (contains 'pycon' in its text)
       expect(pyConf.style.display).not.toBe('none');
-      // PyData should be hidden (doesn't contain 'pycon')
+      // PyData should be hidden (doesn't contain 'pycon' in its text)
       expect(dataConf.style.display).toBe('none');
 
       jest.useRealTimers();
@@ -637,10 +663,11 @@ describe('ConferenceFilter', () => {
 
       const select = document.getElementById('subject-select');
 
-      // Simulate selecting options
-      $('#subject-select').val(['SCIPY', 'WEB']);
-      const changeEvent = new Event('change');
-      select.dispatchEvent(changeEvent);
+      // Simulate selecting options and trigger change via jQuery
+      // since the handler is bound via jQuery
+      const $select = $('#subject-select');
+      $select.val(['SCIPY', 'WEB']);
+      $select.trigger('change');
 
       const filters = ConferenceFilter.getCurrentFilters();
       expect(filters.subs).toEqual(['SCIPY', 'WEB']);

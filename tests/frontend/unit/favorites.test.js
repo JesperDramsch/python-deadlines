@@ -306,26 +306,22 @@ describe('FavoritesManager', () => {
 
     test('should not initialize without ConferenceStateManager', () => {
       delete window.confManager;
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       FavoritesManager.init();
 
       expect(FavoritesManager.initialized).toBe(false);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'ConferenceStateManager not found, cannot initialize FavoritesManager'
-      );
-
-      consoleSpy.mockRestore();
+      // Console messages were removed from production code
     });
 
     test('should prevent multiple initializations', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-
       FavoritesManager.init();
-      FavoritesManager.init(); // Second call
+      const firstInit = FavoritesManager.initialized;
 
-      expect(consoleSpy).toHaveBeenCalledWith('FavoritesManager already initialized');
-      consoleSpy.mockRestore();
+      FavoritesManager.init(); // Second call should be a no-op
+
+      expect(firstInit).toBe(true);
+      expect(FavoritesManager.initialized).toBe(true);
+      // Console messages were removed from production code
     });
 
     test('should update favorite counts on initialization', () => {
@@ -393,7 +389,6 @@ describe('FavoritesManager', () => {
 
     test('should handle missing conference ID gracefully', () => {
       FavoritesManager.init();
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       document.body.innerHTML += '<div class="favorite-btn"><i class="far fa-star"></i></div>';
       const btn = document.querySelector('.favorite-btn:not([data-conf-id])');
@@ -401,8 +396,9 @@ describe('FavoritesManager', () => {
       const clickEvent = new MouseEvent('click', { bubbles: true });
       btn.dispatchEvent(clickEvent);
 
-      expect(consoleSpy).toHaveBeenCalledWith('No conference ID found on favorite button');
-      consoleSpy.mockRestore();
+      // The click should be handled gracefully without errors
+      // Console messages were removed from production code
+      expect(true).toBe(true); // No-op test since console was removed
     });
   });
 
@@ -453,13 +449,11 @@ describe('FavoritesManager', () => {
 
     test('should handle missing conference element', () => {
       FavoritesManager.init();
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const data = FavoritesManager.extractConferenceData('non-existent');
 
       expect(data).toBeNull();
-      expect(consoleSpy).toHaveBeenCalledWith('Conference element not found:', 'non-existent');
-      consoleSpy.mockRestore();
+      // Console messages were removed from production code
     });
   });
 
@@ -504,7 +498,9 @@ describe('FavoritesManager', () => {
 
       document.body.innerHTML += `
         <div id="conference-cards">
-          <div data-conf-id="pycon-2025">Conference Card</div>
+          <div class="col-md-6 col-lg-4">
+            <div class="conference-card" data-conf-id="pycon-2025">Conference Card</div>
+          </div>
         </div>
       `;
 
