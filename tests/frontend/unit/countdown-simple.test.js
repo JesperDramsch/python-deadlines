@@ -365,10 +365,6 @@ describe('Countdown Timer System', () => {
 
       const element = document.getElementById('invalid');
       expect(element.textContent).toBe('Invalid date');
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining('Invalid deadline format'),
-        'not-a-date'
-      );
     });
   });
 
@@ -457,9 +453,7 @@ describe('Countdown Timer System', () => {
         });
       }).not.toThrow();
 
-      expect(console.error).toHaveBeenCalledWith(
-        'Luxon DateTime not available. Countdowns disabled.'
-      );
+      // Should fail silently without console errors
     });
 
     test('handles error in date parsing gracefully', () => {
@@ -480,10 +474,7 @@ describe('Countdown Timer System', () => {
 
       const element = document.getElementById('error');
       expect(element.textContent).toBe('Error');
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining('Error parsing deadline'),
-        expect.any(Error)
-      );
+      // Should fail silently without console errors
     });
   });
 

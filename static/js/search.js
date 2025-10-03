@@ -62,7 +62,6 @@
                 }
             }
         } catch (err) {
-            console.error('Error creating calendar:', err);
             const span = document.createElement('span');
             span.className = 'calendar-error';
             span.textContent = 'Calendar error';
@@ -103,7 +102,7 @@
                 }
             }
         } catch (err) {
-            console.error('Error formatting date:', err);
+            // Date formatting failed, return original
         }
 
         return date;

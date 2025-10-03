@@ -21,13 +21,12 @@ const NotificationManager = {
             // Schedule periodic checks
             this.schedulePeriodicChecks();
         } catch (error) {
-            console.error('Failed to initialize NotificationManager:', error);
             // Try to at least set up basic functionality
             try {
                 this.loadSettings();
                 this.bindEvents();
             } catch (fallbackError) {
-                console.error('Critical initialization failure:', fallbackError);
+                // Critical initialization failure - fail silently in production
             }
         }
     },
@@ -37,21 +36,16 @@ const NotificationManager = {
      */
     checkBrowserSupport() {
         if ('Notification' in window) {
-            console.log('Browser supports notifications');
-
             // Check current permission status
             if (Notification.permission === 'default') {
                 // Show prompt to enable notifications
                 $('#notification-prompt').show();
             } else if (Notification.permission === 'granted') {
-                console.log('Notifications already enabled');
                 $('#notification-prompt').hide();
             } else {
-                console.log('Notifications blocked by user');
                 $('#notification-prompt').hide();
             }
         } else {
-            console.log('Browser does not support notifications');
             $('#notification-prompt').hide();
         }
     },
@@ -229,7 +223,6 @@ const NotificationManager = {
                 const cfpDate = new Date(conf.cfp);
                 // Check for Invalid Date
                 if (isNaN(cfpDate.getTime())) {
-                    console.warn(`Invalid CFP date for conference ${confId}: ${conf.cfp}`);
                     return;
                 }
 
@@ -268,7 +261,7 @@ const NotificationManager = {
                     }
                 }
             } catch(e) {
-                console.error(`Failed to check notification for ${confId}:`, e);
+                // Silently handle notification check error
             }
         });
 
@@ -298,7 +291,6 @@ const NotificationManager = {
             const cfpDate = new Date(dateString);
             // Check for Invalid Date
             if (isNaN(cfpDate.getTime())) {
-                console.warn(`Invalid CFP date for conference ${conf.name}: ${dateString}`);
                 return;
             }
 
@@ -330,7 +322,6 @@ const NotificationManager = {
             store.set(notifiedKey, notified);
         });
         } catch (error) {
-            console.error('Error checking upcoming deadlines:', error);
             // Don't let errors crash the entire system
         }
     },
@@ -435,7 +426,6 @@ const NotificationManager = {
             const cfpDate = new Date(dateString);
             // Check for Invalid Date
             if (isNaN(cfpDate.getTime())) {
-                console.warn(`Invalid CFP date for conference ${conf.name}: ${dateString}`);
                 return;
             }
 
@@ -458,7 +448,6 @@ const NotificationManager = {
         });
 
         store.set(this.scheduledKey, scheduled);
-        console.log('Scheduled notifications for', Object.keys(scheduled).length, 'conferences');
     },
 
     /**
@@ -542,8 +531,6 @@ const NotificationManager = {
         }
 
         // Remove event listeners (using named functions would make this easier)
-        // For now, we'll just log that cleanup occurred
-        console.log('NotificationManager cleanup completed');
     }
 };
 

@@ -60,6 +60,13 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+coverage/
+test-results/
+
+# Test files
+test-*.html
+*.test.html
+static/test-*.html
 
 # Translations
 *.mo

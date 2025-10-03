@@ -6,8 +6,7 @@
     // Ensure Luxon DateTime is available
     const DateTime = window.luxon ? window.luxon.DateTime : null;
     if (!DateTime) {
-        console.error('Luxon DateTime not available. Countdowns disabled.');
-        return;
+        return; // Luxon not available, skip countdown initialization
     }
 
     let globalTimer = null;
@@ -41,12 +40,10 @@
                 }
 
                 if (deadline.invalid) {
-                    console.warn(`Invalid deadline format for element:`, deadlineStr);
                     el.textContent = 'Invalid date';
                     return;
                 }
             } catch (e) {
-                console.error(`Error parsing deadline: ${deadlineStr}`, e);
                 el.textContent = 'Error';
                 return;
             }

@@ -204,7 +204,7 @@
                     const calendar = createCalendarFromObject(confData);
                     container.appendChild(calendar);
                 } catch (error) {
-                    console.error('Error creating calendar:', error);
+                    // Silently handle calendar creation errors
                 }
             }
         });

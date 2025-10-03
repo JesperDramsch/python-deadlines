@@ -41,13 +41,13 @@ function toggleFullScreen() {
 		document.documentElement
 			.requestFullscreen()
 			.then(() => enterPresentationMode())
-			.catch((err) => console.error(`Error attempting to enable fullscreen: ${err.message}`));
+			.catch(() => {});
 	} else {
 		if (document.exitFullscreen) {
 			document
 				.exitFullscreen()
 				.then(() => exitPresentationMode())
-				.catch((err) => console.error(`Error attempting to exit fullscreen: ${err.message}`));
+				.catch(() => {});
 		}
 	}
 }

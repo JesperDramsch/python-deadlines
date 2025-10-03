@@ -89,8 +89,10 @@ describe('NotificationManager', () => {
 
   describe('Browser Support', () => {
     test('detects browser notification support', () => {
+      document.body.innerHTML = '<div id="notification-prompt" style="display:none"></div>';
       NotificationManager.checkBrowserSupport();
-      expect(console.log).toHaveBeenCalledWith('Browser supports notifications');
+      // Should detect support and hide prompt when granted
+      expect(document.getElementById('notification-prompt').style.display).toBe('none');
     });
 
     test('shows prompt when permission is default', () => {
@@ -678,7 +680,7 @@ describe('NotificationManager', () => {
 
       NotificationManager.checkBrowserSupport();
 
-      expect(console.log).toHaveBeenCalledWith('Browser does not support notifications');
+      // Should hide the prompt when notifications are not supported
       expect(document.getElementById('notification-prompt').style.display).toBe('none');
 
       // Restore
@@ -691,7 +693,7 @@ describe('NotificationManager', () => {
 
       NotificationManager.checkBrowserSupport();
 
-      expect(console.log).toHaveBeenCalledWith('Notifications blocked by user');
+      // Should hide the prompt when notifications are denied
       expect(document.getElementById('notification-prompt').style.display).toBe('none');
     });
   });
@@ -765,12 +767,7 @@ describe('NotificationManager', () => {
       expect(scheduled['future-conf']).toBeDefined();
       expect(scheduled['future-conf'].length).toBeGreaterThan(0);
       expect(scheduled['past-conf']).toBeUndefined(); // Past conference should not be scheduled
-
-      expect(console.log).toHaveBeenCalledWith(
-        'Scheduled notifications for',
-        1,
-        'conferences'
-      );
+      // Should schedule notifications silently without console output
     });
   });
 

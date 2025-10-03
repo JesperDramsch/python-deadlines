@@ -35,7 +35,6 @@
 
             return prefs;
         } catch(e) {
-            console.error('Error loading preferences:', e);
             return {};
         }
     }
@@ -76,7 +75,7 @@
                 detail: { favorites, savedConferences }
             }));
         } catch(e) {
-            console.error('Error saving preferences:', e);
+            // Silently handle save error
         }
     }
 

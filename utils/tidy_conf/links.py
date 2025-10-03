@@ -42,7 +42,7 @@ def check_link_availability(url, start, cache=None, cache_archived=None):
 
     Automatically caches old (5+ years) URLs.
 
-    TODO: Some URLs are not available, and not archived. We should add a way to handle this.
+    Note: Some URLs may not be available or archived. These return None and are logged.
     """
     # If it's archived already, return the URL
     if url.startswith(("https://web.archive.org", "http://web.archive.org")):
