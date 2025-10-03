@@ -773,8 +773,9 @@ describe('DashboardManager', () => {
         ? (function() {
             // Parse the HTML string manually if jQuery didn't
             const div = document.createElement('div');
-            div.innerHTML = card;
-            return div.firstChild;
+            div.innerHTML = card.trim();
+            // Get the first actual element (skip text nodes)
+            return div.firstElementChild;
           })()
         : (card[0] || card.get?.(0) || card);
 
@@ -794,8 +795,9 @@ describe('DashboardManager', () => {
       const element = typeof card === 'string'
         ? (function() {
             const div = document.createElement('div');
-            div.innerHTML = card;
-            return div.firstChild;
+            div.innerHTML = card.trim();
+            // Get the first actual element (skip text nodes)
+            return div.firstElementChild;
           })()
         : (card[0] || card.get?.(0));
       expect(element).toBeDefined();
@@ -813,8 +815,9 @@ describe('DashboardManager', () => {
       const element = typeof card === 'string'
         ? (function() {
             const div = document.createElement('div');
-            div.innerHTML = card;
-            return div.firstChild;
+            div.innerHTML = card.trim();
+            // Get the first actual element (skip text nodes)
+            return div.firstElementChild;
           })()
         : (card[0] || card.get?.(0));
       expect(element).toBeDefined();
