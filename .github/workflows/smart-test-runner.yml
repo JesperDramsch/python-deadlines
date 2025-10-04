@@ -23,7 +23,7 @@ jobs:
       run-jekyll-build: ${{ steps.filter.outputs.jekyll }}
       is-data-only: ${{ steps.filter.outputs.data-only }}
       test-strategy: ${{ steps.strategy.outputs.strategy }}
-    
+
     steps:
       - name: 📂 Checkout repository
         uses: actions/checkout@v5
@@ -43,7 +43,7 @@ jobs:
               - 'package.json'
               - 'package-lock.json'
               - 'jest.config.js'
-            
+
             # Changes requiring E2E tests
             e2e:
               - 'static/js/**/*.js'
@@ -52,7 +52,7 @@ jobs:
               - '_pages/**'
               - 'tests/e2e/**'
               - 'playwright.config.js'
-            
+
             # Python utility changes
             python:
               - 'utils/**/*.py'
@@ -60,7 +60,7 @@ jobs:
               - 'pixi.toml'
               - 'pyproject.toml'
               - 'requirements*.txt'
-            
+
             # Jekyll/Ruby changes
             jekyll:
               - '_config*.yml'
@@ -69,7 +69,7 @@ jobs:
               - '_includes/**'
               - '_sass/**'
               - 'Gemfile*'
-            
+
             # Data-only changes (no tests needed)
             data-only:
               - '_data/conferences.yml'
@@ -116,7 +116,7 @@ jobs:
           script: |
             const strategy = '${{ steps.strategy.outputs.strategy }}';
             let comment = '## 🧪 Test Strategy Analysis\n\n';
-            
+
             const changes = {
               frontend: ${{ steps.filter.outputs.frontend }},
               e2e: ${{ steps.filter.outputs.e2e }},
@@ -124,7 +124,7 @@ jobs:
               jekyll: ${{ steps.filter.outputs.jekyll }},
               dataOnly: ${{ steps.filter.outputs.data-only }}
             };
-            
+
             comment += '### 📊 Detected Changes:\n';
             comment += `- Frontend JS: ${changes.frontend ? '✅ Yes' : '❌ No'}\n`;
             comment += `- E2E Required: ${changes.e2e ? '✅ Yes' : '❌ No'}\n`;
@@ -132,9 +132,9 @@ jobs:
             comment += `- Jekyll Config: ${changes.jekyll ? '✅ Yes' : '❌ No'}\n`;
             comment += `- Data Only: ${changes.dataOnly ? '✅ Yes' : '❌ No'}\n`;
             comment += '\n';
-            
+
             comment += '### 🎯 Test Strategy: `' + strategy + '`\n\n';
-            
+
             switch(strategy) {
               case 'data-validation-only':
                 comment += '✨ **Optimized Run**: Only conference data validation will run.\n';
@@ -152,21 +152,21 @@ jobs:
               default:
                 comment += '✅ **Minimal Checks**: Running basic validation only.\n';
             }
-            
+
             comment += '\n💰 **Cost Savings**: This intelligent test selection reduces unnecessary CI runs.';
-            
+
             // Find and update or create comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
+
             const botComment = comments.find(comment =>
               comment.user.type === 'Bot' &&
               comment.body.includes('Test Strategy Analysis')
             );
-            
+
             if (botComment) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
@@ -189,23 +189,23 @@ jobs:
     needs: analyze-changes
     if: always()  # Always run data validation
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📂 Checkout repository
         uses: actions/checkout@v5
-      
+
       - name: 🐍 Setup Pixi
         uses: prefix-dev/setup-pixi@v0.9.0
-      
+
       - name: ✅ Validate conference data
         run: |
           pixi run sort --check
           pixi run validate
-      
+
       - name: 📊 Check for duplicates
         run: |
           python utils/check_duplicates.py || true
-      
+
       - name: 🔗 Validate URLs (sample)
         if: needs.analyze-changes.outputs.is-data-only == 'true'
         run: |
@@ -234,14 +234,14 @@ jobs:
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-python-tests == 'true'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📂 Checkout repository
         uses: actions/checkout@v5
-      
+
       - name: 🐍 Setup Pixi
         uses: prefix-dev/setup-pixi@v0.9.0
-      
+
       - name: 🧪 Run Python tests
         run: |
           pixi run test
@@ -252,17 +252,17 @@ jobs:
     needs: analyze-changes
     if: needs.analyze-changes.outputs.run-jekyll-build == 'true'
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📂 Checkout repository
         uses: actions/checkout@v5
-      
+
       - name: 💎 Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
           bundler-cache: true
-      
+
       - name: 🏗️ Test Jekyll build
         run: |
           bundle exec jekyll build
@@ -275,7 +275,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [data-validation, frontend-tests, e2e-tests, python-tests, jekyll-build-test]
     if: always()
-    
+
     steps:
       - name: ✅ All tests passed
         if: |
@@ -287,7 +287,7 @@ jobs:
         run: |
           echo "✅ All required tests passed!"
           echo "Test strategy successfully reduced unnecessary runs."
-      
+
       - name: ❌ Some tests failed
         if: |
           needs.data-validation.result == 'failure' ||

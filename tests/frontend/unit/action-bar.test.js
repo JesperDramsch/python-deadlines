@@ -189,7 +189,7 @@ describe('ActionBar', () => {
 
     test('should handle empty preferences gracefully', () => {
       storeMock.get.mockReturnValue(null);
-      
+
       // Should not throw
       expect(() => {
         document.querySelectorAll('.action-indicator').forEach(indicator => {
@@ -317,10 +317,10 @@ describe('ActionBar', () => {
 
     test('should handle tap interactions on mobile', () => {
       const indicator = document.querySelector('.action-indicator[data-conf-id="pycon-2025"]');
-      
+
       const touchEvent = new TouchEvent('touchstart');
       indicator.dispatchEvent(touchEvent);
-      
+
       // Mobile should show popover on tap
       expect(document.querySelector('.action-content')).toBeDefined();
     });
@@ -329,7 +329,7 @@ describe('ActionBar', () => {
   describe('Conference Data Extraction', () => {
     test('should extract conference data from indicator attributes', () => {
       const indicator = document.querySelector('.action-indicator[data-conf-id="pycon-2025"]');
-      
+
       expect(indicator.dataset.confId).toBe('pycon-2025');
       expect(indicator.dataset.confName).toBe('PyCon US');
       expect(indicator.dataset.confCfp).toBe('2025-02-15 23:59:00');
@@ -374,7 +374,7 @@ describe('ActionBar', () => {
       const clickEvent = new MouseEvent('click', { bubbles: true });
       Object.defineProperty(clickEvent, 'target', { value: saveBtn, enumerable: true });
       document.dispatchEvent(clickEvent);
-      
+
       expect(window.dispatchEvent).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'favoritesUpdated',
@@ -392,9 +392,9 @@ describe('ActionBar', () => {
           savedConferences: {}
         }
       });
-      
+
       window.dispatchEvent(event);
-      
+
       // Indicators should update based on event
       const indicator = document.querySelector('.action-indicator[data-conf-id="pycon-2025"]');
       // Would need actual event handler implementation
@@ -406,7 +406,7 @@ describe('ActionBar', () => {
       storeMock.get.mockImplementation(() => {
         throw new Error('localStorage unavailable');
       });
-      
+
       // Should not throw
       expect(() => {
         document.querySelectorAll('.action-indicator').forEach(indicator => {
@@ -420,7 +420,7 @@ describe('ActionBar', () => {
       indicator.className = 'action-indicator';
       // No data-conf-id
       document.body.appendChild(indicator);
-      
+
       // Should not process indicators without conf-id
       expect(() => {
         document.querySelectorAll('.action-indicator').forEach(ind => {

@@ -1,9 +1,7 @@
 """Integration tests for Jekyll site build validation."""
 
-import json
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -73,15 +71,27 @@ class TestJekyllBuildValidation:
 
         return conf_file
 
-    @pytest.mark.slow
-    @pytest.mark.integration
+    @pytest.mark.slow()
+    @pytest.mark.integration()
     def test_jekyll_build_success(self, test_config, sample_conference_data):
         """Test that Jekyll can build the site successfully."""
         project_root = Path(__file__).parent.parent.parent
 
         # Run Jekyll build with test config
         result = subprocess.run(
-            ["bundle", "exec", "jekyll", "build", "--config", str(test_config), "--source", str(project_root), "--destination", "_test_site", "--quiet"],
+            [
+                "bundle",
+                "exec",
+                "jekyll",
+                "build",
+                "--config",
+                str(test_config),
+                "--source",
+                str(project_root),
+                "--destination",
+                "_test_site",
+                "--quiet",
+            ],
             capture_output=True,
             text=True,
             timeout=60,
@@ -296,7 +306,7 @@ class TestJekyllBuildValidation:
         for gem in required_gems:
             assert gem in gemfile_content, f"Required gem {gem} not in Gemfile"
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     def test_jekyll_serve_config(self):
         """Test that Jekyll serve configurations work."""
         project_root = Path(__file__).parent.parent.parent
@@ -347,7 +357,9 @@ class TestJekyllBuildValidation:
         layouts_dir = project_root / "_layouts"
 
         # Check for ICS layout
-        ics_files = list(layouts_dir.glob("*ics*")) + list(layouts_dir.glob("*ical*")) + list(layouts_dir.glob("*calendar*"))
+        ics_files = (
+            list(layouts_dir.glob("*ics*")) + list(layouts_dir.glob("*ical*")) + list(layouts_dir.glob("*calendar*"))
+        )
 
         assert len(ics_files) > 0, "No calendar/ICS layout found"
 
@@ -360,7 +372,7 @@ class TestJekyllBuildValidation:
 class TestJekyllBuildOutput:
     """Test the output of Jekyll builds."""
 
-    @pytest.mark.slow
+    @pytest.mark.slow()
     @pytest.mark.skipif(not Path("_site").exists(), reason="Requires built site")
     def test_built_site_structure(self):
         """Test that built site has expected structure."""

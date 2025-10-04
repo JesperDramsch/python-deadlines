@@ -15,6 +15,8 @@ import yaml
 # Add utils to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent / "utils"))
 
+import operator
+
 import sort_yaml
 from tidy_conf.schema import Conference
 
@@ -261,7 +263,7 @@ class TestConferenceArchiving:
         ]
 
         # Sort by year descending (most recent first)
-        sorted_archive = sorted(archived, key=lambda x: x["year"], reverse=True)
+        sorted_archive = sorted(archived, key=operator.itemgetter("year"), reverse=True)
 
         assert sorted_archive[0]["year"] == 2024
         assert sorted_archive[1]["year"] == 2023

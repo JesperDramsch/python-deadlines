@@ -45,13 +45,13 @@ class TestProductionHealth:
             "types": project_root / "_data" / "types.yml",
         }
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_critical_data_files_exist(self, critical_data_files):
         """Test that all critical data files exist."""
         for name, file_path in critical_data_files.items():
             assert file_path.exists(), f"Critical data file {name} not found at {file_path}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_data_files_valid_yaml(self, critical_data_files):
         """Test that all data files are valid YAML."""
         for name, file_path in critical_data_files.items():
@@ -63,7 +63,7 @@ class TestProductionHealth:
                     except yaml.YAMLError as e:
                         pytest.fail(f"YAML error in {name}: {e}")
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_no_duplicate_conferences(self, critical_data_files):
         """Test that there are no duplicate active conferences."""
         conf_file = critical_data_files["conferences"]
@@ -82,7 +82,7 @@ class TestProductionHealth:
 
             assert len(duplicates) == 0, f"Duplicate conferences found: {duplicates}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_conference_dates_valid(self, critical_data_files):
         """Test that conference dates are properly formatted."""
         conf_file = critical_data_files["conferences"]
@@ -112,7 +112,7 @@ class TestProductionHealth:
 
             assert len(errors) == 0, f"Date format errors: {errors[:5]}"  # Show first 5 errors
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_required_fields_present(self, critical_data_files):
         """Test that all conferences have required fields."""
         conf_file = critical_data_files["conferences"]
@@ -130,7 +130,7 @@ class TestProductionHealth:
 
             assert len(errors) == 0, f"Missing required fields: {errors[:5]}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_jekyll_config_valid(self):
         """Test that Jekyll configuration is valid."""
         project_root = Path(__file__).parent.parent.parent
@@ -147,7 +147,7 @@ class TestProductionHealth:
             except yaml.YAMLError as e:
                 pytest.fail(f"Invalid Jekyll config: {e}")
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_no_https_violations(self, critical_data_files):
         """Test that all conference links use HTTPS."""
         conf_file = critical_data_files["conferences"]
@@ -163,8 +163,8 @@ class TestProductionHealth:
 
             assert len(http_links) == 0, f"HTTP links found (should be HTTPS): {http_links[:5]}"
 
-    @pytest.mark.smoke
-    @pytest.mark.slow
+    @pytest.mark.smoke()
+    @pytest.mark.slow()
     def test_jekyll_build_succeeds(self):
         """Test that Jekyll can build the site without errors."""
         project_root = Path(__file__).parent.parent.parent
@@ -180,7 +180,7 @@ class TestProductionHealth:
 
         assert result.returncode == 0, f"Jekyll build failed: {result.stderr}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_javascript_files_exist(self):
         """Test that critical JavaScript files exist."""
         project_root = Path(__file__).parent.parent.parent
@@ -198,7 +198,7 @@ class TestProductionHealth:
             file_path = js_dir / js_file
             assert file_path.exists(), f"Critical JS file missing: {js_file}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_css_files_exist(self):
         """Test that critical CSS files exist."""
         project_root = Path(__file__).parent.parent.parent
@@ -210,7 +210,7 @@ class TestProductionHealth:
         css_files = list(css_dir.glob("*.css"))
         assert len(css_files) > 0, "No CSS files found"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     @pytest.mark.skipif(not Path("_site").exists(), reason="Requires built site")
     def test_built_site_has_content(self):
         """Test that built site has expected content."""
@@ -232,7 +232,7 @@ class TestProductionHealth:
             conf_pages = list(conf_dir.glob("*.html"))
             assert len(conf_pages) > 0, "No conference pages generated"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_no_year_before_1989(self, critical_data_files):
         """Test that no conferences have year before Python's creation."""
         conf_file = critical_data_files["conferences"]
@@ -248,7 +248,7 @@ class TestProductionHealth:
 
             assert len(invalid_years) == 0, f"Conferences with year < 1989: {invalid_years}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_timezone_validity(self, critical_data_files):
         """Test that timezone values are valid IANA timezones."""
         conf_file = critical_data_files["conferences"]
@@ -277,8 +277,8 @@ class TestProductionHealth:
 
             assert len(invalid_tz) == 0, f"Invalid timezones: {invalid_tz}"
 
-    @pytest.mark.smoke
-    @pytest.mark.network
+    @pytest.mark.smoke()
+    @pytest.mark.network()
     @patch("requests.get")
     def test_production_endpoints_accessible(self, mock_get, production_url, critical_paths):
         """Test that production endpoints are accessible."""
@@ -293,7 +293,7 @@ class TestProductionHealth:
             response = requests.get(url)
             assert response.status_code == 200, f"Failed to access {url}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_package_json_valid(self):
         """Test that package.json is valid."""
         project_root = Path(__file__).parent.parent.parent
@@ -309,7 +309,7 @@ class TestProductionHealth:
                 except json.JSONDecodeError as e:
                     pytest.fail(f"Invalid package.json: {e}")
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_critical_dependencies_installed(self):
         """Test that critical dependencies are specified."""
         project_root = Path(__file__).parent.parent.parent
@@ -334,7 +334,7 @@ class TestProductionHealth:
 class TestProductionDataIntegrity:
     """Tests to ensure data integrity in production."""
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_no_test_data_in_production(self, critical_data_files):
         """Ensure no test data makes it to production files."""
         conf_file = critical_data_files["conferences"]
@@ -356,7 +356,7 @@ class TestProductionDataIntegrity:
 
             assert len(suspicious) == 0, f"Possible test data in production: {suspicious[:5]}"
 
-    @pytest.mark.smoke
+    @pytest.mark.smoke()
     def test_reasonable_data_counts(self, critical_data_files):
         """Test that data counts are within reasonable ranges."""
         conf_file = critical_data_files["conferences"]
