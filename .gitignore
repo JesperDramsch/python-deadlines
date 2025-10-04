@@ -8,6 +8,10 @@ vendor
 .jekyll-metadata
 .playwright-mcp/
 
+# Claude Code configuration
+.claude/
+CLAUDE.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

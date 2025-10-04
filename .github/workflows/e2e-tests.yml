@@ -1,22 +1,7 @@
 name: E2E Tests
 
+# E2E tests are expensive - only run when manually triggered or on schedule
 on:
-  push:
-    branches:
-      - main
-      - develop
-    paths:
-      - 'static/js/**'
-      - '_layouts/**'
-      - '_includes/**'
-      - 'tests/e2e/**'
-      - 'playwright.config.js'
-      - '.github/workflows/e2e-tests.yml'
-  pull_request:
-    paths:
-      - 'static/js/**'
-      - '_layouts/**'
-      - '_includes/**'
   workflow_dispatch:
     inputs:
       browsers:
@@ -27,6 +12,17 @@ on:
         description: 'Test file pattern to run'
         required: false
         default: '**/*.spec.js'
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      # Only run automatically on significant UI changes
+      - '_layouts/**'
+      - '_includes/**'
+      - 'static/js/**'
 
 jobs:
   e2e-tests:
