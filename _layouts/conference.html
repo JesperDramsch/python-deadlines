@@ -92,7 +92,10 @@ description: Countdown for the Call for Participation of this conference includi
     </div>
     <div id="page-content">
       <div id="conf-deadline-timer" class="row">
-        <div id="cfp-timer" class="col-12 conf-timer">{% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}{{cfp}}{%endif%}
+        <div id="cfp-timer" class="col-12 conf-timer countdown-display"
+             data-deadline="{{ page.cfp_ext | default: page.cfp }}"
+             data-timezone="{{ page.timezone | default: 'UTC-12' }}">
+          {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}{{cfp}}{%endif%}
         </div>
       </div>
       <div id="conf-key-facts" class="row">
@@ -243,7 +246,7 @@ description: Countdown for the Call for Participation of this conference includi
 
       // other
       {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}
-      $('#cfp-timer').html("{{cfp}}");
+      // Countdown display handled by data attributes now
       $('.deadline-time').html("{{cfp}}");
       $('.deadline-local-time').html("{{cfp}}");
       {% else %}
@@ -290,10 +293,7 @@ description: Countdown for the Call for Participation of this conference includi
         calendarContainer.appendChild(conferenceCalendar);
       }
 
-      // render countdown timer
-      $('#cfp-timer').countdown(confDeadline.toJSDate(), function (event) {
-        $(this).html(event.strftime('%D {% t times.normal.days %} %H{% t times.short.hours %} %M{% t times.short.minutes %} %S{% t times.short.seconds %}'));
-      });
+      // Countdown timer is now handled by countdown-simple.js automatically
 
       // render deadline conference time
       {% if page.timezone %}

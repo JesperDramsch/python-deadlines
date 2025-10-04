@@ -68,6 +68,10 @@
                 if (el.classList.contains('countdown-small')) {
                     // Compact format for small countdown
                     el.textContent = `${days}d ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else if (el.classList.contains('conf-timer')) {
+                    // Conference detail page format (matches jQuery countdown format)
+                    const dayLabel = days === 1 ? 'day' : 'days';
+                    el.textContent = `${days} ${dayLabel} ${hours}h ${minutes}m ${seconds}s`;
                 } else {
                     // Full format for regular countdown
                     el.textContent = `${days} days ${hours}h ${minutes}m ${seconds}s`;
