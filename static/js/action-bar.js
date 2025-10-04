@@ -5,16 +5,34 @@
 (function() {
     'use strict';
 
-    const STORAGE_KEY = 'pythondeadlines-favorites'; // Use existing storage key
+    const STORAGE_KEY = 'pythondeadlines-favorites'; // Legacy storage key for backward compatibility
     const SERIES_KEY = 'pythondeadlines-series-subscriptions';
     const SAVED_CONFERENCES_KEY = 'pythondeadlines-saved-conferences';
     let currentPopover = null;
     let isMobile = window.innerWidth <= 768;
 
-    // Load saved preferences from existing system
+    // Load saved preferences from ConferenceStateManager
     function getPrefs() {
         try {
-            // Get favorites from existing FavoritesManager format
+            // Use ConferenceStateManager if available
+            if (window.confManager) {
+                const savedEvents = window.confManager.getSavedEvents();
+                const prefs = {};
+
+                savedEvents.forEach(conf => {
+                    const confId = conf.id;
+                    prefs[confId] = { saved: true };
+
+                    // Check if series is followed
+                    if (window.confManager.isSeriesFollowed(conf.conference)) {
+                        prefs[confId].series = true;
+                    }
+                });
+
+                return prefs;
+            }
+
+            // Fallback to legacy storage if ConferenceStateManager not available yet
             const favorites = store.get(STORAGE_KEY) || [];
             const savedConferences = store.get(SAVED_CONFERENCES_KEY) || {};
             const series = store.get(SERIES_KEY) || {};
@@ -39,10 +57,42 @@
         }
     }
 
-    // Save preferences using existing system
+    // Save preferences using ConferenceStateManager
     function savePrefs(prefs) {
         try {
-            // Convert our format to FavoritesManager format
+            // Use ConferenceStateManager if available
+            if (window.confManager) {
+                // Get current saved events for comparison
+                const currentSaved = new Set(window.confManager.getSavedEvents().map(c => c.id));
+
+                Object.keys(prefs).forEach(confId => {
+                    const isSaved = prefs[confId].saved;
+                    const wasSaved = currentSaved.has(confId);
+
+                    // Handle save/unsave through ConferenceStateManager
+                    if (isSaved && !wasSaved) {
+                        window.confManager.saveEvent(confId);
+                    } else if (!isSaved && wasSaved) {
+                        window.confManager.removeSavedEvent(confId);
+                    }
+
+                    // Handle series following
+                    const conf = window.confManager.getConference(confId);
+                    if (conf) {
+                        const isSeriesFollowed = window.confManager.isSeriesFollowed(conf.conference);
+                        if (prefs[confId].series && !isSeriesFollowed) {
+                            window.confManager.followSeries(conf.conference);
+                        } else if (!prefs[confId].series && isSeriesFollowed) {
+                            window.confManager.unfollowSeries(conf.conference);
+                        }
+                    }
+                });
+
+                // ConferenceStateManager will fire its own events
+                return;
+            }
+
+            // Fallback to legacy storage if ConferenceStateManager not available
             const favorites = [];
             const savedConferences = store.get(SAVED_CONFERENCES_KEY) || {};
 
@@ -534,6 +584,18 @@ END:VCALENDAR`;
     } else {
         initializeIndicators();
     }
+
+    // Listen for ConferenceStateManager updates
+    window.addEventListener('conferenceStateUpdate', function(e) {
+        // Re-initialize indicators when state changes
+        initializeIndicators();
+    });
+
+    // Also listen for ConferenceStateManager to become ready
+    window.addEventListener('conferenceManagerReady', function(e) {
+        // Re-initialize with ConferenceStateManager data
+        initializeIndicators();
+    });
 
     // Export API for other components
     window.minimalActionAPI = {
