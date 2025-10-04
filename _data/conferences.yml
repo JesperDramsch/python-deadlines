@@ -1,15 +1,5 @@
 ---
 
-- conference: PyData Global
-  year: 2025
-  link: https://pydata.org/global2025/
-  cfp_link: https://cfp.pydata.org/pydataglobal2025/cfp
-  cfp: '2025-08-06 23:59:00'
-  place: Online
-  start: 2025-12-09
-  end: 2025-12-11
-  sponsor: https://pydata.org/global2025/sponsor
-  sub: DATA
 - conference: PyData Boston
   year: 2025
   link: https://pydata.org/boston2025
@@ -270,6 +260,18 @@
     latitude: 6.4550575
     longitude: 3.3941795
 
+- conference: PyData Global
+  year: 2025
+  link: https://pydata.org/global2025/
+  cfp_link: https://cfp.pydata.org/pydataglobal2025/cfp
+  cfp: '2025-08-06 23:59:00'
+  cfp_ext: '2025-08-06 23:59:00'
+  place: Online
+  start: 2025-12-09
+  end: 2025-12-11
+  sponsor: https://pydata.org/global2025/sponsor
+  sub: DATA
+
 - conference: PyCon Ireland
   alt_name: PyCon IE
   year: 2025
@@ -303,22 +305,6 @@
   - title: PyCon Netherlands 2025
     latitude: 52.090833
     longitude: 5.121667
-
-- conference: PyCon Togo
-  year: 2025
-  link: https://pycontg.pytogo.org/
-  cfp_link: https://pycontg.pytogo.org/proposal
-  cfp: '2025-08-01 23:59:00'
-  timezone: Africa/Lome
-  place: Lome, Togo
-  start: 2025-08-23
-  end: 2025-08-23
-  sponsor: https://pycontg.pytogo.org/sponsor
-  sub: PY
-  location:
-  - title: PyCon Togo 2025
-    latitude: 6.130419
-    longitude: 1.215829
 
 - conference: Plone Conference
   alt_name: Plone Conference & PyCon Finland
@@ -355,18 +341,6 @@
   - title: PyCon Finland 2025
     latitude: 60.1674881
     longitude: 24.9427473
-
-- conference: PyData Global
-  year: 2025
-  link: https://pydata.org/global2025/
-  cfp_link: https://cfp.pydata.org/pydataglobal2025/cfp
-  cfp: '2025-07-28 23:59:00'
-  cfp_ext: '2025-08-06 23:59:00'
-  place: Online
-  start: 2025-12-09
-  end: 2025-12-11
-  sponsor: https://pydata.org/global2025/sponsor
-  sub: DATA
 
 - conference: PyCon France
   alt_name: PyCon FR
@@ -802,24 +776,6 @@
     latitude: 22.6203348
     longitude: 120.3120375
 
-- conference: EuroSciPy
-  year: 2025
-  link: https://euroscipy.org/2025/
-  cfp_link: https://euroscipy.org/2025/program.html
-  cfp: '2025-03-31 23:59:00'
-  cfp_ext: '2025-04-28 23:59:00'
-  timezone: Europe/Warsaw
-  place: Krakow, Poland
-  start: 2025-08-18
-  end: 2025-08-22
-  sponsor: https://euroscipy.org/2025/sponsoring.html
-  twitter: euroSciPy
-  sub: SCIPY
-  location:
-  - title: EuroSciPy 2025
-    latitude: 50.061389
-    longitude: 19.938333
-
 - conference: EARL
   year: 2025
   link: https://earl-conference.com/
@@ -851,20 +807,6 @@
   - title: PyCon Estonia 2025
     latitude: 59.4372155
     longitude: 24.7453688
-
-- conference: PyCon Latin America
-  alt_name: PyCon LatAm
-  year: 2025
-  link: https://www.pylatam.org/
-  cfp: '2024-05-30 23:59:00'
-  place: Puntarenas, Costa Rica
-  start: 2025-08-21
-  end: 2025-08-24
-  sub: PY
-  location:
-  - title: PyCon Latin America 2025
-    latitude: 9.0953279
-    longitude: -84.2003038
 
 - conference: PyCon Australia
   alt_name: PyCon AU
