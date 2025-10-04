@@ -28,7 +28,7 @@ jobs:
       js: ${{ steps.filter.outputs.js }}
       test: ${{ steps.filter.outputs.test }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -53,10 +53,10 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 🟢 Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -64,7 +64,7 @@ jobs:
 
       - name: 📦 Cache node_modules
         id: cache-node-modules
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('package-lock.json') }}
@@ -90,7 +90,7 @@ jobs:
 
       - name: 📤 Upload coverage to Codecov
         if: matrix.node-version == '20' && matrix.shard == 1
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v4
         with:
           files: ./coverage/lcov.info
           flags: frontend
@@ -109,7 +109,7 @@ jobs:
 
       - name: 💬 Comment PR with results
         if: github.event_name == 'pull_request' && matrix.node-version == '20' && matrix.shard == 1
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -172,10 +172,10 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -197,10 +197,10 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
