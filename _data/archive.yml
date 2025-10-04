@@ -1,5 +1,53 @@
 ---
 
+- conference: PyCon Togo
+  year: 2025
+  link: https://pycontg.pytogo.org/
+  cfp_link: https://pycontg.pytogo.org/proposal
+  cfp: '2025-08-01 23:59:00'
+  timezone: Africa/Lome
+  place: Lome, Togo
+  start: 2025-08-23
+  end: 2025-08-23
+  sponsor: https://pycontg.pytogo.org/sponsor
+  sub: PY
+  location:
+  - title: PyCon Togo 2025
+    latitude: 6.130419
+    longitude: 1.215829
+
+- conference: PyCon Latin America
+  alt_name: PyCon LatAm
+  year: 2025
+  link: https://www.pylatam.org/
+  cfp: '2024-05-30 23:59:00'
+  place: Puntarenas, Costa Rica
+  start: 2025-08-21
+  end: 2025-08-24
+  sub: PY
+  location:
+  - title: PyCon Latin America 2025
+    latitude: 9.0953279
+    longitude: -84.2003038
+
+- conference: EuroSciPy
+  year: 2025
+  link: https://euroscipy.org/2025/
+  cfp_link: https://euroscipy.org/2025/program.html
+  cfp: '2025-03-31 23:59:00'
+  cfp_ext: '2025-04-28 23:59:00'
+  timezone: Europe/Warsaw
+  place: Krakow, Poland
+  start: 2025-08-18
+  end: 2025-08-22
+  sponsor: https://euroscipy.org/2025/sponsoring.html
+  twitter: euroSciPy
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2025
+    latitude: 50.061389
+    longitude: 19.938333
+
 - conference: PyCon South Korea
   alt_name: PyCon KR
   year: 2025
@@ -48,6 +96,7 @@
   - title: DjangoCon Africa 2025
     latitude: -6.09994425
     longitude: 39.32094431715264
+
 - conference: PyCon Uganda
   year: 2025
   link: https://ug.pycon.org/
