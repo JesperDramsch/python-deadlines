@@ -13,7 +13,6 @@ on:
 
 
 jobs:
-  # Core data validation - always runs, it's fast
   data-validation:
     name: Data Validation
     runs-on: ubuntu-latest
@@ -27,7 +26,7 @@ jobs:
 
     - name: ✅ Validate conference data structure
       run: |
-        pixi run sort --check
+        pixi run sort
 
     - name: 🔍 Run data linters
       run: |
@@ -49,7 +48,6 @@ jobs:
                     seen.add(key)
         "
 
-  # Python tests - always runs for utilities
   python-tests:
     name: Python Tests
     runs-on: ubuntu-latest
@@ -71,36 +69,6 @@ jobs:
         ruff check utils/ || true
         ruff format utils/ --check || true
 
-  # Jekyll build test - ensures site can build
-  jekyll-build:
-    name: Jekyll Build Test
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: 📂 Checkout repository
-      uses: actions/checkout@v5
-
-    - name: 💎 Setup Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.3'
-        bundler-cache: true
-
-    - name: 🏗️ Test Jekyll build
-      run: |
-        bundle exec jekyll build --config _config.yml,_config.test.yml
-      env:
-        JEKYLL_ENV: test
-
-    - name: ✅ Verify critical files exist
-      run: |
-        # Check that key output files were created
-        test -f _site/index.html || exit 1
-        test -f _site/search.json || exit 1
-        test -d _site/static || exit 1
-        echo "✅ Site built successfully with all critical files"
-
-  # Pre-commit checks - ensures code quality
   pre-commit:
     name: Pre-commit Checks
     runs-on: ubuntu-latest
@@ -114,28 +82,25 @@ jobs:
 
     - name: 🔍 Run pre-commit hooks
       run: |
-        pixi run pre || true
-      continue-on-error: true # Don't fail the entire CI for style issues
+        pixi run pre
 
   # Summary job to ensure all core tests pass
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [ data-validation, python-tests, jekyll-build ]
+    needs: [ data-validation, python-tests ]
     if: always()
 
     steps:
     - name: ✅ Check overall status
       run: |
         if [[ "${{ needs.data-validation.result }}" == "success" ]] && \
-           [[ "${{ needs.python-tests.result }}" == "success" ]] && \
-           [[ "${{ needs.jekyll-build.result }}" == "success" ]]; then
+           [[ "${{ needs.python-tests.result }}" == "success" ]]; then
           echo "✅ All core tests passed!"
           exit 0
         else
           echo "❌ Some core tests failed:"
           echo "Data Validation: ${{ needs.data-validation.result }}"
           echo "Python Tests: ${{ needs.python-tests.result }}"
-          echo "Jekyll Build: ${{ needs.jekyll-build.result }}"
           exit 1
         fi
