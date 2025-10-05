@@ -224,14 +224,14 @@ def main(year: int | None = None, base: str = "") -> None:
     logger.info(f"Processing conferences for year: {year}")
 
     # Load current conferences
-    _data_path = Path(base, "_data")
-    _utils_path = Path(base, "utils")
-    _tmp_path = Path(base, ".tmp")
-    _tmp_path.mkdir(exist_ok=True, parents=True)
-    _data_path.mkdir(exist_ok=True, parents=True)
-    target_file = Path(_data_path, "conferences.yml")
-    csv_location = Path(_utils_path, "conferences")
-    cache_file = Path(_tmp_path, ".conferences_py_orgs.csv")
+    data_path = Path(base, "_data")
+    utils_path = Path(base, "utils")
+    tmp_path = Path(base, ".tmp")
+    tmp_path.mkdir(exist_ok=True, parents=True)
+    data_path.mkdir(exist_ok=True, parents=True)
+    target_file = Path(data_path, "conferences.yml")
+    csv_location = Path(utils_path, "conferences")
+    cache_file = Path(tmp_path, ".conferences_py_orgs.csv")
 
     # Load the existing conference data
     df_yml = load_conferences()

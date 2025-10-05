@@ -60,7 +60,7 @@ class TestConferenceArchiving:
         boundary_date = datetime.now(timezone.utc) - timedelta(hours=1)
         return {
             "conference": "Edge Case Con",
-            "year": datetime.now().year,
+            "year": datetime.now(tz=timezone.utc).year,
             "link": "https://edge.con.org",
             "cfp": boundary_date.strftime("%Y-%m-%d %H:%M:%S"),
             "place": "Edge City",
@@ -274,7 +274,7 @@ class TestConferenceArchiving:
         """Test file operations during archiving."""
         # Mock file operations
         mock_archive_path = Mock()
-        mock_conferences_path = Mock()
+        Mock()
 
         mock_path.return_value = mock_archive_path
         mock_archive_path.parent.parent.return_value = Mock()
@@ -436,7 +436,7 @@ class TestArchivePerformance:
             conferences.append(conf)
 
         # Get memory usage
-        current, peak = tracemalloc.get_traced_memory()
+        _current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
 
         # Memory usage should be reasonable (< 100 MB for 10k conferences)

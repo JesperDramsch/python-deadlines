@@ -136,17 +136,17 @@ def order_keywords(data: list[Conference]) -> list[Conference]:
         Processed list with ordered keywords
     """
     schema = get_schema().columns.tolist()
-    _data_flag = False
+    data_flag = False
     if isinstance(data, Conference):
         data = data.dict()
-        _data_flag = True
+        data_flag = True
 
     new_dict = {}
     for key in schema:
         if key in data:
             new_dict[key] = data[key]
 
-    if _data_flag:
+    if data_flag:
         return Conference(**new_dict)
     return new_dict
 

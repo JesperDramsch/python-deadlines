@@ -205,14 +205,14 @@ def main(year=None, base="") -> bool:
 
     try:
         # Create the necessary files if they don't exist
-        _data_path = Path(base, "_data")
-        _tmp_path = Path(base, ".tmp")
-        _tmp_path.mkdir(exist_ok=True, parents=True)
-        _data_path.mkdir(exist_ok=True, parents=True)
-        target_file = Path(_data_path, "conferences.yml")
-        cache_file = Path(_tmp_path, ".conferences_ics.csv")
+        data_path = Path(base, "_data")
+        tmp_path = Path(base, ".tmp")
+        tmp_path.mkdir(exist_ok=True, parents=True)
+        data_path.mkdir(exist_ok=True, parents=True)
+        target_file = Path(data_path, "conferences.yml")
+        cache_file = Path(tmp_path, ".conferences_ics.csv")
 
-        logger.info(f"Using data path: {_data_path}")
+        logger.info(f"Using data path: {data_path}")
         logger.info(f"Using cache file: {cache_file}")
 
         # Load the existing conference data

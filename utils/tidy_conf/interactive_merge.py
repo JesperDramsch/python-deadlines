@@ -208,7 +208,7 @@ def merge_conferences(df_yml, df_remote):
                 elif rx and pd.isnull(ry):
                     # If one is empty use the other
                     df_new.loc[i, column] = rx
-                elif type(rx) != type(ry):
+                elif type(rx) is not type(ry):
                     # Use non-string on different types
                     if str(rx).strip() == str(ry).strip():
                         if isinstance(rx, str):

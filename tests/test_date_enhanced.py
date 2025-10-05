@@ -462,7 +462,7 @@ class TestIntegrationAndEdgeCases:
         data = {"start": "invalid-start-date", "end": "invalid-end-date", "cfp": "2025-02-15"}
 
         # clean_dates should handle invalid formats gracefully
-        with pytest.raises(ValueError, match="time data .* does not match format"):
+        with pytest.raises(ValueError, match=r"time data .* does not match format"):
             clean_dates(data)
 
     def test_timezone_awareness_preservation(self):
