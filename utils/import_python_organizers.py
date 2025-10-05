@@ -1,25 +1,48 @@
+# Standard library
 import re
-import sys
-import urllib
 from datetime import datetime
 from datetime import timezone
 from pathlib import Path
+from urllib import error as urllib_error
 
+# Third-party
 import iso3166
 import pandas as pd
 
-sys.path.append(".")
-from tidy_conf import fuzzy_match
-from tidy_conf import load_conferences
-from tidy_conf import merge_conferences
-from tidy_conf.deduplicate import deduplicate
-from tidy_conf.schema import get_schema
-from tidy_conf.utils import fill_missing_required
-from tidy_conf.yaml import load_title_mappings
-from tidy_conf.yaml import write_df_yaml
+# Local imports
+try:
+    from tidy_conf import fuzzy_match
+    from tidy_conf import load_conferences
+    from tidy_conf import merge_conferences
+    from tidy_conf.deduplicate import deduplicate
+    from tidy_conf.schema import get_schema
+    from tidy_conf.utils import fill_missing_required
+    from tidy_conf.yaml import load_title_mappings
+    from tidy_conf.yaml import write_df_yaml
+except ImportError:
+    from .tidy_conf import fuzzy_match
+    from .tidy_conf import load_conferences
+    from .tidy_conf import merge_conferences
+    from .tidy_conf.deduplicate import deduplicate
+    from .tidy_conf.schema import get_schema
+    from .tidy_conf.utils import fill_missing_required
+    from .tidy_conf.yaml import load_title_mappings
+    from .tidy_conf.yaml import write_df_yaml
 
 
-def load_remote(year):
+def load_remote(year: int) -> pd.DataFrame:
+    """Load conference data from GitHub CSV for a specific year.
+
+    Parameters
+    ----------
+    year : int
+        The year to load conference data for
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing conference data from the CSV
+    """
     url = f"https://raw.githubusercontent.com/python-organizers/conferences/main/{year}.csv"
 
     # Read data and rename columns
@@ -31,8 +54,21 @@ def load_remote(year):
     return df
 
 
-def map_columns(df, reverse=False):
-    """Map columns to the schema."""
+def map_columns(df: pd.DataFrame, reverse: bool = False) -> pd.DataFrame:
+    """Map columns between CSV format and conference schema.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame with columns to map
+    reverse : bool, optional
+        If True, map from schema to CSV format. Default is False
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with mapped columns
+    """
     cols = {
         "Subject": "conference",
         "Start Date": "start",
@@ -52,8 +88,18 @@ def map_columns(df, reverse=False):
     return df.rename(columns=cols)
 
 
-def write_csv(df, year, csv_location):
-    """Write the CSV files for the conferences."""
+def write_csv(df: pd.DataFrame, year: int, csv_location: str) -> None:
+    """Write the CSV files for the conferences.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame containing conference data to write
+    year : int
+        The year for the CSV file
+    csv_location : str
+        Directory path where CSV files should be written
+    """
     from logging_config import get_tqdm_logger
 
     logger = get_tqdm_logger(__name__)
@@ -155,8 +201,16 @@ def write_csv(df, year, csv_location):
             logger.info(f"Successfully wrote {Path(csv_location, f'{y}.csv')}")
 
 
-def main(year=None, base=""):
-    """Import Python conferences from a csv file Github."""
+def main(year: int | None = None, base: str = "") -> None:
+    """Import Python conferences from a csv file on Github.
+
+    Parameters
+    ----------
+    year : int | None, optional
+        Starting year for import. If None, uses current year
+    base : str, optional
+        Base directory path for data files. Default is empty string
+    """
     from logging_config import get_tqdm_logger
 
     # Setup tqdm-compatible logging for this module
@@ -190,7 +244,7 @@ def main(year=None, base=""):
         try:
             df = deduplicate(load_remote(year=y), "conference")
             df["year"] = y
-        except urllib.error.HTTPError:
+        except urllib_error.HTTPError:
             break
         df_csv_raw = pd.concat([df_csv_raw, df], ignore_index=True)
 

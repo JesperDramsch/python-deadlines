@@ -1,18 +1,22 @@
+import contextlib
 import logging
-import sys
 from collections import defaultdict
 
 import pandas as pd
 from thefuzz import process
 
-sys.path.append(".")
-import contextlib
-
-from tidy_conf.schema import get_schema
-from tidy_conf.titles import tidy_df_names
-from tidy_conf.utils import query_yes_no
-from tidy_conf.yaml import load_title_mappings
-from tidy_conf.yaml import update_title_mappings
+try:
+    from tidy_conf.schema import get_schema
+    from tidy_conf.titles import tidy_df_names
+    from tidy_conf.utils import query_yes_no
+    from tidy_conf.yaml import load_title_mappings
+    from tidy_conf.yaml import update_title_mappings
+except ImportError:
+    from .schema import get_schema
+    from .titles import tidy_df_names
+    from .utils import query_yes_no
+    from .yaml import load_title_mappings
+    from .yaml import update_title_mappings
 
 
 def fuzzy_match(df_yml, df_remote):

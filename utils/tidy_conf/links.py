@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -7,8 +6,6 @@ from urllib.parse import urlparse
 
 import requests
 from tqdm import tqdm
-
-sys.path.append("..")
 
 
 def get_cache_location():

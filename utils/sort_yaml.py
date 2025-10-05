@@ -12,57 +12,129 @@ from urllib.parse import urlparse
 import pydantic
 import pytz
 import yaml
-from logging_config import get_tqdm_logger
-from tidy_conf import auto_add_sub
-from tidy_conf import write_conference_yaml
-from tidy_conf.date import clean_dates
-from tidy_conf.latlon import add_latlon
-from tidy_conf.links import check_link_availability
-from tidy_conf.links import get_cache
-from tidy_conf.schema import Conference
-from tidy_conf.schema import get_schema
-from tidy_conf.titles import tidy_titles
-from tidy_conf.utils import Loader
 from tqdm import tqdm
 
-dateformat = "%Y-%m-%d %H:%M:%S"
-tba_words = ["tba", "tbd", "cancelled", "none", "na", "n/a", "nan", "n.a."]
+try:
+    from logging_config import get_tqdm_logger
+    from tidy_conf import auto_add_sub
+    from tidy_conf import write_conference_yaml
+    from tidy_conf.date import clean_dates
+    from tidy_conf.latlon import add_latlon
+    from tidy_conf.links import check_link_availability
+    from tidy_conf.links import get_cache
+    from tidy_conf.schema import Conference
+    from tidy_conf.schema import get_schema
+    from tidy_conf.titles import tidy_titles
+    from tidy_conf.utils import Loader
+except ImportError:
+    from .logging_config import get_tqdm_logger
+    from .tidy_conf import auto_add_sub
+    from .tidy_conf import write_conference_yaml
+    from .tidy_conf.date import clean_dates
+    from .tidy_conf.latlon import add_latlon
+    from .tidy_conf.links import check_link_availability
+    from .tidy_conf.links import get_cache
+    from .tidy_conf.schema import Conference
+    from .tidy_conf.schema import get_schema
+    from .tidy_conf.titles import tidy_titles
+    from .tidy_conf.utils import Loader
+
+# Constants
+DATEFORMAT = "%Y-%m-%d %H:%M:%S"
+TBA_WORDS = ["tba", "tbd", "cancelled", "none", "na", "n/a", "nan", "n.a."]
+CFP_WARNING_DAYS = 37  # Days after conference end to keep on main page
+DEFAULT_CFP_TIME = " 23:59:00"  # Default time for CFP if not specified
 
 
-def sort_by_cfp(data):
-    """Sort by CFP date."""
-    if data.cfp.lower() in tba_words:
+def sort_by_cfp(data: Conference) -> str:
+    """Sort by CFP date.
+
+    Parameters
+    ----------
+    data : Conference
+        Conference object to get sort key from
+
+    Returns
+    -------
+    str
+        Sort key based on CFP date
+    """
+    if data.cfp.lower() in TBA_WORDS:
         return data.cfp
     if " " not in data.cfp:
-        data.cfp += " 23:59:00"
+        data.cfp += DEFAULT_CFP_TIME
     timezone = data.timezone or "AoE"
+    # Convert timezone strings to IANA format
+    iana_tz = timezone.replace("AoE", "Etc/GMT+12").replace("UTC+", "Etc/GMT-").replace("UTC-", "Etc/GMT+")
     return pytz.utc.normalize(
-        datetime.datetime.strptime(data.cfp, dateformat).replace(
-            tzinfo=pytz.timezone(
-                timezone.replace("AoE", "Etc/GMT+12").replace("UTC+", "Etc/GMT-").replace("UTC-", "Etc/GMT+"),
-            ),
+        datetime.datetime.strptime(data.cfp, DATEFORMAT).replace(
+            tzinfo=pytz.timezone(iana_tz),
         ),
-    ).strftime(dateformat)
+    ).strftime(DATEFORMAT)
 
 
-def sort_by_date(data):
-    """Sort by starting date."""
+def sort_by_date(data: Conference) -> str:
+    """Sort by starting date.
+
+    Parameters
+    ----------
+    data : Conference
+        Conference object to get sort key from
+
+    Returns
+    -------
+    str
+        Sort key based on start date
+    """
     return str(data.start)
 
 
-def sort_by_date_passed(data):
-    """Sort data by date passed."""
-    right_now = datetime.datetime.now(tz=timezone.utc).replace(microsecond=0).strftime(dateformat)
+def sort_by_date_passed(data: Conference) -> bool:
+    """Sort data by date passed.
+
+    Parameters
+    ----------
+    data : Conference
+        Conference object to check
+
+    Returns
+    -------
+    bool
+        True if the CFP date has passed
+    """
+    right_now = datetime.datetime.now(tz=timezone.utc).replace(microsecond=0).strftime(DATEFORMAT)
     return sort_by_cfp(data) < right_now
 
 
-def sort_by_name(data):
-    """Sort by name."""
+def sort_by_name(data: Conference) -> str:
+    """Sort by name.
+
+    Parameters
+    ----------
+    data : Conference
+        Conference object to get sort key from
+
+    Returns
+    -------
+    str
+        Lowercase conference name and year
+    """
     return f"{data.conference} {data.year}".lower()
 
 
-def order_keywords(data):
-    """Order the keywords in the data."""
+def order_keywords(data: list[Conference]) -> list[Conference]:
+    """Order the keywords in the data.
+
+    Parameters
+    ----------
+    data : list[Conference]
+        List of Conference objects to process
+
+    Returns
+    -------
+    list[Conference]
+        Processed list with ordered keywords
+    """
     schema = get_schema().columns.tolist()
     _data_flag = False
     if isinstance(data, Conference):
@@ -107,21 +179,31 @@ def tidy_dates(data):
     return data
 
 
-def split_data(data):
+def split_data(data: list[Conference]) -> tuple[list, list, list, list]:
     """Split the data into conferences, tba, expired, and legacy.
 
     The data is split based on the `cfp` field. If the `cfp` field is in the `tba_words` list, it is considered a TBA.
     Legacy is considered anything old with the `cfp` still being TBA.
+
+    Parameters
+    ----------
+    data : list[Conference]
+        List of Conference objects to split
+
+    Returns
+    -------
+    tuple[list, list, list, list]
+        Tuple of (conferences, tba, expired, legacy) lists
     """
     conf, tba, expired, legacy = [], [], [], []
     for q in tqdm(data):
-        if q.cfp.lower() not in tba_words and " " not in q.cfp:
-            q.cfp += " 23:59:00"
+        if q.cfp.lower() not in TBA_WORDS and " " not in q.cfp:
+            q.cfp += DEFAULT_CFP_TIME
         if "cfp_ext" in q and " " not in q.cfp_ext:
-            q.cfp_ext += " 23:59:00"
+            q.cfp_ext += DEFAULT_CFP_TIME
         date_today = datetime.datetime.now(tz=timezone.utc).replace(microsecond=0).date()
-        # if the conference is older than 37 days, it moves off the main page
-        if q.end < date_today - datetime.timedelta(days=37):
+        # if the conference is older than CFP_WARNING_DAYS, it moves off the main page
+        if q.end < date_today - datetime.timedelta(days=CFP_WARNING_DAYS):
             legacy_year = (date_today - datetime.timedelta(days=7 * 365)).replace(month=1, day=1)
             if q.end < legacy_year:
                 legacy.append(q)
@@ -130,7 +212,7 @@ def split_data(data):
             continue
 
         try:
-            if q.cfp.lower() in tba_words:
+            if q.cfp.lower() in TBA_WORDS:
                 tba.append(q)
             else:
                 conf.append(q)
@@ -220,17 +302,14 @@ def sort_data(base="", prefix="", skip_links=False):
         data[i] = order_keywords(q)
 
     logger.info("✅ Validating conference data with Pydantic schema")
-    new_data = []
     validation_errors = 0
 
-    for q in data:
-        try:
-            new_data.append(Conference(**q))
-        except pydantic.ValidationError as e:  # noqa: PERF203
-            validation_errors += 1
-            logger.error(f"❌ Validation error in conference: {e}")
-            logger.debug(f"Invalid data: \n{yaml.dump(q, default_flow_style=False)}")
-            continue
+    try:
+        new_data = [Conference(**q) for q in data]
+    except pydantic.ValidationError as e:
+        validation_errors += 1
+        logger.error(f"❌ Validation error in conference: {e}")
+        logger.debug(f"Invalid data: \n{yaml.dump(q, default_flow_style=False)}")
 
     if validation_errors > 0:
         logger.warning(f"⚠️  {validation_errors} conferences failed validation and were skipped")
@@ -241,7 +320,9 @@ def sort_data(base="", prefix="", skip_links=False):
     # Split data by cfp
     logger.info("📂 Splitting data by CFP status")
     conf, tba, expired, legacy = split_data(data)
-    logger.info(f"📊 Split results: {len(conf)} active, {len(tba)} TBA, {len(expired)} expired, {len(legacy)} legacy")
+    logger.info(
+        f"📊 Split results: {len(conf)} active, {len(tba)} TBA, {len(expired)} expired, {len(legacy)} legacy",
+    )
 
     # Sort data
     logger.info("🔄 Sorting conferences by CFP date")

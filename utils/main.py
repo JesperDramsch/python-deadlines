@@ -1,14 +1,21 @@
+# Standard library
 import sys
 import time
 
-sys.path.append(".")
-from import_python_official import main as official_updater
-from import_python_organizers import main as organizer_updater
-from logging_config import get_tqdm_logger
-from sort_yaml import sort_data
+# Local imports
+try:
+    from import_python_official import main as official_updater
+    from import_python_organizers import main as organizer_updater
+    from logging_config import get_tqdm_logger
+    from sort_yaml import sort_data
+except ImportError:
+    from .import_python_official import main as official_updater
+    from .import_python_organizers import main as organizer_updater
+    from .logging_config import get_tqdm_logger
+    from .sort_yaml import sort_data
 
 
-def main():
+def main() -> None:
     """Main data processing pipeline with comprehensive logging."""
     logger = get_tqdm_logger(__name__)
 

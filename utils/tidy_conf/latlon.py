@@ -1,16 +1,33 @@
 import sys
 import time
-import urllib
+from urllib import parse as urllib_parse
 
 import requests
 from tqdm import tqdm
 
-sys.path.append("..")
-from logging_config import get_tqdm_logger
+try:
+    sys.path.append("..")
+    from logging_config import get_tqdm_logger
+except ImportError:
+    from ..logging_config import get_tqdm_logger  # noqa: TID252
+
+# Constants
+GEOCODING_SLEEP_TIME = 2  # Seconds to sleep between geocoding requests (respects rate limits)
 
 
-def add_latlon(data):
-    """Add latitude and longitude to the data."""
+def add_latlon(data: list[dict]) -> list[dict]:
+    """Add latitude and longitude to the data.
+
+    Parameters
+    ----------
+    data : list[dict]
+        List of conference dictionaries to add geolocation data to
+
+    Returns
+    -------
+    list[dict]
+        List with added latitude and longitude information
+    """
     logger = get_tqdm_logger(__name__)
 
     # Cache for locations
@@ -64,7 +81,7 @@ def add_latlon(data):
             else:
                 headers = {"User-Agent": "Pythondeadlin.es Location Search/0.1 (https://pythondeadlin.es)"}
                 # Get the location from Openstreetmaps
-                url = "https://nominatim.openstreetmap.org/search" + "?format=json&q=" + urllib.parse.quote(place)
+                url = "https://nominatim.openstreetmap.org/search" + "?format=json&q=" + urllib_parse.quote(place)
                 response = requests.get(url, timeout=10, headers=headers)
 
                 if response:
@@ -81,7 +98,7 @@ def add_latlon(data):
                     except (IndexError, ValueError, KeyError) as e:
                         cache[place] = None
                         logger.warning(f"Error processing response from OpenStreetMap for {place}: {e}")
-                    time.sleep(2)
+                    time.sleep(GEOCODING_SLEEP_TIME)
                 else:
                     cache[place] = None
                     logger.warning(f"No response from OpenStreetMap for {q['place']}")

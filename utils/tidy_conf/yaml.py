@@ -1,17 +1,18 @@
-import re
-import sys
-
-import yaml
-
-sys.path.append(".")
 import contextlib
+import re
 from pathlib import Path
 
 import pandas as pd
-from tidy_conf.schema import Conference
-from tidy_conf.schema import get_schema
+import yaml
 
-from .utils import ordered_dump
+try:
+    from tidy_conf.schema import Conference
+    from tidy_conf.schema import get_schema
+    from tidy_conf.utils import ordered_dump
+except ImportError:
+    from .schema import Conference
+    from .schema import get_schema
+    from .utils import ordered_dump
 
 
 def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:

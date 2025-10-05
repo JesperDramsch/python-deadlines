@@ -1,22 +1,38 @@
+# Standard library
 import re
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from pathlib import Path
 
+# Third-party
 import pandas as pd
 import requests
 from icalendar import Calendar
-from logging_config import get_tqdm_logger
-from tidy_conf import fuzzy_match
-from tidy_conf import load_conferences
-from tidy_conf import merge_conferences
-from tidy_conf.date import create_nice_date
-from tidy_conf.deduplicate import deduplicate
-from tidy_conf.titles import tidy_df_names
-from tidy_conf.utils import fill_missing_required
-from tidy_conf.yaml import load_title_mappings
-from tidy_conf.yaml import write_df_yaml
+
+# Local imports
+try:
+    from logging_config import get_tqdm_logger
+    from tidy_conf import fuzzy_match
+    from tidy_conf import load_conferences
+    from tidy_conf import merge_conferences
+    from tidy_conf.date import create_nice_date
+    from tidy_conf.deduplicate import deduplicate
+    from tidy_conf.titles import tidy_df_names
+    from tidy_conf.utils import fill_missing_required
+    from tidy_conf.yaml import load_title_mappings
+    from tidy_conf.yaml import write_df_yaml
+except ImportError:
+    from .logging_config import get_tqdm_logger
+    from .tidy_conf import fuzzy_match
+    from .tidy_conf import load_conferences
+    from .tidy_conf import merge_conferences
+    from .tidy_conf.date import create_nice_date
+    from .tidy_conf.deduplicate import deduplicate
+    from .tidy_conf.titles import tidy_df_names
+    from .tidy_conf.utils import fill_missing_required
+    from .tidy_conf.yaml import load_title_mappings
+    from .tidy_conf.yaml import write_df_yaml
 
 logger = get_tqdm_logger(__name__)
 
@@ -292,7 +308,8 @@ def main(year=None, base="") -> bool:
                 else:
                     reverse_title = f"{row['conference']} {row['year']}"
 
-            dates = f'{create_nice_date(row)["date"]} ({row["timezone"] if isinstance(row["timezone"], str) else "UTC"}'
+            timezone_str = row["timezone"] if isinstance(row["timezone"], str) else "UTC"
+            dates = f'{create_nice_date(row)["date"]} ({timezone_str})'
             link = f'<a href="{row["link"]}">{row["conference"]}</a>'
             out = f""" * name of the event: {reverse_title}
  * type of event: conference
