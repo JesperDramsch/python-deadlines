@@ -3,13 +3,14 @@ name: Core CI Tests
 on:
   push:
     branches:
-      - main
-      - develop
+    - main
+    - develop
   pull_request:
     branches:
-      - main
-      - develop
+    - main
+    - develop
   workflow_dispatch:
+
 
 jobs:
   # Core data validation - always runs, it's fast
@@ -18,35 +19,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📂 Checkout repository
-        uses: actions/checkout@v5
+    - name: 📂 Checkout repository
+      uses: actions/checkout@v5
 
-      - name: 🐍 Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.0
+    - name: 🐍 Setup Pixi
+      uses: prefix-dev/setup-pixi@v0.9.0
 
-      - name: ✅ Validate conference data structure
-        run: |
-          pixi run sort --check
+    - name: ✅ Validate conference data structure
+      run: |
+        pixi run sort --check
 
-      - name: 🔍 Run data linters
-        run: |
-          pixi run lint
+    - name: 🔍 Run data linters
+      run: |
+        pixi run lint
 
-      - name: 📊 Check for obvious duplicates
-        run: |
-          # Simple duplicate check based on conference name and year
-          python -c "
-import yaml
-with open('_data/conferences.yml') as f:
-    data = yaml.safe_load(f)
-    if data:
-        seen = set()
-        for conf in data:
-            key = (conf.get('conference', ''), conf.get('year', ''))
-            if key in seen:
-                print(f'Warning: Potential duplicate - {key}')
-            seen.add(key)
-          "
+    - name: 📊 Check for obvious duplicates
+      run: |
+        # Simple duplicate check based on conference name and year
+        python -c "
+        import yaml
+        with open('_data/conferences.yml') as f:
+            data = yaml.safe_load(f)
+            if data:
+                seen = set()
+                for conf in data:
+                    key = (conf.get('conference', ''), conf.get('year', ''))
+                    if key in seen:
+                        print(f'Warning: Potential duplicate - {key}')
+                    seen.add(key)
+        "
 
   # Python tests - always runs for utilities
   python-tests:
@@ -54,21 +55,21 @@ with open('_data/conferences.yml') as f:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📂 Checkout repository
-        uses: actions/checkout@v5
+    - name: 📂 Checkout repository
+      uses: actions/checkout@v5
 
-      - name: 🐍 Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.0
+    - name: 🐍 Setup Pixi
+      uses: prefix-dev/setup-pixi@v0.9.0
 
-      - name: 🧪 Run Python tests
-        run: |
-          pixi run test-fast || echo "Tests completed"
+    - name: 🧪 Run Python tests
+      run: |
+        pixi run test-fast || echo "Tests completed"
 
-      - name: 🔍 Check Python code quality
-        run: |
-          # Run ruff for linting
-          ruff check utils/ || true
-          ruff format utils/ --check || true
+    - name: 🔍 Check Python code quality
+      run: |
+        # Run ruff for linting
+        ruff check utils/ || true
+        ruff format utils/ --check || true
 
   # Jekyll build test - ensures site can build
   jekyll-build:
@@ -76,28 +77,28 @@ with open('_data/conferences.yml') as f:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📂 Checkout repository
-        uses: actions/checkout@v5
+    - name: 📂 Checkout repository
+      uses: actions/checkout@v5
 
-      - name: 💎 Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
-          bundler-cache: true
+    - name: 💎 Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+        bundler-cache: true
 
-      - name: 🏗️ Test Jekyll build
-        run: |
-          bundle exec jekyll build --config _config.yml,_config.test.yml
-        env:
-          JEKYLL_ENV: test
+    - name: 🏗️ Test Jekyll build
+      run: |
+        bundle exec jekyll build --config _config.yml,_config.test.yml
+      env:
+        JEKYLL_ENV: test
 
-      - name: ✅ Verify critical files exist
-        run: |
-          # Check that key output files were created
-          test -f _site/index.html || exit 1
-          test -f _site/search.json || exit 1
-          test -d _site/static || exit 1
-          echo "✅ Site built successfully with all critical files"
+    - name: ✅ Verify critical files exist
+      run: |
+        # Check that key output files were created
+        test -f _site/index.html || exit 1
+        test -f _site/search.json || exit 1
+        test -d _site/static || exit 1
+        echo "✅ Site built successfully with all critical files"
 
   # Pre-commit checks - ensures code quality
   pre-commit:
@@ -105,36 +106,36 @@ with open('_data/conferences.yml') as f:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📂 Checkout repository
-        uses: actions/checkout@v5
+    - name: 📂 Checkout repository
+      uses: actions/checkout@v5
 
-      - name: 🐍 Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.0
+    - name: 🐍 Setup Pixi
+      uses: prefix-dev/setup-pixi@v0.9.0
 
-      - name: 🔍 Run pre-commit hooks
-        run: |
-          pixi run pre || true
-        continue-on-error: true  # Don't fail the entire CI for style issues
+    - name: 🔍 Run pre-commit hooks
+      run: |
+        pixi run pre || true
+      continue-on-error: true # Don't fail the entire CI for style issues
 
   # Summary job to ensure all core tests pass
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
-    needs: [data-validation, python-tests, jekyll-build]
+    needs: [ data-validation, python-tests, jekyll-build ]
     if: always()
 
     steps:
-      - name: ✅ Check overall status
-        run: |
-          if [[ "${{ needs.data-validation.result }}" == "success" ]] && \
-             [[ "${{ needs.python-tests.result }}" == "success" ]] && \
-             [[ "${{ needs.jekyll-build.result }}" == "success" ]]; then
-            echo "✅ All core tests passed!"
-            exit 0
-          else
-            echo "❌ Some core tests failed:"
-            echo "Data Validation: ${{ needs.data-validation.result }}"
-            echo "Python Tests: ${{ needs.python-tests.result }}"
-            echo "Jekyll Build: ${{ needs.jekyll-build.result }}"
-            exit 1
-          fi
+    - name: ✅ Check overall status
+      run: |
+        if [[ "${{ needs.data-validation.result }}" == "success" ]] && \
+           [[ "${{ needs.python-tests.result }}" == "success" ]] && \
+           [[ "${{ needs.jekyll-build.result }}" == "success" ]]; then
+          echo "✅ All core tests passed!"
+          exit 0
+        else
+          echo "❌ Some core tests failed:"
+          echo "Data Validation: ${{ needs.data-validation.result }}"
+          echo "Python Tests: ${{ needs.python-tests.result }}"
+          echo "Jekyll Build: ${{ needs.jekyll-build.result }}"
+          exit 1
+        fi
