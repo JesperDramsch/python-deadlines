@@ -15,11 +15,11 @@ import {
 
 test.describe('Notification System', () => {
   test.beforeEach(async ({ page, context }) => {
-    // Clear storage
-    await clearLocalStorage(page);
-
     // Navigate to home page
     await page.goto('/');
+
+    // Clear storage after navigation
+    await clearLocalStorage(page);
     await waitForPageReady(page);
   });
 

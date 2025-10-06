@@ -12,8 +12,8 @@ import {
 
 test.describe('Search Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    await clearLocalStorage(page);
     await page.goto('/search');
+    await clearLocalStorage(page);
     await waitForPageReady(page);
   });
 

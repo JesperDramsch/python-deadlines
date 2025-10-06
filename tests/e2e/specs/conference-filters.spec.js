@@ -12,8 +12,8 @@ import {
 
 test.describe('Conference Filters', () => {
   test.beforeEach(async ({ page }) => {
-    await clearLocalStorage(page);
     await page.goto('/');
+    await clearLocalStorage(page);
     await waitForPageReady(page);
     await waitForCountdowns(page);
   });

@@ -58,12 +58,25 @@ export async function grantNotificationPermission(context) {
 
 /**
  * Clear all localStorage data
+ * Note: Page must be navigated to a valid URL before calling this function
  */
 export async function clearLocalStorage(page) {
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
+  // Check if page has a valid URL
+  const url = page.url();
+  if (!url || url === 'about:blank' || url === '') {
+    console.warn('Cannot clear localStorage on blank page. Navigate to a page first.');
+    return;
+  }
+
+  try {
+    await page.evaluate(() => {
+      localStorage.clear();
+      sessionStorage.clear();
+    });
+  } catch (error) {
+    console.error('Failed to clear storage:', error.message);
+    // Don't throw - let tests continue but log the issue
+  }
 }
 
 /**
