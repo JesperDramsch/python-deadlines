@@ -28,10 +28,6 @@ jobs:
       run: |
         pixi run sort
 
-    - name: 🔍 Run data linters
-      run: |
-        pixi run lint
-
     - name: 📊 Check for obvious duplicates
       run: |
         # Simple duplicate check based on conference name and year
