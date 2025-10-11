@@ -491,23 +491,6 @@
     latitude: -37.8142454
     longitude: 144.9631732
 
-- conference: PyCon Kenya
-  year: 2025
-  link: https://www.pycon.ke/
-  cfp_link: https://sessionize.com/pycon-kenya-2025/
-  cfp: '2025-06-22 23:59:59'
-  timezone: Africa/Nairobi
-  place: Nairobi, Kenia
-  start: 2025-08-28
-  end: 2025-08-30
-  sponsor: https://www.pycon.ke/sponsors
-  twitter: pythonairobi
-  sub: PY
-  location:
-  - title: PyCon Kenya 2025
-    latitude: -1.2832533
-    longitude: 36.8172449
-
 - conference: PyCon Hong Kong
   alt_name: PyCon HK
   year: 2025
@@ -611,22 +594,6 @@
     latitude: 12.9767936
     longitude: 77.590082
 
-- conference: PyCon Poland
-  alt_name: PyCon PL
-  year: 2025
-  link: https://pl.pycon.org/2025/
-  cfp_link: https://pyconpl.confreg.pl/events/40-pycon-pl-2025
-  cfp: '2025-05-15 23:59:00'
-  cfp_ext: '2025-05-31 23:59:00'
-  place: Gliwice, Poland
-  start: 2025-08-28
-  end: 2025-08-31
-  sub: PY
-  location:
-  - title: PyCon Poland 2025
-    latitude: 50.294113
-    longitude: 18.6657306
-
 - conference: PyCon UK
   year: 2025
   link: https://2025.pyconuk.org/
@@ -658,22 +625,6 @@
   - title: PyData Amsterdam 2025
     latitude: 52.38331772938018
     longitude: 4.920446388368758
-
-- conference: PyData Berlin
-  year: 2025
-  link: https://pydata.org/berlin2025/
-  cfp_link: https://cfp.pydata.org/berlin2025/cfp
-  cfp: '2025-05-04 23:59:59'
-  timezone: Europe/Berlin
-  place: Berlin, Germany
-  start: 2025-09-01
-  end: 2025-09-03
-  twitter: pydataberlin
-  sub: DATA
-  location:
-  - title: PyData Berlin 2025
-    latitude: 52.520778408127605
-    longitude: 13.416401868537298
 
 - conference: PyCon Israel
   year: 2025
@@ -724,21 +675,6 @@
   - title: DjangoCon US 2025
     latitude: 41.8755616
     longitude: -87.6244212
-
-- conference: PyCon Greece
-  year: 2025
-  link: https://2025.pycon.gr/en/
-  cfp_link: https://pretalx.com/pycongr25/cfp
-  cfp: '2025-04-20 23:59:00'
-  timezone: Europe/Athens
-  place: Athens, Greece
-  start: 2025-08-29
-  end: 2025-08-30
-  sub: PY
-  location:
-  - title: PyCon Greece 2025
-    latitude: 37.9755648
-    longitude: 23.7348324
 
 - conference: PyData Paris
   year: 2025
