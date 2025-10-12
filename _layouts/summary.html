@@ -1,0 +1,376 @@
+---
+description: Summary of the conference and its instances throughout the years.
+---
+<!DOCTYPE html>
+<html>
+
+<head>
+  {% include head.html %}
+  {% if page.mastodon %}
+  <link rel="stylesheet" type="text/css" href="{{ "/static/css/mastodon.css" | prepend:site.baseurl_root }}">
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch("{{page.mastodon}}.rss")
+        .then(function (response) {
+          return response.text();
+        })
+        .then(function (xmlText) {
+          var parser = new DOMParser();
+          var xml = parser.parseFromString(xmlText, "text/xml");
+          var items = xml.querySelectorAll("item");
+          var feedContainer = document.getElementById("mastodon-feed");
+          var postLimit = 2; // Number of posts to display
+
+          if (feedContainer) {
+            for (var i = 0; i < postLimit && i < items.length; i++) {
+              var item = items[i];
+              var post = item.querySelector("description").textContent;
+              var link = item.querySelector("link").textContent;
+              var pubDate = item.querySelector("pubDate").textContent;
+
+              var feedItem = document.createElement("div");
+              feedItem.setAttribute("class", "timeline-item")
+              feedItem.innerHTML = '<div class="timeline-content">' + post + '</div><a href="' + link + '">' + pubDate + ' by {{page.conference}}</a>';
+              feedContainer.appendChild(feedItem);
+            }
+          }
+        })
+        .catch(function (error) {
+          console.log("Error fetching Mastodon RSS feed:", error);
+        });
+    });
+  </script>
+  {% elsif page.twitter %}
+  <style>
+    #twitter-widget {
+      width: 100%;
+    }
+
+    .twitter-timeline {
+      width: 100% !important;
+    }
+    </style>
+  {% endif %}
+</head>
+
+<body>
+  {% include header.html %}
+  {% if page.alt_name and page.alt_name != nil %}
+  {% assign confs = site.data.archive | concat: site.data.conferences | concat: site.data.legacy | where_exp:"item","page.conference contains item.conference or item.conference contains page.conference or page.alt_name == item.alt_name or page.conference contains item.alt_name or item.conference contains page.alt_name" | sort: "year" | reverse %}
+  {% else %}
+  {% assign confs = site.data.archive | concat: site.data.conferences | concat: site.data.legacy | where_exp:"item","page.conference contains item.conference or item.conference contains page.conference" | sort: "year" | reverse %}
+  {% endif %}
+  <div class="container">
+    <div class="page-header" id="conf-title">
+      <div class="row">
+        <div class="col-sm-12">
+          {% include_cached breadcrumbs.html url=page.url %}
+          <h1>
+            <span id="conf-title-href" href="{{site.baseurl_root}}/summary/{{page.conference | slugify: 'latin'}}/">{{title}}</span>
+            <span id="twitter-box"><a href="https://twitter.com/share" class="twitter-share-button"
+                data-text="Conference instances for the #{{ page.conference }} conference!" data-show-count="false"
+                style="font-size:13px;">Tweet</a>
+              <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+            </span>
+          </h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-12" id="conf-subs">
+          <span id="conf-subs" title="Conference subjects">
+            {% assign subs = page.sub | split: "," %}
+            {% for sub in subs %}
+            <span class="{{sub}}-tag badge badge-light conf-sub conf-{{sub}}">
+              {% for tp in site.data.types %}
+                {% if sub == tp.sub %}
+                  {{tp.name}}
+                {% endif %}
+              {% endfor %}
+            </span>
+            {% endfor %}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div id="page-content">
+        <div id="conf-key-facts" class="row">
+          <div class="col-12 col-md-6">
+            <div>
+              <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" />
+              <a id="conf-website" target="_blank" href="{{confs[0].link}}">{{confs[0].link}}</a>
+            </div>
+            {% if confs[0].twitter %}
+              <div>
+                <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" />
+                <a id="conf-twitter" target="_blank" href="https://twitter.com/{{confs[0].twitter}}">@{{confs[0].twitter}}</a>
+              </div>
+            {% endif %}
+            {% if confs[0].mastodon %}
+              <div>
+                <img src="/static/img/407-mastodon.svg" class="badge-link" alt="Mastodon icon" width="16" height="16" />
+                <a id="conf-mastodon" target="_blank" href="{{confs[0].mastodon}}">Mastodon</a>
+              </div>
+            {% endif %}
+            </div>
+            <div class="col-12 col-md-6">
+            {% if confs[0].mastodon %}
+              <!-- Mastodon timeline -->
+              <div class="meta">Mastodon Posts by {{page.conference}}:</div>
+              <div id="mastodon-feed"></div>
+              <a href="{{ page.mastodon }}">See all Mastodon posts for {{ page.conference }}</a>
+            {% elsif confs[0].twitter %}
+              <!-- Twitter timeline -->
+              <div id="twitter-widget">
+                <a class="twitter-timeline" href="https://twitter.com/{{page.twitter}}" data-tweet-limit=2>Tweets by
+                  {{confs[0].twitter}}</a>
+                <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <hr />
+      <div id="all_confs">
+        {% for conf in confs %}
+          {% assign subs = conf.sub | split: "," %}
+          <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
+            class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}">
+            <div class="row conf-row">
+              <div class="col-6">
+                <span class="conf-title">
+                  <a title="Deadline Details"
+                    href="{{site.baseurl}}/conference/{{conf.conference | slugify: "latin"}}-{{conf.year}}/">{{conf.conference}} {{conf.year}}</a>
+                </span>
+                <span class="conf-title-small">
+                  <a title="Deadline Details"
+                    href="{{site.baseurl}}/conference/{{conf.conference | slugify: "latin"}}-{{conf.year}}/">{{conf.conference}} '{{conf.year |
+                    slice: -2, 3}}</a>
+                </span>
+                <span class="conf-title-icon">
+                  <a title="Conference Website" href="{{conf.link}}" target="_blank"><img src="/static/img/203-earth.svg"
+                      class="badge-link" alt="Link to Conference Website" width="16" height="16" /></a>
+                  &ZeroWidthSpace;
+                </span>
+                {% if conf.cfp_link %}
+                  <span class="conf-title-icon">
+                    <a title="Call for Participation for {{conf.conference}}" href="{{conf.cfp_link}}" target="_blank"><img
+                        src="/static/img/035-file-text.svg" class="badge-link"
+                        alt="Link to Call for Participation for {{conf.conference}}" width="16" height="16" /></a>
+                    &ZeroWidthSpace;
+                  </span>
+                {% endif %}
+                {% if conf.finaid %}
+                  <span class="conf-title-icon">
+                    <a title="Financial Aid from {{conf.conference}}" href="{{conf.finaid}}" target="_blank"><img
+                        src="/static/img/066-lifebuoy.svg" class="badge-link" alt="Link to Sponsorship page of {{conf.conference}}"
+                        width="16" height="16" /></a>
+                    &ZeroWidthSpace;
+                  </span>
+                {% endif %}
+                {% if conf.sponsor %}
+                  <span class="conf-title-icon">
+                    <a title="Sponsorship Opportunity for {{conf.conference}}" href="{{conf.sponsor}}" target="_blank"><img
+                        src="/static/img/060-coin-dollar.svg" class="badge-link" alt="Link to Sponsorship page of {{conf.conference}}"
+                        width="16" height="16" /></a>
+                    &ZeroWidthSpace;
+                  </span>
+                {% endif %}
+                {% if conf.mastodon %}
+                  <span class="conf-title-icon">
+                    <a title="Mastodon for {{conf.conference}}" href="{{conf.mastodon}}" target="_blank"><img
+                        src="/static/img/407-mastodon.svg" class="badge-link" alt="Link to Conference Mastodon" width="16"
+                        height="16" /></a>
+                    &ZeroWidthSpace;
+                  </span>
+                {% elsif conf.twitter %}
+                  <span class="conf-title-icon">
+                    <a title="Twitter for {{conf.conference}}" href="https://twitter.com/{{conf.twitter}}" target="_blank"><img
+                        src="/static/img/407-twitter.svg" class="badge-link" alt="Link to Conference Twitter" width="16"
+                        height="16" /></a>
+                    &ZeroWidthSpace;
+                  </span>
+                {% endif %}
+              </div>
+              <div class="col-6">
+                <span class="countdown-display conf-timer"
+                      data-deadline="{% if conf.cfp_ext %}{{ conf.cfp_ext }}{% else %}{{ conf.cfp }}{% endif %}"
+                      data-timezone="{% if conf.timezone %}{{ conf.timezone }}{% else %}UTC-12{% endif %}">
+                  {% if conf.cfp == "TBA" or conf.cfp == "Cancelled" or conf.cfp == "None" %}{{ conf.cfp }}{% endif %}
+                </span>
+                <span class="countdown-display countdown-small conf-timer"
+                      data-deadline="{% if conf.cfp_ext %}{{ conf.cfp_ext }}{% else %}{{ conf.cfp }}{% endif %}"
+                      data-timezone="{% if conf.timezone %}{{ conf.timezone }}{% else %}UTC-12{% endif %}">
+                  {% if conf.cfp == "TBA" or conf.cfp == "Cancelled" or conf.cfp == "None" %}{{ conf.cfp }}{% endif %}
+                </span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-sm-6">
+                <div class="meta">
+
+                  <span class="conf-date">{%- translate_file dates/pretty_dates.html start=conf.start end=conf.end -%}.</span>
+                  <span class="conf-place">
+                    {% if conf.place == "Online" %}
+                      <a href="#">{{conf.place}}</a>
+                    {% else %}
+                      <a href="http://maps.google.com/?q={{conf.place}}">{{conf.place}}</a>
+                      {% if conf.extra_places %}
+                        {% for place in conf.extra_places %}
+                        & <a href="http://maps.google.com/?q={{place}}">{{place}}</a>
+                        {% endfor %}
+                      {% endif %}
+                    {% endif %}
+                  </span>
+                </div>
+                {% if conf.note %}
+                  <div class="note">
+                    <b>Note: </b>{{conf.note}}
+                  </div>
+                {% endif %}
+
+              </div>
+              <div class="col-12 col-sm-6">
+                <div class="deadline">
+                  <div>Deadline:
+                    <span class="deadline-time">{{conf.cfp | date: "%A, %e %B %Y"}}</span>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6">
+                {% assign subs = conf.sub | split: "," %}
+                {% for sub in subs %}
+                  <span title="Click to only show {{sub | strip}} conferences" data-sub="{{sub | strip}}"
+                    class="badge badge-light conf-sub {{sub | strip}}-tag"></span>
+                {% endfor %}
+              </div>
+              <div class="col-6">
+                <div class="calendar"></div>
+              </div>
+            </div>
+            <hr>
+          </div>
+        {% endfor %}
+    </div>
+    {% if page.place == confs[0].place and confs[0].place == confs[1].place %}
+    <div class="row">
+      {% google_map zoom="6" width="100%" %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+<footer>
+  {% include_cached footer.html %}
+  {% assign title_length = page.title | size | minus: 27 %}
+  {% assign sliced_title = page.title | slice: 0, title_length %}
+
+  {% include_cached trademarks.html title=sliced_title %}
+</footer>
+  <script type="text/javascript" charset="utf-8">
+    $(function () {
+
+      var DateTime = luxon.DateTime;
+      var today = DateTime.now();
+
+      {% include load_data.js %}
+      {% include utils.js %}
+      {% include multiselect_handler.js %}
+
+      // Set time zone to local timezone on web copy
+      $('.local-timezone').text(today.toFormat('z'));
+
+      {% for conf in confs %}
+        {% if conf.cfp_ext %}
+          {% assign cfp = conf.cfp_ext %}
+        {% else %}
+          {% assign cfp = conf.cfp %}
+        {% endif %}
+        {% assign subs = conf.sub | split: "," %}
+        {% for sub in subs %}
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .{{sub | strip}}-tag').html("{% t 'subs.{{sub | strip}}' %}".toLocaleLowerCase("{{ site.lang }}"));
+        {% endfor %}
+        {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline-time').html("{{cfp}}");
+          {% if cfp == "TBA" %}
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').attr("cfpDiff", Infinity);
+          {% else %}
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').attr("cfpDiff", -Infinity);
+          {% endif %}
+        {% else %}
+
+          // Use specified timezone for deadlines if available else use AoE timezone
+          {% if conf.timezone %}
+            var cfpDate = DateTime.fromSQL("{{cfp}}", { zone: "{{conf.timezone}}" });
+            var confDate = DateTime.fromSQL("{{conf.start}}", { zone: "{{conf.timezone}}" });
+          {% else %}
+            var cfpDate = DateTime.fromSQL("{{cfp}}", { zone: "UTC-12" });
+            var confDate = DateTime.fromSQL("{{conf.start}}", { zone: "UTC-12" });
+          {% endif %}
+
+          // check if timezone is valid otherwise replace by system timezone
+          if (cfpDate.invalid || confDate.invalid) {
+            var cfpDate = DateTime.fromSQL("{{cfp}}");
+            var confDate = DateTime.fromSQL("{{conf.start}}");
+            console.log("Invalid timezone in {{conf.conference | slugify: "latin"}}-{{conf.year}}. Using system timezone instead.");
+          }
+
+          // Countdown timers are now handled by countdown-simple.js automatically
+
+          // deadline in local timezone
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .deadline-time').html(cfpDate.setZone('system').toLocaleString(DateTime.DATE_HUGE));
+
+          // add calendar button
+          try {
+            var myCalendar = createCalendarFromObject({
+              id: '{{conf.conference | slugify: "latin"}}-{{conf.year}}',
+              title: '{{conf.conference}} {{conf.year}} deadline',
+              start_date: cfpDate.toJSDate(),
+              duration: 60,
+              place: '{{conf.place}}',
+              link: '{{conf.link}}'
+            });
+            var calendarContainer = document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar');
+            if (calendarContainer) {
+              calendarContainer.appendChild(myCalendar);
+            }
+          } catch (err) {
+            var calendarContainer = document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar');
+            if (calendarContainer) {
+              var errorMsg = document.createElement('p');
+              errorMsg.textContent = 'Calendar not available.';
+              calendarContainer.appendChild(errorMsg);
+            }
+            console.log("Error in cfp date.");
+          }
+
+          // check if date has passed, add 'past' class to it
+          cfpDiff = cfpDate.diffNow("seconds");
+          confDiff = confDate.diffNow("seconds");
+
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').attr("cfpDiff", cfpDiff.toMillis());
+          $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').attr("confDiff", confDiff.toMillis());
+
+          if (cfpDiff < 0) {
+            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').addClass('pastcfp');
+            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar').remove();
+          }
+
+          if (confDiff < 0) {
+            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}}').addClass('pastconf');
+            $('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar').remove();
+          }
+        {% endif %}
+      {% endfor %}
+
+      // Sort conferences by CFP deadline
+      $("#all_confs .ConfItem").sort(function (a, b) {
+        return $(a).attr('cfpDiff') - $(b).attr('cfpDiff');
+      }).appendTo($("#all_confs"));
+    });
+  </script>
+
+    {% include sneks.html %}
+</body>
+
+</html>
