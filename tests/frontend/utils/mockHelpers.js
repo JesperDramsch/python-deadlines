@@ -249,39 +249,34 @@ function mockPageVisibility(isVisible = true) {
  */
 function mockLuxonDateTime() {
   if (!window.luxon) {
+    // Create a helper to generate proper Duration mocks
+    const createDurationMock = (days, hours, minutes, seconds) => {
+      const totalMillis = (days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds) * 1000;
+      return {
+        // Total milliseconds
+        toMillis: () => totalMillis,
+        // shiftTo method returns normalized components
+        shiftTo: jest.fn((...units) => ({
+          toObject: () => ({ days, hours, minutes, seconds })
+        }))
+      };
+    };
+
     // Simple mock if Luxon not loaded
     window.luxon = {
       DateTime: {
         now: jest.fn(() => ({
           toISO: () => new Date().toISOString(),
           toMillis: () => Date.now(),
-          diff: jest.fn(() => ({
-            days: 7,
-            hours: 12,
-            minutes: 30,
-            seconds: 45,
-            toMillis: () => 7 * 24 * 60 * 60 * 1000
-          }))
+          diff: jest.fn(() => createDurationMock(7, 12, 30, 45))
         })),
         fromSQL: jest.fn((str) => ({
           invalid: false,
-          diff: jest.fn(() => ({
-            days: 7,
-            hours: 12,
-            minutes: 30,
-            seconds: 45,
-            toMillis: () => 7 * 24 * 60 * 60 * 1000
-          }))
+          diff: jest.fn(() => createDurationMock(7, 12, 30, 45))
         })),
         fromISO: jest.fn((str) => ({
           invalid: false,
-          diff: jest.fn(() => ({
-            days: 7,
-            hours: 12,
-            minutes: 30,
-            seconds: 45,
-            toMillis: () => 7 * 24 * 60 * 60 * 1000
-          }))
+          diff: jest.fn(() => createDurationMock(7, 12, 30, 45))
         }))
       }
     };

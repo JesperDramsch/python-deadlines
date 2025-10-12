@@ -77,16 +77,19 @@ describe('Countdown Timer System', () => {
   describe('Countdown Display Formats', () => {
     beforeEach(() => {
       // Mock Luxon DateTime more specifically for these tests
-      const createMockDateTime = (days, hours, minutes, seconds) => ({
-        invalid: false,
-        diff: jest.fn(() => ({
-          days,
-          hours,
-          minutes,
-          seconds,
-          toMillis: () => (days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds) * 1000
-        }))
-      });
+      const createMockDateTime = (days, hours, minutes, seconds) => {
+        const totalMillis = (days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds) * 1000;
+        return {
+          invalid: false,
+          diff: jest.fn(() => ({
+            toMillis: () => totalMillis,
+            // shiftTo method returns normalized components
+            shiftTo: jest.fn((...units) => ({
+              toObject: () => ({ days, hours, minutes, seconds })
+            }))
+          }))
+        };
+      };
 
       window.luxon = {
         DateTime: {

@@ -50,7 +50,7 @@
 
             // Calculate time difference
             const now = DateTime.now();
-            const diff = deadline.diff(now, ['days', 'hours', 'minutes', 'seconds']);
+            const diff = deadline.diff(now);
 
             if (diff.toMillis() <= 0) {
                 // Deadline has passed
@@ -59,11 +59,13 @@
                     : 'Deadline passed';
                 el.classList.add('deadline-passed');
             } else {
-                // Format and display countdown
-                const days = Math.floor(diff.days);
-                const hours = Math.floor(diff.hours);
-                const minutes = Math.floor(diff.minutes);
-                const seconds = Math.floor(diff.seconds);
+                // Format and display countdown - get normalized components using shiftTo
+                const normalized = diff.shiftTo('days', 'hours', 'minutes', 'seconds');
+                const components = normalized.toObject();
+                const days = Math.floor(components.days || 0);
+                const hours = Math.floor(components.hours || 0);
+                const minutes = Math.floor(components.minutes || 0);
+                const seconds = Math.floor(components.seconds || 0);
 
                 if (el.classList.contains('countdown-small')) {
                     // Compact format for small countdown
