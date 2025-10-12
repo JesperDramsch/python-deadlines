@@ -1,5 +1,99 @@
 ---
 
+- conference: PyBay
+  year: 2026
+  link: https://pybay.org/
+  cfp_link: https://pybay.org/speaking/
+  cfp: '2026-07-31 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Francisco, USA
+  start: 2026-10-03
+  end: 2026-10-03
+  sponsor: https://pybay.org/sponsors/sponsor-us/
+  sub: PY
+  location:
+  - title: PyBay 2026
+    latitude: 37.7681571
+    longitude: -122.392929
+
+- conference: PyCon Lithuania
+  alt_name: PyCon LT
+  year: 2026
+  link: https://pycon.lt/2026
+  cfp_link: https://pycon.lt/2026/call-for-proposals
+  cfp: '2026-01-15 23:59:00'
+  timezone: Europe/Vilnius
+  place: Vilnius, Lithuania
+  start: 2026-04-08
+  end: 2026-04-10
+  sub: PY
+  location:
+  - title: PyCon Lithuania 2026
+    latitude: 54.6870458
+    longitude: 25.2829111
+
+- conference: PythonAsia
+  year: 2026
+  link: https://2026.pythonasia.org/
+  cfp_link: https://pretalx.com/python-asia-2026
+  cfp: '2025-11-30 23:59:00'
+  timezone: Asia/Manila
+  place: Malate, Philippines
+  start: 2026-03-21
+  end: 2026-03-23
+  sponsor: https://bit.ly/PythonAsia2026-CallForSponsors
+  sub: PY
+  location:
+  - title: PythonAsia 2026
+    latitude: 14.5700388
+    longitude: 120.9915263
+
+- conference: PyCascades
+  year: 2026
+  link: https://2026.pycascades.com/
+  cfp_link: https://pretalx.com/pycascades-2026/cfp
+  cfp: '2025-10-27 23:59:00'
+  place: Vancouver, Canada
+  start: 2026-03-21
+  end: 2026-03-22
+  sponsor: https://2026.pycascades.com/sponsors/become-a-sponsor/
+  mastodon: https://fosstodon.org/@pycascades
+  sub: PY
+  location:
+  - title: PyCascades 2026
+    latitude: 49.27213705
+    longitude: -123.13439461006233
+
+- conference: Django Day India
+  year: 2025
+  link: https://djangoday.in/
+  cfp_link: https://cfp.djangoday.in/django-day-india-2025/cfp
+  cfp: '2025-10-20 23:59:00'
+  timezone: Asia/Kolkata
+  place: Bangalore, India
+  start: 2025-11-08
+  end: 2025-11-08
+  sub: WEB
+  location:
+  - title: Django Day India 2025
+    latitude: 12.9767936
+    longitude: 77.590082
+
+- conference: PyHEP
+  year: 2025
+  link: https://indico.cern.ch/event/1566263/
+  cfp: '2025-10-13 23:59:00'
+  timezone: Europe/Zurich
+  place: CERN, Switzerland
+  start: 2025-10-27
+  end: 2025-10-30
+  sub: SCIPY
+  note: Hybrid event
+  location:
+  - title: PyHEP 2025
+    latitude: 46.2333936
+    longitude: 6.0556169
+
 - conference: PyData Boston
   year: 2025
   link: https://pydata.org/boston2025
@@ -97,10 +191,11 @@
   link: https://pycon.id/
   cfp_link: https://papercall.io/pyconid2025
   cfp: '2025-09-14 16:59:59'
-  timezone: UTC
-  place: Jakarta, Indonesia
-  start: 2025-12-06
-  end: 2025-12-07
+  timezone: Asia/Jakarta
+  place: South Jakarta, Indonesia
+  start: 2025-12-13
+  end: 2025-12-14
+  sponsor: https://drive.google.com/file/d/1eBvk9M9VfZZLGejicUXc6f3lBuO9snJV/view
   twitter: id_pycon
   sub: PY
   location:
@@ -342,6 +437,24 @@
     latitude: 60.1674881
     longitude: 24.9427473
 
+- conference: PyBay
+  year: 2025
+  link: https://pybay.org/
+  cfp_link: https://pybay.org/speaking/
+  cfp: '2025-07-31 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Francisco, USA
+  start: 2025-10-18
+  end: 2025-10-18
+  sponsor: https://pybay.org/sponsors/sponsor-us/
+  twitter: py_bay
+  mastodon: https://fosstodon.org/@pybay
+  sub: PY
+  location:
+  - title: PyBay 2025
+    latitude: 37.7681571
+    longitude: -122.392929
+
 - conference: PyCon France
   alt_name: PyCon FR
   year: 2025
@@ -523,24 +636,6 @@
   - title: PyCon Thailand 2025
     latitude: 13.7524938
     longitude: 100.4935089
-
-- conference: PyBay
-  year: 2025
-  link: https://pybay.org/
-  cfp_link: https://sessionize.com/pybay2025
-  cfp: '2025-06-08 23:59:00'
-  timezone: America/Los_Angeles
-  place: San Francisco, USA
-  start: 2025-10-18
-  end: 2025-10-18
-  sponsor: https://pybay.org/sponsors/sponsor-us/
-  twitter: py_bay
-  mastodon: https://fosstodon.org/@pybay
-  sub: PY
-  location:
-  - title: PyBay 2025
-    latitude: 37.7681571
-    longitude: -122.392929
 
 - conference: PyTorch Conference
   year: 2025
@@ -744,6 +839,48 @@
     latitude: 59.4372155
     longitude: 24.7453688
 
+- conference: PyCon Estonia
+  alt_name: PyCon EE
+  year: 2026
+  link: https://pycon.ee/
+  cfp: TBA
+  place: Tallinn, Estonia
+  start: 2026-10-08
+  end: 2026-10-09
+  sub: PY
+  location:
+  - title: PyCon Estonia 2026
+    latitude: 59.4372155
+    longitude: 24.7453688
+
+- conference: PyCon Kenya
+  year: 2026
+  link: https://www.pycon.ke/
+  cfp: TBA
+  timezone: Africa/Nairobi
+  place: Nairobi, Kenya
+  start: 2026-08-28
+  end: 2026-08-29
+  sub: PY
+  location:
+  - title: PyCon Kenya 2026
+    latitude: -1.2136405
+    longitude: 36.87930533266044
+
+- conference: PyCon Poland
+  alt_name: PyCon PL
+  year: 2026
+  link: https://pl.pycon.org/2026
+  cfp: TBA
+  place: Gliwice, Poland
+  start: 2026-08-27
+  end: 2026-08-30
+  sub: PY
+  location:
+  - title: PyCon Poland 2026
+    latitude: 50.294113
+    longitude: 18.6657306
+
 - conference: PyCon Australia
   alt_name: PyCon AU
   year: 2026
@@ -833,20 +970,32 @@
     latitude: 49.872775
     longitude: 8.651177
 
-- conference: PyCascades
+- conference: Python BarCamp Karlsruhe
   year: 2026
-  link: https://2026.pycascades.com/
-  cfp: TBA
-  place: Vancouver, Canada
-  start: 2026-03-21
-  end: 2026-03-22
-  sponsor: https://2026.pycascades.com/sponsors/become-a-sponsor/
-  mastodon: https://fosstodon.org/@pycascades
+  link: https://barcamps.eu/pythonbarcamp-2026/
+  cfp: None
+  place: Karlsruhe, Germany
+  start: 2026-02-21
+  end: 2026-02-22
+  sub: CAMP
+  location:
+  - title: Python BarCamp Karlsruhe 2026
+    latitude: 49.0068705
+    longitude: 8.4034195
+
+- conference: PyCon mini Tokai
+  year: 2025
+  link: https://tokai.pycon.jp/2025/
+  cfp: None
+  timezone: Asia/Tokyo
+  place: Nagoya, Japan
+  start: 2025-11-08
+  end: 2025-11-08
   sub: PY
   location:
-  - title: PyCascades 2026
-    latitude: 49.27213705
-    longitude: -123.13439461006233
+  - title: PyCon mini Tokai 2025
+    latitude: 35.1851045
+    longitude: 136.8998438
 
 - conference: Pythoncamp Rügen
   year: 2025
