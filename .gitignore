@@ -158,6 +158,7 @@ venv.bak/
 
 # mkdocs documentation
 /site
+/playwright-report
 
 # mypy
 .mypy_cache/
