@@ -1,0 +1,304 @@
+/* Conference Detail Page Action Buttons */
+
+:root {
+  --btn-action-primary: #3776ab;
+  --btn-action-primary-hover: #2a5a87;
+  --btn-action-secondary: #f8f9fa;
+  --btn-action-secondary-hover: #e9ecef;
+  --btn-action-text: #212529;
+  --btn-action-border: #dee2e6;
+  --btn-action-shadow: rgba(0, 0, 0, 0.1);
+  --btn-action-radius: 8px;
+  --btn-action-transition: all 0.2s ease;
+}
+
+/* Action Buttons Container */
+.conference-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 24px 0;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Base Button Style */
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 1px solid var(--btn-action-border);
+  border-radius: var(--btn-action-radius);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--btn-action-transition);
+  text-decoration: none;
+  background: var(--btn-action-secondary);
+  color: var(--btn-action-text);
+  box-shadow: 0 2px 4px var(--btn-action-shadow);
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--btn-action-shadow);
+  text-decoration: none;
+}
+
+.btn-action:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px var(--btn-action-shadow);
+}
+
+.btn-action i {
+  font-size: 18px;
+}
+
+/* Primary Button (Follow Series) */
+.btn-action-primary {
+  background: var(--btn-action-primary);
+  color: white;
+  border-color: var(--btn-action-primary);
+}
+
+.btn-action-primary:hover {
+  background: var(--btn-action-primary-hover);
+  border-color: var(--btn-action-primary-hover);
+  color: white;
+}
+
+.btn-action-primary.active {
+  background: #ffd43b;
+  border-color: #ffd43b;
+  color: #333;
+}
+
+.btn-action-primary.active i {
+  color: #333;
+}
+
+/* Secondary Buttons (Save, Calendar) */
+.btn-action-secondary {
+  background: var(--btn-action-secondary);
+  color: var(--btn-action-text);
+}
+
+.btn-action-secondary:hover {
+  background: var(--btn-action-secondary-hover);
+  color: var(--btn-action-text);
+}
+
+.btn-action-secondary.active {
+  background: var(--btn-action-primary);
+  color: white;
+  border-color: var(--btn-action-primary);
+}
+
+/* Calendar Dropdown Wrapper */
+.btn-action-calendar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.calendar-dropdown-arrow {
+  font-size: 12px;
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.btn-action-calendar-wrapper:hover .calendar-dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* Calendar Dropdown Menu */
+.calendar-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 200px;
+  background: white;
+  border: 1px solid var(--btn-action-border);
+  border-radius: var(--btn-action-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 8px;
+  display: none;
+  z-index: 1000;
+  animation: dropdownSlide 0.2s ease;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.btn-action-calendar-wrapper:hover .calendar-dropdown-menu {
+  display: block;
+}
+
+.calendar-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: var(--btn-action-text);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.calendar-option:hover {
+  background: var(--btn-action-secondary-hover);
+  color: var(--btn-action-text);
+  text-decoration: none;
+}
+
+.calendar-option i {
+  width: 20px;
+  font-size: 16px;
+  color: #6c757d;
+}
+
+.calendar-option:hover i {
+  color: var(--btn-action-primary);
+}
+
+/* Active/Saved States */
+.btn-save-conference.active i {
+  color: white;
+}
+
+.btn-follow-series.active {
+  background: #ffd43b;
+  border-color: #ffd43b;
+  color: #333;
+}
+
+.btn-follow-series.active i {
+  color: #333;
+  animation: bell-ring 0.5s ease;
+}
+
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-15deg); }
+  75% { transform: rotate(15deg); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .conference-actions {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 0;
+  }
+
+  .btn-action {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 15px;
+  }
+
+  .btn-text {
+    display: inline;
+  }
+
+  .calendar-dropdown-menu {
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .btn-action {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+
+  .btn-action i {
+    font-size: 16px;
+  }
+
+  .btn-text {
+    font-size: 14px;
+  }
+}
+
+/* Loading State */
+.btn-action.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.btn-action.loading::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --btn-action-secondary: #2a2a2a;
+    --btn-action-secondary-hover: #3a3a3a;
+    --btn-action-text: #e0e0e0;
+    --btn-action-border: #444;
+    --btn-action-shadow: rgba(0, 0, 0, 0.3);
+  }
+
+  .calendar-dropdown-menu {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .calendar-option {
+    color: #e0e0e0;
+  }
+
+  .calendar-option:hover {
+    background: #3a3a3a;
+    color: #e0e0e0;
+  }
+}
+
+/* Accessibility */
+.btn-action:focus {
+  outline: 2px solid var(--btn-action-primary);
+  outline-offset: 2px;
+}
+
+.btn-action:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .btn-action {
+    border-width: 2px;
+  }
+
+  .btn-action-primary {
+    background: #000;
+    color: #fff;
+  }
+}

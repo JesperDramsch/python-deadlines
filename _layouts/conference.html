@@ -90,12 +90,27 @@ description: Countdown for the Call for Participation of this conference includi
         </div>
       </div>
     </div>
-    <div id="page-content">
+    <div id="page-content"
+         data-conf-id="{{page.conference | slugify: "latin"}}-{{page.year}}"
+         data-conf-name="{{page.conference}}"
+         data-conf-year="{{page.year}}"
+         data-location="{{page.place}}"
+         data-cfp="{{page.cfp}}"
+         data-cfp-ext="{{page.cfp_ext}}"
+         data-start="{{page.start}}"
+         data-end="{{page.end}}"
+         data-link="{{page.link}}">
       <div id="conf-deadline-timer" class="row">
         <div id="cfp-timer" class="col-12 conf-timer countdown-display"
              data-deadline="{{ page.cfp_ext | default: page.cfp }}"
              data-timezone="{{ page.timezone | default: 'UTC-12' }}">
           {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}{{cfp}}{%endif%}
+        </div>
+      </div>
+      <!-- Conference Action Buttons -->
+      <div class="row">
+        <div class="col-12">
+          {% include conference_detail_actions.html %}
         </div>
       </div>
       <div id="conf-key-facts" class="row">
@@ -161,14 +176,6 @@ description: Countdown for the Call for Participation of this conference includi
         </div>
         <div id="conf-deadlines" class="row">
           <div class="col-12 col-md-6">
-          <div class="meta deadline">
-            {% t conference.download_dl %}:
-          </div>
-          <div id="conference-deadline" class="calendar meta"></div>
-          <div class="meta deadline">
-            {% t conference.download_date %}:
-          </div>
-          <div id="conference-calendar" class="calendar meta"></div>
           <div class="meta deadline">
             {% t conference.deadline_tz_theirs %}:
           </div>
@@ -264,36 +271,9 @@ description: Countdown for the Call for Participation of this conference includi
         console.log("Invalid timezone. Using system timezone instead.");
       }
 
-      // add calendar
+      // Calendar export is now handled by conference action buttons
 
-      var conferenceDeadlineCalendar = createCalendarFromObject({
-        id: '{{page.conference | slugify: "latin"}}-{{page.year}}',
-        title: '{{page.conference}} {{page.year}} deadline',
-        start_date: confDeadline.toJSDate(),
-        duration: 60,
-        place: '{{page.place}}',
-        link: '{{page.link}}',
-      });
-      var deadlineContainer = document.querySelector('#conference-deadline');
-      if (deadlineContainer) {
-        deadlineContainer.appendChild(conferenceDeadlineCalendar);
-      }
-
-
-      var conferenceCalendar = createCalendarFromObject({
-        id: '{{page.conference | slugify: "latin"}}-{{page.year}}',
-        title: '{{page.conference}} {{page.year}}',
-        start_date: DateTime.fromSQL("{{page.start}}").toJSDate(),
-        end_date: DateTime.fromSQL("{{page.end}}").toJSDate(),
-        place: '{{page.place}}',
-        link: '{{page.link}}',
-      });
-      var calendarContainer = document.querySelector('#conference-calendar');
-      if (calendarContainer) {
-        calendarContainer.appendChild(conferenceCalendar);
-      }
-
-      // Countdown timer is now handled by countdown-simple.js automatically
+      // Countdown timer is handled by countdown-simple.js automatically
 
       // render deadline conference time
       {% if page.timezone %}
@@ -306,6 +286,169 @@ description: Countdown for the Call for Participation of this conference includi
       $('.deadline-local-time').html(confDeadline.setZone('system').toLocaleString(DateTime.DATETIME_HUGE_WITH_SECONDS));
 
       {% endif %}
+
+      // Conference Detail Action Buttons Event Handlers
+
+      // Notification helper
+      function showConferenceNotification(text, type) {
+        const bgColor = type === 'success' ? '#28a745' : type === 'info' ? '#17a2b8' : '#ffc107';
+        const message = $('<div>')
+          .text(text)
+          .css({
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: bgColor,
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: '6px',
+            zIndex: 9999,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            animation: 'slideIn 0.3s ease'
+          });
+
+        $('body').append(message);
+        setTimeout(() => {
+          message.fadeOut(300, () => message.remove());
+        }, 3000);
+      }
+
+      // Follow Series Button
+      $('.btn-follow-series').on('click', function() {
+        const btn = $(this);
+        const seriesName = btn.data('series');
+
+        if (window.confManager) {
+          const isFollowing = window.confManager.isSeriesFollowed(seriesName);
+
+          if (isFollowing) {
+            window.confManager.unfollowSeries(seriesName);
+            btn.removeClass('active');
+            btn.find('.btn-text').text('Follow Series');
+            showConferenceNotification('Unfollowed ' + seriesName, 'info');
+          } else {
+            window.confManager.followSeries(seriesName);
+            btn.addClass('active');
+            btn.find('.btn-text').text('Following');
+            showConferenceNotification('Now following ' + seriesName + ' series!', 'success');
+          }
+        }
+      });
+
+      // Save Conference Button
+      $('.btn-save-conference').on('click', function() {
+        const btn = $(this);
+        const confId = btn.data('conf-id');
+
+        if (window.confManager) {
+          const isSaved = window.confManager.isEventSaved(confId);
+
+          if (isSaved) {
+            window.confManager.removeSavedEvent(confId);
+            btn.removeClass('active');
+            btn.find('i').removeClass('fas').addClass('far');
+            btn.find('.btn-text').text('Save');
+            showConferenceNotification('Removed from favorites', 'info');
+          } else {
+            window.confManager.saveEvent(confId);
+            btn.addClass('active');
+            btn.find('i').removeClass('far').addClass('fas');
+            btn.find('.btn-text').text('Saved');
+            showConferenceNotification('Saved to favorites!', 'success');
+          }
+        }
+      });
+
+      // Calendar Button - Generate calendar links
+      $('.calendar-option').on('click', function(e) {
+        e.preventDefault();
+        const calendarType = $(this).data('calendar');
+
+        // Get conference data from page
+        const confName = '{{ page.conference }}';
+        const confYear = '{{ page.year }}';
+        const cfpDate = '{{ page.cfp_ext | default: page.cfp }}';
+        const confPlace = '{{ page.place }}';
+
+        // Format the date for calendar
+        const eventDate = new Date(cfpDate);
+        const startDate = eventDate.toISOString().replace(/-|:|\.\d\d\d/g, '');
+
+        // Create event details
+        const eventTitle = confName + ' ' + confYear + ' - CFP Deadline';
+        const eventDetails = 'Call for Proposals deadline for ' + confName + ' ' + confYear;
+
+        let calendarUrl = '';
+
+        switch(calendarType) {
+          case 'google':
+            calendarUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' +
+              encodeURIComponent(eventTitle) +
+              '&details=' + encodeURIComponent(eventDetails) +
+              '&location=' + encodeURIComponent(confPlace) +
+              '&dates=' + startDate + '/' + startDate;
+            window.open(calendarUrl, '_blank');
+            showConferenceNotification('Opening Google Calendar...', 'success');
+            break;
+
+          case 'outlook':
+            calendarUrl = 'https://outlook.live.com/calendar/0/deeplink/compose?subject=' +
+              encodeURIComponent(eventTitle) +
+              '&body=' + encodeURIComponent(eventDetails) +
+              '&location=' + encodeURIComponent(confPlace) +
+              '&startdt=' + startDate +
+              '&enddt=' + startDate;
+            window.open(calendarUrl, '_blank');
+            showConferenceNotification('Opening Outlook Calendar...', 'success');
+            break;
+
+          case 'apple':
+          case 'ics':
+            // Generate ICS file
+            const icsContent = 'BEGIN:VCALENDAR\n' +
+              'VERSION:2.0\n' +
+              'PRODID:-//PythonDeadlines//Conference CFP//EN\n' +
+              'BEGIN:VEVENT\n' +
+              'UID:' + Date.now() + '@pythondeadlin.es\n' +
+              'DTSTAMP:' + new Date().toISOString().replace(/-|:|\.\d\d\d/g, '') + '\n' +
+              'DTSTART:' + startDate + '\n' +
+              'DTEND:' + startDate + '\n' +
+              'SUMMARY:' + eventTitle + '\n' +
+              'DESCRIPTION:' + eventDetails + '\n' +
+              'LOCATION:' + confPlace + '\n' +
+              'END:VEVENT\n' +
+              'END:VCALENDAR';
+
+            const blob = new Blob([icsContent], { type: 'text/calendar' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = confName.replace(/[^a-z0-9]/gi, '_') + '_' + confYear + '_CFP.ics';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showConferenceNotification('Calendar file downloaded!', 'success');
+            break;
+        }
+      });
+
+      // Initialize button states on page load
+      const confId = '{{ page.conference | slugify: "latin" }}-{{ page.year }}';
+      const seriesName = '{{ page.conference }}';
+
+      if (window.confManager) {
+        // Update Follow Series button state
+        if (window.confManager.isSeriesFollowed(seriesName)) {
+          $('.btn-follow-series').addClass('active').find('.btn-text').text('Following');
+        }
+
+        // Update Save button state
+        if (window.confManager.isEventSaved(confId)) {
+          $('.btn-save-conference').addClass('active').find('i').removeClass('far').addClass('fas');
+          $('.btn-save-conference .btn-text').text('Saved');
+        }
+      }
 
     });
   </script>

@@ -112,12 +112,10 @@ const DashboardManager = {
             });
         }
 
-        // Apply series filter
-        if (onlySubscribedSeries) {
-            const subscribedSeries = SeriesManager.getSubscribedSeries();
+        // Apply series filter using ConferenceStateManager
+        if (onlySubscribedSeries && window.confManager) {
             this.filteredConferences = this.filteredConferences.filter(conf => {
-                const seriesId = SeriesManager.getSeriesId(conf.conference);
-                return subscribedSeries.hasOwnProperty(seriesId);
+                return window.confManager.isSeriesFollowed(conf.conference);
             });
         }
 
@@ -254,13 +252,18 @@ const DashboardManager = {
             });
         }
 
+        // Generate conference detail page URL
+        const confUrl = `/conference/${conf.id}/`;
+
         return $(`
             <div class="${colClass} mb-3">
                 <div class="card conference-card h-100" data-conf-id="${conf.id}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title mb-0">
-                                ${conf.conference} ${conf.year}
+                                <a href="${confUrl}" class="text-dark text-decoration-none" title="View conference details">
+                                    ${conf.conference} ${conf.year}
+                                </a>
                             </h5>
                             <div>
                                 <button class="btn btn-sm btn-link favorite-btn favorited p-0 ml-2"

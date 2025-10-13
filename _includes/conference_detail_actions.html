@@ -1,0 +1,68 @@
+<!-- Conference Detail Page Action Buttons -->
+{% assign conf_id = page.conference | append: "-" | append: page.year | slugify: "latin" %} {% assign cfp_date =
+page.cfp_ext | default: page.cfp %}
+
+<div
+	class="conference-actions"
+	data-conf-id="{{ conf_id }}"
+	data-conf-name="{{ page.conference }}"
+	data-conf-year="{{ page.year }}"
+	data-conf-cfp="{{ cfp_date }}"
+	data-conf-place="{{ page.place }}"
+>
+	<!-- Save to Favorites Button -->
+	<button
+		class="btn-action btn-action-secondary btn-save-conference"
+		data-action="save"
+		data-conf-id="{{ conf_id }}"
+		aria-label="Save {{ page.conference }} {{ page.year }} to favorites"
+	>
+		<i class="far fa-bookmark"></i>
+		<span class="btn-text">Save</span>
+	</button>
+
+	<!-- Follow Series Button (Primary CTA) -->
+	<button
+		class="btn-action btn-action-primary btn-follow-series"
+		data-series="{{ page.conference }}"
+		data-conf-id="{{ conf_id }}"
+		aria-label="Follow {{ page.conference }} series"
+	>
+		<i class="fas fa-bell"></i>
+		<span class="btn-text">Follow Series</span>
+	</button>
+
+	<!-- Add to Calendar Button -->
+	<div class="btn-action-calendar-wrapper">
+		<button
+			class="btn-action btn-action-secondary btn-add-calendar"
+			data-action="calendar"
+			data-conf-id="{{ conf_id }}"
+			aria-label="Add {{ page.conference }} {{ page.year }} to calendar"
+		>
+			<i class="far fa-calendar-plus"></i>
+			<span class="btn-text">Add to Calendar</span>
+			<i class="fas fa-chevron-down calendar-dropdown-arrow"></i>
+		</button>
+
+		<!-- Calendar Dropdown -->
+		<div class="calendar-dropdown-menu" data-conf-id="{{ conf_id }}">
+			<a href="#" class="calendar-option" data-calendar="google" data-conf-id="{{ conf_id }}">
+				<i class="fab fa-google"></i>
+				<span>Google Calendar</span>
+			</a>
+			<a href="#" class="calendar-option" data-calendar="outlook" data-conf-id="{{ conf_id }}">
+				<i class="fab fa-microsoft"></i>
+				<span>Outlook</span>
+			</a>
+			<a href="#" class="calendar-option" data-calendar="apple" data-conf-id="{{ conf_id }}">
+				<i class="fab fa-apple"></i>
+				<span>Apple Calendar</span>
+			</a>
+			<a href="#" class="calendar-option" data-calendar="ics" data-conf-id="{{ conf_id }}">
+				<i class="fas fa-download"></i>
+				<span>Download .ics</span>
+			</a>
+		</div>
+	</div>
+</div>
