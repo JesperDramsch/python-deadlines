@@ -158,6 +158,21 @@
     latitude: 51.1089776
     longitude: 17.0326689
 
+- conference: PyCon Chile
+  year: 2025
+  link: https://pycon.cl/
+  cfp_link: https://sessionize.com/pycon-chile-2025
+  cfp: '2025-09-29 23:59:00'
+  timezone: America/Santiago
+  place: Viña del Mar, Chile
+  start: 2025-11-08
+  end: 2025-11-09
+  sub: PY
+  location:
+  - title: PyCon Chile 2025
+    latitude: -33.0244535
+    longitude: -71.5517636
+
 - conference: Xtreme Python
   year: 2025
   link: https://xtremepython.dev/2025/
@@ -790,23 +805,6 @@
     latitude: 48.89591923094818
     longitude: 2.388543327766867
 
-- conference: PyCon Taiwan
-  alt_name: PyCon TW
-  year: 2025
-  link: https://tw.pycon.org/2025/
-  cfp_link: https://tw.pycon.org/2025/en-us/speaking/cfp
-  cfp: '2025-04-05 23:59:59'
-  place: Taiwan
-  start: 2025-09-05
-  end: 2025-09-07
-  sponsor: https://tw.pycon.org/2024/en-us/sponsor
-  finaid: https://tw.pycon.org/2024/en-us/registration/financial-aid
-  sub: PY
-  location:
-  - title: PyCon Taiwan 2025
-    latitude: 22.6203348
-    longitude: 120.3120375
-
 - conference: EARL
   year: 2025
   link: https://earl-conference.com/
@@ -939,6 +937,20 @@
   - title: PyCon US 2026
     latitude: 33.7690164
     longitude: -118.191604
+
+- conference: PyCon Austria
+  year: 2026
+  link: https://pycon.at/
+  cfp: TBA
+  timezone: Europe/Vienna
+  place: Eisenstadt, Austria
+  start: 2026-04-19
+  end: 2026-04-20
+  sub: PY
+  location:
+  - title: PyCon Austria 2026
+    latitude: 47.8454821
+    longitude: 16.5249288
 
 - conference: PyTexas
   year: 2026

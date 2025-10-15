@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Taiwan
+  alt_name: PyCon TW
+  year: 2025
+  link: https://tw.pycon.org/2025/
+  cfp_link: https://tw.pycon.org/2025/en-us/speaking/cfp
+  cfp: '2025-04-05 23:59:59'
+  place: Taiwan
+  start: 2025-09-05
+  end: 2025-09-07
+  sponsor: https://tw.pycon.org/2024/en-us/sponsor
+  finaid: https://tw.pycon.org/2024/en-us/registration/financial-aid
+  sub: PY
+  location:
+  - title: PyCon Taiwan 2025
+    latitude: 22.6203348
+    longitude: 120.3120375
+
 - conference: PyData Berlin
   year: 2025
   link: https://pydata.org/berlin2025/
