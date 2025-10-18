@@ -736,22 +736,6 @@
     latitude: 52.38331772938018
     longitude: 4.920446388368758
 
-- conference: PyCon Israel
-  year: 2025
-  link: https://pycon.org.il/2025/
-  cfp_link: https://cfp.pycon.org.il/pycon-2025/cfp
-  cfp: '2025-05-01 23:59:00'
-  timezone: Asia/Jerusalem
-  place: Cinema City, Israel
-  start: 2025-09-09
-  end: 2025-09-09
-  mastodon: https://tooot.im/@pyconil/
-  sub: PY
-  location:
-  - title: PyCon Israel 2025
-    latitude: 31.9838307
-    longitude: 34.7699754
-
 - conference: Python Brasil
   alt_name: PythonBrasil
   year: 2025
