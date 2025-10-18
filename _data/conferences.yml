@@ -32,6 +32,22 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyTexas
+  year: 2026
+  link: https://www.pytexas.org/2026/
+  cfp_link: https://pretalx.com/pytexas-2026/cfp
+  cfp: '2025-12-07 23:59:00'
+  timezone: America/Chicago
+  place: Austin, USA
+  start: 2026-04-17
+  end: 2026-04-19
+  sponsor: https://www.pytexas.org/2026/sponsors/sponsor-us/
+  sub: PY
+  location:
+  - title: PyTexas 2026
+    latitude: 30.2711286
+    longitude: -97.7436995
+
 - conference: PythonAsia
   year: 2026
   link: https://2026.pythonasia.org/
@@ -821,6 +837,20 @@
     latitude: 59.4372155
     longitude: 24.7453688
 
+- conference: PyCon Greece
+  year: 2026
+  link: https://pycon.gr/
+  cfp: TBA
+  timezone: Europe/Athens
+  place: Athens, Greece
+  start: 2026-10-12
+  end: 2026-10-14
+  sub: PY
+  location:
+  - title: PyCon Greece 2026
+    latitude: 37.9755648
+    longitude: 23.7348324
+
 - conference: PyCon Estonia
   alt_name: PyCon EE
   year: 2026
@@ -935,21 +965,6 @@
   - title: PyCon Austria 2026
     latitude: 47.8454821
     longitude: 16.5249288
-
-- conference: PyTexas
-  year: 2026
-  link: https://www.pytexas.org/2026/
-  cfp: TBA
-  timezone: America/Chicago
-  place: Austin, USA
-  start: 2026-04-17
-  end: 2026-04-19
-  sponsor: https://www.pytexas.org/2026/sponsors/sponsor-us/
-  sub: PY
-  location:
-  - title: PyTexas 2026
-    latitude: 30.2711286
-    longitude: -97.7436995
 
 - conference: PyCon Germany & PyData Conference
   alt_name: PyCon Germany
