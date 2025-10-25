@@ -617,24 +617,6 @@
     latitude: 41.6147605
     longitude: 0.6267842
 
-- conference: PyCon Australia
-  alt_name: PyCon AU
-  year: 2025
-  link: https://2025.pycon.org.au/
-  cfp_link: https://2025.pycon.org.au/program/
-  cfp: '2025-06-23 23:59:00'
-  timezone: Australia/Melbourne
-  place: Melbourne, Australia
-  start: 2025-09-12
-  end: 2025-09-16
-  sponsor: https://2025.pycon.org.au/sponsor/
-  mastodon: https://mastodon.pycon.org.au/@pyconau
-  sub: PY
-  location:
-  - title: PyCon Australia 2025
-    latitude: -37.8142454
-    longitude: 144.9631732
-
 - conference: PyCon Hong Kong
   alt_name: PyCon HK
   year: 2025
@@ -703,23 +685,6 @@
     latitude: 47.223987
     longitude: 8.8173
 
-- conference: PyCon India
-  year: 2025
-  link: https://in.pycon.org/2025/
-  cfp_link: https://cfp.in.pycon.org/2025/cfp
-  cfp: '2025-05-18 23:59:00'
-  timezone: Asia/Kolkata
-  place: Bengaluru, India
-  start: 2025-09-12
-  end: 2025-09-15
-  sponsor: https://in.pycon.org/2025/sponsors/
-  mastodon: https://fosstodon.org/@pyconindia
-  sub: PY
-  location:
-  - title: PyCon India 2025
-    latitude: 12.9767936
-    longitude: 77.590082
-
 - conference: PyCon UK
   year: 2025
   link: https://2025.pyconuk.org/
@@ -769,22 +734,6 @@
   - title: Python Brasil 2025
     latitude: -23.5506507
     longitude: -46.6333824
-
-- conference: DjangoCon US
-  year: 2025
-  link: https://2025.djangocon.us/
-  cfp_link: https://pretalx.com/djangocon-us-2025/cfp
-  cfp: '2025-04-27 12:00:00'
-  timezone: America/Chicago
-  place: Chicago, USA
-  start: 2025-09-08
-  end: 2025-09-12
-  mastodon: https://fosstodon.org/@djangocon
-  sub: WEB
-  location:
-  - title: DjangoCon US 2025
-    latitude: 41.8755616
-    longitude: -87.6244212
 
 - conference: PyData Paris
   year: 2025
@@ -1022,16 +971,3 @@
   - title: Pythoncamp Rügen 2025
     latitude: 54.4529015
     longitude: 13.3882344
-
-- conference: PyCamp Czechia
-  year: 2025
-  link: https://pycamp.cz/
-  cfp: None
-  place: Třeštice, Czechia
-  start: 2025-09-12
-  end: 2025-09-14
-  sub: CAMP
-  location:
-  - title: PyCamp Czechia 2025
-    latitude: 49.2457818
-    longitude: 15.4508988
