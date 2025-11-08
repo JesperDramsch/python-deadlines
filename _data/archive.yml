@@ -1,5 +1,67 @@
 ---
 
+- conference: PyBeach
+  year: 2025
+  link: https://2025.pybeach.org/
+  cfp_link: https://pretalx.com/pybeach2025/cfp
+  cfp: '2025-06-30 23:59:00'
+  place: Santa Monica, USA
+  start: 2025-09-27
+  end: 2025-09-27
+  sponsor: https://2025.pybeach.org/prospectus.html
+  sub: PY
+  location:
+  - title: PyBeach 2025
+    latitude: 34.0194704
+    longitude: -118.491227
+
+- conference: PyCon Japan
+  alt_name: PyCon JP
+  year: 2025
+  link: https://2025.pycon.jp/
+  cfp_link: https://pretalx.com/pycon-jp-2025/cfp
+  cfp: '2025-06-30 21:00:00'
+  timezone: Asia/Tokyo
+  place: Hiroshima, Japan
+  start: 2025-09-26
+  end: 2025-09-27
+  sub: PY
+  location:
+  - title: PyCon Japan 2025
+    latitude: 34.3917241
+    longitude: 132.4517589
+
+- conference: PyCon Ghana
+  year: 2025
+  link: https://gh.pycon.org/2025/
+  cfp_link: https://gh.pycon.org/2025/talks/proposing_a_talk/
+  cfp: '2025-08-08 23:59:00'
+  timezone: Africa/Accra
+  place: Accra, Ghana
+  start: 2025-09-25
+  end: 2025-09-27
+  sponsor: https://gh.pycon.org/2025/support-us/
+  sub: PY
+  location:
+  - title: PyCon Ghana 2025
+    latitude: 5.5571096
+    longitude: -0.2012376
+
+- conference: PyData Amsterdam
+  year: 2025
+  link: https://amsterdam.pydata.org/
+  cfp_link: https://cfp.pydata.org/pydata-amsterdam-2025/cfp
+  cfp: '2025-05-11 23:59:59'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2025-09-24
+  end: 2025-09-26
+  sub: DATA
+  location:
+  - title: PyData Amsterdam 2025
+    latitude: 52.38331772938018
+    longitude: 4.920446388368758
+
 - conference: PyCon China
   year: 2025
   link: http://cn.pycon.org/2025/
