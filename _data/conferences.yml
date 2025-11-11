@@ -16,6 +16,21 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: DjangoCon US
+  year: 2026
+  link: https://2026.djangocon.us/
+  cfp: TBA
+  timezone: America/Chicago
+  place: Chicago, USA
+  start: 2026-09-14
+  end: 2026-09-18
+  mastodon: https://fosstodon.org/@djangocon
+  sub: WEB
+  location:
+  - title: DjangoCon US 2026
+    latitude: 41.8755616
+    longitude: -87.6244212
+
 - conference: PyCon Lithuania
   alt_name: PyCon LT
   year: 2026
