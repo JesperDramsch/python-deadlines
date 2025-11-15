@@ -1,5 +1,55 @@
 ---
 
+- conference: PyCon Nigeria
+  year: 2025
+  link: https://ng.pycon.org/
+  cfp: '2025-08-07 23:59:00'
+  place: Lagos, Nigeria
+  start: 2025-10-02
+  end: 2025-10-04
+  sponsor: https://ng.pycon.org/sponsors/packages/
+  sub: PY
+  location:
+  - title: PyCon Nigeria 2025
+    latitude: 6.4550575
+    longitude: 3.3941795
+
+- conference: PyCon Estonia
+  alt_name: PyCon EE
+  year: 2025
+  link: https://pycon.ee/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLScn-H2turgLHVbbm6g3t6MeOBmStlgQwEay8J1qfypfERKw0A/viewform
+  cfp: '2025-01-15 23:59:00'
+  timezone: Europe/Tallinn
+  place: Tallinn, Estonia
+  start: 2025-10-02
+  end: 2025-10-03
+  twitter: PyConEstonia
+  sub: PY
+  location:
+  - title: PyCon Estonia 2025
+    latitude: 59.4372155
+    longitude: 24.7453688
+
+- conference: PyData Paris
+  year: 2025
+  link: https://pydata.org/paris2025
+  cfp_link: https://pydata.org/paris2025/cfp
+  cfp: '2025-04-13 23:59:00'
+  cfp_ext: '2025-04-27 23:59:00'
+  timezone: Europe/Paris
+  place: Paris, France
+  start: 2025-09-30
+  end: 2025-10-02
+  sponsor: https://pydata.org/paris2025/sponsorship-opportunites#tiers
+  mastodon: https://mastodon.social/@PyDataParis
+  bluesky: https://bsky.app/profile/pydataparis.bsky.social
+  sub: DATA
+  location:
+  - title: PyData Paris 2025
+    latitude: 48.89591923094818
+    longitude: 2.388543327766867
+
 - conference: PyBeach
   year: 2025
   link: https://2025.pybeach.org/
