@@ -343,19 +343,6 @@
     latitude: -41.2887953
     longitude: 174.7772114
 
-- conference: Wagtail Space
-  year: 2025
-  link: https://wagtail.org/wagtail-space-2025/
-  cfp_link: https://pretalx.com/wagtail-space-2025/cfp
-  cfp: '2025-08-15 23:59:00'
-  timezone: UTC
-  place: Online
-  start: 2025-10-08
-  end: 2025-10-10
-  sponsor: https://wagtail.org/wagtail-space-2025/sponsors/
-  mastodon: https://fosstodon.org/@wagtail
-  sub: WEB
-
 - conference: PyData Global
   year: 2025
   link: https://pydata.org/global2025/
@@ -506,22 +493,6 @@
     latitude: 32.7174202
     longitude: -117.1627728
 
-- conference: PyCon Africa
-  year: 2025
-  link: https://za.pycon.org/
-  cfp: '2025-06-27 23:59:00'
-  timezone: Africa/Johannesburg
-  place: Johannesburg, South Africa
-  start: 2025-10-08
-  end: 2025-10-12
-  sponsor: https://za.pycon.org/sponsors/packages/
-  mastodon: https://mastodon.social/@pyconafrica
-  sub: PY
-  location:
-  - title: PyCon Africa 2025
-    latitude: -26.205
-    longitude: 28.049722
-
 - conference: PyCon Spain
   alt_name: PyCon ES
   year: 2025
@@ -539,23 +510,6 @@
   - title: PyCon Spain 2025
     latitude: 41.6147605
     longitude: 0.6267842
-
-- conference: PyCon Hong Kong
-  alt_name: PyCon HK
-  year: 2025
-  link: https://pycon.hk/2025/
-  cfp_link: https://pretalx.com/pyconhk2025/cfp
-  cfp: '2025-06-22 23:59:00'
-  timezone: Asia/Hong_Kong
-  place: Hong Kong, China
-  start: 2025-10-11
-  end: 2025-10-11
-  twitter: pyconhk
-  sub: PY
-  location:
-  - title: PyCon Hong Kong 2025
-    latitude: 22.2793278
-    longitude: 114.1628131
 
 - conference: PyCon Thailand
   year: 2025
