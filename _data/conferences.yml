@@ -296,22 +296,6 @@
     latitude: 7.0648306
     longitude: 125.6080623
 
-- conference: PyData Vermont
-  year: 2025
-  link: https://pydata.org/vermont2025/
-  cfp_link: https://cfp.pydata.org/pydata-vermont-2025/cfp
-  cfp: '2025-08-28 23:59:00'
-  timezone: America/New_York
-  place: Burlington, USA
-  start: 2025-10-21
-  end: 2025-10-22
-  sponsor: https://pydata.org/vermont2025/sponsorship-opportunities
-  sub: DATA
-  location:
-  - title: PyData Vermont 2025
-    latitude: 43.3248924
-    longitude: -79.7966835
-
 - conference: PyLadiesCon
   year: 2025
   link: https://2025.conference.pyladies.com/en/
@@ -373,76 +357,6 @@
     latitude: 53.3498006
     longitude: -6.2602964
 
-- conference: PyCon Netherlands
-  alt_name: PyCon NL
-  year: 2025
-  link: https://pycon-nl.org/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSdv-shKzLId7WMwxmVNfSsWZjCd4eNuB7ExKvu_B3s4yONR-Q/viewform
-  cfp: '2025-08-01 23:59:00'
-  cfp_ext: '2025-08-17 23:59:00'
-  place: Utrecht, Netherlands
-  start: 2025-10-16
-  end: 2025-10-16
-  sub: PY
-  location:
-  - title: PyCon Netherlands 2025
-    latitude: 52.090833
-    longitude: 5.121667
-
-- conference: Plone Conference
-  alt_name: Plone Conference & PyCon Finland
-  year: 2025
-  link: https://2025.ploneconf.org/
-  cfp_link: https://2025.ploneconf.org/call-for-papers
-  cfp: '2025-07-31 23:59:00'
-  place: Jyväskylä, Finland
-  start: 2025-10-13
-  end: 2025-10-19
-  sponsor: https://2025.ploneconf.org/sponsors
-  twitter: ploneconf
-  mastodon: https://plone.social/@ploneconf
-  bluesky: https://bsky.app/profile/plone.org
-  sub: WEB
-  location:
-  - title: Plone Conference 2025
-    latitude: 62.2417066
-    longitude: 25.7495727
-
-- conference: PyCon Finland
-  alt_name: PyCon FI
-  year: 2025
-  link: https://2025.ploneconf.org/pyconfi-2025
-  cfp_link: https://2025.ploneconf.org/call-for-papers
-  cfp: '2025-07-31 23:59:00'
-  place: Jyväskylä, Finland
-  start: 2025-10-17
-  end: 2025-10-17
-  sponsor: https://2025.ploneconf.org/sponsors
-  sub: PY
-  note: Part of Plone Conf
-  location:
-  - title: PyCon Finland 2025
-    latitude: 60.1674881
-    longitude: 24.9427473
-
-- conference: PyBay
-  year: 2025
-  link: https://pybay.org/
-  cfp_link: https://pybay.org/speaking/
-  cfp: '2025-07-31 23:59:00'
-  timezone: America/Los_Angeles
-  place: San Francisco, USA
-  start: 2025-10-18
-  end: 2025-10-18
-  sponsor: https://pybay.org/sponsors/sponsor-us/
-  twitter: py_bay
-  mastodon: https://fosstodon.org/@pybay
-  sub: PY
-  location:
-  - title: PyBay 2025
-    latitude: 37.7681571
-    longitude: -122.392929
-
 - conference: PyCon France
   alt_name: PyCon FR
   year: 2025
@@ -493,40 +407,6 @@
     latitude: 32.7174202
     longitude: -117.1627728
 
-- conference: PyCon Spain
-  alt_name: PyCon ES
-  year: 2025
-  link: https://2025.es.pycon.org/
-  cfp_link: https://pretalx.com/pycones-2025/cfp
-  cfp: '2025-06-23 23:59:00'
-  timezone: Europe/Madrid
-  place: Sevilla, Spain
-  start: 2025-10-17
-  end: 2025-10-19
-  sponsor: https://2025.es.pycon.org/sponsorship.html
-  mastodon: https://fosstodon.org/@pycones
-  sub: PY
-  location:
-  - title: PyCon Spain 2025
-    latitude: 41.6147605
-    longitude: 0.6267842
-
-- conference: PyCon Thailand
-  year: 2025
-  link: https://th.pycon.org/
-  cfp_link: https://sessionize.com/pycon-thailand-2025
-  cfp: '2025-06-14 23:59:00'
-  place: Bangkok, Thailand
-  start: 2025-10-17
-  end: 2025-10-18
-  sponsor: https://www.canva.com/design/DAGaN7XThGo/UlApQVOhDU5j0U2hXk9Q7g/view
-  twitter: pyconthailand
-  sub: PY
-  location:
-  - title: PyCon Thailand 2025
-    latitude: 13.7524938
-    longitude: 100.4935089
-
 - conference: PyTorch Conference
   year: 2025
   link: https://events.linuxfoundation.org/pytorch-conference-2025/
@@ -542,25 +422,6 @@
   - title: PyTorch Conference 2025
     latitude: 37.7681571
     longitude: -122.392929
-
-- conference: Swiss Python Summit
-  year: 2025
-  link: https://python-summit.ch/
-  cfp_link: https://talks.python-summit.ch/sps25/cfp
-  cfp: '2025-05-31 23:59:00'
-  cfp_ext: '2025-06-15 23:59:00'
-  timezone: Europe/Zurich
-  place: Rapperswil, Switzerland
-  start: 2025-10-16
-  end: 2025-10-17
-  sponsor: https://www.python-summit.ch/sponsoring/
-  twitter: pythonsummit
-  sub: PY,DATA
-  note: 'Day 1: General Language Topics; Day 2: Data Science Topics'
-  location:
-  - title: Swiss Python Summit 2025
-    latitude: 47.223987
-    longitude: 8.8173
 
 - conference: Python Brasil
   alt_name: PythonBrasil
@@ -579,21 +440,6 @@
   - title: Python Brasil 2025
     latitude: -23.5506507
     longitude: -46.6333824
-
-- conference: EARL
-  year: 2025
-  link: https://earl-conference.com/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSdF0OHmG6UH4OcQLPkLTGyR7aOCxoYkiw1kzlewh1pxKHmIgA/closedform
-  cfp: '2025-02-28 23:59:00'
-  timezone: Europe/London
-  place: Brighton, UK
-  start: 2025-10-14
-  end: 2025-10-16
-  sub: BIZ
-  location:
-  - title: EARL 2025
-    latitude: 50.8214626
-    longitude: -0.1400561
 
 - conference: PyCon Greece
   year: 2026
