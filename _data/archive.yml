@@ -1,5 +1,53 @@
 ---
 
+- conference: PyCon Davao
+  year: 2025
+  link: https://pycon-davao.durianpy.org/
+  cfp: '2025-08-30 23:59:00'
+  place: Davao City, Philippines
+  start: 2025-10-25
+  end: 2025-10-26
+  sponsor: https://pycon-davao.durianpy.org/sponsorship-prospectus
+  sub: PY
+  location:
+  - title: PyCon Davao 2025
+    latitude: 7.0648306
+    longitude: 125.6080623
+
+- conference: PyTorch Conference
+  year: 2025
+  link: https://events.linuxfoundation.org/pytorch-conference-2025/
+  cfp_link: https://events.linuxfoundation.org/pytorch-conference/program/cfp/
+  cfp: '2025-06-01 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Francisco, USA
+  start: 2025-10-22
+  end: 2025-10-23
+  sponsor: https://events.linuxfoundation.org/sponsor-pytorch-25
+  sub: DATA
+  location:
+  - title: PyTorch Conference 2025
+    latitude: 37.7681571
+    longitude: -122.392929
+
+- conference: Python Brasil
+  alt_name: PythonBrasil
+  year: 2025
+  link: https://2025.pythonbrasil.org.br/
+  cfp_link: https://talks.python.org.br/pythonbrasil-2025/cfp
+  cfp: '2025-04-27 23:59:00'
+  timezone: America/Sao_Paulo
+  place: Sao Paulo, Brazil
+  start: 2025-10-21
+  end: 2025-10-27
+  sponsor: https://www.canva.com/design/DAGe_yZ0SdI/myPIGUAEQAnrwKhJE_7Bag/view?utm_content=DAGe_yZ0SdI&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h7f3e8c2330
+  mastodon: https://pynews.com.br/@pythonbrasil
+  sub: PY
+  location:
+  - title: Python Brasil 2025
+    latitude: -23.5506507
+    longitude: -46.6333824
+
 - conference: PyData Vermont
   year: 2025
   link: https://pydata.org/vermont2025/
