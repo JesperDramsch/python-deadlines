@@ -498,7 +498,8 @@
   alt_name: PyCon Italia
   year: 2026
   link: https://pycon.it/en
-  cfp: TBA
+  cfp_link: https://pycon.it/cfp
+  cfp: "2026-01-06 23:59:59"
   place: Bologna, Italy
   start: 2026-05-27
   end: 2026-05-30
@@ -528,7 +529,8 @@
 - conference: PyCon Austria
   year: 2026
   link: https://pycon.at/
-  cfp: TBA
+  cfp_link: https://sessionize.com/pycon-austria-2026/
+  cfp: "2026-03-06 23:59:00"
   timezone: Europe/Vienna
   place: Eisenstadt, Austria
   start: 2026-04-19
@@ -543,7 +545,8 @@
   alt_name: PyCon Germany
   year: 2026
   link: https://2026.pycon.de/
-  cfp: TBA
+  cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
+  cfp: "2025-12-21 23:59:59"
   timezone: Europe/Berlin
   place: Darmstadt, Germany
   start: 2026-04-13
