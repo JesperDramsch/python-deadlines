@@ -795,7 +795,8 @@
 - conference: PyCon US
   year: 2026
   link: https://us.pycon.org/2026/
-  cfp: 2025-12-19
+  cfp_link: https://us.pycon.org/2026/speaking/talks/
+  cfp: "2025-12-19 23:59:00"
   place: Long Beach, USA
   start: 2026-05-13
   end: 2026-05-19
