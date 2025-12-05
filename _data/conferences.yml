@@ -16,21 +16,6 @@
     latitude: 37.7681571
     longitude: -122.392929
 
-- conference: DjangoCon US
-  year: 2026
-  link: https://2026.djangocon.us/
-  cfp: TBA
-  timezone: America/Chicago
-  place: Chicago, USA
-  start: 2026-09-14
-  end: 2026-09-18
-  mastodon: https://fosstodon.org/@djangocon
-  sub: WEB
-  location:
-  - title: DjangoCon US 2026
-    latitude: 41.8755616
-    longitude: -87.6244212
-
 - conference: PyCon Lithuania
   alt_name: PyCon LT
   year: 2026
@@ -297,20 +282,6 @@
     latitude: 59.3251172
     longitude: 18.0710935
 
-- conference: PyCon Davao
-  year: 2025
-  link: https://pycon-davao.durianpy.org/
-  cfp: '2025-08-30 23:59:00'
-  place: Davao City, Philippines
-  start: 2025-10-25
-  end: 2025-10-26
-  sponsor: https://pycon-davao.durianpy.org/sponsorship-prospectus
-  sub: PY
-  location:
-  - title: PyCon Davao 2025
-    latitude: 7.0648306
-    longitude: 125.6080623
-
 - conference: PyLadiesCon
   year: 2025
   link: https://2025.conference.pyladies.com/en/
@@ -422,40 +393,6 @@
     latitude: 32.7174202
     longitude: -117.1627728
 
-- conference: PyTorch Conference
-  year: 2025
-  link: https://events.linuxfoundation.org/pytorch-conference-2025/
-  cfp_link: https://events.linuxfoundation.org/pytorch-conference/program/cfp/
-  cfp: '2025-06-01 23:59:00'
-  timezone: America/Los_Angeles
-  place: San Francisco, USA
-  start: 2025-10-22
-  end: 2025-10-23
-  sponsor: https://events.linuxfoundation.org/sponsor-pytorch-25
-  sub: DATA
-  location:
-  - title: PyTorch Conference 2025
-    latitude: 37.7681571
-    longitude: -122.392929
-
-- conference: Python Brasil
-  alt_name: PythonBrasil
-  year: 2025
-  link: https://2025.pythonbrasil.org.br/
-  cfp_link: https://talks.python.org.br/pythonbrasil-2025/cfp
-  cfp: '2025-04-27 23:59:00'
-  timezone: America/Sao_Paulo
-  place: Sao Paulo, Brazil
-  start: 2025-10-21
-  end: 2025-10-27
-  sponsor: https://www.canva.com/design/DAGe_yZ0SdI/myPIGUAEQAnrwKhJE_7Bag/view?utm_content=DAGe_yZ0SdI&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h7f3e8c2330
-  mastodon: https://pynews.com.br/@pythonbrasil
-  sub: PY
-  location:
-  - title: Python Brasil 2025
-    latitude: -23.5506507
-    longitude: -46.6333824
-
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -483,6 +420,21 @@
   - title: PyCon Estonia 2026
     latitude: 59.4372155
     longitude: 24.7453688
+
+- conference: DjangoCon US
+  year: 2026
+  link: https://2026.djangocon.us/
+  cfp: TBA
+  timezone: America/Chicago
+  place: Chicago, USA
+  start: 2026-09-14
+  end: 2026-09-18
+  mastodon: https://fosstodon.org/@djangocon
+  sub: WEB
+  location:
+  - title: DjangoCon US 2026
+    latitude: 41.8755616
+    longitude: -87.6244212
 
 - conference: PyCon Kenya
   year: 2026
