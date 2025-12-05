@@ -204,6 +204,7 @@ Example:
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/egeakman"><img src="https://avatars.githubusercontent.com/u/75242929?v=4?s=100" width="100px;" alt="Ege Akman"/><br /><sub><b>Ege Akman</b></sub></a><br /><a href="https://github.com/JesperDramsch/python-deadlines/issues?q=author%3Aegeakman" title="Bug reports">🐛</a> <a href="#conference-egeakman" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/raviselker"><img src="https://avatars.githubusercontent.com/u/4669197?v=4?s=100" width="100px;" alt="Ravi Selker"/><br /><sub><b>Ravi Selker</b></sub></a><br /><a href="#conference-raviselker" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://bardiharborow.com/"><img src="https://avatars.githubusercontent.com/u/1073681?v=4?s=100" width="100px;" alt="Bardi Harborow"/><br /><sub><b>Bardi Harborow</b></sub></a><br /><a href="#conference-bardiharborow" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/coolandsmartrr"><img src="https://avatars.githubusercontent.com/u/905436?v=4?s=100" width="100px;" alt="Ricky"/><br /><sub><b>Ricky</b></sub></a><br /><a href="#conference-coolandsmartrr" title="Python conference (Added or updated)">📆</a></td>
     </tr>
   </tbody>
 </table>
