@@ -16,6 +16,21 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: PyCon Austria
+  year: 2026
+  link: https://pycon.at/
+  cfp_link: https://sessionize.com/pycon-austria-2026/
+  cfp: '2026-03-06 23:59:00'
+  timezone: Europe/Vienna
+  place: Eisenstadt, Austria
+  start: 2026-04-19
+  end: 2026-04-20
+  sub: PY
+  location:
+  - title: PyCon Austria 2026
+    latitude: 47.8454821
+    longitude: 16.5249288
+
 - conference: PyCon Lithuania
   alt_name: PyCon LT
   year: 2026
@@ -31,6 +46,54 @@
   - title: PyCon Lithuania 2026
     latitude: 54.6870458
     longitude: 25.2829111
+
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2026
+  link: https://pycon.it/en
+  cfp_link: https://pycon.it/cfp
+  cfp: '2026-01-06 23:59:59'
+  place: Bologna, Italy
+  start: 2026-05-27
+  end: 2026-05-30
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+  - title: PyCon Italy 2026
+    latitude: 44.4938203
+    longitude: 11.3426327
+
+- conference: PyCon Germany & PyData Conference
+  alt_name: PyCon Germany
+  year: 2026
+  link: https://2026.pycon.de/
+  cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
+  cfp: '2025-12-21 23:59:59'
+  timezone: Europe/Berlin
+  place: Darmstadt, Germany
+  start: 2026-04-13
+  end: 2026-04-17
+  sub: PY,DATA
+  location:
+  - title: PyCon Germany & PyData Conference 2026
+    latitude: 49.872775
+    longitude: 8.651177
+
+- conference: PyCon US
+  year: 2026
+  link: https://us.pycon.org/2026/
+  cfp_link: https://us.pycon.org/2026/speaking/talks/
+  cfp: '2025-12-19 23:59:00'
+  place: Long Beach, USA
+  start: 2026-05-13
+  end: 2026-05-19
+  sponsor: https://us.pycon.org/2026/sponsorship/why-sponsor/
+  mastodon: https://fosstodon.org/@pycon
+  sub: PY
+  location:
+  - title: PyCon US 2026
+    latitude: 33.7690164
+    longitude: -118.191604
 
 - conference: PyTexas
   year: 2026
@@ -493,69 +556,6 @@
   - title: PyOhio 2026
     latitude: 41.4996574
     longitude: -81.6936772
-
-- conference: PyCon Italy
-  alt_name: PyCon Italia
-  year: 2026
-  link: https://pycon.it/en
-  cfp_link: https://pycon.it/cfp
-  cfp: "2026-01-06 23:59:59"
-  place: Bologna, Italy
-  start: 2026-05-27
-  end: 2026-05-30
-  mastodon: https://social.python.it/@pycon
-  sub: PY
-  location:
-  - title: PyCon Italy 2026
-    latitude: 44.4938203
-    longitude: 11.3426327
-
-- conference: PyCon US
-  year: 2026
-  link: https://us.pycon.org/2026/
-  cfp_link: https://us.pycon.org/2026/speaking/talks/
-  cfp: "2025-12-19 23:59:00"
-  place: Long Beach, USA
-  start: 2026-05-13
-  end: 2026-05-19
-  sponsor: https://us.pycon.org/2026/sponsorship/why-sponsor/
-  mastodon: https://fosstodon.org/@pycon
-  sub: PY
-  location:
-  - title: PyCon US 2026
-    latitude: 33.7690164
-    longitude: -118.191604
-
-- conference: PyCon Austria
-  year: 2026
-  link: https://pycon.at/
-  cfp_link: https://sessionize.com/pycon-austria-2026/
-  cfp: "2026-03-06 23:59:00"
-  timezone: Europe/Vienna
-  place: Eisenstadt, Austria
-  start: 2026-04-19
-  end: 2026-04-20
-  sub: PY
-  location:
-  - title: PyCon Austria 2026
-    latitude: 47.8454821
-    longitude: 16.5249288
-
-- conference: PyCon Germany & PyData Conference
-  alt_name: PyCon Germany
-  year: 2026
-  link: https://2026.pycon.de/
-  cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
-  cfp: "2025-12-21 23:59:59"
-  timezone: Europe/Berlin
-  place: Darmstadt, Germany
-  start: 2026-04-13
-  end: 2026-04-17
-  sub: PY,DATA
-  location:
-  - title: PyCon Germany & PyData Conference 2026
-    latitude: 49.872775
-    longitude: 8.651177
 
 - conference: Python BarCamp Karlsruhe
   year: 2026
