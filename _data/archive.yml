@@ -1,5 +1,105 @@
 ---
 
+- conference: PyData Tel Aviv
+  year: 2025
+  link: https://pydata.org/telaviv2025/
+  cfp_link: https://cfp.pydata.org/pydata-tel-aviv-2025/cfp
+  cfp: '2025-07-13 23:59:00'
+  place: Tel Aviv, Israel
+  start: 2025-11-05
+  end: 2025-11-05
+  sponsor: https://pydata.org/telaviv2025/sponsor
+  sub: DATA
+  location:
+  - title: PyData Tel Aviv 2025
+    latitude: 32.10050375
+    longitude: 34.826677554304695
+
+- conference: JupyterCon
+  year: 2025
+  link: https://events.linuxfoundation.org/jupytercon/
+  cfp_link: https://sessionize.com/jupytercon25/
+  cfp: '2025-07-13 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Diego, USA
+  start: 2025-11-03
+  end: 2025-11-05
+  sponsor: https://events.linuxfoundation.org/jupytercon/sponsor/
+  twitter: jupyterCon
+  sub: DATA
+  location:
+  - title: JupyterCon 2025
+    latitude: 32.7174202
+    longitude: -117.1627728
+
+- conference: PyCon Malaysia
+  alt_name: PyCon MY
+  year: 2025
+  link: https://www.pycon.my/
+  cfp_link: https://cfp.pycon.my/pyconmy-2025/cfp
+  cfp: '2025-09-15 00:00:00'
+  timezone: Asia/Kuala_Lumpur
+  place: Petaling Jaya, Malaysia
+  start: 2025-11-01
+  end: 2025-11-02
+  twitter: pyconmy
+  sub: PY
+  location:
+  - title: PyCon Malaysia 2025
+    latitude: 3.0988792
+    longitude: 101.6454202
+
+- conference: PyCon Sweden
+  alt_name: PyCon SE
+  year: 2025
+  link: https://pycon.se/
+  cfp_link: https://pretalx.com/pycon-sweden-2025/
+  cfp: '2025-08-31 23:59:00'
+  timezone: Europe/Stockholm
+  place: Stockholm, Sweden
+  start: 2025-10-30
+  end: 2025-10-31
+  sponsor: https://pycon.se/#sponsorship
+  mastodon: https://fosstodon.org/@pyconsweden
+  sub: PY
+  location:
+  - title: PyCon Sweden 2025
+    latitude: 59.3251172
+    longitude: 18.0710935
+
+- conference: PyCon France
+  alt_name: PyCon FR
+  year: 2025
+  link: https://pycon.fr/2025/
+  cfp_link: https://cfp.pycon.fr/pyconfr-2025/cfp
+  cfp: '2025-07-20 23:59:00'
+  timezone: Europe/Paris
+  place: Lyon, France
+  start: 2025-10-30
+  end: 2025-11-02
+  sponsor: https://www.pycon.fr/2025/en/sponsors.html
+  mastodon: https://mamot.fr/@AFPy
+  sub: PY
+  location:
+  - title: PyCon France 2025
+    latitude: 45.7578137
+    longitude: 4.8320114
+
+- conference: PyHEP
+  year: 2025
+  link: https://indico.cern.ch/event/1566263/
+  cfp: '2025-10-13 23:59:00'
+  timezone: Europe/Zurich
+  place: CERN, Switzerland
+  start: 2025-10-27
+  end: 2025-10-30
+  sub: SCIPY
+  note: Hybrid event
+  location:
+  - title: PyHEP 2025
+    latitude: 46.2333936
+    longitude: 6.0556169
+
 - conference: PyCon Davao
   year: 2025
   link: https://pycon-davao.durianpy.org/
