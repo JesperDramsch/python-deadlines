@@ -1,5 +1,64 @@
 ---
 
+- conference: Django Day India
+  year: 2025
+  link: https://djangoday.in/
+  cfp_link: https://cfp.djangoday.in/django-day-india-2025/cfp
+  cfp: '2025-10-20 23:59:00'
+  timezone: Asia/Kolkata
+  place: Bangalore, India
+  start: 2025-11-08
+  end: 2025-11-08
+  sub: WEB
+  location:
+  - title: Django Day India 2025
+    latitude: 12.9767936
+    longitude: 77.590082
+
+- conference: PyCon Chile
+  year: 2025
+  link: https://pycon.cl/
+  cfp_link: https://sessionize.com/pycon-chile-2025
+  cfp: '2025-09-29 23:59:00'
+  timezone: America/Santiago
+  place: Viña del Mar, Chile
+  start: 2025-11-08
+  end: 2025-11-09
+  sub: PY
+  location:
+  - title: PyCon Chile 2025
+    latitude: -33.0244535
+    longitude: -71.5517636
+
+- conference: PyCon mini Tokai
+  year: 2025
+  link: https://tokai.pycon.jp/2025/
+  cfp: None
+  timezone: Asia/Tokyo
+  place: Nagoya, Japan
+  start: 2025-11-08
+  end: 2025-11-08
+  sub: PY
+  location:
+  - title: PyCon mini Tokai 2025
+    latitude: 35.1851045
+    longitude: 136.8998438
+
+- conference: PyData Seattle
+  year: 2025
+  link: https://pydata.org/seattle2025/
+  cfp_link: https://cfp.pydata.org/seattle2025/
+  cfp: '2025-09-01 23:59:00'
+  place: Bellevue, USA
+  start: 2025-11-07
+  end: 2025-11-09
+  sponsor: https://pydata.org/seattle2025/sponsorship-opportunities
+  sub: DATA
+  location:
+  - title: PyData Seattle 2025
+    latitude: 47.6144219
+    longitude: -122.192337
+
 - conference: PyData Tel Aviv
   year: 2025
   link: https://pydata.org/telaviv2025/
