@@ -1,5 +1,36 @@
 ---
 
+- conference: PyCon Wroclaw
+  year: 2025
+  link: https://www.pyconwroclaw.com/
+  cfp_link: https://www.papercall.io/pyconwroclaw2025
+  cfp: '2025-10-05 19:54:00'
+  timezone: UTC
+  place: Wroclaw, Poland
+  start: 2025-11-15
+  end: 2025-11-15
+  finaid: https://forms.gle/jQVrF3sXSQKBCHcM7
+  twitter: pyconwroclaw
+  sub: PY
+  location:
+  - title: PyCon Wroclaw 2025
+    latitude: 51.1089776
+    longitude: 17.0326689
+
+- conference: PyCon mini Tokai
+  year: 2025
+  link: https://tokai.pycon.jp/2025/
+  cfp: None
+  timezone: Asia/Tokyo
+  place: Nagoya, Japan
+  start: 2025-11-08
+  end: 2025-11-08
+  sub: PY
+  location:
+  - title: PyCon mini Tokai 2025
+    latitude: 35.1851045
+    longitude: 136.8998438
+
 - conference: Django Day India
   year: 2025
   link: https://djangoday.in/
@@ -29,20 +60,6 @@
   - title: PyCon Chile 2025
     latitude: -33.0244535
     longitude: -71.5517636
-
-- conference: PyCon mini Tokai
-  year: 2025
-  link: https://tokai.pycon.jp/2025/
-  cfp: None
-  timezone: Asia/Tokyo
-  place: Nagoya, Japan
-  start: 2025-11-08
-  end: 2025-11-08
-  sub: PY
-  location:
-  - title: PyCon mini Tokai 2025
-    latitude: 35.1851045
-    longitude: 136.8998438
 
 - conference: PyData Seattle
   year: 2025
