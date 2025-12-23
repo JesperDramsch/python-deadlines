@@ -47,6 +47,22 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyConf Hyderabad
+  year: 2026
+  link: https://2026.pyconfhyd.org/
+  cfp_link: https://www.papercall.io/pyconfhyd2026
+  cfp: '2026-01-15 23:59:00'
+  timezone: Asia/Kolkata
+  place: Hyderabad, India
+  start: 2026-03-14
+  end: 2026-03-15
+  sponsor: https://2026.pyconfhyd.org/#sponsors
+  sub: PY
+  location:
+  - title: PyConf Hyderabad
+    latitude: 17.426801501802966
+    longitude: 78.37126527965896
+
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2026
@@ -189,23 +205,6 @@
   - title: Python Sul 2025
     latitude: -30.0324999
     longitude: -51.2303767
-
-- conference: PyCon Wroclaw
-  year: 2025
-  link: https://www.pyconwroclaw.com/
-  cfp_link: https://www.papercall.io/pyconwroclaw2025
-  cfp: '2025-10-05 19:54:00'
-  timezone: UTC
-  place: Wroclaw, Poland
-  start: 2025-11-15
-  end: 2025-11-15
-  finaid: https://forms.gle/jQVrF3sXSQKBCHcM7
-  twitter: pyconwroclaw
-  sub: PY
-  location:
-  - title: PyCon Wroclaw 2025
-    latitude: 51.1089776
-    longitude: 17.0326689
 
 - conference: Xtreme Python
   year: 2025
@@ -424,33 +423,3 @@
   - title: Python BarCamp Karlsruhe 2026
     latitude: 49.0068705
     longitude: 8.4034195
-
-- conference: PyCon mini Tokai
-  year: 2025
-  link: https://tokai.pycon.jp/2025/
-  cfp: None
-  timezone: Asia/Tokyo
-  place: Nagoya, Japan
-  start: 2025-11-08
-  end: 2025-11-08
-  sub: PY
-  location:
-  - title: PyCon mini Tokai 2025
-    latitude: 35.1851045
-    longitude: 136.8998438
-
-- conference: PyConf Hyderabad
-  year: 2026
-  link: https://2026.pyconfhyd.org/
-  cfp_link: https://www.papercall.io/pyconfhyd2026
-  cfp: '2026-01-15 23:59:00'
-  timezone: Asia/Kolkata
-  place: Hyderabad, India
-  start: 2026-03-14
-  end: 2026-03-15
-  sponsor: https://2026.pyconfhyd.org/#sponsors
-  sub: PY
-  location:
-  - title: PyConf Hyderabad
-    latitude: 17.426801501802966
-    longitude: 78.37126527965896
