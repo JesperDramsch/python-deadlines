@@ -143,21 +143,6 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
-- conference: Django Day India
-  year: 2025
-  link: https://djangoday.in/
-  cfp_link: https://cfp.djangoday.in/django-day-india-2025/cfp
-  cfp: '2025-10-20 23:59:00'
-  timezone: Asia/Kolkata
-  place: Bangalore, India
-  start: 2025-11-08
-  end: 2025-11-08
-  sub: WEB
-  location:
-  - title: Django Day India 2025
-    latitude: 12.9767936
-    longitude: 77.590082
-
 - conference: PyData Boston
   year: 2025
   link: https://pydata.org/boston2025
@@ -222,21 +207,6 @@
     latitude: 51.1089776
     longitude: 17.0326689
 
-- conference: PyCon Chile
-  year: 2025
-  link: https://pycon.cl/
-  cfp_link: https://sessionize.com/pycon-chile-2025
-  cfp: '2025-09-29 23:59:00'
-  timezone: America/Santiago
-  place: Viña del Mar, Chile
-  start: 2025-11-08
-  end: 2025-11-09
-  sub: PY
-  location:
-  - title: PyCon Chile 2025
-    latitude: -33.0244535
-    longitude: -71.5517636
-
 - conference: Xtreme Python
   year: 2025
   link: https://xtremepython.dev/2025/
@@ -279,21 +249,6 @@
   - title: PyCon Senegambia 2025
     latitude: 13.45535
     longitude: -16.575646
-
-- conference: PyData Seattle
-  year: 2025
-  link: https://pydata.org/seattle2025/
-  cfp_link: https://cfp.pydata.org/seattle2025/
-  cfp: '2025-09-01 23:59:00'
-  place: Bellevue, USA
-  start: 2025-11-07
-  end: 2025-11-09
-  sponsor: https://pydata.org/seattle2025/sponsorship-opportunities
-  sub: DATA
-  location:
-  - title: PyData Seattle 2025
-    latitude: 47.6144219
-    longitude: -122.192337
 
 - conference: PyLadiesCon
   year: 2025
