@@ -1,5 +1,33 @@
 ---
 
+- conference: Xtreme Python
+  year: 2025
+  link: https://xtremepython.dev/2025/
+  cfp: '2025-09-20 23:59:00'
+  place: Online
+  start: 2025-11-18
+  end: 2025-11-18
+  sponsor: https://xtremepython.dev/2025/sponsors/
+  sub: PY
+
+- conference: PyCon Ireland
+  alt_name: PyCon IE
+  year: 2025
+  link: https://python.ie/pycon-2025/
+  cfp_link: https://sessionize.com/pycon-ireland-2025
+  cfp: '2025-08-02 23:59:00'
+  timezone: Europe/Dublin
+  place: Dublin, Ireland
+  start: 2025-11-15
+  end: 2025-11-16
+  sponsor: https://python.ie/pycon-2025/call-for-sponsors/
+  finaid: https://python.ie/pycon-2025/financial-aid-2025/
+  sub: PY
+  location:
+  - title: PyCon Ireland 2025
+    latitude: 53.3498006
+    longitude: -6.2602964
+
 - conference: PyCon Wroclaw
   year: 2025
   link: https://www.pyconwroclaw.com/
