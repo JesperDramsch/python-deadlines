@@ -641,7 +641,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false  # We'll set up our own credentials
 
       - name: Configure git identity
         run: |
@@ -835,7 +834,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          persist-credentials: false  # We'll set up our own credentials
 
       - name: Configure git identity
         run: |
