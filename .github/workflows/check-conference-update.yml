@@ -650,9 +650,9 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Setup accumulator branch
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
           if git ls-remote --heads origin $UPDATE_BRANCH | grep -q $UPDATE_BRANCH; then
             git fetch origin $UPDATE_BRANCH
             git checkout $UPDATE_BRANCH
@@ -843,6 +843,8 @@ jobs:
 
       - name: Setup accumulator branch
         run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
           if git ls-remote --heads origin $UPDATE_BRANCH | grep -q $UPDATE_BRANCH; then
             git fetch origin $UPDATE_BRANCH
             git checkout $UPDATE_BRANCH
