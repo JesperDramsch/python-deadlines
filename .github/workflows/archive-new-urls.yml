@@ -2,67 +2,417 @@ name: Archive New Conference URLs
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master]
     paths:
-    - '_data/**'
+      - '_data/**'
   schedule:
-  # Runs at 00:00 UTC on Friday
-  # https://crontab.guru/#0_0_*_*_6
-  - cron: '0 0 * * 6'
+    # Runs at 00:00 UTC on Saturday
+    - cron: '0 0 * * 6'
   workflow_dispatch:
-    # Allows manual triggering
+    inputs:
+      skip_archive:
+        description: 'Skip Web Archive (only add to changedetection)'
+        type: boolean
+        default: false
+      skip_changedetection:
+        description: 'Skip changedetection.io (only archive)'
+        type: boolean
+        default: false
 
 jobs:
   check-new-urls:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v5
-      with:
-        fetch-depth: 0 # Full history for finding last run
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Full history for finding last run
 
-    - name: Find last successful run commit
-      id: last-run
-      run: |
-        last_sha=$(gh run list --workflow="Archive New Conference URLs" --json conclusion,headSha --jq '.[] | select(.conclusion=="success") | .headSha' | head -n1)
-        if [ -n "$last_sha" ]; then
-          echo "sha=$last_sha" >> $GITHUB_OUTPUT
-        else
-          # If no previous run, use the first commit
-          echo "sha=$(git rev-list --max-parents=0 HEAD)" >> $GITHUB_OUTPUT
-        fi
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Find last successful run commit
+        id: last-run
+        run: |
+          last_sha=$(gh run list --workflow="Archive New Conference URLs" --json conclusion,headSha --jq '.[] | select(.conclusion=="success") | .headSha' | head -n1)
+          if [ -n "$last_sha" ]; then
+            echo "sha=$last_sha" >> $GITHUB_OUTPUT
+          else
+            echo "sha=$(git rev-list --max-parents=0 HEAD)" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Extract and archive URLs
-      id: url-check
-      run: |
-        # Extract URLs
-        URLS=$(git diff ${{ steps.last-run.outputs.sha }} -- _data/conferences.yml | \
-              grep -E '^\+.*https?://[^ ]+' | \
-              sed -E 's/^\+[[:space:]]*[^:]*:[[:space:]]*(https?:\/\/[^ ]+).*/\1/')
+      - name: Extract new conference entries
+        id: extract
+        run: |
+          # Get the diff for conferences.yml
+          DIFF=$(git diff ${{ steps.last-run.outputs.sha }} -- _data/conferences.yml || true)
 
-        if [ -n "$URLS" ]; then
-          echo "Found new URLs, archiving to Wayback Machine..."
+          if [ -z "$DIFF" ]; then
+            echo "No changes to conferences.yml"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-          # Process each URL
-          echo "$URLS" | while read -r url; do
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+
+          # Parse new conference entries from the diff
+          # We need: link, conference name, place, sub
+          python3 << 'EOF'
+          import yaml
+          import subprocess
+          import json
+          import re
+
+          # Get current and previous versions
+          result = subprocess.run(
+              ['git', 'show', '${{ steps.last-run.outputs.sha }}:_data/conferences.yml'],
+              capture_output=True, text=True
+          )
+          old_data = yaml.safe_load(result.stdout) if result.returncode == 0 else []
+
+          with open('_data/conferences.yml', 'r') as f:
+              new_data = yaml.safe_load(f)
+
+          # Create sets of existing URLs (normalize trailing slashes)
+          def normalize_url(url):
+              return url.rstrip('/').lower() if url else ''
+
+          old_urls = {normalize_url(c.get('link', '')) for c in (old_data or [])}
+
+          # Find new entries
+          new_entries = []
+          for conf in (new_data or []):
+              url = normalize_url(conf.get('link', ''))
+              if url and url not in old_urls:
+                  new_entries.append({
+                      'url': conf.get('link', ''),
+                      'name': f"{conf.get('conference', 'Unknown')} {conf.get('year', '')}".strip(),
+                      'place': conf.get('place', ''),
+                      'sub': conf.get('sub', 'PY'),
+                  })
+
+          # Output as JSON for later steps
+          print(f"Found {len(new_entries)} new conference URLs")
+          with open('/tmp/new_conferences.json', 'w') as f:
+              json.dump(new_entries, f)
+
+          # Also output just URLs for backward compatibility
+          urls = [e['url'] for e in new_entries]
+          with open('/tmp/new_urls.txt', 'w') as f:
+              f.write('\n'.join(urls))
+          EOF
+
+          # Set outputs
+          if [ -s /tmp/new_urls.txt ]; then
+            echo "url_count=$(wc -l < /tmp/new_urls.txt)" >> $GITHUB_OUTPUT
+          else
+            echo "url_count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Archive to Wayback Machine
+        if: steps.extract.outputs.has_changes == 'true' && steps.extract.outputs.url_count != '0' && inputs.skip_archive != true
+        run: |
+          echo "## Web Archive Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          while IFS= read -r url; do
+            [ -z "$url" ] && continue
             echo "Archiving: $url"
-            # Call Wayback Machine Save API
+
             response=$(curl -s -L -X POST \
               -A "Python-Deadlines-Bot/1.0 (https://pythondeadlin.es; admin@python-deadlin.es)" \
-              "https://web.archive.org/save/$url")
+              "https://web.archive.org/save/$url" || true)
             status=$?
 
             if [ $status -eq 0 ]; then
-              echo "✓ Successfully archived"
+              echo "✓ Successfully archived: $url"
+              echo "- ✅ $url" >> $GITHUB_STEP_SUMMARY
             else
-              echo "⚠ Failed to archive (error $status)"
+              echo "⚠ Failed to archive: $url (error $status)"
+              echo "- ⚠️ $url (failed)" >> $GITHUB_STEP_SUMMARY
             fi
 
-            # Wait between requests
             sleep 5
+          done < /tmp/new_urls.txt
+
+      - name: Check changedetection.io configuration
+        id: check_cd
+        run: |
+          if [ -n "${{ vars.CHANGEDETECTION_URL }}" ] && [ -n "${{ secrets.CHANGEDETECTION_KEY }}" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "::warning::changedetection.io not configured. Set CHANGEDETECTION_URL variable and CHANGEDETECTION_KEY secret."
+          fi
+
+      - name: Add to changedetection.io
+        if: |
+          steps.extract.outputs.has_changes == 'true' &&
+          steps.extract.outputs.url_count != '0' &&
+          steps.check_cd.outputs.configured == 'true' &&
+          inputs.skip_changedetection != true
+        run: |
+          echo "## Changedetection.io Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Build auth headers
+          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
+          fi
+
+          # Fetch existing watches to avoid duplicates
+          echo "Fetching existing watches..."
+          EXISTING_WATCHES=$(eval "curl -sf $AUTH_HEADERS '${{ vars.CHANGEDETECTION_URL }}/api/v1/watch'") || {
+            echo "::error::Failed to fetch existing watches"
+            exit 1
+          }
+
+          # Extract existing URLs (normalize for comparison)
+          echo "$EXISTING_WATCHES" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > /tmp/existing_urls.txt
+
+          # Fetch tag list to get tag UUIDs
+          echo "Fetching tags..."
+          TAGS_RESPONSE=$(eval "curl -sf $AUTH_HEADERS '${{ vars.CHANGEDETECTION_URL }}/api/v1/tag'") || {
+            echo "::warning::Failed to fetch tags, will create watches without tags"
+            TAGS_RESPONSE="{}"
+          }
+          echo "$TAGS_RESPONSE" > /tmp/tags.json
+
+          # Process each new conference
+          python3 << 'PYTHON_EOF'
+          import json
+
+          # Country to continent mapping
+          CONTINENT_MAP = {
+              # Africa
+              'algeria': 'Africa', 'angola': 'Africa', 'benin': 'Africa', 'botswana': 'Africa',
+              'burkina faso': 'Africa', 'burundi': 'Africa', 'cameroon': 'Africa', 'cape verde': 'Africa',
+              'central african republic': 'Africa', 'chad': 'Africa', 'comoros': 'Africa', 'congo': 'Africa',
+              'djibouti': 'Africa', 'egypt': 'Africa', 'equatorial guinea': 'Africa', 'eritrea': 'Africa',
+              'eswatini': 'Africa', 'ethiopia': 'Africa', 'gabon': 'Africa', 'gambia': 'Africa',
+              'ghana': 'Africa', 'guinea': 'Africa', 'ivory coast': 'Africa', 'kenya': 'Africa',
+              'lesotho': 'Africa', 'liberia': 'Africa', 'libya': 'Africa', 'madagascar': 'Africa',
+              'malawi': 'Africa', 'mali': 'Africa', 'mauritania': 'Africa', 'mauritius': 'Africa',
+              'morocco': 'Africa', 'mozambique': 'Africa', 'namibia': 'Africa', 'niger': 'Africa',
+              'nigeria': 'Africa', 'rwanda': 'Africa', 'senegal': 'Africa', 'seychelles': 'Africa',
+              'sierra leone': 'Africa', 'somalia': 'Africa', 'south africa': 'Africa', 'south sudan': 'Africa',
+              'sudan': 'Africa', 'tanzania': 'Africa', 'togo': 'Africa', 'tunisia': 'Africa',
+              'uganda': 'Africa', 'zambia': 'Africa', 'zimbabwe': 'Africa',
+
+              # America (North, Central, South, Caribbean)
+              'usa': 'America', 'united states': 'America', 'us': 'America', 'canada': 'America',
+              'mexico': 'America', 'brazil': 'America', 'argentina': 'America', 'chile': 'America',
+              'colombia': 'America', 'peru': 'America', 'venezuela': 'America', 'ecuador': 'America',
+              'bolivia': 'America', 'paraguay': 'America', 'uruguay': 'America', 'guyana': 'America',
+              'suriname': 'America', 'costa rica': 'America', 'panama': 'America', 'nicaragua': 'America',
+              'honduras': 'America', 'el salvador': 'America', 'guatemala': 'America', 'belize': 'America',
+              'cuba': 'America', 'dominican republic': 'America', 'haiti': 'America', 'jamaica': 'America',
+              'puerto rico': 'America', 'trinidad': 'America', 'bahamas': 'America', 'barbados': 'America',
+
+              # Asia
+              'china': 'Asia', 'japan': 'Asia', 'south korea': 'Asia', 'korea': 'Asia', 'india': 'Asia',
+              'indonesia': 'Asia', 'pakistan': 'Asia', 'bangladesh': 'Asia', 'philippines': 'Asia',
+              'vietnam': 'Asia', 'thailand': 'Asia', 'myanmar': 'Asia', 'malaysia': 'Asia',
+              'singapore': 'Asia', 'taiwan': 'Asia', 'hong kong': 'Asia', 'nepal': 'Asia',
+              'sri lanka': 'Asia', 'cambodia': 'Asia', 'laos': 'Asia', 'mongolia': 'Asia',
+              'iran': 'Asia', 'iraq': 'Asia', 'saudi arabia': 'Asia', 'uae': 'Asia',
+              'united arab emirates': 'Asia', 'israel': 'Asia', 'turkey': 'Asia', 'jordan': 'Asia',
+              'lebanon': 'Asia', 'qatar': 'Asia', 'kuwait': 'Asia', 'bahrain': 'Asia', 'oman': 'Asia',
+              'yemen': 'Asia', 'syria': 'Asia', 'afghanistan': 'Asia', 'kazakhstan': 'Asia',
+              'uzbekistan': 'Asia', 'turkmenistan': 'Asia', 'kyrgyzstan': 'Asia', 'tajikistan': 'Asia',
+
+              # Europe
+              'uk': 'Europe', 'united kingdom': 'Europe', 'england': 'Europe', 'scotland': 'Europe',
+              'wales': 'Europe', 'northern ireland': 'Europe', 'ireland': 'Europe', 'germany': 'Europe',
+              'france': 'Europe', 'italy': 'Europe', 'spain': 'Europe', 'portugal': 'Europe',
+              'netherlands': 'Europe', 'belgium': 'Europe', 'luxembourg': 'Europe', 'switzerland': 'Europe',
+              'austria': 'Europe', 'poland': 'Europe', 'czech republic': 'Europe', 'czechia': 'Europe',
+              'slovakia': 'Europe', 'hungary': 'Europe', 'romania': 'Europe', 'bulgaria': 'Europe',
+              'greece': 'Europe', 'croatia': 'Europe', 'serbia': 'Europe', 'slovenia': 'Europe',
+              'bosnia': 'Europe', 'montenegro': 'Europe', 'north macedonia': 'Europe', 'albania': 'Europe',
+              'kosovo': 'Europe', 'denmark': 'Europe', 'sweden': 'Europe', 'norway': 'Europe',
+              'finland': 'Europe', 'iceland': 'Europe', 'estonia': 'Europe', 'latvia': 'Europe',
+              'lithuania': 'Europe', 'ukraine': 'Europe', 'belarus': 'Europe', 'moldova': 'Europe',
+              'russia': 'Europe', 'cyprus': 'Europe', 'malta': 'Europe',
+
+              # Oceania
+              'australia': 'Oceania', 'new zealand': 'Oceania', 'fiji': 'Oceania',
+              'papua new guinea': 'Oceania', 'samoa': 'Oceania', 'tonga': 'Oceania',
+              'vanuatu': 'Oceania', 'solomon islands': 'Oceania', 'micronesia': 'Oceania',
+              'palau': 'Oceania', 'marshall islands': 'Oceania', 'kiribati': 'Oceania',
+              'nauru': 'Oceania', 'tuvalu': 'Oceania',
+          }
+
+          def get_continent(place):
+              """Extract continent from place string."""
+              if not place:
+                  return None
+
+              # Handle "Online" specially
+              if 'online' in place.lower():
+                  return None
+
+              # Get country (usually last part after comma)
+              parts = place.lower().split(',')
+              country = parts[-1].strip() if parts else ''
+
+              # Try exact match first
+              if country in CONTINENT_MAP:
+                  return CONTINENT_MAP[country]
+
+              # Try partial match
+              for key, continent in CONTINENT_MAP.items():
+                  if key in country or country in key:
+                      return continent
+
+              return None
+
+          def get_tags(conf, tags_map):
+              """Determine which tags to apply."""
+              tags = []
+
+              # Always add Python and Conference
+              if 'Python' in tags_map:
+                  tags.append(tags_map['Python'])
+              if 'Conference' in tags_map:
+                  tags.append(tags_map['Conference'])
+
+              # Geographic tag
+              continent = get_continent(conf.get('place', ''))
+              if continent and continent in tags_map:
+                  tags.append(tags_map[continent])
+
+              # Type-specific tags
+              sub = conf.get('sub', '').upper()
+              name = conf.get('name', '').lower()
+
+              if 'SCIPY' in sub and 'SciPy' in tags_map:
+                  tags.append(tags_map['SciPy'])
+
+              if ('WEB' in sub or 'django' in name) and 'Django' in tags_map:
+                  tags.append(tags_map['Django'])
+
+              return tags
+
+          # Load data
+          with open('/tmp/new_conferences.json', 'r') as f:
+              conferences = json.load(f)
+
+          # Load tags from file
+          try:
+              with open('/tmp/tags.json', 'r') as f:
+                  tags_data = json.load(f)
+              # Build tag name -> UUID mapping
+              tags_map = {tag_info.get('title', ''): uuid for uuid, tag_info in tags_data.items()}
+          except:
+              tags_map = {}
+
+          # Load existing URLs from file
+          try:
+              with open('/tmp/existing_urls.txt', 'r') as f:
+                  existing_urls = set(line.strip() for line in f if line.strip())
+          except:
+              existing_urls = set()
+
+          results = []
+          for conf in conferences:
+              url = conf['url']
+              normalized = url.rstrip('/').lower()
+
+              # Check if already tracked
+              if normalized in existing_urls:
+                  results.append({'url': url, 'status': 'exists', 'name': conf['name']})
+                  continue
+
+              # Determine tags
+              tag_uuids = get_tags(conf, tags_map)
+
+              # Build watch payload
+              payload = {
+                  'url': url,
+                  'title': conf['name'],
+                  'tags': tag_uuids,
+                  'fetch_backend': 'html_requests',  # Use simple fetcher by default
+              }
+
+              results.append({
+                  'url': url,
+                  'status': 'add',
+                  'name': conf['name'],
+                  'tags': [k for k, v in tags_map.items() if v in tag_uuids],
+                  'payload': payload
+              })
+
+          # Write results for shell processing
+          with open('/tmp/watches_to_add.json', 'w') as f:
+              json.dump([r for r in results if r['status'] == 'add'], f)
+
+          # Print summary
+          added = len([r for r in results if r['status'] == 'add'])
+          existing = len([r for r in results if r['status'] == 'exists'])
+          print(f"To add: {added}, Already tracked: {existing}")
+
+          for r in results:
+              if r['status'] == 'exists':
+                  print(f"  SKIP (exists): {r['name']}")
+              else:
+                  print(f"  ADD: {r['name']} -> tags: {r.get('tags', [])}")
+          PYTHON_EOF
+
+      - name: Create watches in changedetection.io
+        if: |
+          steps.extract.outputs.has_changes == 'true' &&
+          steps.extract.outputs.url_count != '0' &&
+          steps.check_cd.outputs.configured == 'true' &&
+          inputs.skip_changedetection != true
+        run: |
+          # Build auth headers
+          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
+          fi
+
+          # Read watches to add
+          if [ ! -s /tmp/watches_to_add.json ]; then
+            echo "No new watches to add"
+            exit 0
+          fi
+
+          # Process each watch
+          jq -c '.[]' /tmp/watches_to_add.json | while read -r watch; do
+            URL=$(echo "$watch" | jq -r '.url')
+            NAME=$(echo "$watch" | jq -r '.name')
+            PAYLOAD=$(echo "$watch" | jq -c '.payload')
+
+            echo "Adding watch: $NAME ($URL)"
+
+            RESPONSE=$(eval "curl -sf -X POST $AUTH_HEADERS \
+              -H 'Content-Type: application/json' \
+              -d '$PAYLOAD' \
+              '${{ vars.CHANGEDETECTION_URL }}/api/v1/watch'") && {
+              echo "  ✅ Successfully added"
+              echo "- ✅ **$NAME** - $URL" >> $GITHUB_STEP_SUMMARY
+
+              # Extract UUID from response for potential tag assignment
+              UUID=$(echo "$RESPONSE" | jq -r '.uuid // empty')
+              if [ -n "$UUID" ]; then
+                echo "  Watch UUID: $UUID"
+              fi
+            } || {
+              echo "  ⚠️ Failed to add"
+              echo "- ⚠️ **$NAME** - $URL (failed)" >> $GITHUB_STEP_SUMMARY
+            }
+
+            # Rate limit
+            sleep 1
           done
-        else
-          echo "No new URLs found"
-        fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Total new URLs:** ${{ steps.extract.outputs.url_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit range:** ${{ steps.last-run.outputs.sha }}..HEAD" >> $GITHUB_STEP_SUMMARY

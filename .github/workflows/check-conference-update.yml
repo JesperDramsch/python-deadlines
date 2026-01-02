@@ -1,0 +1,608 @@
+name: Check Conference Update
+
+on:
+  # Triggered by changedetection.io webhook
+  repository_dispatch:
+    types: [conference-change]
+
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Conference website URL to check'
+        required: true
+        type: string
+      conference_name:
+        description: 'Conference name (e.g., "PyCon US")'
+        required: true
+        type: string
+      skip_triage:
+        description: 'Skip triage and go straight to full analysis'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  # Stage 1: Quick triage using the diff (cheap, uses Haiku)
+  triage:
+    runs-on: ubuntu-latest
+    outputs:
+      should_analyze: ${{ steps.triage.outputs.should_analyze }}
+      triage_reason: ${{ steps.triage.outputs.reason }}
+      suggested_filters: ${{ steps.triage.outputs.suggested_filters }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up variables
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "url=${{ github.event.client_payload.url }}" >> $GITHUB_OUTPUT
+            echo "conference=${{ github.event.client_payload.title }}" >> $GITHUB_OUTPUT
+            echo "diff<<DIFF_EOF" >> $GITHUB_OUTPUT
+            echo '${{ toJson(github.event.client_payload.diff) }}' >> $GITHUB_OUTPUT
+            echo "DIFF_EOF" >> $GITHUB_OUTPUT
+            echo "watch_uuid=${{ github.event.client_payload.watch_uuid }}" >> $GITHUB_OUTPUT
+            echo "has_diff=true" >> $GITHUB_OUTPUT
+          else
+            echo "url=${{ inputs.url }}" >> $GITHUB_OUTPUT
+            echo "conference=${{ inputs.conference_name }}" >> $GITHUB_OUTPUT
+            echo "has_diff=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Skip triage if manually triggered with skip_triage or no diff provided
+      - name: Check if triage should be skipped
+        id: skip_check
+        run: |
+          if [ "${{ inputs.skip_triage }}" = "true" ] || [ "${{ steps.vars.outputs.has_diff }}" = "false" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Quick triage with Claude Haiku
+        id: triage
+        if: steps.skip_check.outputs.skip != 'true'
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-haiku-4-5-20251001
+          prompt: |
+            You are a quick triage filter for a Python conference tracking website.
+
+            A change was detected on: ${{ steps.vars.outputs.url }}
+            Conference: ${{ steps.vars.outputs.conference }}
+
+            Here is the DIFF of what changed:
+            ```
+            ${{ steps.vars.outputs.diff }}
+            ```
+
+            TASK: Quickly decide if this change is RELEVANT or NOISE.
+
+            RELEVANT changes (should trigger full analysis):
+            - New year mentioned (2025, 2026, etc.)
+            - CFP/Call for Proposals/Submit announcements
+            - New dates mentioned (May 14-18, etc.)
+            - New location/venue announcements
+            - "Registration open", "Tickets available"
+            - "Save the date", "Announced"
+
+            NOISE changes (skip full analysis):
+            - Copyright year updates only
+            - Visitor counters, timestamps
+            - Minor text tweaks, typos
+            - Social media follower counts
+            - Cookie notices, privacy updates
+            - Navigation/menu changes
+            - Sponsor logo additions/removals (unless about CFP)
+            - "Last updated" timestamps
+
+            OUTPUT FORMAT (exactly this, as parseable text):
+            DECISION: RELEVANT or NOISE
+            REASON: One sentence explanation
+            CONFIDENCE: HIGH, MEDIUM, or LOW
+            SUGGESTED_FILTERS: If NOISE, suggest CSS selectors or text patterns to ignore. Otherwise "none"
+
+            Example outputs:
+            ---
+            DECISION: RELEVANT
+            REASON: Diff mentions "PyCon 2026" and "CFP opens January"
+            CONFIDENCE: HIGH
+            SUGGESTED_FILTERS: none
+            ---
+            DECISION: NOISE
+            REASON: Only change is copyright year from 2024 to 2025
+            CONFIDENCE: HIGH
+            SUGGESTED_FILTERS: footer, .copyright, text:Copyright \d{4}
+            ---
+          allowed_tools: ""
+          timeout_minutes: 2
+
+      - name: Parse triage result
+        id: parse
+        run: |
+          # Default to analyzing if triage was skipped
+          if [ "${{ steps.skip_check.outputs.skip }}" = "true" ]; then
+            echo "should_analyze=true" >> $GITHUB_OUTPUT
+            echo "reason=Triage skipped - manual trigger or no diff" >> $GITHUB_OUTPUT
+            echo "suggested_filters=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Parse the triage output
+          TRIAGE_OUTPUT='${{ steps.triage.outputs.result }}'
+
+          if echo "$TRIAGE_OUTPUT" | grep -q "DECISION: RELEVANT"; then
+            echo "should_analyze=true" >> $GITHUB_OUTPUT
+          elif echo "$TRIAGE_OUTPUT" | grep -q "DECISION: NOISE"; then
+            # Check confidence - if LOW, analyze anyway
+            if echo "$TRIAGE_OUTPUT" | grep -q "CONFIDENCE: LOW"; then
+              echo "should_analyze=true" >> $GITHUB_OUTPUT
+            else
+              echo "should_analyze=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Default to analyzing if unclear
+            echo "should_analyze=true" >> $GITHUB_OUTPUT
+          fi
+
+          # Extract reason
+          REASON=$(echo "$TRIAGE_OUTPUT" | grep "REASON:" | sed 's/REASON: //')
+          echo "reason=$REASON" >> $GITHUB_OUTPUT
+
+          # Extract suggested filters
+          FILTERS=$(echo "$TRIAGE_OUTPUT" | grep "SUGGESTED_FILTERS:" | sed 's/SUGGESTED_FILTERS: //')
+          echo "suggested_filters=$FILTERS" >> $GITHUB_OUTPUT
+
+  # Apply filters directly to changedetection.io via Cloudflare tunnel
+  # Falls back to creating an issue if API is not configured
+  apply-filters:
+    needs: triage
+    if: needs.triage.outputs.should_analyze == 'false' && needs.triage.outputs.suggested_filters != 'none' && needs.triage.outputs.suggested_filters != ''
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check if direct API access is configured
+        id: check_api
+        run: |
+          if [ -n "${{ vars.CHANGEDETECTION_URL }}" ] && [ -n "${{ secrets.CHANGEDETECTION_KEY }}" ]; then
+            echo "api_available=true" >> $GITHUB_OUTPUT
+          else
+            echo "api_available=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Direct API access via Cloudflare tunnel
+      - name: Apply filters via API
+        id: apply_api
+        if: steps.check_api.outputs.api_available == 'true'
+        run: |
+          WATCH_UUID="${{ github.event.client_payload.watch_uuid }}"
+          FILTERS="${{ needs.triage.outputs.suggested_filters }}"
+
+          # Parse CSS selectors (everything without text: prefix)
+          CSS_FILTERS=$(echo "$FILTERS" | tr ',' '\n' | grep -v 'text:' | sed 's/^ *//' | tr '\n' ',' | sed 's/,$//')
+
+          # Parse text patterns (everything with text: prefix, removing the prefix)
+          TEXT_PATTERNS=$(echo "$FILTERS" | tr ',' '\n' | grep 'text:' | sed 's/text://' | sed 's/^ *//' | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "Watch UUID: $WATCH_UUID"
+          echo "CSS filters to add: $CSS_FILTERS"
+          echo "Text patterns to add: $TEXT_PATTERNS"
+
+          # Build headers - support both direct API key and Cloudflare Access
+          AUTH_HEADERS=""
+          if [ -n "${{ secrets.CHANGEDETECTION_KEY }}" ]; then
+            AUTH_HEADERS="$AUTH_HEADERS -H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
+          fi
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
+          fi
+
+          # Fetch current watch config
+          echo "Fetching current watch configuration..."
+          CURRENT=$(eval "curl -sf $AUTH_HEADERS '${{ vars.CHANGEDETECTION_URL }}/api/v1/watch/$WATCH_UUID'") || {
+            echo "::warning::Failed to fetch current watch config"
+            echo "success=false" >> $GITHUB_OUTPUT
+            exit 0
+          }
+
+          echo "Current config fetched successfully"
+
+          # Merge with existing CSS selectors
+          EXISTING_CSS=$(echo "$CURRENT" | jq -r '.subtractive_selectors // ""')
+          if [ -n "$EXISTING_CSS" ] && [ "$EXISTING_CSS" != "null" ] && [ -n "$CSS_FILTERS" ]; then
+            MERGED_CSS="$EXISTING_CSS, $CSS_FILTERS"
+          elif [ -n "$CSS_FILTERS" ]; then
+            MERGED_CSS="$CSS_FILTERS"
+          else
+            MERGED_CSS="$EXISTING_CSS"
+          fi
+
+          # Merge with existing text patterns
+          EXISTING_TEXT=$(echo "$CURRENT" | jq -c '.ignore_text // []')
+          if [ "$TEXT_PATTERNS" != "[]" ] && [ "$TEXT_PATTERNS" != "null" ]; then
+            MERGED_TEXT=$(echo "$EXISTING_TEXT $TEXT_PATTERNS" | jq -s 'add | unique')
+          else
+            MERGED_TEXT="$EXISTING_TEXT"
+          fi
+
+          echo "Merged CSS selectors: $MERGED_CSS"
+          echo "Merged text patterns: $MERGED_TEXT"
+
+          # Apply the update
+          UPDATE_PAYLOAD=$(jq -n \
+            --arg css "$MERGED_CSS" \
+            --argjson text "$MERGED_TEXT" \
+            '{subtractive_selectors: $css, ignore_text: $text}')
+
+          echo "Applying filters..."
+          RESPONSE=$(eval "curl -sf -X PUT $AUTH_HEADERS \
+            -H 'Content-Type: application/json' \
+            -d '$UPDATE_PAYLOAD' \
+            '${{ vars.CHANGEDETECTION_URL }}/api/v1/watch/$WATCH_UUID'") && {
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "✅ Filters applied successfully!"
+          } || {
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "::warning::Failed to apply filters via API"
+          }
+
+      # Create issue as fallback if API not available or failed
+      - name: Create filter suggestion issue (fallback)
+        if: steps.check_api.outputs.api_available == 'false' || steps.apply_api.outputs.success == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const url = '${{ github.event.client_payload.url }}';
+            const conference = '${{ github.event.client_payload.title }}';
+            const reason = '${{ needs.triage.outputs.triage_reason }}';
+            const filters = '${{ needs.triage.outputs.suggested_filters }}';
+            const watchUuid = '${{ github.event.client_payload.watch_uuid }}';
+            const apiAttempted = '${{ steps.check_api.outputs.api_available }}' === 'true';
+
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'filter-suggestion',
+            });
+
+            const existingIssue = existingIssues.data.find(
+              issue => issue.title.includes(conference)
+            );
+
+            const apiNote = apiAttempted
+              ? '\n\n> ⚠️ Automatic filter application failed. Please apply manually.\n'
+              : '';
+
+            if (existingIssue) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `### Another noisy change detected${apiNote}\n\n**Reason:** ${reason}\n**Suggested filters:** \`${filters}\`\n\n---\n*${new Date().toISOString()}*`
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔇 Filter suggestions for ${conference}`,
+                labels: ['filter-suggestion', 'automated'],
+                body: `## Noisy Change Detected${apiNote}
+
+            **Conference:** ${conference}
+            **URL:** ${url}
+            **Watch UUID:** \`${watchUuid}\`
+
+            ### Why filtered
+            ${reason}
+
+            ### Suggested filters
+
+            **CSS Selectors:**
+            \`\`\`
+            ${filters.split(',').filter(f => !f.includes('text:')).map(f => f.trim()).join('\n')}
+            \`\`\`
+
+            **Text patterns:**
+            \`\`\`
+            ${filters.split(',').filter(f => f.includes('text:')).map(f => f.replace('text:', '').trim()).join('\n')}
+            \`\`\`
+
+            ### Apply manually
+            1. Open changedetection.io → Edit watch
+            2. Add CSS selectors to "Remove elements"
+            3. Add text patterns to "Ignore Text"`
+              });
+            }
+
+      # Log success
+      - name: Log success
+        if: steps.apply_api.outputs.success == 'true'
+        run: |
+          echo "## ✅ Filters Applied Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Conference:** ${{ github.event.client_payload.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Watch UUID:** ${{ github.event.client_payload.watch_uuid }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Filters:** ${{ needs.triage.outputs.suggested_filters }}" >> $GITHUB_STEP_SUMMARY
+
+  # Stage 2: Full analysis (only if triage passed)
+  # Uses accumulating PR pattern - all updates go to one branch until merged
+  analyze-update:
+    needs: triage
+    if: needs.triage.outputs.should_analyze == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    env:
+      UPDATE_BRANCH: auto/conference-updates
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for rebasing
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up variables
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "url=${{ github.event.client_payload.url }}" >> $GITHUB_OUTPUT
+            echo "conference=${{ github.event.client_payload.title }}" >> $GITHUB_OUTPUT
+          else
+            echo "url=${{ inputs.url }}" >> $GITHUB_OUTPUT
+            echo "conference=${{ inputs.conference_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing update branch
+        id: check_branch
+        run: |
+          if git ls-remote --heads origin $UPDATE_BRANCH | grep -q $UPDATE_BRANCH; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Branch $UPDATE_BRANCH exists, will add to it"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Branch $UPDATE_BRANCH does not exist, will create it"
+          fi
+
+      - name: Setup accumulator branch
+        id: setup_branch
+        run: |
+          if [ "${{ steps.check_branch.outputs.exists }}" = "true" ]; then
+            # Fetch and checkout existing branch
+            git fetch origin $UPDATE_BRANCH
+            git checkout $UPDATE_BRANCH
+
+            # Try to rebase on main to stay current
+            if git rebase origin/main; then
+              echo "rebased=true" >> $GITHUB_OUTPUT
+              echo "Successfully rebased on main"
+            else
+              echo "rebased=false" >> $GITHUB_OUTPUT
+              echo "::warning::Rebase failed, aborting and using branch as-is"
+              git rebase --abort
+              # Try merge instead
+              git merge origin/main --no-edit || git merge --abort
+            fi
+          else
+            # Create new branch from main
+            git checkout -b $UPDATE_BRANCH
+            echo "rebased=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Snapshot conferences.yml before
+        run: |
+          cp _data/conferences.yml /tmp/conferences_before.yml
+
+      - name: Run Claude Code Analysis
+        uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-haiku-4-5-20251001
+          prompt: |
+            You are helping maintain pythondeadlin.es, a website tracking Python conference deadlines.
+
+            ## Task
+            A change was detected on: ${{ steps.vars.outputs.url }}
+            Conference name: ${{ steps.vars.outputs.conference }}
+            Triage reason: ${{ needs.triage.outputs.triage_reason }}
+
+            ## Conference Schema
+            Required fields for _data/conferences.yml entries:
+            - conference: Name without year (e.g., "PyCon US" not "PyCon US 2025")
+            - year: Integer >= 1989
+            - link: HTTPS URL to conference website
+            - cfp: Deadline as 'YYYY-MM-DD HH:mm:ss' or 'TBA'
+            - place: "City, Country" format (or "Online")
+            - start: Conference start date as YYYY-MM-DD
+            - end: Conference end date as YYYY-MM-DD
+            - sub: Category code (see below)
+
+            Optional fields:
+            - cfp_link: Direct URL to CFP/proposal submission page
+            - cfp_ext: Extended deadline if CFP was extended
+            - timezone: IANA timezone (e.g., "America/New_York"). Omit for AoE (Anywhere on Earth)
+            - workshop_deadline, tutorial_deadline: If different from main CFP
+            - sponsor: URL to sponsorship page
+            - finaid: URL to financial aid page
+            - twitter: Handle without @ (e.g., "pycon")
+            - mastodon: Full URL (e.g., "https://fosstodon.org/@europython")
+            - bluesky: Full URL
+            - note: Brief note if needed
+            - location: List with title, latitude, longitude for map display
+
+            ## Category Codes (sub field)
+            - PY: General Python (PyCon, PyLadies, etc.)
+            - SCIPY: Scientific Python (SciPy, PyHEP)
+            - DATA: Data/ML (PyData, Jupyter)
+            - WEB: Web frameworks (DjangoCon, Flask)
+            - BIZ: Business Python
+            - GEO: Geospatial (GeoPython)
+
+            ## What to Look For
+            - Year indicators: "2025", "2026" in titles/URLs
+            - Date announcements: "May 14-22, 2025", "Save the date"
+            - CFP info: "Proposals due December 19", "CFP opens January 15"
+            - Location: "Join us in Pittsburgh", venue announcements
+
+            ## Instructions
+            1. Fetch the URL and analyze for conference announcements
+            2. Check _data/conferences.yml for existing entries for this conference
+            3. If new year announced OR key info updated for existing TBA entry:
+               - Add/update the entry in _data/conferences.yml
+               - Follow YAML formatting of existing entries
+            4. If no actionable update: make NO file changes
+
+            ## Critical Rules
+            - Do NOT create branches, PRs, or issues (workflow handles git)
+            - Only modify _data/conferences.yml
+            - Be conservative - only change if confident info is new/updated
+            - Don't add if year already exists with same information
+            - Skip vague info ("coming soon", "stay tuned")
+          allowed_tools: "web_fetch,View,Edit,Write,Bash"
+          timeout_minutes: 5
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if ! diff -q _data/conferences.yml /tmp/conferences_before.yml > /dev/null 2>&1; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected in conferences.yml"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes to conferences.yml"
+          fi
+
+      - name: Commit changes
+        if: steps.check_changes.outputs.changed == 'true'
+        id: commit
+        run: |
+          git add _data/conferences.yml
+
+          # Create descriptive commit message
+          CONF="${{ steps.vars.outputs.conference }}"
+          DATE=$(date -u +"%Y-%m-%d")
+
+          git commit -m "conf: ${CONF}" -m "Source: ${{ steps.vars.outputs.url }}" -m "Auto-detected on ${DATE}"
+
+          echo "committed=true" >> $GITHUB_OUTPUT
+          echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "Committed changes for ${CONF}"
+
+      - name: Push changes
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          git push origin $UPDATE_BRANCH --force-with-lease
+
+      - name: Create or update PR
+        if: steps.check_changes.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = process.env.UPDATE_BRANCH;
+            const conference = '${{ steps.vars.outputs.conference }}';
+            const url = '${{ steps.vars.outputs.url }}';
+            const commitSha = '${{ steps.commit.outputs.commit_sha }}'.substring(0, 7);
+            const date = new Date().toISOString().split('T')[0];
+
+            // Check for existing PR
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${branch}`,
+              state: 'open'
+            });
+
+            const updateEntry = `| ${conference} | [${commitSha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${{ steps.commit.outputs.commit_sha }}) | ${date} |`;
+
+            if (prs.length > 0) {
+              // Update existing PR body
+              const pr = prs[0];
+              const currentBody = pr.body || '';
+
+              // Append to updates table
+              let newBody;
+              if (currentBody.includes('| Conference | Commit | Date |')) {
+                // Add row to existing table
+                newBody = currentBody.replace(
+                  /(<!-- END_UPDATES -->)/,
+                  `${updateEntry}\n$1`
+                );
+              } else {
+                // Shouldn't happen, but handle gracefully
+                newBody = currentBody + `\n\n${updateEntry}`;
+              }
+
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                body: newBody
+              });
+
+              console.log(`Updated PR #${pr.number} with ${conference}`);
+
+            } else {
+              // Create new PR
+              const body = `## 🐍 Automated Conference Updates
+
+            This PR accumulates conference updates detected by the monitoring system.
+            Each commit represents one detected change. Merge when ready.
+
+            ### Updates
+            | Conference | Commit | Date |
+            |------------|--------|------|
+            ${updateEntry}
+            <!-- END_UPDATES -->
+
+            ---
+            *This PR will accumulate updates until merged. After merging, a new PR will be created for subsequent updates.*`;
+
+              const { data: newPr } = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🐍 Conference updates',
+                head: branch,
+                base: 'main',
+                body: body
+              });
+
+              // Add labels
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: newPr.number,
+                labels: ['automated', 'conference-update']
+              });
+
+              console.log(`Created PR #${newPr.number}`);
+            }
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Conference Update Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Conference:** ${{ steps.vars.outputs.conference }}" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** ${{ steps.vars.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Changes detected:** ${{ steps.check_changes.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_changes.outputs.changed }}" = "true" ]; then
+            echo "**Commit:** ${{ steps.commit.outputs.commit_sha }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Changes added to accumulating PR on branch \`$UPDATE_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          fi
