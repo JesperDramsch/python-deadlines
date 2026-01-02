@@ -50,6 +50,7 @@ jobs:
       diff: ${{ steps.vars.outputs.diff }}
       watch_uuid: ${{ steps.vars.outputs.watch_uuid }}
       has_diff: ${{ steps.vars.outputs.has_diff }}
+      has_pending: ${{ steps.pending.outputs.has_pending }}
 
     steps:
       - name: Checkout repository
@@ -84,6 +85,28 @@ jobs:
             echo "has_diff=false" >> $GITHUB_OUTPUT
             echo "watch_uuid=" >> $GITHUB_OUTPUT
             echo "diff=No diff available - manual trigger" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for pending updates
+        id: pending
+        env:
+          CONF_NAME: ${{ steps.vars.outputs.conference }}
+          UPDATE_BRANCH: auto/conference-updates
+        run: |
+          # Check if update branch exists and has pending commits for this conference
+          if git ls-remote --heads origin "$UPDATE_BRANCH" | grep -q "$UPDATE_BRANCH"; then
+            git fetch origin "$UPDATE_BRANCH" --depth=50
+
+            # Look for commits mentioning this conference that aren't in main yet
+            if git log "origin/main..origin/$UPDATE_BRANCH" --oneline --grep="conf: ${CONF_NAME}" 2>/dev/null | grep -q .; then
+              echo "has_pending=true" >> $GITHUB_OUTPUT
+              PENDING_COMMIT=$(git log "origin/main..origin/$UPDATE_BRANCH" --oneline --grep="conf: ${CONF_NAME}" -1)
+              echo "::notice title=Pending Update::${CONF_NAME} already has pending commit: ${PENDING_COMMIT}"
+            else
+              echo "has_pending=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "has_pending=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Detect monitoring zone
@@ -251,7 +274,7 @@ jobs:
   # This is ~10x cheaper than using claude-code-action for simple classification
   triage:
     needs: zone-check
-    if: needs.zone-check.outputs.skip != 'true'
+    if: needs.zone-check.outputs.skip != 'true' && needs.zone-check.outputs.has_pending != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -600,6 +623,7 @@ jobs:
     needs: [zone-check, triage]
     if: |
       needs.zone-check.outputs.skip != 'true' &&
+      needs.zone-check.outputs.has_pending != 'true' &&
       needs.triage.outputs.should_analyze == 'true' &&
       needs.triage.outputs.is_new_year != 'true'
     runs-on: ubuntu-latest
@@ -617,12 +641,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: Configure git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Set remote URL with token for authenticated push
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
 
       - name: Setup accumulator branch
         run: |
@@ -807,6 +835,7 @@ jobs:
     needs: [zone-check, triage]
     if: |
       needs.zone-check.outputs.skip != 'true' &&
+      needs.zone-check.outputs.has_pending != 'true' &&
       needs.triage.outputs.should_analyze == 'true' &&
       needs.triage.outputs.is_new_year == 'true'
     runs-on: ubuntu-latest
@@ -824,12 +853,16 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
 
       - name: Configure git
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Set remote URL with token for authenticated push
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
 
       - name: Setup accumulator branch
         run: |
@@ -1078,3 +1111,18 @@ jobs:
           echo "::notice title=Skipped::$CONF_NAME in $CONF_ZONE zone"
           echo "## ⏭️ Skipped: $CONF_NAME" >> $GITHUB_STEP_SUMMARY
           echo "Zone: $CONF_ZONE (no useful updates expected)" >> $GITHUB_STEP_SUMMARY
+
+  # Log conferences with pending updates
+  log-pending:
+    needs: zone-check
+    if: needs.zone-check.outputs.skip != 'true' && needs.zone-check.outputs.has_pending == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Log pending
+        env:
+          CONF_NAME: ${{ needs.zone-check.outputs.conference }}
+        run: |
+          echo "::notice title=Pending::$CONF_NAME already has pending update in PR"
+          echo "## ⏸️ Skipped: $CONF_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "Already has pending update in accumulator branch. Merge the PR to process new changes." >> $GITHUB_STEP_SUMMARY
