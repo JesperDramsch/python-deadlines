@@ -394,9 +394,14 @@ jobs:
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
             echo "url=${{ github.event.client_payload.url }}" >> $GITHUB_OUTPUT
             echo "conference=${{ github.event.client_payload.title }}" >> $GITHUB_OUTPUT
+            # Pass diff for cost-efficient analysis
+            echo "diff<<DIFF_EOF" >> $GITHUB_OUTPUT
+            echo '${{ toJson(github.event.client_payload.diff) }}' >> $GITHUB_OUTPUT
+            echo "DIFF_EOF" >> $GITHUB_OUTPUT
           else
             echo "url=${{ inputs.url }}" >> $GITHUB_OUTPUT
             echo "conference=${{ inputs.conference_name }}" >> $GITHUB_OUTPUT
+            echo "diff=No diff available - manual trigger" >> $GITHUB_OUTPUT
           fi
 
       - name: Check for existing update branch
@@ -446,67 +451,55 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           model: claude-haiku-4-5-20251001
           direct_prompt: |
-            You are helping maintain pythondeadlin.es, a website tracking Python conference deadlines.
+            You are updating pythondeadlin.es conference data based on a detected website change.
 
-            ## Task
-            A change was detected on: ${{ steps.vars.outputs.url }}
-            Conference name: ${{ steps.vars.outputs.conference }}
-            Triage reason: ${{ needs.triage.outputs.triage_reason }}
+            ## IMPORTANT: Cost Control
+            - DO NOT use Task tool or spawn subagents
+            - DO NOT fetch URLs with curl - use the diff provided below
+            - DO NOT fetch multiple pages - the diff contains all relevant changes
+            - Read the diff FIRST, then check the existing YAML, then edit if needed
+            - Minimize tool calls - aim for: Read → Edit → Done
 
-            ## Conference Schema
-            Required fields for _data/conferences.yml entries:
-            - conference: Name without year (e.g., "PyCon US" not "PyCon US 2025")
-            - year: Integer >= 1989
-            - link: HTTPS URL to conference website
-            - cfp: Deadline as 'YYYY-MM-DD HH:mm:ss' or 'TBA'
-            - place: "City, Country" format (or "Online")
-            - start: Conference start date as YYYY-MM-DD
-            - end: Conference end date as YYYY-MM-DD
-            - sub: Category code (see below)
+            ## Detected Change
+            URL: ${{ steps.vars.outputs.url }}
+            Conference: ${{ steps.vars.outputs.conference }}
+            Reason flagged: ${{ needs.triage.outputs.triage_reason }}
 
-            Optional fields:
-            - cfp_link: Direct URL to CFP/proposal submission page
-            - cfp_ext: Extended deadline if CFP was extended
-            - timezone: IANA timezone (e.g., "America/New_York"). Omit for AoE (Anywhere on Earth)
-            - workshop_deadline, tutorial_deadline: If different from main CFP
-            - sponsor: URL to sponsorship page
-            - finaid: URL to financial aid page
-            - twitter: Handle without @ (e.g., "pycon")
-            - mastodon: Full URL (e.g., "https://fosstodon.org/@europython")
-            - bluesky: Full URL
-            - note: Brief note if needed
-            - location: List with title, latitude, longitude for map display
+            DIFF of what changed on the website:
+            ```
+            ${{ steps.vars.outputs.diff }}
+            ```
 
-            ## Category Codes (sub field)
-            - PY: General Python (PyCon, PyLadies, etc.)
-            - SCIPY: Scientific Python (SciPy, PyHEP)
-            - DATA: Data/ML (PyData, Jupyter)
-            - WEB: Web frameworks (DjangoCon, Flask)
-            - BIZ: Business Python
-            - GEO: Geospatial (GeoPython)
+            ## Your Task
+            1. Read _data/conferences.yml to find existing entry for this conference
+            2. Based on the DIFF above, determine if YAML needs updating
+            3. If update needed, edit the file. If not, do nothing.
 
-            ## What to Look For
-            - Year indicators: "2025", "2026" in titles/URLs
-            - Date announcements: "May 14-22, 2025", "Save the date"
-            - CFP info: "Proposals due December 19", "CFP opens January 15"
-            - Location: "Join us in Pittsburgh", venue announcements
+            ## Schema (required fields)
+            - conference: Name without year
+            - year: Integer (e.g., 2026)
+            - link: Conference URL
+            - cfp: ORIGINAL deadline as 'YYYY-MM-DD HH:mm:ss' or 'TBA'
+            - cfp_ext: EXTENDED deadline (only if CFP was extended - this becomes the displayed deadline)
+            - place: "City, Country"
+            - start/end: YYYY-MM-DD
+            - sub: PY|SCIPY|DATA|WEB|BIZ|GEO
 
-            ## Instructions
-            1. Fetch the URL and analyze for conference announcements
-            2. Check _data/conferences.yml for existing entries for this conference
-            3. If new year announced OR key info updated for existing TBA entry:
-               - Add/update the entry in _data/conferences.yml
-               - Follow YAML formatting of existing entries
-            4. If no actionable update: make NO file changes
+            Optional: cfp_link, timezone, finaid, sponsor, twitter, mastodon, workshop_deadline, tutorial_deadline
 
-            ## Critical Rules
-            - Do NOT create branches, PRs, or issues (workflow handles git)
+            ## CFP Extension Rule
+            When a CFP deadline is extended:
+            - cfp: Keep the ORIGINAL deadline
+            - cfp_ext: Set to the NEW extended deadline
+            The site displays cfp_ext when present, showing users the actual current deadline.
+
+            ## Rules
             - Only modify _data/conferences.yml
-            - Be conservative - only change if confident info is new/updated
-            - Don't add if year already exists with same information
-            - Skip vague info ("coming soon", "stay tuned")
-          allowed_tools: "View,Edit,Write,Bash,GlobTool,GrepTool"
-          timeout_minutes: 5
+            - Be conservative - only update if diff shows clear new information
+            - Match existing YAML formatting
+            - Do NOT create branches/PRs (workflow handles git)
+          allowed_tools: "Read,Edit,Grep,Glob"
+          timeout_minutes: 3
 
       - name: Check for changes
         id: check_changes
