@@ -444,6 +444,67 @@ jobs:
         run: |
           cp _data/conferences.yml /tmp/conferences_before.yml
 
+      - name: Prepare website content
+        id: content
+        run: |
+          DIFF='${{ steps.vars.outputs.diff }}'
+          URL="${{ steps.vars.outputs.url }}"
+
+          # Check if diff is substantial (more than 100 chars of actual content)
+          DIFF_LENGTH=$(echo "$DIFF" | wc -c)
+
+          if [ "$DIFF_LENGTH" -gt 100 ] && [ "$DIFF" != "No diff available - manual trigger" ]; then
+            echo "Using diff content (${DIFF_LENGTH} chars)"
+            echo "source=diff" >> $GITHUB_OUTPUT
+            {
+              echo "text<<CONTENT_EOF"
+              echo "$DIFF"
+              echo "CONTENT_EOF"
+            } >> $GITHUB_OUTPUT
+          else
+            echo "Diff insufficient, fetching website content..."
+            CONTENT=$(curl -sL --max-time 30 "$URL" | python3 -c "
+          import sys
+          from html.parser import HTMLParser
+
+          class TextExtractor(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.text = []
+                  self.skip = False
+                  self.skip_tags = {'script', 'style', 'nav', 'footer', 'noscript', 'svg', 'path'}
+
+              def handle_starttag(self, tag, attrs):
+                  if tag in self.skip_tags:
+                      self.skip = True
+
+              def handle_endtag(self, tag):
+                  if tag in self.skip_tags:
+                      self.skip = False
+
+              def handle_data(self, data):
+                  if not self.skip:
+                      text = ' '.join(data.split())
+                      if text and len(text) > 2:
+                          self.text.append(text)
+
+          html = sys.stdin.read()
+          extractor = TextExtractor()
+          extractor.feed(html)
+          seen = set()
+          for line in extractor.text[:300]:
+              if line not in seen and len(line) > 3:
+                  seen.add(line)
+                  print(line)
+          " | head -c 6000)
+            echo "source=fetched" >> $GITHUB_OUTPUT
+            {
+              echo "text<<CONTENT_EOF"
+              echo "$CONTENT"
+              echo "CONTENT_EOF"
+            } >> $GITHUB_OUTPUT
+          fi
+
       - name: Run Claude Code Analysis
         uses: anthropics/claude-code-action@beta
         with:
@@ -451,29 +512,30 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           model: claude-haiku-4-5-20251001
           direct_prompt: |
-            You are updating pythondeadlin.es conference data based on a detected website change.
+            You are updating pythondeadlin.es conference data based on website information.
 
             ## IMPORTANT: Cost Control
             - DO NOT use Task tool or spawn subagents
-            - DO NOT fetch URLs with curl - use the diff provided below
-            - DO NOT fetch multiple pages - the diff contains all relevant changes
-            - Read the diff FIRST, then check the existing YAML, then edit if needed
-            - Minimize tool calls - aim for: Read → Edit → Done
+            - DO NOT fetch URLs - all content is provided below
+            - Minimize tool calls: Read YAML → Edit if needed → Done
 
-            ## Detected Change
+            ## Conference Information
             URL: ${{ steps.vars.outputs.url }}
             Conference: ${{ steps.vars.outputs.conference }}
             Reason flagged: ${{ needs.triage.outputs.triage_reason }}
+            Content source: ${{ steps.content.outputs.source }}
 
-            DIFF of what changed on the website:
+            Website content:
             ```
-            ${{ steps.vars.outputs.diff }}
+            ${{ steps.content.outputs.text }}
             ```
 
             ## Your Task
             1. Read _data/conferences.yml to find existing entry for this conference
-            2. Based on the DIFF above, determine if YAML needs updating
-            3. If update needed, edit the file. If not, do nothing.
+            2. Compare website content above with existing YAML entry
+            3. If content source is "diff": only update fields that clearly changed
+            4. If content source is "fetched": verify/update CFP dates, conference dates, and URLs
+            5. If update needed, edit the file. If not, do nothing.
 
             ## Schema (required fields)
             - conference: Name without year
@@ -495,7 +557,8 @@ jobs:
 
             ## Rules
             - Only modify _data/conferences.yml
-            - Be conservative - only update if diff shows clear new information
+            - If source=diff: be conservative, only update what clearly changed
+            - If source=fetched: verify dates, add missing fields like finaid/sponsor if found
             - Match existing YAML formatting
             - Do NOT create branches/PRs (workflow handles git)
           allowed_tools: "Read,Edit,Grep,Glob"
