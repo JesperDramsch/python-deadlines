@@ -27,9 +27,9 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     outputs:
-      should_analyze: ${{ steps.triage.outputs.should_analyze }}
-      triage_reason: ${{ steps.triage.outputs.reason }}
-      suggested_filters: ${{ steps.triage.outputs.suggested_filters }}
+      should_analyze: ${{ steps.parse.outputs.should_analyze }}
+      triage_reason: ${{ steps.parse.outputs.reason }}
+      suggested_filters: ${{ steps.parse.outputs.suggested_filters }}
 
     steps:
       - name: Checkout repository
@@ -132,8 +132,33 @@ jobs:
             exit 0
           fi
 
-          # Parse the triage output
-          TRIAGE_OUTPUT='${{ steps.triage.outputs.result }}'
+          # Check if triage succeeded
+          if [ "${{ steps.triage.outputs.conclusion }}" != "success" ]; then
+            echo "should_analyze=true" >> $GITHUB_OUTPUT
+            echo "reason=Triage failed - analyzing as fallback" >> $GITHUB_OUTPUT
+            echo "suggested_filters=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Parse the execution file to get Claude's response
+          EXEC_FILE="${{ steps.triage.outputs.execution_file }}"
+          if [ -z "$EXEC_FILE" ] || [ ! -f "$EXEC_FILE" ]; then
+            echo "should_analyze=true" >> $GITHUB_OUTPUT
+            echo "reason=Could not read triage output file" >> $GITHUB_OUTPUT
+            echo "suggested_filters=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Extract the text content from Claude's response in the execution log
+          # The execution log is JSON with the conversation history
+          TRIAGE_OUTPUT=$(cat "$EXEC_FILE" | jq -r '
+            .messages[-1].content //
+            .result //
+            .message //
+            ""
+          ' 2>/dev/null || cat "$EXEC_FILE")
+
+          echo "Triage output: $TRIAGE_OUTPUT"
 
           if echo "$TRIAGE_OUTPUT" | grep -q "DECISION: RELEVANT"; then
             echo "should_analyze=true" >> $GITHUB_OUTPUT
@@ -150,12 +175,12 @@ jobs:
           fi
 
           # Extract reason
-          REASON=$(echo "$TRIAGE_OUTPUT" | grep "REASON:" | sed 's/REASON: //')
-          echo "reason=$REASON" >> $GITHUB_OUTPUT
+          REASON=$(echo "$TRIAGE_OUTPUT" | grep "REASON:" | sed 's/REASON: //' | head -1)
+          echo "reason=${REASON:-Triage completed}" >> $GITHUB_OUTPUT
 
           # Extract suggested filters
-          FILTERS=$(echo "$TRIAGE_OUTPUT" | grep "SUGGESTED_FILTERS:" | sed 's/SUGGESTED_FILTERS: //')
-          echo "suggested_filters=$FILTERS" >> $GITHUB_OUTPUT
+          FILTERS=$(echo "$TRIAGE_OUTPUT" | grep "SUGGESTED_FILTERS:" | sed 's/SUGGESTED_FILTERS: //' | head -1)
+          echo "suggested_filters=${FILTERS:-}" >> $GITHUB_OUTPUT
 
   # Apply filters directly to changedetection.io via Cloudflare tunnel
   # Falls back to creating an issue if API is not configured
@@ -474,7 +499,7 @@ jobs:
             - Be conservative - only change if confident info is new/updated
             - Don't add if year already exists with same information
             - Skip vague info ("coming soon", "stay tuned")
-          allowed_tools: "web_fetch,View,Edit,Write,Bash"
+          allowed_tools: "View,Edit,Write,Bash,GlobTool,GrepTool"
           timeout_minutes: 5
 
       - name: Check for changes
