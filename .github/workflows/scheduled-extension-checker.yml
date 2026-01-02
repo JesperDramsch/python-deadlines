@@ -1,0 +1,201 @@
+name: Scheduled Extension Checker
+
+on:
+  # Run daily at 6 AM UTC
+  schedule:
+    - cron: '0 6 * * *'
+
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      days_ahead:
+        description: 'Check CFPs closing within N days'
+        required: false
+        type: number
+        default: 3
+      dry_run:
+        description: 'Dry run (show what would be checked without triggering)'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  find-closing-cfps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      conferences: ${{ steps.find.outputs.conferences }}
+      count: ${{ steps.find.outputs.count }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find CFPs closing soon
+        id: find
+        env:
+          # Pass inputs via env to prevent injection
+          DAYS_AHEAD: ${{ inputs.days_ahead || 3 }}
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+
+          # Use env vars safely in Python
+          python3 << 'FINDER'
+          import yaml
+          import json
+          import os
+          import sys
+          from datetime import datetime, timedelta
+
+          days_ahead = int(os.environ.get('DAYS_AHEAD', '3'))
+          today = datetime.now().date()
+          check_until = today + timedelta(days=days_ahead)
+
+          try:
+              with open("_data/conferences.yml") as f:
+                  confs = yaml.safe_load(f) or []
+          except Exception as e:
+              print(f"ERROR: Could not load conferences.yml: {e}", file=sys.stderr)
+              confs = []
+
+          closing_soon = []
+
+          for conf in confs:
+              name = conf.get("conference", "Unknown")
+
+              # Get the effective CFP deadline
+              cfp_str = conf.get("cfp_ext") or conf.get("cfp", "TBA")
+              has_extension = conf.get("cfp_ext") is not None
+
+              if cfp_str in ("TBA", "Cancelled", "None"):
+                  continue
+
+              try:
+                  cfp_date = datetime.strptime(cfp_str[:10], "%Y-%m-%d").date()
+              except ValueError:
+                  continue
+
+              # Include CFPs closing within window or just closed (extension check)
+              extension_window_start = today - timedelta(days=3)
+
+              if extension_window_start <= cfp_date <= check_until:
+                  url = str(conf.get("link", ""))
+
+                  if cfp_date < today:
+                      check_type = "extension_check"
+                      reason = f"CFP closed {cfp_date}, checking for extension"
+                  elif cfp_date == today:
+                      check_type = "closing_today"
+                      reason = "CFP closes today!"
+                  else:
+                      days_left = (cfp_date - today).days
+                      check_type = "closing_soon"
+                      reason = f"CFP closes in {days_left} days ({cfp_date})"
+
+                  # Skip if already has extension and past deadline
+                  if has_extension and cfp_date < today:
+                      print(f"Skip: {name} - already extended, past deadline", file=sys.stderr)
+                      continue
+
+                  closing_soon.append({
+                      "conference": name,
+                      "url": url,
+                      "cfp_date": str(cfp_date),
+                      "has_extension": has_extension,
+                      "check_type": check_type,
+                      "reason": reason
+                  })
+                  print(f"✓ {name}: {reason}")
+
+          print(f"\nFound {len(closing_soon)} conferences to check")
+
+          with open("/tmp/closing_cfps.json", "w") as f:
+              json.dump(closing_soon, f)
+          FINDER
+
+          # Read results safely
+          CONFERENCES=$(cat /tmp/closing_cfps.json)
+          COUNT=$(echo "$CONFERENCES" | jq 'length')
+
+          echo "conferences=$(echo "$CONFERENCES" | jq -c '.')" >> $GITHUB_OUTPUT
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+          # Summary
+          echo "## CFPs Closing Soon" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Checking CFPs closing within **$DAYS_AHEAD days**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "$COUNT" -gt 0 ]; then
+            echo "| Conference | CFP Date | Status |" >> $GITHUB_STEP_SUMMARY
+            echo "|------------|----------|--------|" >> $GITHUB_STEP_SUMMARY
+            echo "$CONFERENCES" | jq -r '.[] | "| \(.conference) | \(.cfp_date) | \(.reason) |"' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No CFPs closing soon ✅" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # Trigger checks for each conference
+  trigger-checks:
+    needs: find-closing-cfps
+    if: needs.find-closing-cfps.outputs.count != '0' && inputs.dry_run != true
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        conference: ${{ fromJson(needs.find-closing-cfps.outputs.conferences) }}
+      max-parallel: 1  # Conservative to avoid rate limits
+      fail-fast: false
+
+    steps:
+      - name: Trigger extension check
+        env:
+          # Pass matrix values via env for safety
+          CONF_NAME: ${{ matrix.conference.conference }}
+          CONF_URL: ${{ matrix.conference.url }}
+          CONF_REASON: ${{ matrix.conference.reason }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Triggering check for: $CONF_NAME"
+          echo "URL: $CONF_URL"
+          echo "Reason: $CONF_REASON"
+
+          # Use gh CLI for safe API call
+          gh api repos/${{ github.repository }}/dispatches \
+            -f event_type=conference-change \
+            -f "client_payload[url]=$CONF_URL" \
+            -f "client_payload[title]=$CONF_NAME" \
+            -f "client_payload[watch_uuid]=" \
+            -f "client_payload[diff]=Scheduled extension check: $CONF_REASON" \
+            -f "client_payload[source]=scheduled-checker"
+
+          echo "✓ Triggered"
+
+      - name: Rate limit pause
+        run: sleep 10  # Generous pause between triggers
+
+  # Summary
+  summary:
+    needs: [find-closing-cfps, trigger-checks]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Final summary
+        env:
+          COUNT: ${{ needs.find-closing-cfps.outputs.count }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          echo "## Extension Checker Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$COUNT" = "0" ]; then
+            echo "✅ No CFPs closing soon" >> $GITHUB_STEP_SUMMARY
+          elif [ "$DRY_RUN" = "true" ]; then
+            echo "🔍 **Dry run** - found $COUNT conferences (not triggered)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "🚀 Triggered checks for **$COUNT** conferences" >> $GITHUB_STEP_SUMMARY
+          fi
