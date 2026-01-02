@@ -33,7 +33,9 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: read  # Default minimal permissions
+  contents: write
+  pull-requests: write
+  issues: write
 
 jobs:
   # Stage 0: Determine monitoring zone BEFORE spending money on triage
