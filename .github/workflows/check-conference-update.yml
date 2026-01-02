@@ -26,6 +26,9 @@ jobs:
   # Stage 1: Quick triage using the diff (cheap, uses Haiku)
   triage:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     outputs:
       should_analyze: ${{ steps.parse.outputs.should_analyze }}
       triage_reason: ${{ steps.parse.outputs.reason }}
@@ -69,7 +72,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           model: claude-haiku-4-5-20251001
-          prompt: |
+          direct_prompt: |
             You are a quick triage filter for a Python conference tracking website.
 
             A change was detected on: ${{ steps.vars.outputs.url }}
@@ -367,6 +370,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      id-token: write
 
     env:
       UPDATE_BRANCH: auto/conference-updates
@@ -439,7 +443,7 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           model: claude-haiku-4-5-20251001
-          prompt: |
+          direct_prompt: |
             You are helping maintain pythondeadlin.es, a website tracking Python conference deadlines.
 
             ## Task
