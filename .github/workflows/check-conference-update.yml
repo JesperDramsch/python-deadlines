@@ -746,6 +746,7 @@ jobs:
           CONF_URL: ${{ needs.zone-check.outputs.url }}
           CONF_ZONE: ${{ needs.zone-check.outputs.zone }}
         run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
           git add _data/conferences.yml
           git commit -m "conf: ${CONF_NAME}" -m "Source: ${CONF_URL}" -m "Zone: ${CONF_ZONE}"
           git push origin $UPDATE_BRANCH --force-with-lease
@@ -976,6 +977,7 @@ jobs:
           fi
 
           echo "changed=true" >> $GITHUB_OUTPUT
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
           git add _data/conferences.yml
           git commit -m "conf: ${CONF_NAME} ${DETECTED_YEAR} 🆕" -m "New year detected" -m "Source: ${CONF_URL}"
           git push origin $UPDATE_BRANCH --force-with-lease
