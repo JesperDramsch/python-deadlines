@@ -84,11 +84,13 @@
   year: 2026
   link: https://2026.pycon.de/
   cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
-  cfp: '2025-12-21 23:59:59'
+  cfp: '2026-01-11 23:59:59'
+  cfp_ext: '2025-12-21 23:59:59'
   timezone: Europe/Berlin
   place: Darmstadt, Germany
-  start: 2026-04-13
+  start: 2026-04-14
   end: 2026-04-17
+  finaid: https://2026.pycon.de/
   sub: PY,DATA
   location:
   - title: PyCon Germany & PyData Conference 2026
