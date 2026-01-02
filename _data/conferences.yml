@@ -66,12 +66,13 @@
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2026
-  link: https://pycon.it/en
+  link: https://2026.pycon.it/en
   cfp_link: https://pycon.it/cfp
   cfp: '2026-01-06 23:59:59'
   place: Bologna, Italy
   start: 2026-05-27
   end: 2026-05-30
+  finaid: https://2026.pycon.it/en
   mastodon: https://social.python.it/@pycon
   sub: PY
   location:
@@ -84,11 +85,13 @@
   year: 2026
   link: https://2026.pycon.de/
   cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
-  cfp: '2025-12-21 23:59:59'
+  cfp: '2026-01-11 23:59:59'
+  cfp_ext: '2025-12-21 23:59:59'
   timezone: Europe/Berlin
   place: Darmstadt, Germany
-  start: 2026-04-13
+  start: 2026-04-14
   end: 2026-04-17
+  finaid: https://2026.pycon.de/
   sub: PY,DATA
   location:
   - title: PyCon Germany & PyData Conference 2026
@@ -97,7 +100,7 @@
 
 - conference: PyCon US
   year: 2026
-  link: https://us.pycon.org/2026/
+  link: https://us.pycon.org
   cfp_link: https://us.pycon.org/2026/speaking/talks/
   cfp: '2025-12-19 23:59:00'
   place: Long Beach, USA
