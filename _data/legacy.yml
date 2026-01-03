@@ -1,5 +1,33 @@
 ---
 
+- conference: Wagtail Space US
+  year: 2018
+  link: https://web.archive.org/web/20180531043322/https://us.wagtail.space/
+  cfp: None
+  place: Philadelphia, USA
+  start: 2018-06-14
+  end: 2018-06-16
+  mastodon: https://fosstodon.org/@wagtail
+  sub: WEB
+  location:
+  - title: Wagtail Space US 2018
+    latitude: 39.9533
+    longitude: -75.198
+
+- conference: Wagtail Space Netherlands
+  year: 2018
+  link: https://web.archive.org/web/20171219231516/http://www.wagtail.space/
+  cfp: None
+  place: Arnhem, Netherlands
+  start: 2018-03-14
+  end: 2018-03-16
+  mastodon: https://fosstodon.org/@wagtail
+  sub: WEB
+  location:
+  - title: Wagtail Space Netherlands 2018
+    latitude: 51.984257
+    longitude: 5.9108573
+
 - conference: Wagtail Space Netherlands
   year: 2017
   link: https://web.archive.org/web/20161222235503/https://www.wagtail.space/
@@ -13,6 +41,33 @@
   - title: Wagtail Space Netherlands 2017
     latitude: 51.984257
     longitude: 5.9108573
+
+- conference: Wagtail Space Minsk
+  year: 2018
+  link: https://minsk.wagtail.space/
+  cfp: None
+  place: Minsk, Belarus
+  start: 2018-10-27
+  end: 2018-10-28
+  mastodon: https://fosstodon.org/@wagtail
+  sub: WEB
+  location:
+  - title: Wagtail Space Minsk 2018
+    latitude: 53.8901239
+    longitude: 27.5693855
+
+- conference: Swiss Python Summit
+  year: 2018
+  link: https://web.archive.org/web/20180205001500/http://www.python-summit.ch/
+  cfp: '2017-10-31 23:59:00'
+  place: Rapperswil, Switzerland
+  start: 2018-02-16
+  end: 2018-02-16
+  sub: PY
+  location:
+  - title: Swiss Python Summit 2018
+    latitude: 47.2266532
+    longitude: 8.8164042
 
 - conference: Swiss Python Summit
   year: 2017
@@ -39,6 +94,20 @@
   - title: Swiss Python Summit 2016
     latitude: 47.2266532
     longitude: 8.8164042
+
+- conference: SciPy US
+  alt_name: SciPy
+  year: 2018
+  link: https://web.archive.org/web/20190625030722/https://scipy2018.scipy.org/
+  cfp: '2018-02-15 23:59:00'
+  place: Austin, USA
+  start: 2018-07-09
+  end: 2018-07-15
+  sub: SCIPY
+  location:
+  - title: SciPy US 2018
+    latitude: 30.2711286
+    longitude: -97.7436995
 
 - conference: SciPy US
   alt_name: SciPy
@@ -267,6 +336,21 @@
 
 - conference: SciPy Latin America
   alt_name: SciPyLA
+  year: 2018
+  link: https://web.archive.org/web/20180518213755/http://conf.scipyla.org/scipyla2018/
+  cfp: '2018-07-22 00:07:00'
+  timezone: UTC
+  place: Curitiba, Brazil
+  start: 2018-08-29
+  end: 2018-09-01
+  sub: SCIPY
+  location:
+  - title: SciPy Latin America 2018
+    latitude: -25.4295963
+    longitude: -49.2712724
+
+- conference: SciPy Latin America
+  alt_name: SciPyLA
   year: 2016
   link: https://web.archive.org/web/20160518213755/http://conf.scipyla.org/scipyla2016/
   cfp: '2016-04-08 23:59:00'
@@ -319,6 +403,19 @@
   - title: SciPy Latin America 2013
     latitude: -42.7729674
     longitude: -65.0366104
+
+- conference: SciPy India
+  year: 2018
+  link: https://web.archive.org/web/20190424124043/https://scipy.in/2018
+  cfp: '2018-12-03 23:59:00'
+  place: Mumbai, India
+  start: 2018-12-21
+  end: 2018-12-22
+  sub: SCIPY
+  location:
+  - title: SciPy India 2018
+    latitude: 18.9733536
+    longitude: 72.82810491917377
 
 - conference: SciPy India
   year: 2017
@@ -533,6 +630,32 @@
     latitude: -29.1685045
     longitude: -51.1796385
 
+- conference: Python Serbia
+  year: 2018
+  link: https://web.archive.org/web/20180326165724/https://pyser.org
+  cfp: '2018-05-06 23:59:00'
+  place: Novi Sad, Serbia
+  start: 2018-06-09
+  end: 2018-06-09
+  sub: PY
+  location:
+  - title: Python Serbia 2018
+    latitude: 45.2551338
+    longitude: 19.8451756
+
+- conference: Python San Sebastian
+  year: 2018
+  link: https://web.archive.org/web/20181008223234/http://pyss18.pyss.org/
+  cfp: '2018-09-15 23:59:00'
+  place: Kursaal, Spain
+  start: 2018-10-12
+  end: 2018-10-15
+  sub: PY
+  location:
+  - title: Python San Sebastian 2018
+    latitude: 43.3222716
+    longitude: -1.9856145
+
 - conference: Python San Sebastian
   year: 2017
   link: https://web.archive.org/web/20170909095524/http://pyss17.pyss.org/
@@ -584,6 +707,23 @@
   - title: Python San Sebastian 2014
     latitude: 43.3224219
     longitude: -1.9838889
+
+- conference: Python Nordeste
+  year: 2018
+  link: https://web.archive.org/web/20181220005202/https://2018.pythonnordeste.org/
+  cfp_link: https://web.archive.org/web/20210516001802/https://speakerfight.com/events/python-nordeste-2018-24-25-e-26-de-maio-campina-grandepb-palestras/
+  cfp: '2018-04-20 23:00:00'
+  cfp_ext: '2018-04-27 23:55:00'
+  timezone: America/Recife
+  place: Campina Grande, Brazil
+  start: 2018-05-24
+  end: 2018-05-26
+  twitter: pythonnordeste
+  sub: PY
+  location:
+  - title: Python Nordeste 2018
+    latitude: -7.23056
+    longitude: -35.88111
 
 - conference: Python Nordeste
   year: 2017
@@ -688,6 +828,20 @@
     longitude: -74.0060152
 
 - conference: Python in Astronomy
+  year: 2018
+  link: https://openastronomy.org/pyastro/2018/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSeMA_t_fD86AJ0v2dI5iRgsQOoIW7ZavsnRd6JTi_LTHlrEeQ/closedform
+  cfp: '2017-10-16 23:59:00'
+  place: New York, USA
+  start: 2018-04-30
+  end: 2018-05-04
+  sub: DATA
+  location:
+  - title: Python in Astronomy 2018
+    latitude: 40.7127281
+    longitude: -74.0060152
+
+- conference: Python in Astronomy
   year: 2017
   link: https://openastronomy.org/pyastro/2017/
   cfp: '2016-12-09 23:59:00'
@@ -725,6 +879,20 @@
   - title: Python in Astronomy 2015
     latitude: 52.1594747
     longitude: 4.4908843
+
+- conference: Python Brasil
+  alt_name: PythonBrasil[14]
+  year: 2018
+  link: https://web.archive.org/web/20180816032212/https://2018.pythonbrasil.org.br/
+  cfp: '2018-10-14 23:59:00'
+  place: Natal, Brazil
+  start: 2018-10-17
+  end: 2018-10-22
+  sub: PY
+  location:
+  - title: Python Brasil 2018
+    latitude: -5.7944777
+    longitude: -35.2119324
 
 - conference: Python Brasil
   alt_name: PythonBrasil[13]
@@ -955,6 +1123,19 @@
     longitude: -96.3455991
 
 - conference: PyTennessee
+  year: 2018
+  link: https://web.archive.org/web/20180324221914/https://www.pytennessee.org
+  cfp: '2017-11-01 23:59:00'
+  place: Nashville, USA
+  start: 2018-02-10
+  end: 2018-02-12
+  sub: PY
+  location:
+  - title: PyTennessee 2018
+    latitude: 36.1622767
+    longitude: -86.7742984
+
+- conference: PyTennessee
   year: 2017
   link: https://web.archive.org/web/20170609204820/http://www.pytennessee.org/
   cfp: '2017-11-15 23:59:00'
@@ -995,6 +1176,19 @@
     latitude: 36.1622767
     longitude: -86.7742984
 
+- conference: PySangamam
+  year: 2018
+  link: https://web.archive.org/web/20181120212752/https://pysangamam.org/
+  cfp: '2018-07-01 23:59:00'
+  place: Tamil Nadu, India
+  start: 2018-09-07
+  end: 2018-09-08
+  sub: PY
+  location:
+  - title: PySangamam 2018
+    latitude: 10.9094334
+    longitude: 78.3665347
+
 - conference: PyPOA
   year: 2014
   link: https://web.archive.org/web/20140531064837/http://pypoa.org/
@@ -1007,6 +1201,20 @@
   - title: PyPOA 2014
     latitude: -30.0324999
     longitude: -51.2303767
+
+- conference: PyParis
+  year: 2018
+  link: https://web.archive.org/web/20181107132342/http://www.pyparis.org/
+  cfp: '2018-09-30 23:59:00'
+  cfp_ext: '2018-10-07'
+  place: Paris, France
+  start: 2018-11-14
+  end: 2018-11-15
+  sub: PY
+  location:
+  - title: PyParis 2018
+    latitude: 48.8588897
+    longitude: 2.3200410217200766
 
 - conference: PyParis
   year: 2017
@@ -1175,6 +1383,33 @@
     latitude: 48.1371079
     longitude: 11.5753822
 
+- conference: PyLondinium
+  year: 2018
+  link: https://web.archive.org/web/20180503095204/https://pylondinium.org/
+  cfp_link: https://web.archive.org/web/20180503095204/https://www.papercall.io/pylondinium
+  cfp: '2018-04-15 23:59:00'
+  place: London, UK
+  start: 2018-06-08
+  end: 2018-06-10
+  sub: PY
+  location:
+  - title: PyLondinium 2018
+    latitude: 51.5074456
+    longitude: -0.1277653
+
+- conference: PyHPC
+  year: 2018
+  link: https://web.archive.org/web/20201023081255/https://www.dlr.de/sc/desktopdefault.aspx/tabid-12954/22625_read-52397/
+  cfp: '2018-09-09 23:59:00'
+  place: Dallas, USA
+  start: 2018-11-12
+  end: 2018-11-12
+  sub: SCIPY
+  location:
+  - title: PyHPC 2018
+    latitude: 32.7762719
+    longitude: -96.7968559
+
 - conference: PyHPC
   year: 2017
   link: https://web.archive.org/web/20171116191554/http://www.dlr.de/sc/desktopdefault.aspx/tabid-11992/21071_read-48990
@@ -1267,6 +1502,19 @@
   - title: PyHPC 2011
     latitude: 47.6038321
     longitude: -122.330062
+
+- conference: PyHEP
+  year: 2018
+  link: https://web.archive.org/web/20180818114457/https://indico.cern.ch/event/694818/
+  cfp: None
+  place: Sofia, Bulgaria
+  start: 2018-07-07
+  end: 2018-07-08
+  sub: SCIPY
+  location:
+  - title: PyHEP 2018
+    latitude: 42.6977028
+    longitude: 23.3217359
 
 - conference: PyGrunn
   year: 2017
@@ -1375,6 +1623,20 @@
     longitude: 6.5680077
 
 - conference: PyGotham TV
+  year: 2018
+  link: https://web.archive.org/web/20181002121351/https://2018.pygotham.org/
+  cfp_link: https://web.archive.org/web/20181003091856/https://www.papercall.io/pygotham-2018
+  cfp: '2018-05-21 23:59:00'
+  place: New York, USA
+  start: 2018-10-05
+  end: 2018-10-06
+  sub: PY
+  location:
+  - title: PyGotham TV 2018
+    latitude: 40.7127281
+    longitude: -74.0060152
+
+- conference: PyGotham TV
   year: 2017
   link: https://web.archive.org/web/20171009205218/https://2017.pygotham.org
   cfp_link: https://web.archive.org/web/20170718060725/https://www.papercall.io/pygotham-2017
@@ -1471,6 +1733,20 @@
     longitude: 77.2090057
 
 - conference: PyDays Vienna
+  year: 2018
+  link: https://web.archive.org/web/20180430140857/https://www.pydays.at/
+  cfp_link: https://web.archive.org/web/20201108001255/https://www.pydays.at/cfp/
+  cfp: '2018-03-26 23:59:00'
+  place: Vienna, Austria
+  start: 2018-05-04
+  end: 2018-05-05
+  sub: DAY,PY
+  location:
+  - title: PyDays Vienna 2018
+    latitude: 48.2391664
+    longitude: 16.3774409
+
+- conference: PyDays Vienna
   year: 2017
   link: https://web.archive.org/web/20170508050023/http://pydays.at/
   cfp_link: https://web.archive.org/web/20170324235437/https://pydays.at/_static/cfp.html
@@ -1483,6 +1759,21 @@
   - title: PyDays Vienna 2017
     latitude: 48.2391664
     longitude: 16.3774409
+
+- conference: PyDay Tenerife
+  alt_name: PyDay TF
+  year: 2018
+  link: https://pythoncanarias.es/events/pydaytf18/
+  cfp_link: https://pythoncanarias.es/events/pydaytf18/cfp/
+  cfp: None
+  place: Tenerife, Spain
+  start: 2018-11-17
+  end: 2018-11-17
+  sub: PY
+  location:
+  - title: PyDay TF 2018
+    latitude: 28.2935785
+    longitude: -16.621447121144122
 
 - conference: PyDay Quito
   year: 2016
@@ -1509,6 +1800,20 @@
   - title: PyDay Piura 2016
     latitude: -5.0
     longitude: -80.333333
+
+- conference: PyDay Mexico
+  year: 2018
+  link: https://pythondaymx.github.io/
+  cfp_link: https://web.archive.org/web/20180717155533/https://www.papercall.io/pydaymx2018
+  cfp: '2018-09-01 23:09:00'
+  place: Guadalajara, Mexico
+  start: 2018-11-30
+  end: 2018-12-01
+  sub: DAY
+  location:
+  - title: PyDay Mexico 2018
+    latitude: 20.6720375
+    longitude: -103.338396
 
 - conference: PyDay Mexico
   year: 2017
@@ -1550,6 +1855,20 @@
     latitude: -24.5955306
     longitude: -60.4289718
 
+- conference: PyDay Cali
+  year: 2018
+  link: https://web.archive.org/web/20231204095020/https://www.calidev.co/eventos/pyday/cali-2018/
+  cfp_link: https://www.papercall.io/pyday-cali
+  cfp: '2018-09-30 08:09:10'
+  place: Cali, Colombia
+  start: 2018-10-27
+  end: 2018-10-27
+  sub: DAY
+  location:
+  - title: PyDay Cali 2018
+    latitude: 3.4520339
+    longitude: -76.5329352
+
 - conference: PyDay Asunción
   year: 2015
   link: https://web.archive.org/web/20150326072907/http://pyday.pythonpy.org/
@@ -1564,6 +1883,20 @@
     longitude: -57.6343814
 
 - conference: PyData Washington DC
+  year: 2018
+  link: https://web.archive.org/web/20181007055823/http://pydata.org/dc2018/cfp
+  cfp: '2018-08-11 23:59:00'
+  timezone: America/New_York
+  place: Washington DC, USA
+  start: 2018-11-16
+  end: 2018-11-18
+  sub: DATA
+  location:
+  - title: PyData Washington DC 2018
+    latitude: 38.8950368
+    longitude: -77.0365427
+
+- conference: PyData Washington DC
   year: 2016
   link: https://web.archive.org/web/20161007055823/http://pydata.org/dc2016/
   cfp: '2016-08-01 23:59:00'
@@ -1576,6 +1909,19 @@
   - title: PyData Washington DC 2016
     latitude: 38.8950368
     longitude: -77.0365427
+
+- conference: PyData Warsaw
+  year: 2018
+  link: https://web.archive.org/web/20210923203834/https://pydata.org/warsaw2018/
+  cfp: '2018-07-31 23:59:00'
+  place: Warsaw, Poland
+  start: 2018-11-18
+  end: 2018-11-21
+  sub: DATA
+  location:
+  - title: PyData Warsaw 2018
+    latitude: 52.2319581
+    longitude: 21.0067249
 
 - conference: PyData Warsaw
   year: 2017
@@ -1713,6 +2059,19 @@
     longitude: 2.3200410217200766
 
 - conference: PyData NYC
+  year: 2018
+  link: https://web.archive.org/web/20180924054748/https://pydata.org/nyc2018/
+  cfp: '2018-08-15 23:59:00'
+  place: New York, USA
+  start: 2018-10-17
+  end: 2018-10-19
+  sub: DATA
+  location:
+  - title: PyData NYC 2018
+    latitude: 40.7127281
+    longitude: -74.0060152
+
+- conference: PyData NYC
   year: 2017
   link: https://web.archive.org/web/20170817062616/https://pydata.org/nyc2017/
   cfp: '2017-09-22 23:59:00'
@@ -1778,6 +2137,34 @@
   - title: PyData Madrid 2016
     latitude: 40.4167047
     longitude: -3.7035825
+
+- conference: PyData Los Angeles
+  year: 2018
+  link: https://web.archive.org/web/20180924054904/https://pydata.org/la2018/
+  cfp_link: https://web.archive.org/web/20180818024415/https://pydata.org/la2018/cfp/
+  cfp: '2018-08-19 23:59:00'
+  place: Los Angeles, USA
+  start: 2018-10-21
+  end: 2018-10-23
+  sub: DATA
+  location:
+  - title: PyData Los Angeles 2018
+    latitude: 34.0536909
+    longitude: -118.242766
+
+- conference: PyData London
+  year: 2018
+  link: https://web.archive.org/web/20180506090238/https://pydata.org/london2018/
+  cfp_link: https://web.archive.org/web/20180214042529/https://pydata.org/london2018/cfp/
+  cfp: '2018-03-02 23:59:00'
+  place: London, UK
+  start: 2018-04-26
+  end: 2018-04-29
+  sub: DATA
+  location:
+  - title: PyData London 2018
+    latitude: 51.5074456
+    longitude: -0.1277653
 
 - conference: PyData London
   year: 2017
@@ -1860,6 +2247,20 @@
     longitude: 18.4633105
 
 - conference: PyData Delhi
+  year: 2018
+  link: https://web.archive.org/web/20180818153520/http://pydata.org/delhi2018/
+  cfp_link: https://web.archive.org/web/20180714122043/http://delhi.pydata.org/blog/announcing-pydd18/
+  cfp: '2018-06-20 23:59:00'
+  place: New Delhi, India
+  start: 2018-08-11
+  end: 2018-08-12
+  sub: DATA
+  location:
+  - title: PyData Delhi 2018
+    latitude: 28.6138954
+    longitude: 77.2090057
+
+- conference: PyData Delhi
   year: 2017
   link: https://web.archive.org/web/20210416150353/http://pydata.org/delhi2017/
   cfp: '2017-08-05 23:59:00'
@@ -1885,6 +2286,19 @@
   - title: PyData Dallas 2015
     latitude: 33.0136764
     longitude: -96.6925096
+
+- conference: PyData Cordoba
+  year: 2018
+  link: https://web.archive.org/web/20180924054609/https://pydata.org/cordoba2018/
+  cfp: '2018-07-30 23:59:59'
+  place: Cordoba, Argentina
+  start: 2018-09-29
+  end: 2018-09-30
+  sub: DATA
+  location:
+  - title: PyData Cordoba 2018
+    latitude: -31.4166867
+    longitude: -64.1834193
 
 - conference: PyData Cologne
   year: 2016
@@ -1939,6 +2353,20 @@
   - title: PyData Boston 2013
     latitude: 42.3655767
     longitude: -71.1040018
+
+- conference: PyData Berlin
+  year: 2018
+  link: https://web.archive.org/web/20190112064656/https://pydata.org/berlin2018/
+  cfp: '2018-03-31 23:59:59'
+  timezone: Europe/Berlin
+  place: Berlin, Germany
+  start: 2018-07-06
+  end: 2018-07-08
+  sub: DATA
+  location:
+  - title: PyData Berlin 2018
+    latitude: 52.5170365
+    longitude: 13.3888599
 
 - conference: PyData Berlin
   year: 2017
@@ -2010,6 +2438,19 @@
     longitude: 2.1774322
 
 - conference: PyData Amsterdam
+  year: 2018
+  link: https://web.archive.org/web/20210805170103/https://pydata.org/amsterdam2018/
+  cfp: '2018-03-04 23:59:00'
+  place: Amsterdam, Netherlands
+  start: 2018-05-25
+  end: 2018-05-27
+  sub: DATA
+  location:
+  - title: PyData Amsterdam 2018
+    latitude: 52.4111289
+    longitude: 4.877231604293446
+
+- conference: PyData Amsterdam
   year: 2017
   link: https://web.archive.org/web/20170120092836/http://pydata.org/amsterdam2017/
   cfp: '2017-03-05 23:59:00'
@@ -2051,6 +2492,21 @@
     longitude: 78.34854697544472
 
 - conference: PyCon Zimbabwe
+  year: 2018
+  link: https://web.archive.org/web/20180825103507/http://zw.pycon.org/
+  cfp_link: https://web.archive.org/web/20201029122759/https://www.papercall.io/pyconzim2018
+  cfp: '2018-09-19 16:09:00'
+  timezone: Africa/Harare
+  place: Harare, Zimbabwe
+  start: 2018-10-19
+  end: 2018-10-20
+  sub: PY
+  location:
+  - title: PyCon Zimbabwe 2018
+    latitude: -17.8567035
+    longitude: 31.0601584
+
+- conference: PyCon Zimbabwe
   year: 2017
   link: https://web.archive.org/web/20170825103507/http://zw.pycon.org/
   cfp: '2017-08-15 23:59:00'
@@ -2064,6 +2520,19 @@
     longitude: 31.0601584
 
 - conference: PyCon Web
+  year: 2018
+  link: https://web.archive.org/web/20180817005719/https://pyconweb.com/
+  cfp: Cancelled
+  place: Munich, Germany
+  start: 2018-06-30
+  end: 2018-07-02
+  sub: PY
+  location:
+  - title: PyCon Web 2018
+    latitude: 48.1371079
+    longitude: 11.5753822
+
+- conference: PyCon Web
   year: 2017
   link: https://web.archive.org/web/20170621095045/https://pyconweb.com/
   cfp: '2017-03-15 00:00:00'
@@ -2075,6 +2544,19 @@
   - title: PyConWeb 2017
     latitude: 48.1371079
     longitude: 11.5753822
+
+- conference: PyCon US
+  year: 2018
+  link: https://web.archive.org/web/20180509145212/https://us.pycon.org/2018/
+  cfp: '2018-01-03 23:59:00'
+  place: Cleveland, USA
+  start: 2018-05-09
+  end: 2018-05-17
+  sub: PY
+  location:
+  - title: PyCon US 2018
+    latitude: 41.4996574
+    longitude: -81.6936772
 
 - conference: PyCon US
   year: 2017
@@ -2350,6 +2832,19 @@
     longitude: 30.5241361
 
 - conference: PyCon UK
+  year: 2018
+  link: https://web.archive.org/web/20180612191355/https://2018.pyconuk.org/
+  cfp: '2018-06-15 23:59:00'
+  place: Cardiff, UK
+  start: 2018-09-15
+  end: 2018-09-19
+  sub: PY
+  location:
+  - title: PyCon UK 2018
+    latitude: 51.4816546
+    longitude: -3.1791934
+
+- conference: PyCon UK
   year: 2017
   link: https://web.archive.org/web/20171023090724/http://2017.pyconuk.org/
   cfp: '2017-08-10 23:59:00'
@@ -2505,6 +3000,33 @@
     latitude: 52.4796992
     longitude: -1.9026911
 
+- conference: PyCon Thailand
+  year: 2018
+  link: https://web.archive.org/web/20180805015539/https://th.pycon.org/en/
+  cfp: '2018-04-17 23:59:00'
+  place: Thon Buri, Thailand
+  start: 2018-06-16
+  end: 2018-06-18
+  sub: PY
+  location:
+  - title: PyCon Thailand 2018
+    latitude: 13.7263574
+    longitude: 100.4891324
+
+- conference: PyCon Taiwan
+  alt_name: PyCon TW
+  year: 2018
+  link: https://web.archive.org/web/20181111081053/https://tw.pycon.org/2018/en-us/
+  cfp: '2018-03-11 23:59:00'
+  place: Taipei, Taiwan
+  start: 2018-06-01
+  end: 2018-06-02
+  sub: PY
+  location:
+  - title: PyCon Taiwan 2018
+    latitude: 25.0375198
+    longitude: 121.5636796
+
 - conference: PyCon Taiwan
   alt_name: PyCon TW
   year: 2017
@@ -2560,6 +3082,21 @@
   - title: PyCon Taiwan 2012
     latitude: 25.0420743
     longitude: 121.61404600926753
+
+- conference: PyCon Sweden
+  alt_name: PyCon SE
+  year: 2018
+  link: https://web.archive.org/web/20181214135925/http://www.pycon.se/
+  cfp: '2018-10-16 23:59:00'
+  timezone: Europe/Stockholm
+  place: Stockholm, Sweden
+  start: 2018-12-12
+  end: 2018-12-12
+  sub: PY
+  location:
+  - title: PyCon Sweden 2018
+    latitude: 59.3251172
+    longitude: 18.0710935
 
 - conference: PyCon Sweden
   alt_name: PyCon SE
@@ -2619,6 +3156,21 @@
   - title: PyCon Sweden 2014
     latitude: 59.3251172
     longitude: 18.0710935
+
+- conference: PyCon Spain
+  alt_name: PyCon ES
+  year: 2018
+  link: https://web.archive.org/web/*/https://2018.es.pycon.org/
+  cfp_link: https://web.archive.org/web/20240822193129/https://www.papercall.io/pycones2018
+  cfp: '2018-07-06 23:59:00'
+  place: Malaga, Spain
+  start: 2018-10-05
+  end: 2018-10-07
+  sub: PY
+  location:
+  - title: PyCon Spain 2018
+    latitude: 36.7213028
+    longitude: -4.4216366
 
 - conference: PyCon Spain
   alt_name: PyCon ES
@@ -2695,6 +3247,20 @@
 
 - conference: PyCon South Korea
   alt_name: PyCon Korea
+  year: 2018
+  link: http://web.archive.org/web/20180304011806/https://www.pycon.kr/2018/
+  cfp: '2018-05-13 23:59:00'
+  place: Seoul, South Korea
+  start: 2018-08-15
+  end: 2018-08-20
+  sub: PY
+  location:
+  - title: PyCon South Korea 2018
+    latitude: 37.5666791
+    longitude: 126.9782914
+
+- conference: PyCon South Korea
+  alt_name: PyCon Korea
   year: 2017
   link: http://web.archive.org/web/20170304011806/https://www.pycon.kr/2017/
   cfp: '2017-05-27 23:59:00'
@@ -2734,6 +3300,21 @@
   - title: PyCon South Korea 2014
     latitude: 37.5666791
     longitude: 126.9782914
+
+- conference: PyCon South Africa
+  alt_name: PyCon ZA
+  year: 2018
+  link: https://web.archive.org/web/20180419141939/https://za.pycon.org/
+  cfp_link: https://2018.za.pycon.org/archived/submit-talk/
+  cfp: '2018-09-17 23:59:00'
+  place: Johannesburg, South Africa
+  start: 2018-10-10
+  end: 2018-10-14
+  sub: PY
+  location:
+  - title: PyCon South Africa 2018
+    latitude: -26.205
+    longitude: 28.049722
 
 - conference: PyCon South Africa
   alt_name: PyCon ZA
@@ -2824,6 +3405,20 @@
 
 - conference: PyCon Slovakia
   alt_name: PyCon SK
+  year: 2018
+  link: https://web.archive.org/web/20180310093230/https://2018.pycon.sk/en/
+  cfp: '2018-01-21 23:59:00'
+  place: Bratislava, Slovakia
+  start: 2018-03-09
+  end: 2018-03-11
+  sub: PY
+  location:
+  - title: PyCon Slovakia 2018
+    latitude: 48.1516988
+    longitude: 17.1093063
+
+- conference: PyCon Slovakia
+  alt_name: PyCon SK
   year: 2017
   link: https://web.archive.org/web/20170306082548/http://www.pycon.sk/2017/
   cfp_link: https://web.archive.org/web/20220124234710/https://2017.pycon.sk/cfp/
@@ -2851,6 +3446,19 @@
   - title: PyCon Slovakia 2016
     latitude: 48.1516988
     longitude: 17.1093063
+
+- conference: PyCon Singapore
+  year: 2018
+  link: https://web.archive.org/web/20180425194853/https://pycon.sg/
+  cfp: '2018-05-01 23:59:00'
+  place: Singapore, Singapore
+  start: 2018-05-31
+  end: 2018-06-02
+  sub: PY
+  location:
+  - title: PyCon Singapore 2018
+    latitude: 1.2899175
+    longitude: 103.8519072
 
 - conference: PyCon Singapore
   year: 2016
@@ -2919,6 +3527,19 @@
     longitude: 39.9326404
 
 - conference: PyCon Russia
+  year: 2018
+  link: https://web.archive.org/web/20180715034819/http://pycon.ru/2018/en/
+  cfp: '2018-06-12 23:59:00'
+  place: Gribovka, Russia
+  start: 2018-07-22
+  end: 2018-07-23
+  sub: PY
+  location:
+  - title: PyCon Russia 2018
+    latitude: 54.0357892
+    longitude: 33.882641
+
+- conference: PyCon Russia
   year: 2017
   link: https://web.archive.org/web/20170712000437/http://pycon.ru/2017/en/
   cfp: '2017-05-11 23:59:00'
@@ -2971,6 +3592,19 @@
     longitude: 60.60825
 
 - conference: PyCon Pune
+  year: 2018
+  link: https://web.archive.org/web/20180121010626/http://pune.pycon.org/2018/
+  cfp: Cancelled
+  place: Pune, India
+  start: 2018-02-08
+  end: 2018-02-11
+  sub: PY
+  location:
+  - title: PyCon Pune 2018
+    latitude: 18.52930005
+    longitude: 73.85682537025511
+
+- conference: PyCon Pune
   year: 2017
   link: https://web.archive.org/web/20170207210807/http://pune.pycon.org/
   cfp: '2017-11-30 23:59:00'
@@ -2982,6 +3616,20 @@
   - title: PyCon Pune 2017
     latitude: 18.52930005
     longitude: 73.85682537025511
+
+- conference: PyCon Poland
+  alt_name: PyCon PL
+  year: 2018
+  link: https://web.archive.org/web/20180628105952/https://pl.pycon.org/2018/
+  cfp: '2018-05-13 23:00:00'
+  place: Ossa, Poland
+  start: 2018-08-23
+  end: 2018-08-26
+  sub: PY
+  location:
+  - title: PyCon Poland 2018
+    latitude: 51.8151645
+    longitude: 20.3859912
 
 - conference: PyCon Poland
   alt_name: PyCon PL
@@ -3112,6 +3760,20 @@
 
 - conference: PyCon Philippines
   alt_name: PyCon PH
+  year: 2018
+  link: https://web.archive.org/web/20180219060618/https://pycon.python.ph/
+  cfp: '2017-12-26 23:59:00'
+  place: Manila, Philippines
+  start: 2018-02-24
+  end: 2018-02-26
+  sub: PY
+  location:
+  - title: PyCon Philippines 2018
+    latitude: 14.63989835
+    longitude: 121.07819518938447
+
+- conference: PyCon Philippines
+  alt_name: PyCon PH
   year: 2017
   link: https://web.archive.org/web/20171019052320/https://pycon.python.ph/
   cfp: '2016-11-30 23:59:00'
@@ -3183,6 +3845,19 @@
     longitude: 121.07819518938447
 
 - conference: PyCon Pakistan
+  year: 2018
+  link: https://web.archive.org/web/20181117100303/http://pycon.pk/
+  cfp: '2018-08-01 23:59:00'
+  place: Lahore, Pakistan
+  start: 2018-11-17
+  end: 2018-11-18
+  sub: PY
+  location:
+  - title: PyCon Pakistan 2018
+    latitude: 31.5656822
+    longitude: 74.3141829
+
+- conference: PyCon Pakistan
   year: 2017
   link: https://web.archive.org/web/20171219132009/http://pycon.pk/
   cfp: '2017-08-25 23:59:00'
@@ -3196,6 +3871,20 @@
     longitude: 74.3141829
 
 - conference: PyCon Nigeria
+  year: 2018
+  link: https://web.archive.org/web/20180902173538/https://pycon.ng/
+  cfp_link: https://web.archive.org/web/20181001172404/https://www.pycon.ng/speaking/overview/#proposing-a-talk
+  cfp: None
+  place: Lagos, Nigeria
+  start: 2018-09-13
+  end: 2018-09-15
+  sub: PY
+  location:
+  - title: PyCon Nigeria 2018
+    latitude: 6.4550575
+    longitude: 3.3941795
+
+- conference: PyCon Nigeria
   year: 2017
   link: https://web.archive.org/web/20170902173538/https://pycon.ng/
   cfp: None
@@ -3207,6 +3896,20 @@
   - title: PyCon Nigeria 2017
     latitude: 6.4550575
     longitude: 3.3941795
+
+- conference: PyCon Namibia
+  alt_name: PyCon NA
+  year: 2018
+  link: https://web.archive.org/web/20171121113217/https://na.pycon.org/
+  cfp: '2017-12-29 23:59:00'
+  place: Windhoek, Namibia
+  start: 2018-02-20
+  end: 2018-02-22
+  sub: PY
+  location:
+  - title: PyCon Namibia 2018
+    latitude: -22.611456150000002
+    longitude: 17.05860104184979
 
 - conference: PyCon Namibia
   alt_name: PyCon NA
@@ -3297,6 +4000,47 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyCon KyuShu
+  year: 2018
+  link: https://web.archive.org/web/20180703050657/http://kyushu.pycon.jp/
+  cfp_link: https://docs.google.com/forms/d/1Sk-jNIv1u1zB0y2XEBJo9O3rfcpap1JmyN7tV4_-vEs/closedform
+  cfp: '2018-05-20 23:59:00'
+  place: Fukuoka, Japan
+  start: 2018-06-30
+  end: 2018-06-30
+  sub: PY
+  location:
+  - title: PyCon KyuShu 2018
+    latitude: 33.6251241
+    longitude: 130.6180016
+
+- conference: PyCon Kyrgyzstan
+  year: 2018
+  link: https://web.archive.org/web/20210305183715/http://pyconkg.com/
+  cfp: None
+  place: Bishkek, Kyrgyzstan
+  start: 2018-09-09
+  end: 2018-09-09
+  sub: PY
+  location:
+  - title: PyCon Kyrgyzstan 2018
+    latitude: 42.8777895
+    longitude: 74.6066926
+
+- conference: PyCon Kenya
+  year: 2018
+  link: https://web.archive.org/web/20181011141357/https://www.pycon.or.ke/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSf2cF2KxbI9XsEIHqBA2jEzx0S4fZ4_weK3HYMo10blq1mCWw/closedform
+  cfp: '2018-09-30 23:59:00'
+  place: Nairobi, Kenya
+  start: 2018-10-25
+  end: 2018-10-26
+  sub: PY
+  location:
+  - title: PyCon Kenya 2018
+    latitude: -1.216548800565
+    longitude: 36.879042921883
+
 - conference: PyCon Kenya
   year: 2017
   link: https://web.archive.org/web/20170929035432/http://www.pycon.or.ke/
@@ -3310,6 +4054,20 @@
   - title: PyCon Kenya 2017
     latitude: -1.2136405
     longitude: 36.87930533266044
+
+- conference: PyCon Japan
+  alt_name: PyCon JP
+  year: 2018
+  link: https://web.archive.org/web/20180914150246/https://pycon.jp/2018/
+  cfp: '2018-06-15 23:59:00'
+  place: Tokyo, Japan
+  start: 2018-09-15
+  end: 2018-09-18
+  sub: PY
+  location:
+  - title: PyCon Japan 2018
+    latitude: 35.718741949999995
+    longitude: 139.73118058112317
 
 - conference: PyCon Japan
   alt_name: PyCon JP
@@ -3407,6 +4165,20 @@
   - title: PyCon Jamaica 2016
     latitude: 17.9712148
     longitude: -76.7928128
+
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2018
+  link: https://web.archive.org/web/20180407235829/https://www.pycon.it/en/
+  cfp: '2018-01-07 23:59:00'
+  place: Florence, Italy
+  start: 2018-04-19
+  end: 2018-04-22
+  sub: PY
+  location:
+  - title: PyCon Italia 2018
+    latitude: 40.038064
+    longitude: 18.4633105
 
 - conference: PyCon Italy
   alt_name: PyCon Italia
@@ -3526,6 +4298,19 @@
     longitude: 18.4633105
 
 - conference: PyCon Israel
+  year: 2018
+  link: https://web.archive.org/web/20180315123043/http://il.pycon.org/2018/
+  cfp: '2018-04-01 23:59:00'
+  place: Ramat Gan, Israel
+  start: 2018-06-04
+  end: 2018-06-06
+  sub: PY
+  location:
+  - title: PyCon Israel 2018
+    latitude: 32.0686867
+    longitude: 34.8246812
+
+- conference: PyCon Israel
   year: 2017
   link: https://web.archive.org/web/20170315123043/http://il.pycon.org/
   cfp: '2017-04-01 23:59:00'
@@ -3550,6 +4335,21 @@
   - title: PyCon Israel 2016
     latitude: 32.10050375
     longitude: 34.826677554304695
+
+- conference: PyCon Ireland
+  alt_name: PyCon IE
+  year: 2018
+  link: https://web.archive.org/web/20180828133458/https://pyconie18.python.ie/
+  cfp: '2018-09-09 23:59:59'
+  timezone: Europe/Dublin
+  place: Dublin, Ireland
+  start: 2018-11-10
+  end: 2018-11-11
+  sub: PY
+  location:
+  - title: PyCon Ireland 2018
+    latitude: 53.3498006
+    longitude: -6.2602964
 
 - conference: PyCon Ireland
   alt_name: PyCon IE
@@ -3674,6 +4474,20 @@
 
 - conference: PyCon Iran
   alt_name: Iran PyCon
+  year: 2018
+  link: https://web.archive.org/web/20180217031411/http://pycon.ir/
+  cfp: None
+  place: Tehran, Iran
+  start: 2018-02-15
+  end: 2018-02-15
+  sub: PY
+  location:
+  - title: PyCon Iran 2018
+    latitude: 35.6892523
+    longitude: 51.3896004
+
+- conference: PyCon Iran
+  alt_name: Iran PyCon
   year: 2017
   link: https://web.archive.org/web/20170208170707/http://www.pycon.ir/
   cfp: None
@@ -3730,6 +4544,20 @@
 
 - conference: PyCon Indonesia
   alt_name: PyCon ID
+  year: 2018
+  link: https://web.archive.org/web/20181021125731/http://pycon.id/
+  cfp: '2018-11-01 23:59:00'
+  place: Jakarta, Indonesia
+  start: 2018-11-03
+  end: 2018-11-04
+  sub: PY
+  location:
+  - title: PyCon Indonesia 2018
+    latitude: -6.175247
+    longitude: 106.8270488
+
+- conference: PyCon Indonesia
+  alt_name: PyCon ID
   year: 2017
   link: https://web.archive.org/web/20171021125731/http://pycon.id/
   cfp: '2017-11-06 23:59:00'
@@ -3741,6 +4569,20 @@
   - title: PyCon Indonesia 2017
     latitude: -7.2459717
     longitude: 112.7378266
+
+- conference: PyCon India
+  year: 2018
+  link: https://web.archive.org/web/20181022230453/https://in.pycon.org/2018/
+  cfp: '2018-07-10 23:59:00'
+  timezone: Asia/Kolkata
+  place: Hyderabad, India
+  start: 2018-10-05
+  end: 2018-10-09
+  sub: PY
+  location:
+  - title: PyCon India 2018
+    latitude: 17.360589
+    longitude: 78.4740613
 
 - conference: PyCon India
   year: 2017
@@ -3869,6 +4711,21 @@
 
 - conference: PyCon Hong Kong
   alt_name: PyCon HK
+  year: 2018
+  link: http://pycon.hk/2018/
+  cfp_link: http://bit.ly/2AMNhfZ
+  cfp: '2018-08-31 23:59:00'
+  place: Hong Kong, Hong Kong
+  start: 2018-11-04
+  end: 2018-11-05
+  sub: PY
+  location:
+  - title: PyCon Hong Kong 2018
+    latitude: 22.2793278
+    longitude: 114.1628131
+
+- conference: PyCon Hong Kong
+  alt_name: PyCon HK
   year: 2017
   link: https://web.archive.org/web/20171109204310/http://pycon.hk/2017/
   cfp: '2016-08-14 23:59:00'
@@ -3908,6 +4765,34 @@
   - title: PyCon Hong Kong 2015
     latitude: 22.2793278
     longitude: 114.1628131
+
+- conference: PyCon Ghana
+  year: 2018
+  link: https://web.archive.org/web/20180818105016/https://gh.pycon.org/
+  cfp: '2018-07-10 23:59:00'
+  place: Accra, Ghana
+  start: 2018-08-10
+  end: 2018-08-11
+  sub: PY
+  location:
+  - title: PyCon Ghana 2018
+    latitude: 5.5571096
+    longitude: -0.2012376
+
+- conference: PyCon Germany
+  alt_name: PyCon.DE
+  year: 2018
+  link: https://web.archive.org/web/20180419145724/https://de.pycon.org/
+  cfp: '2018-06-03 23:59:59'
+  timezone: Europe/Berlin
+  place: Karlsruhe, Germany
+  start: 2018-10-24
+  end: 2018-10-26
+  sub: PY
+  location:
+  - title: PyCon Germany 2018
+    latitude: 49.0068705
+    longitude: 8.4034195
 
 - conference: PyCon Germany
   alt_name: PyCon DE
@@ -3966,6 +4851,20 @@
   - title: PyCon Germany 2011
     latitude: 51.3406321
     longitude: 12.3747329
+
+- conference: PyCon France
+  alt_name: PyCon FR
+  year: 2018
+  link: https://web.archive.org/web/20181025183354/http://www.pycon.fr/2018/
+  cfp: '2018-06-30 23:59:00'
+  place: Lille, France
+  start: 2018-10-04
+  end: 2018-10-07
+  sub: PY
+  location:
+  - title: PyCon France 2018
+    latitude: 50.6365654
+    longitude: 3.0635282
 
 - conference: PyCon France
   alt_name: PyCon FR
@@ -4178,6 +5077,20 @@
     latitude: 60.1879383
     longitude: 24.8318201
 
+- conference: PyCon Estonia
+  alt_name: PyCon EE
+  year: 2018
+  link: https://web.archive.org/web/20180905200626/https://pycon.ee/
+  cfp: None
+  place: Tallinn, Estonia
+  start: 2018-10-04
+  end: 2018-10-04
+  sub: PY
+  location:
+  - title: PyCon Estonia 2018
+    latitude: 59.4372155
+    longitude: 24.7453688
+
 - conference: PyCon Dhaka
   year: 2014
   link: https://web.archive.org/web/20140618061134/http://dhaka.pycon.org/
@@ -4190,6 +5103,22 @@
   - title: PyCon Dhaka 2014
     latitude: 23.7644025
     longitude: 90.389015
+
+- conference: PyCon Czechia
+  alt_name: PyCon CZ
+  year: 2018
+  link: https://web.archive.org/web/20180202200818/https://cz.pycon.org/2018/
+  cfp_link: https://web.archive.org/web/20180203120450/https://cz.pycon.org/2018/proposals/
+  cfp: '2018-02-28 23:59:00'
+  cfp_ext: '2018-03-10'
+  place: Prague, Czechia
+  start: 2018-06-01
+  end: 2018-06-03
+  sub: PY
+  location:
+  - title: PyCon Czechia 2018
+    latitude: 50.0874654
+    longitude: 14.4212535
 
 - conference: PyCon Czechia
   alt_name: PyCon CZ
@@ -4234,6 +5163,19 @@
     longitude: 16.6113382
 
 - conference: PyCon Colombia
+  year: 2018
+  link: https://web.archive.org/web/20180106003834/https://www.pycon.co/
+  cfp: '2018-01-09 23:59:00'
+  place: Medellin, Colombia
+  start: 2018-02-09
+  end: 2018-02-11
+  sub: PY
+  location:
+  - title: PyCon Colombia 2018
+    latitude: 6.2697018
+    longitude: -75.60252574475943
+
+- conference: PyCon Colombia
   year: 2017
   link: https://web.archive.org/web/20200115024420/https://2017.pycon.co/
   cfp: '2016-12-16 23:59:00'
@@ -4245,6 +5187,63 @@
   - title: PyCon Colombia 2017
     latitude: 4.6529539
     longitude: -74.0835643
+
+- conference: PyCon China
+  year: 2018
+  link: https://web.archive.org/web/20180927124755/http://cn.pycon.org/2018/city_hangzhou
+  cfp: '2018-09-12 23:59:00'
+  place: Hangzhou, China
+  start: 2018-11-04
+  end: 2018-11-04
+  sub: PY
+  location:
+  - title: PyCon China 2018
+    latitude: 30.2489634
+    longitude: 120.2052342
+
+- conference: PyCon China
+  year: 2018
+  link: https://web.archive.org/web/20180927124755/http://cn.pycon.org/2018/
+  cfp: '2018-09-12 23:59:00'
+  place: Shenzhen, China
+  extra_places:
+  - Chengdu, China
+  start: 2018-10-27
+  end: 2018-10-27
+  sub: PY
+  location:
+  - title: PyCon China 2018
+    latitude: 22.5445741
+    longitude: 114.0545429
+  - title: PyCon China 2018
+    latitude: 30.7001324
+    longitude: 104.0708278
+
+- conference: PyCon China
+  year: 2018
+  link: https://web.archive.org/web/20180927124755/http://cn.pycon.org/2018/city_shanghai
+  cfp: '2018-09-12 23:59:00'
+  place: Shanghai, China
+  start: 2018-10-21
+  end: 2018-10-21
+  sub: PY
+  location:
+  - title: PyCon China 2018
+    latitude: 31.2323437
+    longitude: 121.4691024
+
+- conference: PyCon China
+  year: 2018
+  link: https://web.archive.org/web/20180927124755/http://cn.pycon.org/2018/city_beijing
+  cfp: '2018-09-12 23:59:00'
+  place: Beijing, China
+  start: 2018-10-14
+  end: 2018-10-14
+  sub: PY
+  location:
+  - title: PyCon China 2018
+    latitude: 40.190632
+    longitude: 116.412144
 
 - conference: PyCon China
   year: 2016
@@ -4511,6 +5510,20 @@
     longitude: -79.3839347
 
 - conference: PyCon Cameroon
+  year: 2018
+  link: https://web.archive.org/web/20180201160312/http://pythoncm.org/pycon.html
+  cfp: '2017-12-03 23:59:59'
+  timezone: Africa/Douala
+  place: Limbe, Cameroon
+  start: 2018-02-23
+  end: 2018-02-24
+  sub: PY
+  location:
+  - title: PyCon Cameroon 2018
+    latitude: 4.010289
+    longitude: 9.207058
+
+- conference: PyCon Cameroon
   year: 2017
   link: https://web.archive.org/web/20171005042303/http://pythoncm.org/
   cfp: None
@@ -4522,6 +5535,19 @@
   - title: PyCon Cameroon 2017
     latitude: 4.1591154
     longitude: 9.2805172
+
+- conference: PyCon Belarus
+  year: 2018
+  link: https://web.archive.org/web/20180223084649/https://by.pycon.org/
+  cfp: '2018-01-16 23:59:00'
+  place: Minsk, Belarus
+  start: 2018-02-24
+  end: 2018-02-25
+  sub: PY
+  location:
+  - title: PyCon Belarus 2018
+    latitude: 53.9024716
+    longitude: 27.5618225
 
 - conference: PyCon Belarus
   year: 2017
@@ -4561,6 +5587,34 @@
   - title: PyCon Belarus 2015
     latitude: 53.8901239
     longitude: 27.5693855
+
+- conference: PyCon Balkan
+  year: 2018
+  link: https://web.archive.org/web/20181123180557/https://www.pyconbalkan.com/
+  cfp_link: https://sessionize.com/pycon-balkan-2018
+  cfp: '2018-08-26 23:59:00'
+  place: Belgrade, Serbia
+  start: 2018-11-16
+  end: 2018-11-18
+  sub: PY
+  location:
+  - title: PyCon Balkan 2018
+    latitude: 44.8178131
+    longitude: 20.4568974
+
+- conference: PyCon Australia
+  alt_name: PyCon AU
+  year: 2018
+  link: https://web.archive.org/web/20180817031926/https://2018.pycon-au.org/
+  cfp: '2018-06-17 23:59:00'
+  place: Sydney, Australia
+  start: 2018-08-24
+  end: 2018-08-28
+  sub: PY
+  location:
+  - title: PyCon Australia 2018
+    latitude: -33.8751704
+    longitude: 151.19974848099355
 
 - conference: PyCon Australia
   alt_name: PyCon AU
@@ -4674,6 +5728,20 @@
   - title: PyCon Australia 2010
     latitude: -33.8751704
     longitude: 151.19974848099355
+
+- conference: PyCon Asia Pacific
+  alt_name: PyCon Singapore
+  year: 2018
+  link: https://web.archive.org/web/20180425194853/https://pycon.sg/
+  cfp: '2018-05-01 23:59:00'
+  place: Singapore, Singapore
+  start: 2018-05-31
+  end: 2018-06-02
+  sub: PY
+  location:
+  - title: PyCon Asia Pacific 2018
+    latitude: 1.2899175
+    longitude: 103.8519072
 
 - conference: PyCon Asia Pacific
   alt_name: PyCon Malaysia
@@ -4790,6 +5858,20 @@
 
 - conference: PyCon Argentina
   alt_name: PyCon AR
+  year: 2018
+  link: https://web.archive.org/web/20181106165717/https://eventos.python.org.ar/events/pyconar2018/
+  cfp: '2018-08-31 23:59:00'
+  place: Buenos Aires, Argentina
+  start: 2018-11-22
+  end: 2018-11-24
+  sub: PY
+  location:
+  - title: PyCon Argentina 2018
+    latitude: -34.6037181
+    longitude: -58.38153
+
+- conference: PyCon Argentina
+  alt_name: PyCon AR
   year: 2017
   link: https://web.archive.org/web/20171115211033/http://ar.pycon.org/
   cfp: '2017-08-31 23:59:00'
@@ -4845,6 +5927,21 @@
     longitude: -58.38153
 
 - conference: PyCon Amazônia
+  year: 2018
+  link: https://web.archive.org/web/20190131222152/https://amazonia.python.org.br/
+  cfp_link: https://web.archive.org/web/20220902160046/https://speakerfight.com/events/pycon-amazonia-2018/
+  cfp: '2018-06-30 23:59:00'
+  cfp_ext: '2018-07-14 23:55:00'
+  place: Manaus, Brazil
+  start: 2018-08-18
+  end: 2018-08-19
+  sub: PY
+  location:
+  - title: PyCon Amazônia 2018
+    latitude: -3.1316333
+    longitude: -59.9825041
+
+- conference: PyCon Amazônia
   year: 2017
   link: https://web.archive.org/web/20170816034502/http://amazonia.python.org.br/
   cfp_link: https://speakerfight.com/events/pycon-amazonia-2017/
@@ -4858,6 +5955,49 @@
     latitude: -3.1316333
     longitude: -59.9825041
 
+- conference: PyCode Conference
+  year: 2018
+  link: https://web.archive.org/web/20180801205817/https://pycode-conference.org
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSfgVrS0YgvM58IEIlcB677SEQfcTy1TB99FeK3nIiGi_5MnVA/viewform
+  cfp: '2018-07-14 23:59:00'
+  place: Warsaw, Poland
+  start: 2018-10-01
+  end: 2018-10-02
+  sub: PY
+  location:
+  - title: PyCode Conference 2018
+    latitude: 52.2319581
+    longitude: 21.0067249
+
+- conference: PyCascades
+  year: 2018
+  link: https://web.archive.org/web/20200812235103/https://2018.pycascades.com/
+  cfp_link: https://web.archive.org/web/20170813050314/https://www.papercall.io/pycascades-2018
+  cfp: '2017-08-29 12:00:00'
+  timezone: UTC
+  place: Vancouver, Canada
+  start: 2018-01-22
+  end: 2018-01-23
+  sub: PY
+  location:
+  - title: PyCascades 2018
+    latitude: 49.27213705
+    longitude: -123.13439461006233
+
+- conference: PyCaribbean
+  year: 2018
+  link: https://web.archive.org/web/20180211053513/http://pycaribbean.com/
+  cfp_link: https://www.papercall.io/pycaribbean-2018
+  cfp: '2017-11-24 16:11:00'
+  place: Santo Domingo, Dominican Republic
+  start: 2018-02-17
+  end: 2018-02-18
+  sub: PY
+  location:
+  - title: PyCaribbean 2018
+    latitude: 18.4801972
+    longitude: -69.942111
+
 - conference: PyCaribbean
   year: 2016
   link: https://web.archive.org/web/20160211053513/http://pycaribbean.com/
@@ -4870,6 +6010,19 @@
   - title: PyCaribbean 2016
     latitude: 18.4801972
     longitude: -69.942111
+
+- conference: PyCamp Argentina
+  year: 2018
+  link: https://wiki.python.org.ar/PyCamp/2018/
+  cfp: None
+  place: Baradero, Argentina
+  start: 2018-04-28
+  end: 2018-05-01
+  sub: CAMP
+  location:
+  - title: PyCamp Argentina 2018
+    latitude: -33.8120471
+    longitude: -59.5051759
 
 - conference: PyCamp Argentina
   year: 2017
@@ -5028,6 +6181,20 @@
     longitude: 74.48744361563915
 
 - conference: PyBay
+  year: 2018
+  link: https://web.archive.org/web/20180811130121/http://pybay.com/
+  cfp_link: https://web.archive.org/web/20180413152700/http://pybay.com/cfp
+  cfp: '2018-04-21 23:59:00'
+  place: San Francisco, USA
+  start: 2018-08-16
+  end: 2018-08-19
+  sub: PY
+  location:
+  - title: PyBay 2018
+    latitude: 37.7681571
+    longitude: -122.392929
+
+- conference: PyBay
   year: 2017
   link: https://web.archive.org/web/20170811130121/http://pybay.com/
   cfp: '2017-06-16 23:59:00'
@@ -5052,6 +6219,19 @@
   - title: PyBay 2016
     latitude: 37.7681571
     longitude: -122.392929
+
+- conference: Plone Conference
+  year: 2018
+  link: https://web.archive.org/web/20180928073235/https://2018.ploneconf.org/
+  cfp: '2017-09-28 23:59:00'
+  place: Tokyo, Japan
+  start: 2018-11-05
+  end: 2018-11-11
+  sub: WEB
+  location:
+  - title: Plone Conference 2018
+    latitude: 35.718741949999995
+    longitude: 139.73118058112317
 
 - conference: Plone Conference
   year: 2017
@@ -5254,6 +6434,20 @@
     longitude: -90.0782127
 
 - conference: Piter Py
+  alt_name: Piter Py \#5
+  year: 2018
+  link: https://web.archive.org/web/20180628045535/https://piterpy.com/en
+  cfp: '2018-06-30 23:59:00'
+  place: Saint Petersburg, Russia
+  start: 2018-11-02
+  end: 2018-11-04
+  sub: PY
+  location:
+  - title: Piter Py 2018
+    latitude: 59.9606739
+    longitude: 30.1586551
+
+- conference: Piter Py
   alt_name: Piter Py \#4
   year: 2017
   link: https://web.archive.org/web/20171209200602/https://it-events.com/events/8527
@@ -5310,6 +6504,19 @@
     longitude: 30.1586551
 
 - conference: North Bay Python
+  year: 2018
+  link: https://web.archive.org/web/20180726154915/https://2018.northbaypython.org/
+  cfp: '2018-08-10 23:59:00'
+  place: Petaluma, USA
+  start: 2018-11-03
+  end: 2018-11-04
+  sub: PY
+  location:
+  - title: North Bay Python 2018
+    latitude: 38.2325829
+    longitude: -122.636465
+
+- conference: North Bay Python
   year: 2017
   link: https://web.archive.org/web/20170812223449/http://www.northbaypython.org/
   cfp: '2017-09-29 23:59:00'
@@ -5321,6 +6528,19 @@
   - title: North Bay Python 2017
     latitude: 38.2325829
     longitude: -122.636465
+
+- conference: MUPy
+  year: 2018
+  link: https://web.archive.org/web/20240218045738/https://pypals.org/mupy
+  cfp: None
+  place: Manipal Institute of Technology, India
+  start: 2018-10-28
+  end: 2018-10-28
+  sub: PY
+  location:
+  - title: MUPy 2018
+    latitude: 13.347776849999999
+    longitude: 74.79299358008947
 
 - conference: MUPy
   year: 2017
@@ -5462,6 +6682,20 @@
     longitude: 172.6364343
 
 - conference: JupyterCon
+  year: 2018
+  link: https://web.archive.org/web/20200814084231/https://conferences.oreilly.com/jupyter/jup-ny.html
+  cfp: '2018-03-06 23:59:00'
+  place: New York, USA
+  start: 2018-08-21
+  end: 2018-08-24
+  twitter: jupyterCon
+  sub: DATA
+  location:
+  - title: JupyterCon 2018
+    latitude: 40.7127281
+    longitude: -74.0060152
+
+- conference: JupyterCon
   year: 2017
   link: https://web.archive.org/web/20170821152555/https://conferences.oreilly.com/jupyter/jup-ny
   cfp: '2017-03-06 23:59:00'
@@ -5474,6 +6708,19 @@
   - title: JupyterCon 2017
     latitude: 40.7127281
     longitude: -74.0060152
+
+- conference: GeoPython
+  year: 2018
+  link: https://web.archive.org/web/20180512191459/http://2018.geopython.net/
+  cfp: '2018-01-31 23:59:00'
+  place: Basel, Switzerland
+  start: 2018-05-07
+  end: 2018-05-09
+  sub: GEO
+  location:
+  - title: GeoPython 2018
+    latitude: 47.3615882
+    longitude: 7.354445
 
 - conference: GeoPython
   year: 2017
@@ -5500,6 +6747,20 @@
   - title: GeoPython 2016
     latitude: 47.3615882
     longitude: 7.354445
+
+- conference: FOSDEM
+  alt_name: Python Main Track @ FOSDEM
+  year: 2018
+  link: https://web.archive.org/web/20180203132931/https://fosdem.org/2018/schedule/track/python/
+  cfp: '2018-11-03 23:59:00'
+  place: Brussels, Belgium
+  start: 2018-02-03
+  end: 2018-02-03
+  sub: PY
+  location:
+  - title: FOSDEM 2018
+    latitude: 50.8465573
+    longitude: 4.351697
 
 - conference: FOSDEM
   alt_name: Python Devroom @ FOSDEM
@@ -5598,6 +6859,34 @@
     latitude: 40.7127281
     longitude: -74.0060152
 
+- conference: Flask Conf Brasil
+  year: 2018
+  link: https://web.archive.org/web/20180927205052/https://2018.flask.python.org.br/
+  cfp_link: https://web.archive.org/web/20210515223939/https://speakerfight.com/events/flaskconf-2018/
+  cfp: '2018-08-01 23:59:00'
+  place: São Paulo, Brazil
+  start: 2018-08-24
+  end: 2018-08-25
+  sub: WEB
+  location:
+  - title: Flask Conf 2018
+    latitude: -1.2043218
+    longitude: -47.1583944
+
+- conference: FEniCS
+  year: 2018
+  link: https://web.archive.org/web/20190105092411/https://fenicsproject.org/fenics18/
+  cfp: '2018-02-14 23:59:00'
+  cfp_ext: '2018-02-21 23:59:00'
+  place: Oxford, UK
+  start: 2018-03-21
+  end: 2018-03-23
+  sub: DATA
+  location:
+  - title: FEniCS 2018
+    latitude: 51.7520131
+    longitude: -1.2578499
+
 - conference: FEniCS
   year: 2017
   link: https://fenicsproject.org/fenics17/
@@ -5610,6 +6899,20 @@
   - title: FEniCS 2017
     latitude: 49.6112768
     longitude: 6.129799
+
+- conference: EuroSciPy
+  year: 2018
+  link: https://web.archive.org/web/20180831055351/https://www.euroscipy.org/2018/
+  cfp: '2018-05-31 23:59:00'
+  timezone: Europe/Rome
+  place: Trento, Italy
+  start: 2018-08-28
+  end: 2018-09-01
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2018
+    latitude: 46.0664228
+    longitude: 11.1257601
 
 - conference: EuroSciPy
   year: 2017
@@ -5731,6 +7034,20 @@
   - title: EuroSciPy 2008
     latitude: 51.3406321
     longitude: 12.3747329
+
+- conference: EuroPython
+  year: 2018
+  link: https://web.archive.org/web/20180728144400/https://ep2018.europython.eu/en/
+  cfp: '2018-05-20 23:59:00'
+  timezone: Europe/London
+  place: Edinburgh, UK
+  start: 2018-07-23
+  end: 2018-07-29
+  sub: PY
+  location:
+  - title: EuroPython 2018
+    latitude: 55.9533456
+    longitude: -3.1883749
 
 - conference: EuroPython
   year: 2017
@@ -5960,6 +7277,20 @@
 
 - conference: DjangoCong
   alt_name: Rencontres django
+  year: 2018
+  link: https://web.archive.org/web/20180519122250/http://rencontres.django-fr.org/2018/
+  cfp: '2018-08-23 23:59:00'
+  place: Lille, France
+  start: 2018-06-08
+  end: 2018-06-10
+  sub: WEB
+  location:
+  - title: DjangoCong 2018
+    latitude: 50.6365654
+    longitude: 3.0635282
+
+- conference: DjangoCong
+  alt_name: Rencontres django
   year: 2017
   link: https://web.archive.org/web/20170722083141/http://rencontres.django-fr.org/2017/
   cfp: '2017-01-15 23:59:00'
@@ -6041,6 +7372,19 @@
   - title: DjangoCong 2011
     latitude: 43.2961743
     longitude: 5.3699525
+
+- conference: DjangoCon US
+  year: 2018
+  link: https://web.archive.org/web/20180912163411/https://2018.djangocon.us/
+  cfp: '2018-06-03 23:59:00'
+  place: San Diego, USA
+  start: 2018-10-14
+  end: 2018-10-19
+  sub: WEB
+  location:
+  - title: DjangoCon US 2018
+    latitude: 32.7174202
+    longitude: -117.1627728
 
 - conference: DjangoCon US
   year: 2017
@@ -6174,6 +7518,19 @@
     longitude: 1.4442469
 
 - conference: DjangoCon Europe
+  year: 2018
+  link: https://web.archive.org/web/20180522135722/https://2018.djangocon.eu/
+  cfp: '2018-02-01 23:59:00'
+  place: Heidelberg, Germany
+  start: 2018-05-23
+  end: 2018-05-27
+  sub: WEB
+  location:
+  - title: DjangoCon Europe 2018
+    latitude: 49.4093582
+    longitude: 8.694724
+
+- conference: DjangoCon Europe
   year: 2017
   link: https://web.archive.org/web/20201108120856/https://2017.djangocon.eu/auth/login/
   cfp: '2016-12-31 23:59:00'
@@ -6264,6 +7621,20 @@
   - title: DjangoCon Europe 2010
     latitude: 52.5170365
     longitude: 13.3888599
+
+- conference: DjangoCon Australia
+  alt_name: DjangoCon AU
+  year: 2018
+  link: https://web.archive.org/web/20180508100008/https://2018.djangocon.com.au/
+  cfp: '2018-05-28 23:59:00'
+  place: Sydney, Australia
+  start: 2018-08-24
+  end: 2018-08-28
+  sub: WEB
+  location:
+  - title: DjangoCon Australia 2018
+    latitude: -33.8751704
+    longitude: 151.19974848099355
 
 - conference: DjangoCon Australia
   alt_name: DjangoCon AU

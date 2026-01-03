@@ -63,23 +63,6 @@
     latitude: 17.426801501802966
     longitude: 78.37126527965896
 
-- conference: PyCon Italy
-  alt_name: PyCon Italia
-  year: 2026
-  link: https://2026.pycon.it/en
-  cfp_link: https://pycon.it/cfp
-  cfp: '2026-01-06 23:59:59'
-  place: Bologna, Italy
-  start: 2026-05-27
-  end: 2026-05-30
-  finaid: https://2026.pycon.it/en
-  mastodon: https://social.python.it/@pycon
-  sub: PY
-  location:
-  - title: PyCon Italy 2026
-    latitude: 44.4938203
-    longitude: 11.3426327
-
 - conference: PyCon Germany & PyData Conference
   alt_name: PyCon Germany
   year: 2026
@@ -98,9 +81,26 @@
     latitude: 49.872775
     longitude: 8.651177
 
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2026
+  link: https://2026.pycon.it/en
+  cfp_link: https://pycon.it/cfp
+  cfp: '2026-01-06 23:59:59'
+  place: Bologna, Italy
+  start: 2026-05-27
+  end: 2026-05-30
+  finaid: https://2026.pycon.it/en
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+  - title: PyCon Italy 2026
+    latitude: 44.4938203
+    longitude: 11.3426327
+
 - conference: PyCon US
   year: 2026
-  link: https://us.pycon.org
+  link: https://us.pycon.org/
   cfp_link: https://us.pycon.org/2026/speaking/talks/
   cfp: '2025-12-19 23:59:00'
   place: Long Beach, USA
@@ -194,21 +194,6 @@
     latitude: 51.4383999131
     longitude: 5.46712979814
 
-- conference: Python Sul
-  alt_name: Python Sul (Brazil)
-  year: 2025
-  link: https://sul.python.org.br/
-  cfp_link: https://talks.python.org.br/pysul2025/cfp
-  cfp: '2025-10-05 23:59:00'
-  place: Porto Alegre, Brazil
-  start: 2025-11-21
-  end: 2025-11-23
-  sub: PY
-  location:
-  - title: Python Sul 2025
-    latitude: -30.0324999
-    longitude: -51.2303767
-
 - conference: PyCon Indonesia
   alt_name: PyCon ID
   year: 2025
@@ -253,25 +238,6 @@
   end: 2025-12-07
   sponsor: https://2025.conference.pyladies.com/en/sponsors/
   sub: PY
-
-- conference: Kiwi PyCon
-  year: 2025
-  link: https://kiwipycon.nz/
-  cfp_link: https://kiwipycon.nz/present/submitting-a-talk
-  cfp: '2025-08-21 23:59:00'
-  timezone: Pacific/Auckland
-  place: Te Whanganui-a-Tara Wellington, New Zealand
-  start: 2025-11-21
-  end: 2025-11-23
-  sponsor: https://kiwipycon.nz/sponsors/become-a-sponsor
-  finaid: https://kiwipycon.nz/attend/financial-aid
-  mastodon: https://mastodon.social/@kiwipycon
-  bluesky: https://bsky.app/profile/kiwipycon.nz
-  sub: PY
-  location:
-  - title: Kiwi PyCon 2025
-    latitude: -41.2887953
-    longitude: 174.7772114
 
 - conference: PyData Global
   year: 2025
