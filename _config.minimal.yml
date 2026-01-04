@@ -17,6 +17,7 @@ page_gen:
 plugins:
 - jekyll-datapage-generator
 - jekyll-multiple-languages-plugin
+- jekyll-include-cache
 
 # Maximum speed optimizations
 incremental: true
