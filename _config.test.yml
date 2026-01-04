@@ -90,8 +90,8 @@ exclude:
   - "pixi.toml"
   - ".pre-commit-config.yaml"
 
-# Faster file watching
-watch: true
+# Disable file watching (not needed for CI builds)
+watch: false
 force_polling: false
 
 # Test-specific settings
