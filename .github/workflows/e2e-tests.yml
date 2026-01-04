@@ -45,7 +45,7 @@ jobs:
 
       - name: 🏗️ Build Jekyll site
         run: |
-          bundle exec jekyll build --config _config.yml,_config.test.yml
+          bundle exec jekyll build --config _config.yml,_config.minimal.yml
         env:
           JEKYLL_ENV: test
 
