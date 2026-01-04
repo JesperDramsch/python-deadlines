@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: 📂 Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: 🐍 Setup Pixi
       uses: prefix-dev/setup-pixi@v0.9.3
@@ -50,7 +50,7 @@ jobs:
 
     steps:
     - name: 📂 Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: 🐍 Setup Pixi
       uses: prefix-dev/setup-pixi@v0.9.3
@@ -71,7 +71,7 @@ jobs:
 
     steps:
     - name: 📂 Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: 🐍 Setup Pixi
       uses: prefix-dev/setup-pixi@v0.9.3
