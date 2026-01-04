@@ -39,8 +39,8 @@ maps:
 keep_files: ['.git', '.svn']
 skip_config_files: false
 
-# Minimal file watching
-watch: false
+# File watching
+watch: true
 force_polling: false
 
 # Exclude everything non-essential

@@ -45,7 +45,7 @@ jobs:
 
       - name: 🏗️ Build Jekyll site
         run: |
-          bundle exec jekyll build --config _config.yml,_config.minimal.yml
+          bundle exec jekyll build --config _config.yml,_config.test.yml
         env:
           JEKYLL_ENV: test
 
@@ -101,10 +101,31 @@ jobs:
 
       - name: 🧪 Run E2E tests
         run: |
-          npx playwright test --project=${{ matrix.browser }}
+          npx playwright test --project=${{ matrix.browser }} --reporter=html,json
         env:
           CI: true
           BASE_URL: http://localhost:4000
+
+      - name: 📋 Write test summary
+        if: always()
+        run: |
+          if [ -f test-results.json ]; then
+            echo "## 🎭 E2E Test Results - ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            node -e "
+              const results = require('./test-results.json');
+              const stats = results.stats || {};
+              const passed = stats.expected - stats.unexpected - stats.flaky || 0;
+              const failed = stats.unexpected || 0;
+              const flaky = stats.flaky || 0;
+              const skipped = stats.skipped || 0;
+              const total = stats.expected || 0;
+              const status = failed === 0 ? '✅ Passed' : '❌ Failed';
+              console.log('| Status | Total | Passed | Failed | Flaky | Skipped |');
+              console.log('|--------|-------|--------|--------|-------|---------|');
+              console.log('| ' + status + ' | ' + total + ' | ' + passed + ' | ' + failed + ' | ' + flaky + ' | ' + skipped + ' |');
+            " >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: 📊 Upload test results
         if: always()
@@ -164,10 +185,31 @@ jobs:
 
       - name: 📱 Run mobile E2E tests
         run: |
-          npx playwright test --project=mobile-chrome --project=mobile-safari
+          npx playwright test --project=mobile-chrome --project=mobile-safari --reporter=html,json
         env:
           CI: true
           BASE_URL: http://localhost:4000
+
+      - name: 📋 Write test summary
+        if: always()
+        run: |
+          if [ -f test-results.json ]; then
+            echo "## 🎭 E2E Test Results - Mobile" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            node -e "
+              const results = require('./test-results.json');
+              const stats = results.stats || {};
+              const passed = stats.expected - stats.unexpected - stats.flaky || 0;
+              const failed = stats.unexpected || 0;
+              const flaky = stats.flaky || 0;
+              const skipped = stats.skipped || 0;
+              const total = stats.expected || 0;
+              const status = failed === 0 ? '✅ Passed' : '❌ Failed';
+              console.log('| Status | Total | Passed | Failed | Flaky | Skipped |');
+              console.log('|--------|-------|--------|--------|-------|---------|');
+              console.log('| ' + status + ' | ' + total + ' | ' + passed + ' | ' + failed + ' | ' + flaky + ' | ' + skipped + ' |');
+            " >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: 📊 Upload mobile test results
         if: always()
