@@ -40,7 +40,7 @@ keep_files: ['.git', '.svn']
 skip_config_files: false
 
 # Minimal file watching
-watch: true
+watch: false
 force_polling: false
 
 # Exclude everything non-essential
