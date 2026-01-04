@@ -101,7 +101,7 @@ jobs:
 
       - name: 🧪 Run E2E tests
         run: |
-          npx playwright test --project=${{ matrix.browser }} --reporter=html,json
+          PLAYWRIGHT_JSON_OUTPUT_NAME=test-results.json npx playwright test --project=${{ matrix.browser }} --reporter=html,json
         env:
           CI: true
           BASE_URL: http://localhost:4000
@@ -185,7 +185,7 @@ jobs:
 
       - name: 📱 Run mobile E2E tests
         run: |
-          npx playwright test --project=mobile-chrome --project=mobile-safari --reporter=html,json
+          PLAYWRIGHT_JSON_OUTPUT_NAME=test-results.json npx playwright test --project=mobile-chrome --project=mobile-safari --reporter=html,json
         env:
           CI: true
           BASE_URL: http://localhost:4000
