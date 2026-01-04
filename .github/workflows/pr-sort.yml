@@ -33,7 +33,7 @@ jobs:
       (github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && !contains(github.event.pull_request.user.login, '[bot]') && !contains(github.event.pull_request.user.login, '-bot') && github.event.pull_request.user.login != 'dependabot' && github.event.pull_request.user.login != 'github-actions'))
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
