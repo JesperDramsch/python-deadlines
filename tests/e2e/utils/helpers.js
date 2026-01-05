@@ -298,3 +298,88 @@ export async function isInViewport(page, selector) {
     );
   }, selector);
 }
+
+/**
+ * Get a visible search input, handling mobile collapsed navbar
+ * On mobile, the navbar is collapsed and #search-box is hidden.
+ * This function finds a visible search input, preferring the page's #search over navbar's #search-box.
+ * @param {Page} page - Playwright page object
+ * @returns {Locator} A locator for a visible search input
+ */
+export async function getVisibleSearchInput(page) {
+  // First, check if we're on the search page which has its own search input (#search)
+  const pageSearchInput = page.locator('#search');
+  if (await pageSearchInput.isVisible({ timeout: 1000 }).catch(() => false)) {
+    return pageSearchInput;
+  }
+
+  // Check if navbar search-box is visible (desktop view)
+  const navbarSearchInput = page.locator('#search-box');
+  if (await navbarSearchInput.isVisible({ timeout: 1000 }).catch(() => false)) {
+    return navbarSearchInput;
+  }
+
+  // On mobile, the navbar might be collapsed. Try to expand it.
+  const navbarToggle = page.locator('.navbar-toggler').first();
+  if (await navbarToggle.isVisible({ timeout: 1000 }).catch(() => false)) {
+    // Check if navbar is collapsed (aria-expanded="false")
+    const isExpanded = await navbarToggle.getAttribute('aria-expanded');
+    if (isExpanded !== 'true') {
+      await navbarToggle.click();
+      // Wait for the collapse animation to complete
+      await page.waitForTimeout(400);
+    }
+
+    // Now check if search-box is visible
+    if (await navbarSearchInput.isVisible({ timeout: 1000 }).catch(() => false)) {
+      return navbarSearchInput;
+    }
+  }
+
+  // Fallback: return any visible search input
+  const allSearchInputs = page.locator('#search-box, #search, input[type="search"]');
+  const count = await allSearchInputs.count();
+  for (let i = 0; i < count; i++) {
+    const input = allSearchInputs.nth(i);
+    if (await input.isVisible({ timeout: 500 }).catch(() => false)) {
+      return input;
+    }
+  }
+
+  // Last resort: return the first one (tests will fail with a clear error if not visible)
+  return allSearchInputs.first();
+}
+
+/**
+ * Dismiss a Bootstrap toast programmatically
+ * Works around issues with Bootstrap 4 toast dismiss on mobile browsers
+ * @param {Page} page - Playwright page object
+ * @param {Locator} toast - Locator for the toast element
+ */
+export async function dismissToast(page, toast) {
+  // Try clicking the close button first
+  const closeBtn = toast.locator('.close, [data-dismiss="toast"], [data-bs-dismiss="toast"]').first();
+  if (await closeBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+    await closeBtn.click({ force: true });
+    // Wait a moment for the click to register
+    await page.waitForTimeout(100);
+  }
+
+  // If toast is still visible, use JavaScript to hide it
+  const isStillVisible = await toast.isVisible({ timeout: 500 }).catch(() => false);
+  if (isStillVisible) {
+    await page.evaluate(() => {
+      // Try Bootstrap 4 jQuery method
+      if (typeof $ !== 'undefined' && $.fn.toast) {
+        $('.toast').toast('hide');
+      }
+      // Also try direct DOM manipulation as fallback
+      document.querySelectorAll('.toast').forEach(t => {
+        t.classList.remove('show', 'showing');
+        t.classList.add('hide');
+        // Trigger the hidden event for cleanup
+        t.dispatchEvent(new Event('hidden.bs.toast'));
+      });
+    });
+  }
+}
