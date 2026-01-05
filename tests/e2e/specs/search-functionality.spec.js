@@ -367,7 +367,12 @@ test.describe('Search Functionality', () => {
   });
 
   test.describe('Search Accessibility', () => {
-    test('should be keyboard navigable', async ({ page }) => {
+    test('should be keyboard navigable', async ({ page }, testInfo) => {
+      // Skip on mobile browsers - Tab key navigation doesn't work the same way on mobile
+      // Mobile browsers are designed for touch input, not keyboard navigation
+      const isMobile = testInfo.project.name.includes('mobile');
+      test.skip(isMobile, 'Keyboard Tab navigation is not supported on mobile browsers');
+
       // Get the visible search input to ensure we're interacting with the right element
       const searchInput = await getVisibleSearchInput(page);
 
