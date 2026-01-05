@@ -392,19 +392,14 @@ test.describe('Notification System', () => {
       const toast = await waitForToast(page);
       await expect(toast).toBeVisible();
 
-      // Use jQuery to properly dismiss the Bootstrap toast
-      // The data-dismiss="toast" attribute requires Bootstrap JS which may not trigger from Playwright click
-      await page.evaluate(() => {
-        const toastEl = document.querySelector('.toast');
-        if (toastEl && typeof $ !== 'undefined') {
-          $(toastEl).toast('hide');
-        } else if (toastEl) {
-          toastEl.remove();
-        }
-      });
+      // Find and click the close button
+      // Bootstrap 4 uses data-dismiss="toast", need to click with force in case of overlay issues
+      const closeBtn = toast.locator('.close, [data-dismiss="toast"], [data-bs-dismiss="toast"]').first();
+      await expect(closeBtn).toBeVisible();
+      await closeBtn.click({ force: true });
 
-      // Wait for toast to be hidden/removed
-      await expect(toast).toBeHidden({ timeout: 3000 });
+      // Bootstrap toast has fade animation, wait for it to complete
+      await expect(toast).toBeHidden({ timeout: 5000 });
     });
   });
 
