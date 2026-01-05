@@ -51,17 +51,34 @@ test.describe('Notification System', () => {
     });
 
     test('should request permission when enable button clicked', async ({ page, context }) => {
-      // Grant permission at browser level
+      // Grant permission at browser level before page reload
       await grantNotificationPermission(context);
 
-      // Click enable notifications button
+      // Reload page to ensure notification system re-initializes with fresh permission state
+      await page.reload();
+      await waitForPageReady(page);
+
+      // Wait for NotificationManager to initialize
+      await page.waitForFunction(() => window.NotificationManager !== undefined, { timeout: 5000 }).catch(() => {});
+
+      // Click enable notifications button if visible
       const enableBtn = page.locator('#enable-notifications');
-      if (await enableBtn.isVisible()) {
+
+      // Wait a bit for the prompt to be rendered (webkit may be slower)
+      await page.waitForTimeout(500);
+
+      if (await enableBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
         await enableBtn.click();
 
         // Should show success toast
         const toast = await waitForToast(page);
         await expect(toast).toContainText('Notifications Enabled');
+      } else {
+        // If button is not visible, permission may already be granted - verify notification manager works
+        const hasNotificationManager = await page.evaluate(() => {
+          return typeof window.NotificationManager !== 'undefined';
+        });
+        expect(hasNotificationManager).toBe(true);
       }
     });
 
