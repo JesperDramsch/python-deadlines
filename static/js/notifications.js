@@ -266,7 +266,8 @@ const NotificationManager = {
 
                     // Only show once per day for each notification
                     if (now - lastShown > 24 * 60 * 60 * 1000) {
-                        if (Notification.permission === 'granted') {
+                        // Show browser notification if supported and permission granted
+                        if ('Notification' in window && Notification.permission === 'granted') {
                             const notification = new Notification('Python Deadlines Reminder', {
                                 body: `${matchedThreshold} day${matchedThreshold > 1 ? 's' : ''} until ${conf.name} CFP closes!`,
                                 icon: '/static/img/python-deadlines-logo.png',
@@ -288,6 +289,8 @@ const NotificationManager = {
                             setTimeout(() => notification.close(), 10000);
                         }
 
+                        // Record notification attempt regardless of browser support
+                        // This prevents duplicate notifications on browsers that don't support the API
                         localStorage.setItem(notifyKey, now.toString());
                     }
                 }
