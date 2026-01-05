@@ -68,8 +68,8 @@
   year: 2026
   link: https://2026.pycon.de/
   cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
-  cfp: '2026-01-11 23:59:59'
-  cfp_ext: '2025-12-21 23:59:59'
+  cfp: '2025-12-21 23:59:59'
+  cfp_ext: '2026-01-18 23:59:59'
   timezone: Europe/Berlin
   place: Darmstadt, Germany
   start: 2026-04-14
@@ -151,6 +151,7 @@
   link: https://2026.pycascades.com/
   cfp_link: https://pretalx.com/pycascades-2026/cfp
   cfp: '2025-10-27 23:59:00'
+  cfp_ext: '2025-11-04 23:59:00'
   place: Vancouver, Canada
   start: 2026-03-21
   end: 2026-03-22
