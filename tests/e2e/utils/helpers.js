@@ -110,12 +110,16 @@ export async function setupSavedConferences(page, conferences) {
 
 /**
  * Wait for notification toast to appear
+ * Returns a Locator (not ElementHandle) for compatibility with Playwright expect assertions
  */
 export async function waitForToast(page, timeout = 5000) {
-  return await page.waitForSelector('.toast', {
+  // Wait for the toast to appear
+  await page.waitForSelector('.toast', {
     state: 'visible',
     timeout
   });
+  // Return a Locator for proper Playwright assertions
+  return page.locator('.toast').first();
 }
 
 /**
