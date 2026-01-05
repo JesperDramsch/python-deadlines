@@ -18,6 +18,8 @@
     overflow-y: auto;
     border: 1px solid #dee2e6;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    z-index: 10;  /* Ensure filter panel stays above series panel during scroll */
+    background: white;  /* Solid background prevents visual bleed-through */
 }
 
 .filter-panel .card-header {
@@ -125,6 +127,9 @@
     /* Aligned with filter panel */
     border: 1px solid #dee2e6;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: relative;  /* Create stacking context */
+    z-index: 5;  /* Lower than filter panel to prevent overlap issues */
+    background: white;  /* Solid background */
 }
 
 .series-panel .card-header {
