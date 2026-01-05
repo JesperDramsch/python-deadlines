@@ -272,7 +272,15 @@ test.describe('Search Functionality', () => {
       const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
 
       await searchInput.fill('django');
-      await searchInput.press('Enter');
+
+      // Use Promise.all to wait for both the key press and navigation
+      // This handles webkit's different form submission timing
+      await Promise.all([
+        page.waitForURL(/query=django/, { timeout: 10000 }).catch(() => null),
+        searchInput.press('Enter')
+      ]);
+
+      // Wait for page to fully load
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Check if URL contains search query (form uses 'query' parameter)

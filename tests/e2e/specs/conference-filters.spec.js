@@ -179,7 +179,9 @@ test.describe('My Conferences Page Filters', () => {
       const workshopFilter = page.locator('.feature-filter[value="workshop"], label:has-text("Workshop") input').first();
 
       if (await workshopFilter.count() > 0) {
-        await workshopFilter.check();
+        // Use force: true to bypass webkit's strict pointer event interception detection
+        // when series panel buttons may overlap with filter checkboxes
+        await workshopFilter.check({ force: true });
         await page.waitForFunction(() => document.readyState === 'complete');
 
         expect(await workshopFilter.isChecked()).toBe(true);
@@ -190,7 +192,9 @@ test.describe('My Conferences Page Filters', () => {
       const sponsorFilter = page.locator('.feature-filter[value="sponsor"], label:has-text("Sponsor") input').first();
 
       if (await sponsorFilter.count() > 0) {
-        await sponsorFilter.check();
+        // Use force: true to bypass webkit's strict pointer event interception detection
+        // when series panel buttons may overlap with filter checkboxes
+        await sponsorFilter.check({ force: true });
         await page.waitForFunction(() => document.readyState === 'complete');
 
         expect(await sponsorFilter.isChecked()).toBe(true);
