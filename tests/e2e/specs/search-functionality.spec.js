@@ -20,7 +20,7 @@ test.describe('Search Functionality', () => {
   test.describe('Search Interface', () => {
     test('should display search page with input field', async ({ page }) => {
       // Check search input exists
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
       await expect(searchInput).toBeVisible();
       await expect(searchInput).toBeEnabled();
 
@@ -30,14 +30,14 @@ test.describe('Search Functionality', () => {
     });
 
     test('should show placeholder text in search input', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
       const placeholder = await searchInput.getAttribute('placeholder');
       expect(placeholder).toBeTruthy();
       expect(placeholder.toLowerCase()).toContain('search');
     });
 
     test('should focus search input on page load', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Wait for autofocus to complete
       await page.waitForFunction(() => document.readyState === 'complete');
@@ -50,7 +50,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Execution', () => {
     test('should search for conferences by name', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Type search query
       await searchInput.fill('pycon');
@@ -74,7 +74,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should search for conferences by location', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Search by location
       await searchInput.fill('online');
@@ -92,7 +92,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should show no results message for empty search', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Search for something that likely doesn't exist
       await searchInput.fill('xyznonexistentconf123');
@@ -109,7 +109,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should clear search and show all results', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // First do a search
       await searchInput.fill('python');
@@ -128,7 +128,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should handle special characters in search', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Test with special characters
       const specialQueries = ['C++', 'R&D', '@conference', '#python'];
@@ -147,7 +147,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Results Display', () => {
     test('should display conference details in results', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Search for conferences
       await searchInput.fill('conference');
@@ -176,7 +176,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should display conference tags/categories', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       await searchInput.fill('python');
       await searchInput.press('Enter');
@@ -195,7 +195,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should display countdown timers in results', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       await searchInput.fill('2025');
       await searchInput.press('Enter');
@@ -215,7 +215,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should show calendar buttons for conferences', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       await searchInput.fill('conference');
       await searchInput.press('Enter');
@@ -238,7 +238,7 @@ test.describe('Search Functionality', () => {
       await waitForPageReady(page);
 
       // Check if search input has the query
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
       const value = await searchInput.inputValue();
       expect(value.toLowerCase()).toContain('europython');
 
@@ -253,7 +253,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should update URL when searching', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       await searchInput.fill('django');
       await searchInput.press('Enter');
@@ -267,7 +267,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Filters', () => {
     test('should filter by conference type when clicking tags @visual', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // First search to get results with tags
       await searchInput.fill('python');
@@ -298,7 +298,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Performance', () => {
     test('should handle rapid successive searches', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Perform rapid searches
       const queries = ['p', 'py', 'pyc', 'pyco', 'pycon'];
@@ -321,7 +321,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should handle very long search queries', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Create a very long search query
       const longQuery = 'python '.repeat(50);
@@ -342,7 +342,7 @@ test.describe('Search Functionality', () => {
       await page.keyboard.press('Tab');
       await page.keyboard.press('Tab'); // May need multiple tabs
 
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Type using keyboard
       await page.keyboard.type('pycon');
@@ -361,7 +361,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should have proper ARIA labels', async ({ page }) => {
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
 
       // Check for aria-label or associated label
       const ariaLabel = await searchInput.getAttribute('aria-label');
@@ -386,7 +386,7 @@ test.describe('Search Functionality', () => {
       await page.goto('/search');
       await waitForPageReady(page);
 
-      const searchInput = page.locator('#search-box, input[type="search"]');
+      const searchInput = page.locator('#search-box, input[type="search"]').first();
       await expect(searchInput).toBeVisible();
 
       // Should be able to search on mobile
