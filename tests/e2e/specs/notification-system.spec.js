@@ -294,31 +294,27 @@ test.describe('Notification System', () => {
     test('should trigger notifications for action bar saved conferences', async ({ page, context }) => {
       await grantNotificationPermission(context);
 
-      // Set up action bar preferences
+      // Set up action bar preferences for a saved conference
       await page.evaluate(() => {
         const prefs = {
-          'conf-test': { save: true },
+          'conf-test-7': { save: true }
         };
         localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify(prefs));
       });
 
-      // Add a conference element to the page with a CFP that ensures exact day calculation
-      // The notification system uses Math.ceil for day calculation, so we need to set
-      // a date that accounts for this. We set midnight of the target day to ensure
-      // consistent day calculation across browsers and timezones.
+      // Add a conference element with a 7-day deadline
+      // The notification system uses range-based matching (±0.5 days)
+      // so any time within the 7-day window will trigger
       await page.evaluate(() => {
+        const now = Date.now();
         const conf = document.createElement('div');
         conf.className = 'ConfItem';
-        conf.dataset.confId = 'conf-test';
-        conf.dataset.confName = 'Test Conference';
+        conf.dataset.confId = 'conf-test-7';
+        conf.dataset.confName = 'Test Conference 7 Days';
 
-        // Calculate a date that will be exactly 7 days away when using Math.ceil
-        // Set to midnight of target day to ensure consistent calculation
-        const now = new Date();
-        const targetDate = new Date(now);
-        // Add 6 days and set to end of day to ensure Math.ceil gives us 7
-        targetDate.setDate(targetDate.getDate() + 6);
-        targetDate.setHours(23, 59, 59, 999);
+        // Set deadline to approximately 7 days from now
+        const targetMs = now + 7 * 24 * 60 * 60 * 1000;
+        const targetDate = new Date(targetMs);
 
         conf.dataset.cfp = targetDate.toISOString();
         document.body.appendChild(conf);
@@ -336,21 +332,20 @@ test.describe('Notification System', () => {
         }
       });
 
-      // Check that notification was scheduled
-      // The notification key includes the daysUntil value which could be 7 or close to it
-      // We check for any notification record for this conference
-      const notifyRecord = await page.evaluate(() => {
-        // Try to find any notification record that was created for conf-test
+      // Check that the notification was scheduled
+      const notifyRecords = await page.evaluate(() => {
+        const records = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && key.startsWith('pydeadlines_notify_conf-test_')) {
-            return localStorage.getItem(key);
+          if (key && key.startsWith('pydeadlines_notify_conf-test-7')) {
+            records.push({ key, value: localStorage.getItem(key) });
           }
         }
-        return null;
+        return records;
       });
 
-      expect(notifyRecord).toBeTruthy();
+      // The 7-day threshold should have triggered
+      expect(notifyRecords.length).toBe(1);
     });
   });
 
