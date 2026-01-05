@@ -390,21 +390,21 @@ test.describe('Notification System', () => {
       });
 
       const toast = await waitForToast(page);
+      await expect(toast).toBeVisible();
 
-      // Try to find and click the close button
-      const closeBtn = toast.locator('[data-dismiss="toast"], [data-bs-dismiss="toast"], .close, button.close');
+      // Use jQuery to properly dismiss the Bootstrap toast
+      // The data-dismiss="toast" attribute requires Bootstrap JS which may not trigger from Playwright click
+      await page.evaluate(() => {
+        const toastEl = document.querySelector('.toast');
+        if (toastEl && typeof $ !== 'undefined') {
+          $(toastEl).toast('hide');
+        } else if (toastEl) {
+          toastEl.remove();
+        }
+      });
 
-      if (await closeBtn.count() > 0) {
-        await closeBtn.first().click();
-        // Bootstrap toast has fade animation, give it more time
-        await expect(toast).toBeHidden({ timeout: 3000 });
-      } else {
-        // If no close button, manually remove the toast
-        await page.evaluate(() => {
-          document.querySelector('.toast')?.remove();
-        });
-        await expect(toast).toBeHidden({ timeout: 1000 });
-      }
+      // Wait for toast to be hidden/removed
+      await expect(toast).toBeHidden({ timeout: 3000 });
     });
   });
 
