@@ -282,7 +282,8 @@
 - conference: DjangoCon US
   year: 2026
   link: https://2026.djangocon.us/
-  cfp: TBA
+  cfp_link: https://pretalx.com/djangocon-us-2026/cfp
+  cfp: '2026-03-16 11:00:00'
   timezone: America/Chicago
   place: Chicago, USA
   start: 2026-09-14
@@ -312,7 +313,8 @@
   alt_name: PyCon PL
   year: 2026
   link: https://pl.pycon.org/2026
-  cfp: TBA
+  cfp: '2026-02-15 23:59:59'
+  timezone: Europe/Warsaw
   place: Gliwice, Poland
   start: 2026-08-27
   end: 2026-08-30
