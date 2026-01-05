@@ -160,7 +160,8 @@ test.describe('Search Functionality', () => {
 
       if (await firstResult.isVisible()) {
         // Check for essential conference information
-        const title = firstResult.locator('.conf-title, .conference-title, h3, h4');
+        // On mobile viewports, .conf-title is hidden and .conf-title-small is shown instead
+        const title = firstResult.locator('.conf-title, .conf-title-small, .conference-title, h3, h4');
         await expect(title).toBeVisible();
 
         // Check for deadline or date
