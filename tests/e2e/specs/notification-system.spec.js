@@ -294,40 +294,30 @@ test.describe('Notification System', () => {
     test('should trigger notifications for action bar saved conferences', async ({ page, context }) => {
       await grantNotificationPermission(context);
 
-      // Set up action bar preferences for multiple conferences
-      // We test multiple thresholds to ensure at least one triggers
+      // Set up action bar preferences for a saved conference
       await page.evaluate(() => {
         const prefs = {
-          'conf-test-7': { save: true },
-          'conf-test-3': { save: true },
-          'conf-test-1': { save: true },
+          'conf-test-7': { save: true }
         };
         localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify(prefs));
       });
 
-      // Add conference elements for each notification threshold (7, 3, 1 days)
-      // The notification system uses Math.ceil for day calculation, which can be
-      // affected by millisecond precision. By testing all three thresholds,
-      // we ensure at least one will match.
+      // Add a conference element with a 7-day deadline
+      // The notification system uses range-based matching (±0.5 days)
+      // so any time within the 7-day window will trigger
       await page.evaluate(() => {
         const now = Date.now();
+        const conf = document.createElement('div');
+        conf.className = 'ConfItem';
+        conf.dataset.confId = 'conf-test-7';
+        conf.dataset.confName = 'Test Conference 7 Days';
 
-        // Create conferences for each threshold
-        [7, 3, 1].forEach(days => {
-          const conf = document.createElement('div');
-          conf.className = 'ConfItem';
-          conf.dataset.confId = `conf-test-${days}`;
-          conf.dataset.confName = `Test Conference ${days} Days`;
+        // Set deadline to approximately 7 days from now
+        const targetMs = now + 7 * 24 * 60 * 60 * 1000;
+        const targetDate = new Date(targetMs);
 
-          // Calculate target date to hit this exact day threshold
-          // Use Math.ceil-compatible calculation: set to (days - 0.5) * 86400000 ms from now
-          // This ensures Math.ceil will round to exactly 'days'
-          const targetMs = now + (days - 0.5) * 24 * 60 * 60 * 1000;
-          const targetDate = new Date(targetMs);
-
-          conf.dataset.cfp = targetDate.toISOString();
-          document.body.appendChild(conf);
-        });
+        conf.dataset.cfp = targetDate.toISOString();
+        document.body.appendChild(conf);
       });
 
       // Clear last check to allow notification
@@ -342,21 +332,20 @@ test.describe('Notification System', () => {
         }
       });
 
-      // Check that at least one notification was scheduled
-      // The notification key includes the daysUntil value (7, 3, or 1)
+      // Check that the notification was scheduled
       const notifyRecords = await page.evaluate(() => {
         const records = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && key.startsWith('pydeadlines_notify_conf-test-')) {
+          if (key && key.startsWith('pydeadlines_notify_conf-test-7')) {
             records.push({ key, value: localStorage.getItem(key) });
           }
         }
         return records;
       });
 
-      // At least one of the three thresholds should have triggered
-      expect(notifyRecords.length).toBeGreaterThan(0);
+      // The 7-day threshold should have triggered
+      expect(notifyRecords.length).toBe(1);
     });
   });
 

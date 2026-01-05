@@ -9,6 +9,35 @@ const NotificationManager = {
     scheduledKey: 'pythondeadlines-scheduled-notifications',
 
     /**
+     * Check if daysUntil is within range of a notification threshold
+     * Uses a 24-hour window (±0.5 days) to ensure notifications aren't missed
+     * due to timing of periodic checks
+     * @param {number} daysUntil - Days until deadline (can be fractional)
+     * @param {number} threshold - Target day threshold (e.g., 7, 3, 1)
+     * @returns {boolean} True if within notification window
+     */
+    isWithinNotificationWindow(daysUntil, threshold) {
+        // Check if daysUntil is within ±0.5 days of threshold
+        // This gives a 24-hour window to catch each notification
+        return daysUntil > threshold - 0.5 && daysUntil <= threshold + 0.5;
+    },
+
+    /**
+     * Find which threshold (if any) applies for the given daysUntil
+     * @param {number} daysUntil - Days until deadline (can be fractional)
+     * @param {number[]} thresholds - Array of day thresholds to check
+     * @returns {number|null} The matching threshold or null
+     */
+    findMatchingThreshold(daysUntil, thresholds) {
+        for (const threshold of thresholds) {
+            if (this.isWithinNotificationWindow(daysUntil, threshold)) {
+                return threshold;
+            }
+        }
+        return null;
+    },
+
+    /**
      * Initialize notification system
      */
     init() {
@@ -226,21 +255,23 @@ const NotificationManager = {
                     return;
                 }
 
-                const daysUntil = Math.ceil((cfpDate - now) / (1000 * 60 * 60 * 24));
+                // Use fractional days for range-based matching
+                const daysUntil = (cfpDate - now) / (1000 * 60 * 60 * 24);
 
-                // Check if we should notify (7, 3, or 1 day before)
-                if ([7, 3, 1].includes(daysUntil)) {
-                    const notifyKey = `pydeadlines_notify_${confId}_${daysUntil}`;
+                // Check if we should notify (within ±0.5 days of 7, 3, or 1 day thresholds)
+                const matchedThreshold = this.findMatchingThreshold(daysUntil, [7, 3, 1]);
+                if (matchedThreshold !== null) {
+                    const notifyKey = `pydeadlines_notify_${confId}_${matchedThreshold}`;
                     const lastShown = parseInt(localStorage.getItem(notifyKey) || '0');
 
                     // Only show once per day for each notification
                     if (now - lastShown > 24 * 60 * 60 * 1000) {
                         if (Notification.permission === 'granted') {
                             const notification = new Notification('Python Deadlines Reminder', {
-                                body: `${daysUntil} day${daysUntil > 1 ? 's' : ''} until ${conf.name} CFP closes!`,
+                                body: `${matchedThreshold} day${matchedThreshold > 1 ? 's' : ''} until ${conf.name} CFP closes!`,
                                 icon: '/static/img/python-deadlines-logo.png',
                                 badge: '/static/img/python-deadlines-badge.png',
-                                tag: `deadline-${confId}-${daysUntil}`,
+                                tag: `deadline-${confId}-${matchedThreshold}`,
                                 requireInteraction: false
                             });
 
@@ -294,23 +325,23 @@ const NotificationManager = {
                 return;
             }
 
-            const daysUntil = Math.ceil((cfpDate - now) / (1000 * 60 * 60 * 24));
+            // Use fractional days for range-based matching
+            const daysUntil = (cfpDate - now) / (1000 * 60 * 60 * 24);
 
-            // Check if we should notify for this deadline
-            this.settings.days.forEach(daysBefore => {
-                if (daysUntil === daysBefore) {
-                    const notificationKey = `${conf.id}-${daysBefore}`;
+            // Check if we should notify for this deadline (within ±0.5 days of thresholds)
+            const matchedThreshold = this.findMatchingThreshold(daysUntil, this.settings.days);
+            if (matchedThreshold !== null) {
+                const notificationKey = `${conf.id}-${matchedThreshold}`;
 
-                    // Check if we've already notified for this
-                    if (!notified[notificationKey]) {
-                        this.sendDeadlineNotification(conf, daysUntil);
+                // Check if we've already notified for this
+                if (!notified[notificationKey]) {
+                    this.sendDeadlineNotification(conf, matchedThreshold);
 
-                        // Mark as notified
-                        notified[notificationKey] = new Date().toISOString();
-                        store.set(notifiedKey, notified);
-                    }
+                    // Mark as notified
+                    notified[notificationKey] = new Date().toISOString();
+                    store.set(notifiedKey, notified);
                 }
-            });
+            }
 
             // Clean up old notifications (older than 30 days)
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
