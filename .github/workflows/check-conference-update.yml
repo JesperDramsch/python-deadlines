@@ -577,7 +577,7 @@ jobs:
 
       - name: Create filter suggestion issue (fallback)
         if: steps.apply_api.outputs.success == 'false' || vars.CHANGEDETECTION_URL == ''
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           CONF_URL: ${{ needs.zone-check.outputs.url }}
           CONF_NAME: ${{ needs.zone-check.outputs.conference }}
@@ -762,7 +762,7 @@ jobs:
 
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           CONF_NAME: ${{ needs.zone-check.outputs.conference }}
@@ -1005,7 +1005,7 @@ jobs:
 
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           CONF_NAME: ${{ needs.zone-check.outputs.conference }}
