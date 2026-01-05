@@ -15,8 +15,8 @@ import {
 
 test.describe('Notification System', () => {
   test.beforeEach(async ({ page, context }) => {
-    // Navigate to home page
-    await page.goto('/');
+    // Navigate to my-conferences page where notification UI exists
+    await page.goto('/my-conferences');
 
     // Clear storage after navigation
     await clearLocalStorage(page);
@@ -321,7 +321,7 @@ test.describe('Notification System', () => {
       await page.setViewportSize({ width: 375, height: 667 });
 
       await grantNotificationPermission(context);
-      await page.goto('/');
+      await page.goto('/my-conferences');
       await waitForPageReady(page);
 
       // Notification system should still initialize
