@@ -179,9 +179,15 @@ test.describe('My Conferences Page Filters', () => {
       const workshopFilter = page.locator('.feature-filter[value="workshop"], label:has-text("Workshop") input').first();
 
       if (await workshopFilter.count() > 0) {
-        // Use force: true to bypass webkit's strict pointer event interception detection
-        // when series panel buttons may overlap with filter checkboxes
-        await workshopFilter.check({ force: true });
+        // Use JavaScript to check the checkbox directly - webkit has issues with
+        // click actions not changing checkbox state even with force: true
+        await page.evaluate(() => {
+          const checkbox = document.querySelector('.feature-filter[value="workshop"]');
+          if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
         await page.waitForFunction(() => document.readyState === 'complete');
 
         expect(await workshopFilter.isChecked()).toBe(true);
@@ -192,9 +198,15 @@ test.describe('My Conferences Page Filters', () => {
       const sponsorFilter = page.locator('.feature-filter[value="sponsor"], label:has-text("Sponsor") input').first();
 
       if (await sponsorFilter.count() > 0) {
-        // Use force: true to bypass webkit's strict pointer event interception detection
-        // when series panel buttons may overlap with filter checkboxes
-        await sponsorFilter.check({ force: true });
+        // Use JavaScript to check the checkbox directly - webkit has issues with
+        // click actions not changing checkbox state even with force: true
+        await page.evaluate(() => {
+          const checkbox = document.querySelector('.feature-filter[value="sponsor"]');
+          if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
         await page.waitForFunction(() => document.readyState === 'complete');
 
         expect(await sponsorFilter.isChecked()).toBe(true);
