@@ -316,7 +316,7 @@ jobs:
           if [ "$TRIAGE_MODE" = "slow" ]; then
             export PROMPT="You are a STRICT triage filter. This conference already has a CFP deadline - we ONLY care about EXTENSIONS. RELEVANT (extension indicators): extended, extension, new deadline, deadline moved, pushed back, more time, last chance. NOISE (everything else): speaker announcements, schedule, sponsors, registration, venue info. Be STRICT - if not clearly about deadline extension, mark NOISE."
           else
-            export PROMPT="You are a triage filter for a Python conference tracker. NEW YEAR indicators: future year (2025/2026/2027), save the date, announcing, next edition. RELEVANT: CFP announcements, new dates, location changes, registration open, deadline changes. NOISE: copyright year only, timestamps, counters, typos, cookies, nav changes, sponsors, speakers, schedule."
+            export PROMPT="You are a triage filter for a Python conference tracker. NEW YEAR indicators: future year (2025/2026/2027) WITH SPECIFIC DATES (exact days like 'September 15-17', not just month or season). RELEVANT: CFP announcements with specific deadlines (exact date), specific conference dates announced (exact days). NOISE: copyright year only, timestamps, counters, typos, cookies, nav changes, sponsors, speakers, schedule. ALSO NOISE: Vague date announcements ('sometime in September', 'early 2026', 'Fall 2026', 'dates TBD', 'coming soon') - these are not actionable until specific dates are published."
           fi
 
           # Create the API request payload
@@ -724,6 +724,8 @@ jobs:
             Schema: conference (no year), year (int), link, cfp ('YYYY-MM-DD HH:mm:ss' or 'TBA'), cfp_ext (extended deadline), place ("City, Country"), start/end (YYYY-MM-DD), sub (PY|SCIPY|DATA|WEB|BIZ|GEO)
 
             CFP Extension: Keep original cfp, set cfp_ext to new deadline.
+
+            CRITICAL: Only update dates if you find SPECIFIC dates (e.g., "September 15-17, 2026"). If dates are vague ("sometime in September", "Fall 2026", "TBD"), do NOT update the entry. Report "No changes - specific dates not found" and make no edits. Never fabricate or approximate dates.
           claude_args: |
             --model claude-haiku-4-5-20251001
             --max-turns 5
@@ -766,13 +768,11 @@ jobs:
         env:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           CONF_NAME: ${{ needs.zone-check.outputs.conference }}
-          CONF_ZONE: ${{ needs.zone-check.outputs.zone }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
         with:
           script: |
             const branch = process.env.UPDATE_BRANCH;
             const conference = process.env.CONF_NAME;
-            const zone = process.env.CONF_ZONE;
             const sha = process.env.COMMIT_SHA.substring(0, 7);
             const date = new Date().toISOString().split('T')[0];
 
@@ -783,7 +783,7 @@ jobs:
               state: 'open'
             });
 
-            const entry = `| ${conference} | ${zone} | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
+            const entry = `| ${conference} | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
 
             if (prs.length > 0) {
               const pr = prs[0];
@@ -802,7 +802,7 @@ jobs:
                 title: '🐍 Conference updates',
                 head: branch,
                 base: 'main',
-                body: `## 🐍 Automated Conference Updates\n\n| Conference | Zone | Commit | Date |\n|------------|------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
+                body: `## 🐍 Automated Conference Updates\n\n| Conference | Commit | Date |\n|------------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
               });
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
@@ -967,6 +967,8 @@ jobs:
 
             Read _data/conferences.yml, add/update entry for year ${{ needs.triage.outputs.detected_year }}.
             Keep conference name consistent with previous years. Match YAML formatting.
+
+            CRITICAL: Conference entries REQUIRE specific start/end dates. Only create an entry if you find EXACT dates (e.g., "September 15-17, 2026"). If dates are vague ("sometime in September", "Fall 2026", "TBD", "dates coming soon"), do NOT create the entry - the conference is not yet ready to be added. Report "No changes - specific dates not announced yet" and make no edits. Never fabricate or approximate dates.
           claude_args: |
             --model claude-haiku-4-5-20251001
             --max-turns 5
@@ -1026,7 +1028,7 @@ jobs:
               state: 'open'
             });
 
-            const entry = `| 🆕 ${conference} ${year} | new_year | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
+            const entry = `| 🆕 ${conference} ${year} | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
 
             if (prs.length > 0) {
               let body = prs[0].body || '';
@@ -1044,7 +1046,7 @@ jobs:
                 title: '🐍 Conference updates',
                 head: branch,
                 base: 'main',
-                body: `## 🐍 Automated Conference Updates\n\n| Conference | Zone | Commit | Date |\n|------------|------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
+                body: `## 🐍 Automated Conference Updates\n\n| Conference | Commit | Date |\n|------------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
               });
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
