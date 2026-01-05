@@ -84,7 +84,7 @@ jobs:
           npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: 📥 Download built site
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: jekyll-site
           path: _site/
@@ -168,7 +168,7 @@ jobs:
           npx playwright install --with-deps chromium webkit
 
       - name: 📥 Download built site
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: jekyll-site
           path: _site/
@@ -245,7 +245,7 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: 📥 Download built site
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: jekyll-site
           path: _site/
@@ -291,7 +291,7 @@ jobs:
           node-version: '20'
 
       - name: 📥 Download all artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: all-reports
 
