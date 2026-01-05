@@ -390,21 +390,16 @@ test.describe('Notification System', () => {
       });
 
       const toast = await waitForToast(page);
+      await expect(toast).toBeVisible();
 
-      // Try to find and click the close button
-      const closeBtn = toast.locator('[data-dismiss="toast"], [data-bs-dismiss="toast"], .close, button.close');
+      // Find and click the close button
+      // Bootstrap 4 uses data-dismiss="toast", need to click with force in case of overlay issues
+      const closeBtn = toast.locator('.close, [data-dismiss="toast"], [data-bs-dismiss="toast"]').first();
+      await expect(closeBtn).toBeVisible();
+      await closeBtn.click({ force: true });
 
-      if (await closeBtn.count() > 0) {
-        await closeBtn.first().click();
-        // Bootstrap toast has fade animation, give it more time
-        await expect(toast).toBeHidden({ timeout: 3000 });
-      } else {
-        // If no close button, manually remove the toast
-        await page.evaluate(() => {
-          document.querySelector('.toast')?.remove();
-        });
-        await expect(toast).toBeHidden({ timeout: 1000 });
-      }
+      // Bootstrap toast has fade animation, wait for it to complete
+      await expect(toast).toBeHidden({ timeout: 5000 });
     });
   });
 
