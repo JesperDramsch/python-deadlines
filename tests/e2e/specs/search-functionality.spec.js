@@ -161,8 +161,11 @@ test.describe('Search Functionality', () => {
       if (await firstResult.isVisible()) {
         // Check for essential conference information
         // On mobile viewports, .conf-title is hidden and .conf-title-small is shown instead
-        const title = firstResult.locator('.conf-title, .conf-title-small, .conference-title, h3, h4');
-        await expect(title).toBeVisible();
+        // We need to check each separately since Playwright only checks the first DOM element
+        const confTitle = firstResult.locator('.conf-title');
+        const confTitleSmall = firstResult.locator('.conf-title-small');
+        const hasVisibleTitle = await confTitle.isVisible() || await confTitleSmall.isVisible();
+        expect(hasVisibleTitle).toBeTruthy();
 
         // Check for deadline or date
         const deadline = firstResult.locator('.deadline, .timer, .countdown-display, .date');
