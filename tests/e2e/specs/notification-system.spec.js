@@ -10,7 +10,8 @@ import {
   setupSavedConferences,
   waitForToast,
   mockDateTime,
-  createMockConference
+  createMockConference,
+  dismissToast
 } from '../utils/helpers';
 
 test.describe('Notification System', () => {
@@ -301,17 +302,24 @@ test.describe('Notification System', () => {
         localStorage.setItem('pydeadlines_actionBarPrefs', JSON.stringify(prefs));
       });
 
-      // Add a conference element to the page with a CFP exactly 7 days from now
-      // Note: The notification system checks for exact day matches [7, 3, 1]
+      // Add a conference element to the page with a CFP that ensures exact day calculation
+      // The notification system uses Math.ceil for day calculation, so we need to set
+      // a date that accounts for this. We set midnight of the target day to ensure
+      // consistent day calculation across browsers and timezones.
       await page.evaluate(() => {
         const conf = document.createElement('div');
         conf.className = 'ConfItem';
         conf.dataset.confId = 'conf-test';
         conf.dataset.confName = 'Test Conference';
-        // Use a date that's exactly 7 days from now (same hour to ensure correct day calculation)
+
+        // Calculate a date that will be exactly 7 days away when using Math.ceil
+        // Set to midnight of target day to ensure consistent calculation
         const now = new Date();
-        const targetDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-        // Use ISO format for reliable parsing
+        const targetDate = new Date(now);
+        // Add 6 days and set to end of day to ensure Math.ceil gives us 7
+        targetDate.setDate(targetDate.getDate() + 6);
+        targetDate.setHours(23, 59, 59, 999);
+
         conf.dataset.cfp = targetDate.toISOString();
         document.body.appendChild(conf);
       });
@@ -328,10 +336,11 @@ test.describe('Notification System', () => {
         }
       });
 
-      // Check that notification was scheduled - the key uses the exact daysUntil value
-      // With the exact 7-day offset using ISO format, daysUntil should be 7
+      // Check that notification was scheduled
+      // The notification key includes the daysUntil value which could be 7 or close to it
+      // We check for any notification record for this conference
       const notifyRecord = await page.evaluate(() => {
-        // Try to find any notification record that was created
+        // Try to find any notification record that was created for conf-test
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
           if (key && key.startsWith('pydeadlines_notify_conf-test_')) {
@@ -412,14 +421,12 @@ test.describe('Notification System', () => {
       const toast = await waitForToast(page);
       await expect(toast).toBeVisible();
 
-      // Find and click the close button
-      // Bootstrap 4 uses data-dismiss="toast", need to click with force in case of overlay issues
-      const closeBtn = toast.locator('.close, [data-dismiss="toast"], [data-bs-dismiss="toast"]').first();
-      await expect(closeBtn).toBeVisible();
-      await closeBtn.click({ force: true });
+      // Use the dismissToast helper which handles Bootstrap 4 toast quirks on mobile
+      await dismissToast(page, toast);
 
-      // Bootstrap toast has fade animation, wait for it to complete
-      await expect(toast).toBeHidden({ timeout: 5000 });
+      // Wait for the toast to be hidden or removed from DOM
+      // Use a longer timeout to account for animation and different browser behaviors
+      await expect(toast).toBeHidden({ timeout: 7000 });
     });
   });
 

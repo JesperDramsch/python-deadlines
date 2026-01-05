@@ -7,7 +7,8 @@ import {
   waitForPageReady,
   waitForCountdowns,
   mockDateTime,
-  clearLocalStorage
+  clearLocalStorage,
+  getVisibleSearchInput
 } from '../utils/helpers';
 
 test.describe('Search Functionality', () => {
@@ -20,7 +21,8 @@ test.describe('Search Functionality', () => {
   test.describe('Search Interface', () => {
     test('should display search page with input field', async ({ page }) => {
       // Check search input exists (navbar search or page search)
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      // Use helper to get visible search input (handles mobile collapsed navbar)
+      const searchInput = await getVisibleSearchInput(page);
       await expect(searchInput).toBeVisible();
       await expect(searchInput).toBeEnabled();
 
@@ -31,13 +33,13 @@ test.describe('Search Functionality', () => {
     });
 
     test('should show placeholder text in search input', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
       const placeholder = await searchInput.getAttribute('placeholder');
       expect(placeholder).toBeTruthy();
     });
 
     test('should have accessible search input', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Check for accessibility attributes
       const ariaLabel = await searchInput.getAttribute('aria-label');
@@ -50,7 +52,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Execution', () => {
     test('should search for conferences by name', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Type search query
       await searchInput.fill('pycon');
@@ -74,7 +76,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should search for conferences by location', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Search by location
       await searchInput.fill('online');
@@ -92,7 +94,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should show no results message for empty search', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Search for something that likely doesn't exist
       await searchInput.fill('xyznonexistentconf123');
@@ -109,7 +111,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should clear search and show all results', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // First do a search
       await searchInput.fill('python');
@@ -128,7 +130,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should handle special characters in search', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Test with special characters
       const specialQueries = ['C++', 'R&D', '@conference', '#python'];
@@ -147,7 +149,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Results Display', () => {
     test('should display conference details in results', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Search for conferences
       await searchInput.fill('conference');
@@ -176,7 +178,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should display conference tags/categories', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       await searchInput.fill('python');
       await searchInput.press('Enter');
@@ -200,7 +202,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should display countdown timers in results', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       await searchInput.fill('2025');
       await searchInput.press('Enter');
@@ -220,7 +222,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should show calendar buttons for conferences', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       await searchInput.fill('conference');
       await searchInput.press('Enter');
@@ -250,7 +252,7 @@ test.describe('Search Functionality', () => {
       await page.waitForTimeout(1000);
 
       // Check if search input has the query (navbar search box gets populated)
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
       const value = await searchInput.inputValue();
       // The value might be set by JavaScript after the search index loads
       if (value) {
@@ -269,7 +271,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should update URL when searching', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       await searchInput.fill('django');
 
@@ -291,7 +293,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Filters', () => {
     test('should filter by conference type when clicking tags @visual', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // First search to get results with tags
       await searchInput.fill('python');
@@ -322,7 +324,7 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Performance', () => {
     test('should handle rapid successive searches', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Perform rapid searches
       const queries = ['p', 'py', 'pyc', 'pyco', 'pycon'];
@@ -345,7 +347,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should handle very long search queries', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Create a very long search query
       const longQuery = 'python '.repeat(50);
@@ -362,11 +364,11 @@ test.describe('Search Functionality', () => {
 
   test.describe('Search Accessibility', () => {
     test('should be keyboard navigable', async ({ page }) => {
-      // Tab to search input
-      await page.keyboard.press('Tab');
-      await page.keyboard.press('Tab'); // May need multiple tabs
+      // Get the visible search input to ensure we're interacting with the right element
+      const searchInput = await getVisibleSearchInput(page);
 
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      // Focus on the search input directly
+      await searchInput.focus();
 
       // Type using keyboard
       await page.keyboard.type('pycon');
@@ -385,7 +387,7 @@ test.describe('Search Functionality', () => {
     });
 
     test('should have proper ARIA labels', async ({ page }) => {
-      const searchInput = page.locator('#search-box, #search, input[type="search"]').first();
+      const searchInput = await getVisibleSearchInput(page);
 
       // Check for aria-label or associated label
       const ariaLabel = await searchInput.getAttribute('aria-label');
@@ -410,41 +412,18 @@ test.describe('Search Functionality', () => {
       await page.goto('/search');
       await waitForPageReady(page);
 
-      // On mobile, the navbar search might be hidden in a collapsed menu
-      // Look for the page's main search input or expand the navbar menu first
-      const navbarToggle = page.locator('.navbar-toggler, [data-toggle="collapse"], [data-bs-toggle="collapse"]').first();
-      if (await navbarToggle.isVisible()) {
-        await navbarToggle.click();
-        await page.waitForTimeout(500); // Wait for animation
-      }
+      // Use the helper to get a visible search input (handles collapsed navbar)
+      const searchInput = await getVisibleSearchInput(page);
 
-      // Try to find a visible search input
-      const searchInputs = page.locator('#search-box, #search, input[type="search"]');
-      let visibleSearchInput = null;
+      // Test the search functionality
+      await searchInput.fill('mobile test');
+      await searchInput.press('Enter');
 
-      for (let i = 0; i < await searchInputs.count(); i++) {
-        const input = searchInputs.nth(i);
-        if (await input.isVisible()) {
-          visibleSearchInput = input;
-          break;
-        }
-      }
+      await page.waitForFunction(() => document.readyState === 'complete');
 
-      // If we found a visible search input, test it
-      if (visibleSearchInput) {
-        await visibleSearchInput.fill('mobile test');
-        await visibleSearchInput.press('Enter');
-
-        await page.waitForFunction(() => document.readyState === 'complete');
-
-        // Results container should exist
-        const results = page.locator('#search-results');
-        await expect(results).toBeAttached();
-      } else {
-        // On mobile, search might only be accessible via the page form
-        // Just verify the search page loaded correctly
-        await expect(page.locator('#search-results')).toBeAttached();
-      }
+      // Results container should exist
+      const results = page.locator('#search-results');
+      await expect(results).toBeAttached();
     });
   });
 });

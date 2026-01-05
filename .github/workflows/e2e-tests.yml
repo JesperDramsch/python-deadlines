@@ -146,9 +146,19 @@ jobs:
           retention-days: 7
 
   e2e-mobile:
-    name: E2E Tests - Mobile
+    name: E2E Tests - Mobile ${{ matrix.mobile }}
     runs-on: ubuntu-latest
     needs: build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        mobile: [mobile-chrome, mobile-safari]
+        include:
+          - mobile: mobile-chrome
+            browser: chromium
+          - mobile: mobile-safari
+            browser: webkit
 
     steps:
       - name: 📂 Checkout repository
@@ -165,7 +175,7 @@ jobs:
 
       - name: 🎭 Install Playwright browsers
         run: |
-          npx playwright install --with-deps chromium webkit
+          npx playwright install --with-deps ${{ matrix.browser }}
 
       - name: 📥 Download built site
         uses: actions/download-artifact@v7
@@ -185,7 +195,7 @@ jobs:
 
       - name: 📱 Run mobile E2E tests
         run: |
-          PLAYWRIGHT_JSON_OUTPUT_NAME=test-results.json npx playwright test --project=mobile-chrome --project=mobile-safari --reporter=html,json
+          PLAYWRIGHT_JSON_OUTPUT_NAME=test-results.json npx playwright test --project=${{ matrix.mobile }} --reporter=html,json
         env:
           CI: true
           BASE_URL: http://localhost:4000
@@ -194,7 +204,7 @@ jobs:
         if: always()
         run: |
           if [ -f test-results.json ]; then
-            echo "## 🎭 E2E Test Results - Mobile" >> $GITHUB_STEP_SUMMARY
+            echo "## 🎭 E2E Test Results - ${{ matrix.mobile }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             node -e "
               const results = require('./test-results.json');
@@ -215,10 +225,18 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: playwright-report-mobile
+          name: playwright-report-${{ matrix.mobile }}
           path: |
             playwright-report/
             test-results/
+          retention-days: 7
+
+      - name: 📸 Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: screenshots-${{ matrix.mobile }}
+          path: test-results/screenshots/
           retention-days: 7
 
   visual-regression:
@@ -336,7 +354,7 @@ jobs:
             comment += `| Browser | Status | Tests | Passed | Failed | Skipped |\n`;
             comment += `|---------|--------|-------|--------|--------|----------|\n`;
 
-            const browsers = ['chromium', 'firefox', 'webkit', 'mobile'];
+            const browsers = ['chromium', 'firefox', 'webkit', 'mobile-chrome', 'mobile-safari'];
             for (const browser of browsers) {
               const artifactExists = fs.existsSync(`all-reports/playwright-report-${browser}`);
               if (artifactExists) {
