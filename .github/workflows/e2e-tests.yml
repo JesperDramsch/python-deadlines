@@ -50,7 +50,7 @@ jobs:
           JEKYLL_ENV: test
 
       - name: 📤 Upload built site
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jekyll-site
           path: _site/
@@ -129,7 +129,7 @@ jobs:
 
       - name: 📊 Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report-${{ matrix.browser }}
           path: |
@@ -139,7 +139,7 @@ jobs:
 
       - name: 📸 Upload screenshots
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: screenshots-${{ matrix.browser }}
           path: test-results/screenshots/
@@ -213,7 +213,7 @@ jobs:
 
       - name: 📊 Upload mobile test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report-mobile
           path: |
@@ -269,7 +269,7 @@ jobs:
 
       - name: 🖼️ Upload visual diffs
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: visual-diffs
           path: test-results/visual-diffs/
