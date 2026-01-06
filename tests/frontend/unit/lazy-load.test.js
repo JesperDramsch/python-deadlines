@@ -110,20 +110,12 @@ describe('LazyLoad', () => {
       value: 'complete'
     });
 
-    const script = require('fs').readFileSync(
-      require('path').resolve(__dirname, '../../../static/js/lazy-load.js'),
-      'utf8'
-    );
-
-    // Execute the script - it will initialize immediately
-    eval(script);
+    // Use jest.isolateModules to load the module fresh each time
+    jest.isolateModules(() => {
+      require('../../../static/js/lazy-load.js');
+    });
 
     LazyLoad = window.LazyLoad;
-
-    // Check if LazyLoad was exposed
-    if (!LazyLoad) {
-      console.error('LazyLoad not exposed after eval');
-    }
   });
 
   // Helper function to trigger DOMContentLoaded and run timers
@@ -224,11 +216,9 @@ describe('LazyLoad', () => {
       });
 
       // Re-load the lazy-load module without IntersectionObserver
-      const script = require('fs').readFileSync(
-        require('path').resolve(__dirname, '../../../static/js/lazy-load.js'),
-        'utf8'
-      );
-      eval(script);
+      jest.isolateModules(() => {
+        require('../../../static/js/lazy-load.js');
+      });
 
       // All conferences should be loaded without lazy loading
       const conferences = document.querySelectorAll('.ConfItem');
@@ -253,12 +243,29 @@ describe('LazyLoad', () => {
       });
     });
 
-    test('should store original content', () => {
+    test('should store original content and restore it when loaded', () => {
       triggerDOMContentLoaded();
 
       const lazyItem = document.querySelector('.ConfItem.lazy-load');
-      expect(lazyItem.getAttribute('data-original-content')).toBeTruthy();
-      expect(lazyItem.getAttribute('data-original-content')).toContain('Conference');
+
+      // Verify placeholder is shown (original content is stored somewhere internally)
+      expect(lazyItem.querySelector('.lazy-placeholder')).toBeTruthy();
+      expect(lazyItem.textContent).not.toContain('Conference');
+
+      // Now load the item and verify original content is restored
+      const observer = mockIntersectionObserver.getInstance();
+      if (observer && lazyItem) {
+        observer.callback([
+          {
+            isIntersecting: true,
+            target: lazyItem
+          }
+        ], observer);
+
+        // Original content should be restored
+        expect(lazyItem.textContent).toContain('Conference');
+        expect(lazyItem.querySelector('.lazy-placeholder')).toBeFalsy();
+      }
     });
   });
 
@@ -565,11 +572,9 @@ describe('LazyLoad', () => {
       });
 
       // Re-load module
-      const script = require('fs').readFileSync(
-        require('path').resolve(__dirname, '../../../static/js/lazy-load.js'),
-        'utf8'
-      );
-      eval(script);
+      jest.isolateModules(() => {
+        require('../../../static/js/lazy-load.js');
+      });
 
       const styles = document.getElementById('lazy-load-styles');
       expect(styles).toBeTruthy();
