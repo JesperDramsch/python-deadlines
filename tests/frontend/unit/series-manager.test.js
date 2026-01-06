@@ -365,28 +365,13 @@ describe('SeriesManager', () => {
     // Mock addEventListener
     window.addEventListener = jest.fn();
 
-    // Load SeriesManager
-    const script = require('fs').readFileSync(
-      require('path').resolve(__dirname, '../../../static/js/series-manager.js'),
-      'utf8'
-    );
+    // Load SeriesManager using jest.isolateModules
+    // The module now exports itself on window.SeriesManager
+    jest.isolateModules(() => {
+      require('../../../static/js/series-manager.js');
+    });
 
-    // The SeriesManager is defined as a const, we need to modify it to attach to window
-    // Replace const SeriesManager with window.SeriesManager
-    const modifiedScript = script
-      .replace('const SeriesManager = {', 'window.SeriesManager = {')
-      .replace(
-        /\$\(document\)\.ready\(function\(\)\s*{\s*SeriesManager\.init\(\);\s*}\);?/,
-        ''
-      );
-
-    // Execute the script to define SeriesManager
-    try {
-      eval(modifiedScript);
-      SeriesManager = window.SeriesManager;
-    } catch (error) {
-      console.error('Error loading SeriesManager:', error);
-    }
+    SeriesManager = window.SeriesManager;
   });
 
   afterEach(() => {
