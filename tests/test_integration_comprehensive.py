@@ -604,25 +604,42 @@ class TestBusinessLogicIntegration:
 
     def test_cfp_priority_logic(self):
         """Test CFP vs CFP extended priority logic."""
-        # Conference with both CFP and extended CFP
-        conference_data = {
-            "conference": "Extended CFP Conference",
-            "year": 2025,
-            "cfp": "2025-02-15",
-            "cfp_ext": "2025-03-01",  # Extended deadline
+        from datetime import date, timedelta
+
+        today = date.today()
+
+        # Conference where cfp is in range but cfp_ext is NOT
+        # If cfp_ext takes priority (as it should), this should NOT be included
+        conf_cfp_only_in_range = {
+            "conference": "CFP Only In Range",
+            "year": today.year,
+            "cfp": (today + timedelta(days=5)).isoformat(),  # In 30-day range
+            "cfp_ext": (today + timedelta(days=60)).isoformat(),  # Outside 30-day range
             "place": "Test City",
-            "start": "2025-06-01",
-            "end": "2025-06-03",
+            "start": (today + timedelta(days=90)).isoformat(),
+            "end": (today + timedelta(days=92)).isoformat(),
         }
 
-        # Test newsletter prioritization
-        df = pd.DataFrame([conference_data])
+        # Conference where cfp is NOT in range but cfp_ext IS
+        # If cfp_ext takes priority (as it should), this SHOULD be included
+        conf_cfp_ext_in_range = {
+            "conference": "CFP Ext In Range",
+            "year": today.year,
+            "cfp": (today - timedelta(days=30)).isoformat(),  # Past/outside range
+            "cfp_ext": (today + timedelta(days=10)).isoformat(),  # In 30-day range
+            "place": "Test City",
+            "start": (today + timedelta(days=90)).isoformat(),
+            "end": (today + timedelta(days=92)).isoformat(),
+        }
+
+        df = pd.DataFrame([conf_cfp_only_in_range, conf_cfp_ext_in_range])
 
         with patch("builtins.print"):
             filtered = newsletter.filter_conferences(df, days=30)
 
-        # Should use cfp_ext for filtering when available
-        assert len(filtered) >= 0  # May or may not be in range depending on test date
+        # cfp_ext takes priority: only "CFP Ext In Range" should be included
+        assert len(filtered) == 1, f"Expected 1 conference, got {len(filtered)}"
+        assert filtered.iloc[0]["conference"] == "CFP Ext In Range"
 
     def test_archive_vs_live_link_logic(self):
         """Test logic for handling archive vs live links."""

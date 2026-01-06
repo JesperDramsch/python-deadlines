@@ -362,6 +362,6 @@ class TestProductionDataIntegrity:
             with archive_file.open(encoding="utf-8") as f:
                 archive = yaml.safe_load(f)
 
-            # Archive should have reasonable amount
-            assert len(archive) >= 0, "Archive has negative conferences?"
+            # Archive should have reasonable amount (at least 1 if file exists)
+            assert len(archive) >= 1, f"Archive file exists but has no conferences: {len(archive)}"
             assert len(archive) <= 10000, f"Archive seems too large: {len(archive)}"
