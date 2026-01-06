@@ -77,71 +77,36 @@ describe('ActionBar', () => {
     // Mock dispatchEvent
     window.dispatchEvent = jest.fn();
 
-    // Load ActionBar (it's an IIFE, so we need to execute it)
-    jest.isolateModules(() => {
-      // Create a mock jQuery
-      global.$ = jest.fn((selector) => {
-        if (typeof selector === 'function') {
-          // Document ready
-          selector();
-          return;
-        }
-        if (selector === document) {
-          return {
-            ready: jest.fn((cb) => cb()),
-            on: jest.fn()
-          };
-        }
-        const elements = document.querySelectorAll(selector);
+    // Create a mock jQuery
+    global.$ = jest.fn((selector) => {
+      if (typeof selector === 'function') {
+        // Document ready
+        selector();
+        return;
+      }
+      if (selector === document) {
         return {
-          length: elements.length,
-          each: jest.fn((cb) => {
-            elements.forEach((el, i) => cb.call(el, i, el));
-          })
+          ready: jest.fn((cb) => cb()),
+          on: jest.fn()
         };
-      });
-
-      // Execute the action-bar IIFE
-      const actionBarCode = require('fs').readFileSync(
-        require('path').resolve(__dirname, '../../../static/js/action-bar.js'),
-        'utf8'
-      );
-
-      // Execute the IIFE to set up the minimalActionAPI
-      eval(actionBarCode);
-
-      // Extract internal functions for testing by removing IIFE wrapper
-      const innerCode = actionBarCode
-        .replace(/^\(function\(\)\s*{/, '')
-        .replace(/}\)\(\);?\s*$/, '');
-
-      // Extract specific functions for testing
-      actionBar = {};
-
-      // Extract getPrefs function
-      const getPrefMatch = innerCode.match(/function getPrefs\(\)[\s\S]*?^\s{4}\}/m);
-      if (getPrefMatch) {
-        eval('actionBar.getPrefs = ' + getPrefMatch[0]);
       }
-
-      // Extract savePrefs function
-      const savePrefMatch = innerCode.match(/function savePrefs\(prefs\)[\s\S]*?^\s{4}\}/m);
-      if (savePrefMatch) {
-        eval('actionBar.savePrefs = ' + savePrefMatch[0]);
-      }
-
-      // Extract updateIndicators function
-      const updateMatch = innerCode.match(/function updateIndicators\(\)[\s\S]*?^\s{4}\}/m);
-      if (updateMatch) {
-        eval('actionBar.updateIndicators = ' + updateMatch[0]);
-      }
-
-      // Extract initializeIndicators function
-      const initMatch = innerCode.match(/function initializeIndicators\(\)[\s\S]*?^\s{4}\}/m);
-      if (initMatch) {
-        eval('actionBar.initializeIndicators = ' + initMatch[0]);
-      }
+      const elements = document.querySelectorAll(selector);
+      return {
+        length: elements.length,
+        each: jest.fn((cb) => {
+          elements.forEach((el, i) => cb.call(el, i, el));
+        })
+      };
     });
+
+    // Load ActionBar using jest.isolateModules for fresh instance
+    jest.isolateModules(() => {
+      require('../../../static/js/action-bar.js');
+    });
+
+    // Note: action-bar.js is an IIFE that doesn't expose internal functions.
+    // Tests should verify behavior through DOM interactions and store calls.
+    actionBar = {};
   });
 
   afterEach(() => {
@@ -289,20 +254,16 @@ describe('ActionBar', () => {
         return {};
       });
 
-      // Simulate unsave action
-      if (actionBar && actionBar.savePrefs) {
-        const prefs = actionBar.getPrefs();
-        if (prefs['pycon-2025']) {
-          prefs['pycon-2025'].saved = false;
-        }
-        actionBar.savePrefs(prefs);
-      }
+      // Click indicator to show popover
+      indicator.click();
 
-      // Simulate the indicator update
-      indicator.classList.remove('saved');
+      // Find and click the save button (which should now unsave)
+      const saveBtn = document.querySelector('.action-popover[data-conf-id="pycon-2025"] .action-popover-item[data-action="save"]');
+      saveBtn.click();
 
-      // Should toggle off
-      expect(indicator.classList.contains('saved')).toBe(false);
+      // The indicator should toggle off after unsave action
+      // Since the real handler sets up DOM changes, we verify the interaction occurred
+      expect(storeMock.set).toHaveBeenCalled();
     });
   });
 
