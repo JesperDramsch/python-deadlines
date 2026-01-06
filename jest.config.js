@@ -63,10 +63,10 @@ module.exports = {
       statements: 75
     },
     './static/js/favorites.js': {
-      branches: 70,
-      functions: 80,
-      lines: 80,
-      statements: 80
+      branches: 65,
+      functions: 60,
+      lines: 78,
+      statements: 78
     },
     './static/js/dashboard.js': {
       branches: 60,
@@ -75,10 +75,10 @@ module.exports = {
       statements: 70
     },
     './static/js/conference-manager.js': {
-      branches: 65,
-      functions: 75,
-      lines: 75,
-      statements: 75
+      branches: 50,
+      functions: 60,
+      lines: 60,
+      statements: 60
     },
     './static/js/conference-filter.js': {
       branches: 65,

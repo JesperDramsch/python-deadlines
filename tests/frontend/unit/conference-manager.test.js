@@ -130,25 +130,14 @@ describe('ConferenceStateManager', () => {
       writable: true
     });
 
-    // Load ConferenceStateManager
-    const managerCode = require('fs').readFileSync(
-      require('path').resolve(__dirname, '../../../static/js/conference-manager.js'),
-      'utf8'
-    );
+    // Load ConferenceStateManager using jest.isolateModules for proper coverage
+    jest.isolateModules(() => {
+      require('../../../static/js/conference-manager.js');
+    });
 
-    // Execute the code with mocked localStorage in scope
-    const wrapper = `
-      (function(localStorage) {
-        ${managerCode}
-        return ConferenceStateManager;
-      })
-    `;
-    const createConferenceStateManager = eval(wrapper);
-    ConferenceStateManager = createConferenceStateManager(window.localStorage);
-
-    // Make it available globally for tests
+    // Get the class from window where the module exports it
+    ConferenceStateManager = window.ConferenceStateManager;
     global.ConferenceStateManager = ConferenceStateManager;
-    window.ConferenceStateManager = ConferenceStateManager;
   });
 
   afterEach(() => {
