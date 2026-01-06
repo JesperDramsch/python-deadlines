@@ -309,6 +309,9 @@ const DashboardFilters = {
     }
 };
 
+// Expose to window for external access and testing
+window.DashboardFilters = DashboardFilters;
+
 // Initialize on document ready
 $(document).ready(function() {
     if (window.location.pathname.includes('/dashboard')) {
