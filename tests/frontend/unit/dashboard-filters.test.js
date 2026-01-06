@@ -405,7 +405,10 @@ describe('DashboardFilters', () => {
       expect(saveToURLSpy).toHaveBeenCalled();
     });
 
-    test('should update filter count when search input changes', () => {
+    // SKIPPED: The DashboardFilters module does not bind any events to the search input.
+    // bindEvents() only handles filter checkboxes. If search filtering is needed,
+    // it should be implemented in the module first.
+    test.skip('should update filter count when search input changes', () => {
       DashboardFilters.bindEvents();
       const updateFilterCountSpy = jest.spyOn(DashboardFilters, 'updateFilterCount');
 
@@ -413,13 +416,14 @@ describe('DashboardFilters', () => {
       search.value = 'pycon';
       search.dispatchEvent(new Event('input', { bubbles: true }));
 
-      // FIXED: Verify the module's event handling was triggered
-      // The search input doesn't directly update filter count in the real module,
-      // but it does trigger change events. Test actual behavior.
-      expect(search.value).toBe('pycon');
+      // This would test actual behavior if the module had search event handling
+      expect(updateFilterCountSpy).toHaveBeenCalled();
     });
 
-    test('should update filter count when sort changes', () => {
+    // SKIPPED: The DashboardFilters module does not bind any events to the sort select.
+    // bindEvents() only handles filter checkboxes. If sort handling is needed,
+    // it should be implemented in the module first.
+    test.skip('should update filter count when sort changes', () => {
       DashboardFilters.bindEvents();
       const updateFilterCountSpy = jest.spyOn(DashboardFilters, 'updateFilterCount');
 
@@ -427,8 +431,8 @@ describe('DashboardFilters', () => {
       sortBy.value = 'start';
       sortBy.dispatchEvent(new Event('change', { bubbles: true }));
 
-      // FIXED: Test actual DOM state change, not just that we set it
-      expect(sortBy.value).toBe('start');
+      // This would test actual behavior if the module had sort event handling
+      expect(updateFilterCountSpy).toHaveBeenCalled();
     });
 
     test('should call updateFilterCount on bindEvents initialization', () => {
