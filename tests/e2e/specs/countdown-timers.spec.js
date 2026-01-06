@@ -84,14 +84,16 @@ test.describe('Countdown Timers', () => {
     test('should show compact format for small countdown', async ({ page }) => {
       // Look for small countdown if exists
       const smallCountdown = page.locator('.countdown-display.countdown-small');
+      const count = await smallCountdown.count();
 
-      if (await smallCountdown.count() > 0) {
-        const text = await smallCountdown.first().textContent();
+      // Skip if no small countdowns exist in test data
+      test.skip(count === 0, 'No small countdown elements found in test data');
 
-        // Should match format: "Xd XX:XX:XX" or "Passed"
-        if (text && !text.includes('Passed') && !text.includes('TBA')) {
-          expect(text).toMatch(/\d+d \d{2}:\d{2}:\d{2}/);
-        }
+      const text = await smallCountdown.first().textContent();
+
+      // Should match format: "Xd XX:XX:XX" or "Passed"
+      if (text && !text.includes('Passed') && !text.includes('TBA')) {
+        expect(text).toMatch(/\d+d \d{2}:\d{2}:\d{2}/);
       }
     });
   });
@@ -102,11 +104,13 @@ test.describe('Countdown Timers', () => {
 
       // Look for passed deadlines
       const passedCountdowns = page.locator('.countdown-display.deadline-passed, .countdown-display:has-text("passed")');
+      const count = await passedCountdowns.count();
 
-      if (await passedCountdowns.count() > 0) {
-        const text = await passedCountdowns.first().textContent();
-        expect(text).toMatch(/passed/i);
-      }
+      // Skip if no passed deadlines exist in test data
+      test.skip(count === 0, 'No passed deadline elements found in test data');
+
+      const text = await passedCountdowns.first().textContent();
+      expect(text).toMatch(/passed/i);
     });
 
     test('should handle TBA deadlines', async ({ page }) => {
@@ -117,22 +121,25 @@ test.describe('Countdown Timers', () => {
         elements.filter(el => el.dataset.deadline === 'TBA').length
       );
 
-      if (tbaElements > 0) {
-        const tbaCountdown = page.locator('.countdown-display[data-deadline="TBA"]').first();
-        const text = await tbaCountdown.textContent();
-        expect(text).toBe('');
-      }
+      // Skip if no TBA deadlines exist in test data
+      test.skip(tbaElements === 0, 'No TBA deadline elements found in test data');
+
+      const tbaCountdown = page.locator('.countdown-display[data-deadline="TBA"]').first();
+      const text = await tbaCountdown.textContent();
+      expect(text).toBe('');
     });
 
     test('should add deadline-passed class to past deadlines', async ({ page }) => {
       await waitForCountdowns(page);
 
       const passedCountdowns = page.locator('.countdown-display.deadline-passed');
+      const count = await passedCountdowns.count();
 
-      if (await passedCountdowns.count() > 0) {
-        // Should have the deadline-passed class
-        await expect(passedCountdowns.first()).toHaveClass(/deadline-passed/);
-      }
+      // Skip if no passed deadlines exist in test data
+      test.skip(count === 0, 'No deadline-passed elements found in test data');
+
+      // Should have the deadline-passed class
+      await expect(passedCountdowns.first()).toHaveClass(/deadline-passed/);
     });
   });
 
@@ -141,15 +148,17 @@ test.describe('Countdown Timers', () => {
       await waitForCountdowns(page);
 
       // Check if any countdowns have timezone attributes
-      const timezonedCountdown = page.locator('.countdown-display[data-timezone]').first();
+      const timezonedCountdowns = page.locator('.countdown-display[data-timezone]');
+      const count = await timezonedCountdowns.count();
 
-      if (await timezonedCountdown.count() > 0) {
-        const timezone = await timezonedCountdown.getAttribute('data-timezone');
-        expect(timezone).toBeTruthy();
+      // Skip if no timezoned countdowns exist in test data
+      test.skip(count === 0, 'No countdown elements with timezone attribute found in test data');
 
-        // Timezone should be valid IANA format or UTC offset
-        expect(timezone).toMatch(/^([A-Z][a-z]+\/[A-Z][a-z]+|UTC[+-]\d+)$/);
-      }
+      const timezone = await timezonedCountdowns.first().getAttribute('data-timezone');
+      expect(timezone).toBeTruthy();
+
+      // Timezone should be valid IANA format or UTC offset
+      expect(timezone).toMatch(/^([A-Z][a-z]+\/[A-Z][a-z]+|UTC[+-]\d+)$/);
     });
 
     test('should default to UTC-12 (AoE) when no timezone specified', async ({ page }) => {

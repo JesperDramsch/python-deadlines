@@ -67,12 +67,13 @@ test.describe('Search Functionality', () => {
       const results = page.locator('#search-results .ConfItem, .search-results .conference-item');
       const count = await results.count();
 
-      if (count > 0) {
-        // Verify at least one result contains "pycon" (case-insensitive)
-        const firstResult = results.first();
-        const text = await firstResult.textContent();
-        expect(text.toLowerCase()).toContain('pycon');
-      }
+      // Skip if no results returned (search index may not be available)
+      test.skip(count === 0, 'No search results returned - search index may not be available');
+
+      // Verify at least one result contains "pycon" (case-insensitive)
+      const firstResult = results.first();
+      const text = await firstResult.textContent();
+      expect(text.toLowerCase()).toContain('pycon');
     });
 
     test('should search for conferences by location', async ({ page }) => {
@@ -86,11 +87,13 @@ test.describe('Search Functionality', () => {
 
       // Check if results contain online conferences
       const results = page.locator('#search-results .conf-place, .search-results .location');
+      const count = await results.count();
 
-      if (await results.count() > 0) {
-        const firstLocation = await results.first().textContent();
-        expect(firstLocation.toLowerCase()).toContain('online');
-      }
+      // Skip if no location elements found (search may not have returned results)
+      test.skip(count === 0, 'No location elements found in search results');
+
+      const firstLocation = await results.first().textContent();
+      expect(firstLocation.toLowerCase()).toContain('online');
     });
 
     test('should show no results message for empty search', async ({ page }) => {
@@ -104,10 +107,12 @@ test.describe('Search Functionality', () => {
 
       // Check for no results message
       const noResults = page.locator('.no-results, [class*="no-result"], :text("No results"), :text("not found")');
+      const count = await noResults.count();
 
-      if (await noResults.count() > 0) {
-        await expect(noResults.first()).toBeVisible();
-      }
+      // Skip if no "no results" message element found (UI may handle empty results differently)
+      test.skip(count === 0, 'No "no results" message element found - UI may handle empty results differently');
+
+      await expect(noResults.first()).toBeVisible();
     });
 
     test('should clear search and show all results', async ({ page }) => {
@@ -160,29 +165,31 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       const firstResult = page.locator('#search-results .ConfItem, .search-results .conference-item').first();
+      const isVisible = await firstResult.isVisible();
 
-      if (await firstResult.isVisible()) {
-        // Check for essential conference information
-        // On mobile viewports, .conf-title is hidden and .conf-title-small is shown instead
-        // We need to check each separately since Playwright only checks the first DOM element
-        const confTitle = firstResult.locator('.conf-title');
-        const confTitleSmall = firstResult.locator('.conf-title-small');
-        const hasVisibleTitle = await confTitle.isVisible() || await confTitleSmall.isVisible();
-        expect(hasVisibleTitle).toBeTruthy();
+      // Skip if no search results visible
+      test.skip(!isVisible, 'No search results visible - search may not have returned results');
 
-        // Check for deadline or date
-        const deadline = firstResult.locator('.deadline, .timer, .countdown-display, .date');
-        if (await deadline.count() > 0) {
-          await expect(deadline.first()).toBeVisible();
-        }
+      // Check for essential conference information
+      // On mobile viewports, .conf-title is hidden and .conf-title-small is shown instead
+      // We need to check each separately since Playwright only checks the first DOM element
+      const confTitle = firstResult.locator('.conf-title');
+      const confTitleSmall = firstResult.locator('.conf-title-small');
+      const hasVisibleTitle = await confTitle.isVisible() || await confTitleSmall.isVisible();
+      expect(hasVisibleTitle).toBeTruthy();
 
-        // Check for location (hidden on mobile viewports via CSS)
-        const isMobile = testInfo.project.name.includes('mobile');
-        if (!isMobile) {
-          const location = firstResult.locator('.conf-place, .location, .place');
-          if (await location.count() > 0) {
-            await expect(location.first()).toBeVisible();
-          }
+      // Check for deadline or date (optional element - skip check if not present)
+      const deadline = firstResult.locator('.deadline, .timer, .countdown-display, .date');
+      if (await deadline.count() > 0) {
+        await expect(deadline.first()).toBeVisible();
+      }
+
+      // Check for location (hidden on mobile viewports via CSS, optional element)
+      const isMobile = testInfo.project.name.includes('mobile');
+      if (!isMobile) {
+        const location = firstResult.locator('.conf-place, .location, .place');
+        if (await location.count() > 0) {
+          await expect(location.first()).toBeVisible();
         }
       }
     });
@@ -199,16 +206,18 @@ test.describe('Search Functionality', () => {
 
       // Look for conference type badges in search results
       const tags = page.locator('#search-results .conf-sub');
+      const tagCount = await tags.count();
 
-      if (await tags.count() > 0) {
-        const firstTag = tags.first();
-        await expect(firstTag).toBeVisible();
+      // Skip if no tags found (search may not have returned results with tags)
+      test.skip(tagCount === 0, 'No conference tags found in search results');
 
-        // Tag should have some text or at least a data-sub attribute
-        const tagText = await firstTag.textContent();
-        const dataSub = await firstTag.getAttribute('data-sub');
-        expect(tagText || dataSub).toBeTruthy();
-      }
+      const firstTag = tags.first();
+      await expect(firstTag).toBeVisible();
+
+      // Tag should have some text or at least a data-sub attribute
+      const tagText = await firstTag.textContent();
+      const dataSub = await firstTag.getAttribute('data-sub');
+      expect(tagText || dataSub).toBeTruthy();
     });
 
     test('should display countdown timers in results', async ({ page }) => {
@@ -220,15 +229,17 @@ test.describe('Search Functionality', () => {
 
       // Look for countdown timers
       const timers = page.locator('.search-timer, .countdown-display, .timer');
+      const timerCount = await timers.count();
 
-      if (await timers.count() > 0) {
-        const firstTimer = timers.first();
-        await expect(firstTimer).toBeVisible();
+      // Skip if no timers found (search may not have returned results with timers)
+      test.skip(timerCount === 0, 'No countdown timers found in search results');
 
-        // Timer should have content (either countdown or "Passed")
-        const timerText = await firstTimer.textContent();
-        expect(timerText).toBeTruthy();
-      }
+      const firstTimer = timers.first();
+      await expect(firstTimer).toBeVisible();
+
+      // Timer should have content (either countdown or "Passed")
+      const timerText = await firstTimer.textContent();
+      expect(timerText).toBeTruthy();
     });
 
     test('should show calendar buttons for conferences', async ({ page }) => {
