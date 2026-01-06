@@ -390,15 +390,23 @@ describe('FavoritesManager', () => {
     test('should handle missing conference ID gracefully', () => {
       FavoritesManager.init();
 
-      document.body.innerHTML += '<div class="favorite-btn"><i class="far fa-star"></i></div>';
-      const btn = document.querySelector('.favorite-btn:not([data-conf-id])');
+      // Add a button without data-conf-id
+      document.body.innerHTML += '<div class="favorite-btn no-id-btn"><i class="far fa-star"></i></div>';
+      const btn = document.querySelector('.favorite-btn.no-id-btn');
+
+      // Clear any previous calls
+      mockConfManager.saveEvent.mockClear();
+      mockConfManager.removeSavedEvent.mockClear();
+      mockConfManager.isEventSaved.mockClear();
 
       const clickEvent = new MouseEvent('click', { bubbles: true });
       btn.dispatchEvent(clickEvent);
 
-      // The click should be handled gracefully without errors
-      // Console messages were removed from production code
-      expect(true).toBe(true); // No-op test since console was removed
+      // When clicking a button without conf-id, the handler should return early
+      // and NOT call any confManager methods
+      expect(mockConfManager.saveEvent).not.toHaveBeenCalled();
+      expect(mockConfManager.removeSavedEvent).not.toHaveBeenCalled();
+      expect(mockConfManager.isEventSaved).not.toHaveBeenCalled();
     });
   });
 
