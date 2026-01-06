@@ -94,6 +94,7 @@ jobs:
         env:
           CONF_NAME: ${{ steps.vars.outputs.conference }}
           UPDATE_BRANCH: auto/conference-updates
+          GH_TOKEN: ${{ github.token }}
         run: |
           # Check if update branch exists and has pending commits for this conference
           if git ls-remote --heads origin "$UPDATE_BRANCH" | grep -q "$UPDATE_BRANCH"; then
@@ -101,9 +102,18 @@ jobs:
 
             # Look for commits mentioning this conference that aren't in main yet
             if git log "origin/main..origin/$UPDATE_BRANCH" --oneline --grep="conf: ${CONF_NAME}" 2>/dev/null | grep -q .; then
-              echo "has_pending=true" >> $GITHUB_OUTPUT
               PENDING_COMMIT=$(git log "origin/main..origin/$UPDATE_BRANCH" --oneline --grep="conf: ${CONF_NAME}" -1)
-              echo "::notice title=Pending Update::${CONF_NAME} already has pending commit: ${PENDING_COMMIT}"
+
+              # Check if there's an open PR from the update branch
+              OPEN_PR=$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number' 2>/dev/null || echo "")
+
+              if [ -n "$OPEN_PR" ]; then
+                echo "has_pending=true" >> $GITHUB_OUTPUT
+                echo "::notice title=Pending Update::${CONF_NAME} already has pending commit: ${PENDING_COMMIT} (PR #${OPEN_PR})"
+              else
+                echo "has_pending=false" >> $GITHUB_OUTPUT
+                echo "::notice title=Stale Branch::${CONF_NAME} has commit ${PENDING_COMMIT} but no open PR - proceeding with update"
+              fi
             else
               echo "has_pending=false" >> $GITHUB_OUTPUT
             fi
