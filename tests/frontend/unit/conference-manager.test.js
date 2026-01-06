@@ -110,7 +110,6 @@ describe('ConferenceStateManager', () => {
       }
       // Old format keys - return null since we're using the new format
       if (key === 'savedEvents' || key === 'followedSeries' || key === 'notificationSettings') {
-        console.log('  -> Returning null for old format key');
         return null;
       }
       return null;
