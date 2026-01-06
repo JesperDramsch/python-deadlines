@@ -111,7 +111,7 @@ const SeriesManager = {
                 // Unsubscribe
                 if (window.confManager.unfollowSeries(seriesName)) {
                     $btn.removeClass('subscribed btn-primary').addClass('btn-outline-primary');
-                    $btn.html(`+ ${$btn.text().replace('✓ ', '')}`);
+                    $btn.text(`+ ${$btn.text().replace('✓ ', '')}`);
                     SeriesManager.renderSubscribedSeries();
                     SeriesManager.updateSeriesCount();
                 }
@@ -119,7 +119,7 @@ const SeriesManager = {
                 // Subscribe
                 if (window.confManager.followSeries(seriesName)) {
                     $btn.removeClass('btn-outline-primary').addClass('btn-primary subscribed');
-                    $btn.html(`✓ ${$btn.text().replace('+ ', '')}`);
+                    $btn.text(`✓ ${$btn.text().replace('+ ', '')}`);
                     SeriesManager.renderSubscribedSeries();
                     SeriesManager.updateSeriesCount();
                 }
@@ -144,13 +144,13 @@ const SeriesManager = {
                 $btn.removeClass('btn-outline-primary').addClass('btn-primary subscribed');
                 const currentText = $btn.text().trim();
                 if (!currentText.startsWith('✓')) {
-                    $btn.html(`✓ ${currentText.replace('+ ', '')}`);
+                    $btn.text(`✓ ${currentText.replace('+ ', '')}`);
                 }
             } else {
                 $btn.removeClass('subscribed btn-primary').addClass('btn-outline-primary');
                 const currentText = $btn.text().trim();
                 if (!currentText.startsWith('+')) {
-                    $btn.html(`+ ${currentText.replace('✓ ', '')}`);
+                    $btn.text(`+ ${currentText.replace('✓ ', '')}`);
                 }
             }
         });
