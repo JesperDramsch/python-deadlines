@@ -48,7 +48,13 @@ test.describe('Countdown Timers', () => {
       const countdown = page.locator('.countdown-display').first();
       const initialText = await countdown.textContent();
 
+      // Skip test for passed or TBA countdowns (they don't update)
+      if (initialText?.includes('Passed') || initialText?.includes('TBA')) {
+        return;
+      }
+
       // Wait for countdown to update (should update every second)
+      // Don't swallow errors - let test fail if countdown doesn't update
       await page.waitForFunction(
         (initial) => {
           const el = document.querySelector('.countdown-display');
@@ -56,14 +62,10 @@ test.describe('Countdown Timers', () => {
         },
         initialText,
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       const updatedText = await countdown.textContent();
-
-      // Text should have changed (unless it's passed or TBA)
-      if (!initialText?.includes('Passed') && !initialText?.includes('TBA')) {
-        expect(updatedText).not.toBe(initialText);
-      }
+      expect(updatedText).not.toBe(initialText);
     });
 
     test('should show correct format for regular countdown', async ({ page }) => {
@@ -231,13 +233,14 @@ test.describe('Countdown Timers', () => {
       });
 
       // Wait for the timer to pick it up
+      // Don't swallow errors - if timer doesn't initialize, test should fail
       await page.waitForFunction(
         () => {
           const el = document.querySelector('#dynamic-countdown');
           return el && el.textContent.trim() !== '';
         },
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       // Check that the new countdown has content
       const dynamicCountdown = page.locator('#dynamic-countdown');
@@ -291,13 +294,14 @@ test.describe('Countdown Timers', () => {
       });
 
       // Wait for error message to appear
+      // Don't swallow errors - test should fail if no error message appears
       await page.waitForFunction(
         () => {
           const el = document.querySelector('#invalid-countdown');
           return el && el.textContent.trim() !== '';
         },
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       // Should show error message
       const invalidCountdown = page.locator('#invalid-countdown');
@@ -365,7 +369,13 @@ test.describe('Countdown Timers', () => {
       const countdown = page.locator('.countdown-display').first();
       const text1 = await countdown.textContent();
 
+      // Skip test for passed or TBA countdowns (they don't update)
+      if (text1?.includes('Passed') || text1?.includes('TBA')) {
+        return;
+      }
+
       // Wait for countdown to update
+      // Don't swallow errors - let test fail if countdown doesn't update
       await page.waitForFunction(
         (initial) => {
           const el = document.querySelector('.countdown-display');
@@ -373,14 +383,10 @@ test.describe('Countdown Timers', () => {
         },
         text1,
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       const text2 = await countdown.textContent();
-
-      // Should still be updating (unless passed/TBA)
-      if (!text1?.includes('Passed') && !text1?.includes('TBA')) {
-        expect(text2).not.toBe(text1);
-      }
+      expect(text2).not.toBe(text1);
     });
   });
 });
