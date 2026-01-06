@@ -202,7 +202,10 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Wait for search results to be populated by JavaScript
-      await page.waitForTimeout(1000);
+      await page.waitForFunction(
+        () => document.querySelector('#search-results')?.children.length > 0,
+        { timeout: 5000 }
+      ).catch(() => {}); // Results may be empty for some searches
 
       // Look for conference type badges in search results
       const tags = page.locator('#search-results .conf-sub');
@@ -250,7 +253,10 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Wait for search results to be populated by JavaScript
-      await page.waitForTimeout(1000);
+      await page.waitForFunction(
+        () => document.querySelector('#search-results')?.children.length > 0,
+        { timeout: 5000 }
+      ).catch(() => {}); // Results may be empty for some searches
 
       // Look for calendar containers in search results
       const calendarContainers = page.locator('#search-results [class*="calendar"]');
@@ -278,10 +284,16 @@ test.describe('Search Functionality', () => {
       await waitForPageReady(page);
 
       // Wait for search index to load and process the query
-      await page.waitForTimeout(1000);
+      const searchInput = await getVisibleSearchInput(page);
+      await page.waitForFunction(
+        () => {
+          const input = document.querySelector('input[type="search"], input[name="query"], #search-input');
+          return input && input.value.length > 0;
+        },
+        { timeout: 5000 }
+      ).catch(() => {}); // Search input may not be populated if index fails to load
 
       // Check if search input has the query (navbar search box gets populated)
-      const searchInput = await getVisibleSearchInput(page);
       const value = await searchInput.inputValue();
       // The value might be set by JavaScript after the search index loads
       if (value) {
