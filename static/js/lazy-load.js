@@ -17,6 +17,8 @@
     // State
     let observer = null;
     let isInitialized = false;
+    // Store original DOM content for elements using lazy placeholders
+    const originalContentMap = new WeakMap();
     let loadedCount = 0;
 
     /**
@@ -103,8 +105,14 @@
                 </div>
             `;
 
-            // Store original content
-            element.setAttribute('data-original-content', element.innerHTML);
+            // Store original DOM content (cloned) instead of using an attribute
+            const originalNodes = [];
+            element.childNodes.forEach(function(node) {
+                originalNodes.push(node.cloneNode(true));
+            });
+            originalContentMap.set(element, originalNodes);
+
+            // Replace current content with placeholder
             element.innerHTML = '';
             element.appendChild(placeholder);
         }
@@ -116,13 +124,17 @@
     function loadConferenceCard(element) {
         if (element.classList.contains('lazy-loaded')) return;
 
-        // Get original content
-        const originalContent = element.getAttribute('data-original-content');
+        // Get original content from in-memory store
+        const originalNodes = originalContentMap.get(element);
 
-        if (originalContent) {
+        if (originalNodes && originalNodes.length > 0) {
             // Restore content with fade-in effect
             element.style.opacity = '0';
-            element.innerHTML = originalContent;
+            element.innerHTML = '';
+            originalNodes.forEach(function(node) {
+                element.appendChild(node.cloneNode(true));
+            });
+            originalContentMap.delete(element);
             element.classList.remove('lazy-load');
             element.classList.add('lazy-loaded');
 
