@@ -530,3 +530,232 @@ class TestIntegrationAndEdgeCases:
         assert len(results) == 100
         assert all("date" in result for result in results)
         assert all(result["cfp"] == "2025-02-15 23:59:00" for result in results)
+
+
+class TestDateEdgeCases:
+    """Test edge cases for date handling as identified in the audit.
+
+    Section 5 of the audit identified these missing tests:
+    - Malformed date strings (e.g., "2025-13-45")
+    - Timezone edge cases (deadline at midnight in AoE vs UTC)
+    - Leap year handling
+    - Year boundary transitions
+    """
+
+    def test_malformed_date_invalid_month(self):
+        """Test handling of invalid month (13) in date string."""
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",
+            "workshop_deadline": "2025-13-15",  # Invalid: month 13 doesn't exist
+        }
+
+        result = clean_dates(data)
+
+        # Invalid date should be left unchanged (ValueError is caught and continues)
+        assert result["workshop_deadline"] == "2025-13-15"
+
+    def test_malformed_date_invalid_day(self):
+        """Test handling of invalid day (45) in date string."""
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",
+            "workshop_deadline": "2025-06-45",  # Invalid: day 45 doesn't exist
+        }
+
+        result = clean_dates(data)
+
+        # Invalid date should be left unchanged
+        assert result["workshop_deadline"] == "2025-06-45"
+
+    def test_malformed_date_february_30(self):
+        """Test handling of impossible date: February 30."""
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",
+            "workshop_deadline": "2025-02-30",  # Invalid: Feb 30 doesn't exist
+        }
+
+        result = clean_dates(data)
+
+        # Invalid date should be left unchanged
+        assert result["workshop_deadline"] == "2025-02-30"
+
+    def test_leap_year_february_29_valid(self):
+        """Test CFP on Feb 29 of leap year (2024 is a leap year)."""
+        data = {
+            "start": "2024-06-01",
+            "end": "2024-06-03",
+            "cfp": "2024-02-29",  # Valid: 2024 is a leap year
+        }
+
+        result = clean_dates(data)
+
+        # Should process correctly and add time
+        assert result["cfp"] == "2024-02-29 23:59:00"
+
+    def test_non_leap_year_february_29_invalid(self):
+        """Test CFP on Feb 29 of non-leap year (2025 is not a leap year)."""
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",
+            "workshop_deadline": "2025-02-29",  # Invalid: 2025 is not a leap year
+        }
+
+        result = clean_dates(data)
+
+        # Invalid date should be left unchanged
+        assert result["workshop_deadline"] == "2025-02-29"
+
+    def test_leap_year_february_29_nice_date(self):
+        """Test nice date creation for Feb 29 on leap year."""
+        data = {
+            "start": "2024-02-29",  # Leap year day
+            "end": "2024-02-29",
+        }
+
+        result = create_nice_date(data)
+
+        assert result["date"] == "February 29th, 2024"
+
+    def test_year_boundary_transition_december_to_january(self):
+        """Test conference spanning year boundary (Dec to Jan)."""
+        data = {
+            "start": "2025-12-28",
+            "end": "2026-01-03",
+            "cfp": "2025-10-15",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        # Should handle year transition in nice date
+        assert nice_date["date"] == "December 28, 2025 - January 3, 2026"
+
+    def test_year_boundary_cfp_deadline(self):
+        """Test CFP deadline on Dec 31 (year boundary)."""
+        data = {
+            "start": "2026-03-01",
+            "end": "2026-03-05",
+            "cfp": "2025-12-31",  # Deadline on year boundary
+        }
+
+        result = clean_dates(data)
+
+        # Should process correctly
+        assert result["cfp"] == "2025-12-31 23:59:00"
+
+    def test_year_boundary_new_years_day_cfp(self):
+        """Test CFP deadline on Jan 1 (start of new year)."""
+        data = {
+            "start": "2026-03-01",
+            "end": "2026-03-05",
+            "cfp": "2026-01-01",  # First day of year
+        }
+
+        result = clean_dates(data)
+
+        assert result["cfp"] == "2026-01-01 23:59:00"
+
+    def test_century_leap_year_2000(self):
+        """Test that year 2000 leap year rules work (divisible by 400)."""
+        # 2000 was a leap year (divisible by 400)
+        data = {
+            "start": "2000-02-29",
+            "end": "2000-02-29",
+        }
+
+        result = create_nice_date(data)
+
+        assert result["date"] == "February 29th, 2000"
+
+    def test_century_non_leap_year_1900(self):
+        """Test that year 1900 non-leap year rules work (divisible by 100 but not 400)."""
+        # 1900 was NOT a leap year (divisible by 100 but not 400)
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",
+            "workshop_deadline": "1900-02-29",  # Invalid: 1900 was not a leap year
+        }
+
+        result = clean_dates(data)
+
+        # Invalid date should be left unchanged
+        assert result["workshop_deadline"] == "1900-02-29"
+
+    def test_midnight_boundary_explicit_midnight(self):
+        """Test CFP with explicit midnight time (00:00:00).
+
+        When a datetime string includes an explicit time component,
+        it is preserved as-is. The 23:59 conversion only applies to
+        date-only strings that are parsed without a time component.
+        """
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15 00:00:00",  # Explicit midnight
+        }
+
+        result = clean_dates(data)
+
+        # Explicit times are preserved as-is (conversion only for date-only strings)
+        assert result["cfp"] == "2025-02-15 00:00:00"
+
+    def test_one_minute_before_midnight(self):
+        """Test CFP with 23:59:00 time (one minute before midnight)."""
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15 23:59:00",
+        }
+
+        result = clean_dates(data)
+
+        # Should remain unchanged
+        assert result["cfp"] == "2025-02-15 23:59:00"
+
+    def test_conference_single_day_event(self):
+        """Test single-day conference (start == end)."""
+        data = {
+            "start": "2025-06-15",
+            "end": "2025-06-15",
+            "cfp": "2025-02-15",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        # Single day should show ordinal suffix
+        assert nice_date["date"] == "June 15th, 2025"
+
+    def test_multi_year_conference(self):
+        """Test conference spanning multiple years (unusual but possible)."""
+        data = {
+            "start": "2025-11-15",
+            "end": "2026-02-15",  # 3 months span across year
+            "cfp": "2025-08-01",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        assert nice_date["date"] == "November 15, 2025 - February 15, 2026"
+
+    def test_future_year_dates(self):
+        """Test handling of far future dates."""
+        data = {
+            "start": "2099-12-01",
+            "end": "2099-12-05",
+            "cfp": "2099-06-15",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        assert cleaned["cfp"] == "2099-06-15 23:59:00"
+        assert "2099" in nice_date["date"]
