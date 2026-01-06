@@ -85,6 +85,36 @@ module.exports = {
       functions: 70,
       lines: 70,
       statements: 70
+    },
+    './static/js/theme-toggle.js': {
+      branches: 85,
+      functions: 100,
+      lines: 94,
+      statements: 94
+    },
+    './static/js/timezone-utils.js': {
+      branches: 85,
+      functions: 100,
+      lines: 92,
+      statements: 92
+    },
+    './static/js/series-manager.js': {
+      branches: 65,
+      functions: 70,
+      lines: 82,
+      statements: 80
+    },
+    './static/js/lazy-load.js': {
+      branches: 48,
+      functions: 65,
+      lines: 72,
+      statements: 72
+    },
+    './static/js/action-bar.js': {
+      branches: 38,
+      functions: 30,
+      lines: 40,
+      statements: 40
     }
   },
 
