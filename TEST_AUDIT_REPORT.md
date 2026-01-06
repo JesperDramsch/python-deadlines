@@ -781,3 +781,375 @@ The test suite has good coverage breadth but suffers from:
 7. **Weak assertions** in E2E tests (`>= 0` checks)
 
 Addressing the Critical findings will significantly improve confidence in the test suite's ability to catch real regressions. The key principle: **tests should fail when the implementation is broken**.
+
+---
+
+## Appendix A: Detailed File-by-File Anti-Pattern Catalog
+
+This appendix documents every anti-pattern found during the thorough file-by-file review.
+
+---
+
+### A.1 Tests That Test Mocks Instead of Real Code (CRITICAL)
+
+**Problem**: Several test files create mock implementations inline and test those mocks instead of the actual production code.
+
+#### dashboard-filters.test.js (Lines 151-329)
+```javascript
+// Creates DashboardFilters object INLINE in the test file
+DashboardFilters = {
+  init() {
+    this.loadFromURL();
+    this.bindEvents();
+    this.setupFilterPersistence();
+  },
+  loadFromURL() { /* mock implementation */ },
+  saveToURL() { /* mock implementation */ },
+  // ... 150+ lines of mock code
+};
+
+window.DashboardFilters = DashboardFilters;
+```
+**Impact**: Tests pass even if the real `static/js/dashboard-filters.js` is completely broken or doesn't exist.
+
+#### dashboard.test.js (Lines 311-499)
+```javascript
+// Creates mock DashboardManager for testing
+class TestDashboardManager {
+  constructor() {
+    this.conferences = [];
+    this.filteredConferences = [];
+    // ... mock implementation
+  }
+}
+```
+**Impact**: The real `dashboard.js` has NO effective unit test coverage.
+
+---
+
+### A.2 `eval()` Usage for Module Loading
+
+**Problem**: Multiple test files use `eval()` to execute JavaScript modules, which:
+- Is a security anti-pattern
+- Makes debugging difficult
+- Can mask syntax errors
+- Prevents proper source mapping
+
+| File | Line(s) | Usage |
+|------|---------|-------|
+| `timezone-utils.test.js` | 47-51 | Loads timezone-utils.js |
+| `lazy-load.test.js` | 113-119, 227-231, 567-572 | Loads lazy-load.js (3 times) |
+| `theme-toggle.test.js` | 60-66, 120-124, 350-357, 367-371, 394-398 | Loads theme-toggle.js (5 times) |
+| `series-manager.test.js` | 384-386 | Loads series-manager.js |
+
+**Example** (`lazy-load.test.js:113-119`):
+```javascript
+const script = require('fs').readFileSync(
+  require('path').resolve(__dirname, '../../../static/js/lazy-load.js'),
+  'utf8'
+);
+eval(script);  // Anti-pattern
+```
+
+**Fix**: Use proper Jest module imports:
+```javascript
+// Configure Jest to handle IIFE modules
+jest.isolateModules(() => {
+  require('../../../static/js/lazy-load.js');
+});
+```
+
+---
+
+### A.3 Skipped Tests Without Justification
+
+**Problem**: 20+ tests are skipped across the codebase without documented reasons or tracking issues.
+
+#### series-manager.test.js - 15 Skipped Tests
+| Lines | Test Description |
+|-------|------------------|
+| 436-450 | `test.skip('should fetch series data from API')` |
+| 451-465 | `test.skip('should handle API errors gracefully')` |
+| 469-480 | `test.skip('should cache fetched data')` |
+| 484-491 | `test.skip('should invalidate cache after timeout')` |
+| 495-502 | `test.skip('should refresh data on demand')` |
+| 506-507 | `test.skip('should handle network failures')` |
+| 608-614 | `test.skip('should handle conference without series')` |
+| 657-664 | `test.skip('should prioritize local over remote')` |
+| 680-683 | `test.skip('should merge local and remote data')` |
+
+#### dashboard.test.js - ~6 Skipped Tests
+| Lines | Test Description |
+|-------|------------------|
+| 792-822 | `test.skip('should toggle between list and grid view')` |
+| 824-850 | `test.skip('should persist view mode preference')` |
+
+#### conference-filter.test.js - 1 Skipped Test
+| Lines | Test Description |
+|-------|------------------|
+| 535 | `test.skip('should filter conferences by search query')` |
+
+**Impact**: ~22 tests represent untested functionality that could have regressions.
+
+---
+
+### A.4 Tautological Assertions
+
+**Problem**: Tests that set a value and then assert it equals what was just set provide no validation.
+
+#### dashboard-filters.test.js
+```javascript
+// Line 502
+test('should update URL on filter change', () => {
+  const checkbox = document.getElementById('filter-online');
+  checkbox.checked = true;  // Set it to true
+  // ... trigger event ...
+  expect(checkbox.checked).toBe(true);  // Assert it's true - TAUTOLOGY
+});
+
+// Line 512
+test('should apply filters on search input', () => {
+  search.value = 'pycon';  // Set value
+  // ... trigger event ...
+  expect(search.value).toBe('pycon');  // Assert same value - TAUTOLOGY
+});
+
+// Line 523
+test('should apply filters on sort change', () => {
+  sortBy.value = 'start';  // Set value
+  // ... trigger event ...
+  expect(sortBy.value).toBe('start');  // Assert same value - TAUTOLOGY
+});
+```
+
+---
+
+### A.5 E2E Tests with Conditional Testing Pattern
+
+**Problem**: E2E tests that use `if (visible) { test }` pattern silently pass when elements don't exist.
+
+#### countdown-timers.spec.js
+```javascript
+// Lines 86-93
+if (await smallCountdown.count() > 0) {
+  const text = await smallCountdown.first().textContent();
+  if (text && !text.includes('Passed') && !text.includes('TBA')) {
+    expect(text).toMatch(/\d+d \d{2}:\d{2}:\d{2}/);
+  }
+}
+// ^ If no smallCountdown exists, test passes without verifying anything
+```
+
+**Occurrences**:
+| File | Lines | Pattern |
+|------|-------|---------|
+| `countdown-timers.spec.js` | 86-93, 104-107, 130-133, 144-150 | if count > 0 |
+| `conference-filters.spec.js` | 29-31, 38-45, 54-68, 76-91, etc. | if isVisible |
+| `search-functionality.spec.js` | 70-75, 90-93, 108-110 | if count > 0 |
+| `notification-system.spec.js` | 71, 81, 95, 245-248 | if isVisible |
+
+**Fix**: Use proper test preconditions:
+```javascript
+// Instead of:
+if (await element.count() > 0) { /* test */ }
+
+// Use:
+test.skip('...', async ({ page }) => {
+  // Skip test with documented reason
+});
+// OR verify the precondition and fail fast:
+const count = await element.count();
+expect(count).toBeGreaterThan(0); // Fail if precondition not met
+await expect(element.first()).toMatch(...);
+```
+
+---
+
+### A.6 Silent Error Swallowing
+
+**Problem**: Tests that catch errors and do nothing hide failures.
+
+#### countdown-timers.spec.js
+```javascript
+// Line 59
+await page.waitForFunction(...).catch(() => {});
+
+// Line 240
+await page.waitForFunction(...).catch(() => {});
+
+// Line 288
+await page.waitForFunction(...).catch(() => {});
+```
+
+#### notification-system.spec.js
+```javascript
+// Line 63
+await page.waitForFunction(...).catch(() => {});
+
+// Line 222
+await page.waitForSelector('.toast', ...).catch(() => {});
+```
+
+**Impact**: Timeouts and errors are silently ignored, masking real failures.
+
+---
+
+### A.7 E2E Tests with Always-Passing Assertions
+
+| File | Line | Assertion | Problem |
+|------|------|-----------|---------|
+| `countdown-timers.spec.js` | 266 | `expect(count).toBeGreaterThanOrEqual(0)` | Count can't be negative |
+| `conference-filters.spec.js` | 67 | `expect(count).toBeGreaterThanOrEqual(0)` | Count can't be negative |
+| `conference-filters.spec.js` | 88-89 | `expect(count).toBeGreaterThanOrEqual(0)` | Count can't be negative |
+| `conference-filters.spec.js` | 116 | `expect(count).toBeGreaterThanOrEqual(0)` | Count can't be negative |
+| `conference-filters.spec.js` | 248 | `expect(count).toBeGreaterThanOrEqual(0)` | Count can't be negative |
+| `search-functionality.spec.js` | 129 | `expect(count).toBeGreaterThanOrEqual(0)` | Count can't be negative |
+| `search-functionality.spec.js` | 248 | `expect(count).toBeGreaterThanOrEqual(0)` | Count can't be negative |
+
+---
+
+### A.8 Arbitrary Wait Times
+
+**Problem**: Using fixed `waitForTimeout()` instead of proper condition-based waiting leads to flaky tests.
+
+| File | Line | Wait | Better Alternative |
+|------|------|------|-------------------|
+| `search-functionality.spec.js` | 195 | `waitForTimeout(1000)` | `waitForSelector('.conf-sub')` |
+| `search-functionality.spec.js` | 239 | `waitForTimeout(1000)` | `waitForSelector('[class*="calendar"]')` |
+| `search-functionality.spec.js` | 259 | `waitForTimeout(1000)` | `waitForFunction(() => ...)` |
+
+---
+
+### A.9 Configuration Coverage Gaps
+
+#### jest.config.js Issues
+
+**1. Excluded Files (Line 40)**:
+```javascript
+'!static/js/snek.js'  // Explicitly excluded from coverage
+```
+This hides the fact that snek.js has no tests.
+
+**2. Missing Coverage Thresholds**:
+Files with tests but NO coverage thresholds:
+- `theme-toggle.js`
+- `action-bar.js`
+- `lazy-load.js`
+- `series-manager.js`
+- `timezone-utils.js`
+
+These can degrade without CI failure.
+
+**3. Lower Thresholds for Critical Files**:
+```javascript
+'./static/js/dashboard.js': {
+  branches: 60,   // Lower than others
+  functions: 70,  // Lower than others
+  lines: 70,
+  statements: 70
+}
+```
+
+---
+
+### A.10 Incomplete Tests
+
+#### dashboard-filters.test.js (Lines 597-614)
+```javascript
+describe('Performance', () => {
+  test('should debounce rapid filter changes', () => {
+    // ... test body ...
+
+    // Should only save to URL once after debounce
+    // This would need actual debounce implementation
+    //       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Comment admits test is incomplete
+  });
+});
+```
+
+---
+
+### A.11 Unit Tests with Always-Passing Assertions
+
+| File | Line | Assertion |
+|------|------|-----------|
+| `conference-manager.test.js` | 177-178 | `expect(manager.allConferences.size).toBeGreaterThanOrEqual(0)` |
+| `favorites.test.js` | varies | `expect(true).toBe(true)` |
+| `lazy-load.test.js` | 235 | `expect(conferences.length).toBeGreaterThan(0)` (weak but not always-pass) |
+| `theme-toggle.test.js` | 182 | `expect(allContainers.length).toBeLessThanOrEqual(2)` (weak assertion for duplicate test) |
+
+---
+
+## Appendix B: Implementation Files Without Tests
+
+| File | Purpose | Risk | Notes |
+|------|---------|------|-------|
+| `about.js` | About page functionality | Low | No test file exists |
+| `snek.js` | Easter egg animations | Low | Excluded from coverage |
+| `dashboard-filters.js` | Dashboard filtering | **HIGH** | Test tests inline mock |
+| `dashboard.js` | Dashboard rendering | **HIGH** | Test tests mock class |
+
+---
+
+## Appendix C: Summary Statistics (Updated)
+
+### Frontend Unit Test Anti-Patterns
+
+| Anti-Pattern | Count | Severity |
+|--------------|-------|----------|
+| `eval()` for module loading | 14 uses across 4 files | Medium |
+| `test.skip()` without justification | 22 tests | High |
+| Inline mock instead of real code | 2 files (critical) | Critical |
+| Always-passing assertions | 8+ | High |
+| Tautological assertions | 3+ | Medium |
+
+### E2E Test Anti-Patterns
+
+| Anti-Pattern | Count | Severity |
+|--------------|-------|----------|
+| `toBeGreaterThanOrEqual(0)` | 7 | High |
+| Conditional testing `if visible` | 20+ | High |
+| Silent error swallowing `.catch(() => {})` | 5 | Medium |
+| Arbitrary `waitForTimeout()` | 3 | Low |
+
+---
+
+## Revised Priority Action Items
+
+### Immediate (Critical)
+
+1. **Remove inline mocks in dashboard-filters.test.js and dashboard.test.js**
+   - These tests provide zero coverage of actual production code
+   - Import and test real modules instead
+
+2. **Fix all `toBeGreaterThanOrEqual(0)` assertions**
+   - Replace with meaningful expectations
+   - Files: countdown-timers.spec.js, conference-filters.spec.js, search-functionality.spec.js
+
+3. **Re-enable or delete skipped tests**
+   - series-manager.test.js: 15 skipped tests
+   - dashboard.test.js: 6 skipped tests
+   - Document reason or fix and re-enable
+
+### High Priority
+
+4. **Replace `eval()` with proper module imports**
+   - All 4 affected test files
+
+5. **Fix conditional E2E tests**
+   - Replace `if (visible)` patterns with proper test setup/skip
+
+6. **Add coverage thresholds for all tested files**
+   - Update jest.config.js
+
+### Medium Priority
+
+7. **Remove silent error catching**
+   - Replace `.catch(() => {})` with proper error handling/assertions
+
+8. **Fix tautological assertions**
+   - dashboard-filters.test.js lines 502, 512, 523
+
+9. **Add tests for about.js**
+   - Currently has no test coverage
