@@ -123,10 +123,13 @@ test.describe('Search Functionality', () => {
       await searchInput.press('Enter');
       await page.waitForFunction(() => document.readyState === 'complete');
 
-      // Should show results (either all or a default set)
+      // After clearing search, verify the page handles it gracefully
+      // Either shows all results, a default set, or properly hides results
       const results = page.locator('#search-results .ConfItem, .search-results .conference-item');
-      const count = await results.count();
-      expect(count).toBeGreaterThanOrEqual(0);
+      const searchContainer = page.locator('#search-results, .search-results');
+      // The search container should exist and not show an error state
+      const errorState = page.locator('.error, .exception, [class*="error"]');
+      expect(await errorState.count()).toBe(0);
     });
 
     test('should handle special characters in search', async ({ page }) => {
@@ -244,8 +247,16 @@ test.describe('Search Functionality', () => {
       // Calendar buttons are created dynamically by JavaScript
       // They may not be visible if calendar library isn't loaded
       const count = await calendarContainers.count();
-      // Just verify the containers exist (calendar functionality is optional)
-      expect(count).toBeGreaterThanOrEqual(0);
+
+      // Calendar functionality is optional - if present, verify it rendered correctly
+      if (count > 0) {
+        // At least one calendar container should be visible
+        await expect(calendarContainers.first()).toBeAttached();
+      }
+      // If no calendar containers, that's acceptable (feature is optional)
+      // Main assertion: page shouldn't have errors
+      const errorState = page.locator('.error, .exception');
+      expect(await errorState.count()).toBe(0);
     });
   });
 

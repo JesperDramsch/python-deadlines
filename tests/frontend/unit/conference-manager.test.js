@@ -170,11 +170,14 @@ describe('ConferenceStateManager', () => {
       expect(manager.conferenceBySeries).toBeDefined();
     });
 
-    test('should extract visible conferences from DOM', () => {
+    test('should initialize with empty state when no data provided', () => {
+      // ConferenceStateManager doesn't auto-extract from DOM
+      // It requires conferenceData to be passed in the constructor
       const manager = new ConferenceStateManager();
 
-      // The manager should have extracted the two conferences from DOM
-      expect(manager.allConferences.size).toBeGreaterThanOrEqual(0);
+      // Without data, allConferences should be empty
+      expect(manager.allConferences.size).toBe(0);
+      expect(manager.conferenceBySeries.size).toBe(0);
     });
 
     test('should load saved events from localStorage', () => {

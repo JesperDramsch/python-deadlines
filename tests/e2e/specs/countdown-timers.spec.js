@@ -250,6 +250,10 @@ test.describe('Countdown Timers', () => {
     test('should handle countdown removal', async ({ page }) => {
       await waitForCountdowns(page);
 
+      // Get initial count
+      const initialCountdowns = page.locator('.countdown-display');
+      const initialCount = await initialCountdowns.count();
+
       // Remove a countdown element
       await page.evaluate(() => {
         const countdown = document.querySelector('.countdown-display');
@@ -261,9 +265,17 @@ test.describe('Countdown Timers', () => {
       // Should not cause errors - wait briefly for any error to manifest
       await page.waitForFunction(() => document.readyState === 'complete');
 
-      // Page should still be functional
+      // Page should still be functional - verify:
+      // 1. No error elements appeared
+      const errorState = page.locator('.error, .exception, [class*="error"]');
+      expect(await errorState.count()).toBe(0);
+
+      // 2. Countdown count should have decreased by 1 (if there was one to remove)
       const remainingCountdowns = page.locator('.countdown-display');
-      expect(await remainingCountdowns.count()).toBeGreaterThanOrEqual(0);
+      const remainingCount = await remainingCountdowns.count();
+      if (initialCount > 0) {
+        expect(remainingCount).toBe(initialCount - 1);
+      }
     });
   });
 

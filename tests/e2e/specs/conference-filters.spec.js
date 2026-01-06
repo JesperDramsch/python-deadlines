@@ -62,9 +62,10 @@ test.describe('Homepage Subject Filter', () => {
           await page.waitForFunction(() => document.readyState === 'complete');
 
           // Check that conferences are filtered - PY-conf class conferences should be visible
+          // If the filter exists and is clicked, we expect at least some PY conferences
           const pyConferences = page.locator('.ConfItem.PY-conf');
           const count = await pyConferences.count();
-          expect(count).toBeGreaterThanOrEqual(0);
+          expect(count).toBeGreaterThan(0);
         }
       }
     });
@@ -84,9 +85,10 @@ test.describe('Homepage Subject Filter', () => {
           await page.waitForFunction(() => document.readyState === 'complete');
 
           // Check that DATA conferences are shown
+          // If the filter exists and is clicked, we expect at least some DATA conferences
           const dataConferences = page.locator('.ConfItem.DATA-conf');
           const count = await dataConferences.count();
-          expect(count).toBeGreaterThanOrEqual(0);
+          expect(count).toBeGreaterThan(0);
         }
       }
     });
@@ -111,9 +113,10 @@ test.describe('Homepage Subject Filter', () => {
         await page.waitForFunction(() => document.readyState === 'complete');
 
         // Should show conferences with either PY or WEB
+        // After selecting filters, we expect at least some conferences to match
         const conferences = page.locator('.ConfItem');
         const count = await conferences.count();
-        expect(count).toBeGreaterThanOrEqual(0);
+        expect(count).toBeGreaterThan(0);
       }
     });
   });
