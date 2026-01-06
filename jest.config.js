@@ -37,7 +37,8 @@ module.exports = {
     '!static/js/ouical*.js',
     '!static/js/bootstrap-multiselect*.js',
     '!static/js/jquery.countdown*.js',
-    '!static/js/snek.js'
+    '!static/js/snek.js',
+    '!static/js/about.js'
   ],
 
   coverageDirectory: '<rootDir>/coverage',
