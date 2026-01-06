@@ -440,6 +440,9 @@ const DashboardManager = {
     }
 };
 
+// Expose to window for external access and testing
+window.DashboardManager = DashboardManager;
+
 // Initialize on document ready
 $(document).ready(function() {
     // Load conference types for badge colors
