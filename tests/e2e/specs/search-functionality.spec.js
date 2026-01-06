@@ -148,7 +148,7 @@ test.describe('Search Functionality', () => {
   });
 
   test.describe('Search Results Display', () => {
-    test('should display conference details in results', async ({ page }) => {
+    test('should display conference details in results', async ({ page }, testInfo) => {
       const searchInput = await getVisibleSearchInput(page);
 
       // Search for conferences
@@ -173,10 +173,13 @@ test.describe('Search Functionality', () => {
           await expect(deadline.first()).toBeVisible();
         }
 
-        // Check for location
-        const location = firstResult.locator('.conf-place, .location, .place');
-        if (await location.count() > 0) {
-          await expect(location.first()).toBeVisible();
+        // Check for location (hidden on mobile viewports via CSS)
+        const isMobile = testInfo.project.name.includes('mobile');
+        if (!isMobile) {
+          const location = firstResult.locator('.conf-place, .location, .place');
+          if (await location.count() > 0) {
+            await expect(location.first()).toBeVisible();
+          }
         }
       }
     });
