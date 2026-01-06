@@ -56,14 +56,10 @@ describe('ThemeToggle', () => {
       return event;
     });
 
-    // Load theme-toggle module
-    const script = require('fs').readFileSync(
-      require('path').resolve(__dirname, '../../../static/js/theme-toggle.js'),
-      'utf8'
-    );
-
-    // Execute the IIFE and capture the exposed functions
-    eval(script);
+    // Load theme-toggle module using jest.isolateModules for fresh instance
+    jest.isolateModules(() => {
+      require('../../../static/js/theme-toggle.js');
+    });
 
     // Get the exposed functions
     getTheme = window.getTheme;
@@ -117,11 +113,9 @@ describe('ThemeToggle', () => {
         </nav>
       `;
 
-      const script = require('fs').readFileSync(
-        require('path').resolve(__dirname, '../../../static/js/theme-toggle.js'),
-        'utf8'
-      );
-      eval(script);
+      jest.isolateModules(() => {
+        require('../../../static/js/theme-toggle.js');
+      });
 
       // In auto mode with system dark preference
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
@@ -346,15 +340,12 @@ describe('ThemeToggle', () => {
     test('should handle missing navbar gracefully', () => {
       document.body.innerHTML = ''; // Remove navbar
 
-      // Re-initialize
-      const script = require('fs').readFileSync(
-        require('path').resolve(__dirname, '../../../static/js/theme-toggle.js'),
-        'utf8'
-      );
-
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      eval(script);
+      // Re-initialize
+      jest.isolateModules(() => {
+        require('../../../static/js/theme-toggle.js');
+      });
 
       expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Could not find navbar'));
       consoleSpy.mockRestore();
@@ -364,12 +355,12 @@ describe('ThemeToggle', () => {
       localStorage.setItem('pythondeadlines-theme', 'invalid-theme');
 
       // Re-initialize
-      const script = require('fs').readFileSync(
-        require('path').resolve(__dirname, '../../../static/js/theme-toggle.js'),
-        'utf8'
-      );
-      eval(script);
+      jest.isolateModules(() => {
+        require('../../../static/js/theme-toggle.js');
+      });
 
+      // Get the fresh getTheme function
+      getTheme = window.getTheme;
       expect(getTheme()).toBe('auto'); // Should default to auto
     });
 
@@ -391,11 +382,9 @@ describe('ThemeToggle', () => {
       });
 
       // Re-initialize
-      const script = require('fs').readFileSync(
-        require('path').resolve(__dirname, '../../../static/js/theme-toggle.js'),
-        'utf8'
-      );
-      eval(script);
+      jest.isolateModules(() => {
+        require('../../../static/js/theme-toggle.js');
+      });
 
       // Should still create toggle button
       expect(document.getElementById('theme-toggle')).toBeTruthy();
