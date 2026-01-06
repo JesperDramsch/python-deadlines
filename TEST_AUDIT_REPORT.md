@@ -2,9 +2,11 @@
 
 ## Executive Summary
 
-The test suite for pythondeadlin.es contains **289 test functions across 16 test files**, which represents comprehensive coverage breadth. However, the audit identified several patterns that reduce the actual effectiveness of the test suite: **over-reliance on mocking** (167 @patch decorators), **weak assertions** that always pass, and **missing tests for critical error handling paths**. While the skipped tests are legitimate, several tests provide false confidence by testing mock behavior rather than actual implementation correctness.
+The test suite for pythondeadlin.es contains **289 Python test functions across 16 test files** plus **13 frontend unit test files and 4 e2e spec files**. While this represents comprehensive coverage breadth, the audit identified several patterns that reduce effectiveness: **over-reliance on mocking** (167 Python @patch decorators, 250+ lines of jQuery mocks in frontend), **weak assertions** that always pass, and **missing tests for critical components** (dashboard.js has no dedicated tests, snek.js has no tests).
 
 ## Key Statistics
+
+### Python Tests
 
 | Metric | Count |
 |--------|-------|
@@ -15,6 +17,17 @@ The test suite for pythondeadlin.es contains **289 test functions across 16 test
 | Mock-only assertions (assert_called) | 65 |
 | Weak assertions (len >= 0/1) | 15+ |
 | Tests without meaningful assertions | ~8 |
+
+### Frontend Tests
+
+| Metric | Count |
+|--------|-------|
+| Unit test files | 13 |
+| E2E spec files | 4 |
+| JavaScript implementation files | 24 (14 custom, 10 vendor/min) |
+| Files without tests | 3 (snek.js, about.js, dashboard.js partial) |
+| Skipped tests | 1 (`test.skip` in conference-filter.test.js) |
+| Heavy mock setup files | 4 (250+ lines of mocking each) |
 
 ---
 
@@ -487,11 +500,284 @@ def test_parse_various_commit_formats(self):
 
 ---
 
+## Frontend Test Findings
+
+### 11. Extensive jQuery Mocking Obscures Real Behavior
+
+**Problem**: Frontend unit tests create extensive jQuery mocks (250+ lines per test file) that simulate jQuery behavior, making tests fragile and hard to maintain.
+
+**Evidence** (`tests/frontend/unit/conference-filter.test.js:55-285`):
+```javascript
+global.$ = jest.fn((selector) => {
+  // Handle document selector specially
+  if (selector === document) {
+    return {
+      ready: jest.fn((callback) => callback()),
+      on: jest.fn((event, selectorOrHandler, handlerOrOptions, finalHandler) => {
+        // ... 30 lines of mock logic
+      }),
+      // ... continued for 200+ lines
+    };
+  }
+  // Extensive mock for every jQuery method...
+});
+```
+
+**Impact**:
+- Tests pass when mock is correct, not when implementation is correct
+- Mock drift: real jQuery behavior changes but mock doesn't
+- Very difficult to maintain and extend
+
+**Fix**: Use jsdom with actual jQuery or consider migrating to vanilla JS with simpler test setup:
+```javascript
+// Instead of mocking jQuery entirely:
+import $ from 'jquery';
+import { JSDOM } from 'jsdom';
+
+const dom = new JSDOM('<!DOCTYPE html><div id="app"></div>');
+global.$ = $(dom.window);
+
+// Tests now use real jQuery behavior
+```
+
+---
+
+### 12. JavaScript Files Without Any Tests
+
+**Problem**: Several JavaScript files have no corresponding test coverage.
+
+**Untested Files**:
+
+| File | Purpose | Risk Level |
+|------|---------|------------|
+| `snek.js` | Easter egg animations, seasonal themes | Low |
+| `about.js` | About page functionality | Low |
+| `dashboard.js` | Dashboard filtering/rendering | **High** |
+| `js-year-calendar.js` | Calendar widget | Medium (vendor) |
+
+**`dashboard.js`** is particularly concerning as it handles:
+- Conference card rendering
+- Filter application (format, topic, feature)
+- Empty state management
+- View mode toggling
+
+**Fix**: Add tests for critical dashboard functionality:
+```javascript
+describe('DashboardManager', () => {
+  test('filters conferences by format', () => {
+    const conferences = [
+      { id: '1', format: 'virtual' },
+      { id: '2', format: 'in-person' }
+    ];
+    DashboardManager.conferences = conferences;
+
+    // Simulate checking virtual filter
+    DashboardManager.applyFilters(['virtual']);
+
+    expect(DashboardManager.filteredConferences).toHaveLength(1);
+    expect(DashboardManager.filteredConferences[0].format).toBe('virtual');
+  });
+});
+```
+
+---
+
+### 13. Skipped Frontend Tests
+
+**Problem**: One test is skipped in the frontend test suite without clear justification.
+
+**Evidence** (`tests/frontend/unit/conference-filter.test.js:535`):
+```javascript
+test.skip('should filter conferences by search query', () => {
+  // Test body exists but is skipped
+});
+```
+
+**Impact**: Search filtering functionality may have regressions that go undetected.
+
+**Fix**: Either fix the test or document why it's skipped with a plan to re-enable:
+```javascript
+// TODO(#issue-123): Re-enable after fixing jQuery mock for hide()
+test.skip('should filter conferences by search query', () => {
+```
+
+---
+
+### 14. E2E Tests Have Weak Assertions
+
+**Problem**: Some E2E tests use assertions that can never fail.
+
+**Evidence** (`tests/e2e/specs/countdown-timers.spec.js:266-267`):
+```javascript
+// Should not cause errors - wait briefly for any error to manifest
+await page.waitForFunction(() => document.readyState === 'complete');
+
+// Page should still be functional
+const remainingCountdowns = page.locator('.countdown-display');
+expect(await remainingCountdowns.count()).toBeGreaterThanOrEqual(0);
+// ^ This ALWAYS passes - count cannot be negative
+```
+
+**Impact**: Test provides false confidence. A bug that removes all countdowns would still pass.
+
+**Fix**:
+```javascript
+// Capture count before removal
+const initialCount = await countdowns.count();
+
+// Remove one countdown
+await page.evaluate(() => {
+  document.querySelector('.countdown-display')?.remove();
+});
+
+// Verify count decreased
+const newCount = await remainingCountdowns.count();
+expect(newCount).toBe(initialCount - 1);
+```
+
+---
+
+### 15. Missing E2E Test Coverage
+
+**Problem**: Several critical user flows have no E2E test coverage.
+
+**Missing E2E Tests**:
+
+| User Flow | Current Coverage |
+|-----------|------------------|
+| Adding conference to favorites | None |
+| Dashboard page functionality | None |
+| Calendar integration | None |
+| Series subscription | None |
+| Export/Import favorites | None |
+| Mobile navigation | Partial |
+
+**Fix**: Add E2E tests for favorites workflow:
+```javascript
+// tests/e2e/specs/favorites.spec.js
+test.describe('Favorites', () => {
+  test('should add conference to favorites', async ({ page }) => {
+    await page.goto('/');
+
+    // Find first favorite button
+    const favoriteBtn = page.locator('.favorite-btn').first();
+    await favoriteBtn.click();
+
+    // Verify icon changed
+    await expect(favoriteBtn.locator('i')).toHaveClass(/fas/);
+
+    // Navigate to dashboard
+    await page.goto('/my-conferences');
+
+    // Verify conference appears
+    const card = page.locator('.conference-card');
+    await expect(card).toHaveCount(1);
+  });
+});
+```
+
+---
+
+### 16. Frontend Test Helper Complexity
+
+**Problem**: Test helpers contain complex logic that itself could have bugs.
+
+**Evidence** (`tests/frontend/utils/mockHelpers.js`, `tests/frontend/utils/dataHelpers.js`):
+```javascript
+// These helpers have significant logic that could mask test failures
+const createConferenceWithDeadline = (daysFromNow, overrides = {}) => {
+  const now = new Date();
+  const deadline = new Date(now.getTime() + daysFromNow * 24 * 60 * 60 * 1000);
+  // ... complex date formatting logic
+};
+```
+
+**Impact**: If helper has a bug, all tests using it may pass incorrectly.
+
+**Fix**: Add tests for test helpers:
+```javascript
+// tests/frontend/utils/mockHelpers.test.js
+describe('Test Helpers', () => {
+  test('createConferenceWithDeadline creates correct date', () => {
+    const conf = createConferenceWithDeadline(7);
+    const deadline = new Date(conf.cfp);
+    const daysUntil = Math.round((deadline - new Date()) / (1000 * 60 * 60 * 24));
+    expect(daysUntil).toBe(7);
+  });
+});
+```
+
+---
+
+## New Frontend Tests to Add
+
+| Priority | Test Name | Purpose |
+|----------|-----------|---------|
+| Critical | `dashboard.test.js:filter_by_format` | Verify format filtering works correctly |
+| Critical | `favorites.spec.js:add_remove_favorites` | E2E test for favorites workflow |
+| High | `dashboard.test.js:empty_state_handling` | Verify empty dashboard shows correct message |
+| High | `notifications.spec.js:deadline_notifications` | E2E test for notification triggers |
+| Medium | `calendar.spec.js:add_to_calendar` | E2E test for calendar integration |
+| Medium | `series-manager.test.js:subscription_flow` | Verify series subscription works |
+| Low | `snek.test.js:seasonal_styles` | Verify Easter egg seasonal logic |
+
+---
+
+## Updated Action Plan
+
+### Immediate (This Week)
+
+1. **Fix "always passes" assertions** (Critical) - Python + Frontend
+   - Replace `assert len(x) >= 0` and `expect(...).toBeGreaterThanOrEqual(0)`
+   - Files: `test_integration_comprehensive.py`, `test_production_health.py`, `countdown-timers.spec.js`
+
+2. **Add data corruption verification** (Critical)
+   - Update `test_conference_name_corruption_prevention` to verify actual values
+
+3. **Re-enable or document skipped test** (High)
+   - File: `conference-filter.test.js` - search query test
+
+### Short Term (Next Sprint)
+
+4. **Add dashboard.js tests** (High)
+   - Filter application
+   - Card rendering
+   - Empty state handling
+
+5. **Add favorites E2E tests** (High)
+   - Add/remove favorites
+   - Dashboard integration
+
+6. **Add real integration tests** - Python
+   - Create tests with actual data files and minimal mocking
+
+### Medium Term (Next Month)
+
+7. **Reduce jQuery mock complexity**
+   - Consider using jsdom with real jQuery
+   - Or migrate critical paths to vanilla JS
+
+8. **Add test helper tests**
+   - Verify date calculation helpers are correct
+
+9. **Refactor link checking tests**
+   - Use `responses` library instead of extensive patching
+
+---
+
 ## Summary
 
 The test suite has good coverage breadth but suffers from:
+
+### Python Tests
 1. **Over-mocking** that tests mock configuration rather than real behavior
 2. **Weak assertions** that always pass regardless of correctness
 3. **Missing edge case coverage** for critical date and merging logic
+
+### Frontend Tests
+4. **Extensive jQuery mocking** (250+ lines per file) that's fragile and hard to maintain
+5. **Missing test coverage** for dashboard.js, snek.js, about.js
+6. **Missing E2E coverage** for favorites, dashboard, calendar integration
+7. **Weak assertions** in E2E tests (`>= 0` checks)
 
 Addressing the Critical findings will significantly improve confidence in the test suite's ability to catch real regressions. The key principle: **tests should fail when the implementation is broken**.
