@@ -431,82 +431,13 @@ describe('SeriesManager', () => {
     });
   });
 
-  // Note: Series identification methods are handled by confManager, not SeriesManager
-  describe('Series Identification', () => {
-    test.skip('should extract series name from conference name', () => {
-      // This functionality is in confManager, not SeriesManager
-    });
-
-    test.skip('should generate series ID from conference name', () => {
-      // This functionality is in confManager, not SeriesManager
-    });
-
-    test.skip('should handle conference names with special characters', () => {
-      // This functionality is in confManager, not SeriesManager
-    });
-  });
-
-  // Note: Subscription management is handled by confManager, SeriesManager delegates to it
-  describe('Subscription Management', () => {
-    test.skip('should subscribe to a conference series', () => {
-      // SeriesManager delegates to confManager.followSeries
-    });
-
-    test.skip('should unsubscribe from a series', () => {
-      // SeriesManager delegates to confManager.unfollowSeries
-    });
-
-    test.skip('should get all subscribed series', () => {
-      // SeriesManager delegates to confManager.getFollowedSeries
-    });
-
-    test.skip('should handle empty subscriptions', () => {
-      // SeriesManager delegates to confManager.getFollowedSeries
-    });
-  });
-
-  // Note: Pattern subscriptions are handled by confManager
-  describe('Pattern Subscriptions', () => {
-    test.skip('should subscribe to a pattern', () => {
-      // Pattern subscriptions are handled by confManager
-    });
-
-    test.skip('should unsubscribe from a pattern', () => {
-      // Pattern subscriptions are handled by confManager
-    });
-
-    test.skip('should detect pattern matches', () => {
-      // Pattern matching is handled by confManager
-    });
-  });
-
-  // Note: Auto-favorite is handled by confManager.followSeries
-  describe('Auto-Favorite Functionality', () => {
-    test.skip('should auto-favorite conferences in subscribed series', () => {
-      // Auto-favorite is handled by confManager.followSeries
-    });
-
-    test.skip('should not auto-favorite already favorited conferences', () => {
-      // Auto-favorite is handled by confManager.followSeries
-    });
-  });
-
-  // Note: New conference detection is handled by confManager
-  describe('New Conference Detection', () => {
-    test.skip('should detect new conferences in subscribed series', () => {
-      // New conference detection is handled by confManager
-    });
-
-    test.skip('should not process already processed conferences', () => {
-      // New conference detection is handled by confManager
-    });
-  });
+  // Note: Series identification, subscription management, pattern subscriptions,
+  // auto-favorite, and new conference detection are all handled by confManager,
+  // not SeriesManager. SeriesManager is a UI-focused module that delegates
+  // data operations to confManager. Tests for those features belong in
+  // conference-manager.test.js.
 
   describe('UI Updates', () => {
-    test.skip('should highlight subscribed series buttons', () => {
-      // highlightSubscribedSeries is not a method on SeriesManager
-    });
-
     test('should update series count', () => {
       // Mock confManager to return 2 followed series
       confManager.getFollowedSeries.mockReturnValue([
@@ -605,13 +536,8 @@ describe('SeriesManager', () => {
       expect(container.innerHTML).toContain('No predictions available');
     });
 
-    test.skip('should predict next CFP for known series', () => {
-      // predictNextCFP is not a method on SeriesManager - pattern analysis is in confManager
-    });
-
-    test.skip('should return null for unknown series', () => {
-      // predictNextCFP is not a method on SeriesManager - pattern analysis is in confManager
-    });
+    // Note: predictNextCFP is not a method on SeriesManager - pattern analysis
+    // is handled by confManager. Tests for that belong in conference-manager.test.js
   });
 
   describe('Event Handlers', () => {
@@ -654,13 +580,8 @@ describe('SeriesManager', () => {
   });
 
   describe('Error Handling', () => {
-    test.skip('should handle missing FavoritesManager gracefully', () => {
-      // subscribe is not a method on SeriesManager - it delegates to confManager
-    });
-
-    test.skip('should handle missing conference data', () => {
-      // autoFavoriteSeriesConferences is not a method on SeriesManager
-    });
+    // Note: subscribe and autoFavoriteSeriesConferences are not methods on
+    // SeriesManager - it delegates to confManager for all data operations
 
     test('should handle missing DOM elements', () => {
       document.getElementById('subscribed-series-list').remove();
@@ -675,10 +596,6 @@ describe('SeriesManager', () => {
     });
   });
 
-  // Note: SeriesManager does not have getSubscriptions - it delegates to confManager.getFollowedSeries
-  describe('Compatibility', () => {
-    test.skip('should provide getSubscriptions alias for getSubscribedSeries', () => {
-      // SeriesManager delegates to confManager.getFollowedSeries, not its own storage
-    });
-  });
+  // Note: SeriesManager does not have getSubscriptions - it delegates to
+  // confManager.getFollowedSeries for all subscription data
 });
