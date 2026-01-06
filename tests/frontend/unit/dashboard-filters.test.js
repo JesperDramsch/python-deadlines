@@ -40,16 +40,6 @@ describe('DashboardFilters', () => {
         <button id="clear-filters">Clear</button>
         <button id="save-filter-preset">Save Preset</button>
 
-        <!-- Search -->
-        <input type="text" id="conference-search" placeholder="Search conferences..." />
-
-        <!-- Sort Options -->
-        <select id="sort-by">
-          <option value="cfp">CFP Deadline</option>
-          <option value="start">Start Date</option>
-          <option value="name">Name</option>
-        </select>
-
         <!-- Filter Panel (for filter count badge) -->
         <div class="filter-panel">
           <div class="card-header">
@@ -403,36 +393,6 @@ describe('DashboardFilters', () => {
 
       // FIXED: Verify saveToURL was actually called (not just that checkbox is checked)
       expect(saveToURLSpy).toHaveBeenCalled();
-    });
-
-    // SKIPPED: The DashboardFilters module does not bind any events to the search input.
-    // bindEvents() only handles filter checkboxes. If search filtering is needed,
-    // it should be implemented in the module first.
-    test.skip('should update filter count when search input changes', () => {
-      DashboardFilters.bindEvents();
-      const updateFilterCountSpy = jest.spyOn(DashboardFilters, 'updateFilterCount');
-
-      const search = document.getElementById('conference-search');
-      search.value = 'pycon';
-      search.dispatchEvent(new Event('input', { bubbles: true }));
-
-      // This would test actual behavior if the module had search event handling
-      expect(updateFilterCountSpy).toHaveBeenCalled();
-    });
-
-    // SKIPPED: The DashboardFilters module does not bind any events to the sort select.
-    // bindEvents() only handles filter checkboxes. If sort handling is needed,
-    // it should be implemented in the module first.
-    test.skip('should update filter count when sort changes', () => {
-      DashboardFilters.bindEvents();
-      const updateFilterCountSpy = jest.spyOn(DashboardFilters, 'updateFilterCount');
-
-      const sortBy = document.getElementById('sort-by');
-      sortBy.value = 'start';
-      sortBy.dispatchEvent(new Event('change', { bubbles: true }));
-
-      // This would test actual behavior if the module had sort event handling
-      expect(updateFilterCountSpy).toHaveBeenCalled();
     });
 
     test('should call updateFilterCount on bindEvents initialization', () => {
