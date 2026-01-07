@@ -202,10 +202,15 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Wait for search results to be populated by JavaScript
+      // Timeout is expected when search returns no results - subsequent test.skip() handles this
       await page.waitForFunction(
         () => document.querySelector('#search-results')?.children.length > 0,
         { timeout: 5000 }
-      ).catch(() => {}); // Results may be empty for some searches
+      ).catch(error => {
+        if (!error.message.includes('Timeout')) {
+          throw error; // Re-throw unexpected errors
+        }
+      });
 
       // Look for conference type badges in search results
       const tags = page.locator('#search-results .conf-sub');
@@ -253,10 +258,15 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Wait for search results to be populated by JavaScript
+      // Timeout is expected when search returns no results - calendar test proceeds anyway
       await page.waitForFunction(
         () => document.querySelector('#search-results')?.children.length > 0,
         { timeout: 5000 }
-      ).catch(() => {}); // Results may be empty for some searches
+      ).catch(error => {
+        if (!error.message.includes('Timeout')) {
+          throw error; // Re-throw unexpected errors
+        }
+      });
 
       // Look for calendar containers in search results
       const calendarContainers = page.locator('#search-results [class*="calendar"]');
@@ -285,13 +295,18 @@ test.describe('Search Functionality', () => {
 
       // Wait for search index to load and process the query
       const searchInput = await getVisibleSearchInput(page);
+      // Timeout is expected if search index fails to load - conditional below handles this
       await page.waitForFunction(
         () => {
           const input = document.querySelector('input[type="search"], input[name="query"], #search-input');
           return input && input.value.length > 0;
         },
         { timeout: 5000 }
-      ).catch(() => {}); // Search input may not be populated if index fails to load
+      ).catch(error => {
+        if (!error.message.includes('Timeout')) {
+          throw error; // Re-throw unexpected errors
+        }
+      });
 
       // Check if search input has the query (navbar search box gets populated)
       const value = await searchInput.inputValue();
@@ -319,7 +334,14 @@ test.describe('Search Functionality', () => {
       // Use Promise.all to wait for both the key press and navigation
       // This handles webkit's different form submission timing
       await Promise.all([
-        page.waitForURL(/query=django/, { timeout: 10000 }).catch(() => null),
+        page.waitForURL(/query=django/, { timeout: 10000 }).catch(error => {
+          // Timeout may occur in some browsers that don't update URL for form submissions
+          // Let the assertion below verify the expected behavior
+          if (!error.message.includes('Timeout')) {
+            throw error; // Re-throw unexpected errors
+          }
+          return null;
+        }),
         searchInput.press('Enter')
       ]);
 
