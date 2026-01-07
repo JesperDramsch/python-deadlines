@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-The test suite for pythondeadlin.es contains **289 Python test functions across 16 test files** plus **13 frontend unit test files and 4 e2e spec files**. While this represents comprehensive coverage breadth, the audit identified several patterns that reduce effectiveness: **over-reliance on mocking** (167 Python @patch decorators, 250+ lines of jQuery mocks in frontend), **weak assertions** that always pass, and **missing tests for critical components** (dashboard.js has no dedicated tests, snek.js has no tests).
+The test suite for pythondeadlin.es contains **289 Python test functions across 16 test files** plus **13 frontend unit test files and 4 e2e spec files**. While this represents comprehensive coverage breadth, the audit identified several patterns that reduce effectiveness: **over-reliance on mocking** (167 Python @patch decorators, 250+ lines of jQuery mocks in frontend), **weak assertions** that always pass, and **missing tests for critical components** (dashboard.js has partial test coverage).
 
 ## Key Statistics
 
@@ -25,7 +25,7 @@ The test suite for pythondeadlin.es contains **289 Python test functions across 
 | Unit test files | 13 |
 | E2E spec files | 4 |
 | JavaScript implementation files | 24 (14 custom, 10 vendor/min) |
-| Files without tests | 3 (snek.js, about.js, dashboard.js partial) |
+| Files without tests | 1 (dashboard.js partial) |
 | Skipped tests | 1 (`test.skip` in conference-filter.test.js) |
 | Heavy mock setup files | 4 (250+ lines of mocking each) |
 
@@ -576,12 +576,17 @@ expect($('#subject-select').val()).toBe('PY');
 - `dashboard.test.js`: Initialization, conference loading, filtering (format/topic/features), rendering, view mode toggle, empty state, event binding, notifications
 - `dashboard-filters.test.js`: URL parameter handling, filter persistence, presets, filter count badges, clear filters
 
-**Remaining Untested Files** (Low Priority):
+**Now Fully Tested Files**:
+
+| File | Purpose | Tests Added |
+|------|---------|-------------|
+| `about.js` | About page presentation mode | 22 tests |
+| `snek.js` | Easter egg animations, seasonal themes | 29 tests |
+
+**Remaining Untested Files** (Vendor):
 
 | File | Purpose | Risk Level |
 |------|---------|------------|
-| `snek.js` | Easter egg animations, seasonal themes | Low |
-| `about.js` | About page functionality | Low |
 | `js-year-calendar.js` | Calendar widget | Medium (vendor) |
 
 **Pattern for Loading Real Modules**:
@@ -775,7 +780,7 @@ The test suite has good coverage breadth but suffers from:
 
 ### Frontend Tests
 4. **Extensive jQuery mocking** (250+ lines per file) that's fragile and hard to maintain
-5. **Missing test coverage** for dashboard.js, snek.js, about.js
+5. **Missing test coverage** for dashboard.js (partial coverage exists)
 6. **Missing E2E coverage** for favorites, dashboard, calendar integration
 7. **Weak assertions** in E2E tests (`>= 0` checks)
 
@@ -981,14 +986,13 @@ grep -r "waitForTimeout" tests/e2e/specs/
 - `dashboard-filters.js` - 70/85/88/86% (branches/functions/lines/statements)
 - `about.js` - 80/85/95/93% (branches/functions/lines/statements)
 
-**Files with thresholds** (14 total):
+**Files with thresholds** (15 total):
 - notifications.js, countdown-simple.js, search.js, favorites.js
 - dashboard.js, conference-manager.js, conference-filter.js
 - theme-toggle.js, timezone-utils.js, series-manager.js
-- lazy-load.js, action-bar.js, dashboard-filters.js, about.js
+- lazy-load.js, action-bar.js, dashboard-filters.js, about.js, snek.js
 
-**Remaining excluded files** (acceptable):
-- `snek.js` - Easter egg functionality (low priority)
+**Note**: All custom JavaScript files now have test coverage with configured thresholds.
 
 ---
 
@@ -1038,7 +1042,7 @@ grep -r "expect(true).toBe(true)" tests/frontend/unit/
 | ~~`about.js`~~ | About page presentation mode | Low | ✅ 22 tests added |
 | ~~`dashboard-filters.js`~~ | Dashboard filtering | High | ✅ Tests use real module |
 | ~~`dashboard.js`~~ | Dashboard rendering | High | ✅ Tests use real module |
-| `snek.js` | Easter egg animations | Low | Excluded (intentional) |
+| ~~`snek.js`~~ | Easter egg animations | Low | ✅ 29 tests added |
 
 ---
 
