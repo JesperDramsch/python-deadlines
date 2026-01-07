@@ -679,8 +679,12 @@ class TestSemanticCorrectness:
         assert len(errors) == 0, f"Place format issues:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
-    def test_online_conferences_no_location_required(self, critical_data_files):
-        """Test that online conferences don't require physical location."""
+    def test_online_conferences_consistent_data(self, critical_data_files):
+        """Test that online conferences have consistent metadata.
+
+        Online/virtual conferences should not have contradictory location data
+        that suggests a physical venue.
+        """
         conf_file = critical_data_files["conferences"]
         if not conf_file.exists():
             pytest.skip("No conferences file")
@@ -688,17 +692,25 @@ class TestSemanticCorrectness:
         with conf_file.open(encoding="utf-8") as f:
             conferences = yaml.safe_load(f)
 
-        # This is more of a documentation test - online conferences are valid
-        online_count = 0
+        online_keywords = ["online", "virtual", "remote"]
+        errors = []
+
         for conf in conferences:
             place = conf.get("place", "")
-            if place.lower() in ["online", "virtual", "remote"]:
-                online_count += 1
-                # Should not have misleading location data
-                location = conf.get("location")
-                if location:
-                    # Location for online events should be intentional
-                    pass  # Allow it, but track for awareness
+            name = conf.get("conference", "Unknown")
 
-        # Just ensure the test runs - no assertion needed for valid data
-        assert online_count >= 0
+            if place.lower() in online_keywords:
+                location = conf.get("location")
+                # Online conferences shouldn't have GPS coordinates suggesting physical venue
+                if location:
+                    lat, lon = location.get("lat"), location.get("lon")
+                    # If location is set, it should be null/default, not specific coordinates
+                    if lat is not None and lon is not None:
+                        # Allow 0,0 as a placeholder/default
+                        if abs(lat) > 0.1 or abs(lon) > 0.1:
+                            errors.append(
+                                f"{name}: online event has specific coordinates ({lat}, {lon})"
+                            )
+
+        # Verify no contradictory data found
+        assert len(errors) == 0, f"Online conference data issues:\n" + "\n".join(errors[:10])
