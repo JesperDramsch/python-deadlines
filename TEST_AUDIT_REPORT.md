@@ -504,7 +504,23 @@ def test_parse_various_commit_formats(self):
 
 ### 11. Extensive jQuery Mocking Obscures Real Behavior
 
+**Status**: DOCUMENTED - Systemic refactor needed (Medium Term priority)
+
 **Problem**: Frontend unit tests create extensive jQuery mocks (250+ lines per test file) that simulate jQuery behavior, making tests fragile and hard to maintain.
+
+**Affected Files** (files with complete jQuery mock replacement):
+- `conference-filter.test.js` - 250+ lines of jQuery mock
+- `favorites.test.js` - Extensive jQuery mock
+- `dashboard.test.js` - Extensive jQuery mock
+- `dashboard-filters.test.js` - Extensive jQuery mock
+- `action-bar.test.js` - Extensive jQuery mock
+- `conference-manager.test.js` - Extensive jQuery mock
+- `search.test.js` - Partial jQuery mock
+
+**Good Examples** (tests using real jQuery):
+- `theme-toggle.test.js` - Uses real DOM with no jQuery mocking ✓
+- `notifications.test.js` - Only mocks specific methods (`$.fn.ready`) ✓
+- `timezone-utils.test.js` - Pure function tests, no DOM ✓
 
 **Evidence** (`tests/frontend/unit/conference-filter.test.js:55-285`):
 ```javascript
@@ -528,16 +544,33 @@ global.$ = jest.fn((selector) => {
 - Mock drift: real jQuery behavior changes but mock doesn't
 - Very difficult to maintain and extend
 
-**Fix**: Use jsdom with actual jQuery or consider migrating to vanilla JS with simpler test setup:
+**Recommended Pattern** (from working examples in codebase):
+
+The test environment already provides real jQuery via `tests/frontend/setup.js`:
 ```javascript
-// Instead of mocking jQuery entirely:
-import $ from 'jquery';
-import { JSDOM } from 'jsdom';
+// setup.js already does this:
+global.$ = global.jQuery = require('../../static/js/jquery.min.js');
+```
 
-const dom = new JSDOM('<!DOCTYPE html><div id="app"></div>');
-global.$ = $(dom.window);
+New tests should follow the `theme-toggle.test.js` pattern:
+```javascript
+// 1. Set up real DOM in beforeEach
+document.body.innerHTML = `
+  <div id="app">
+    <select id="subject-select">
+      <option value="PY">Python</option>
+    </select>
+  </div>
+`;
 
-// Tests now use real jQuery behavior
+// 2. Use real jQuery (already global from setup.js)
+// Don't override global.$ with jest.fn()!
+
+// 3. Only mock specific behaviors when needed for control:
+$.fn.ready = jest.fn((callback) => callback()); // Control init timing
+
+// 4. Test real behavior
+expect($('#subject-select').val()).toBe('PY');
 ```
 
 ---
@@ -584,97 +617,81 @@ describe('DashboardManager', () => {
 
 ### 13. Skipped Frontend Tests
 
-**Problem**: One test is skipped in the frontend test suite without clear justification.
+**Status**: ✅ VERIFIED COMPLETE - No skipped tests found in frontend unit tests
 
-**Evidence** (`tests/frontend/unit/conference-filter.test.js:535`):
-```javascript
-test.skip('should filter conferences by search query', () => {
-  // Test body exists but is skipped
-});
-```
+**Original Problem**: One test was skipped in the frontend test suite without clear justification.
 
-**Impact**: Search filtering functionality may have regressions that go undetected.
+**Resolution**: Grep search for `test.skip`, `.skip(`, and `it.skip` patterns found no matches in frontend unit tests. The originally identified skip has been resolved.
 
-**Fix**: Either fix the test or document why it's skipped with a plan to re-enable:
-```javascript
-// TODO(#issue-123): Re-enable after fixing jQuery mock for hide()
-test.skip('should filter conferences by search query', () => {
+**Verification**:
+```bash
+grep -r "test\.skip\|\.skip(\|it\.skip" tests/frontend/unit/
+# No results
 ```
 
 ---
 
 ### 14. E2E Tests Have Weak Assertions
 
-**Problem**: Some E2E tests use assertions that can never fail.
+**Status**: ✅ FIXED - Weak assertions and silent error swallowing patterns resolved
 
-**Evidence** (`tests/e2e/specs/countdown-timers.spec.js:266-267`):
+**Original Problem**: E2E tests had weak assertions (`toBeGreaterThanOrEqual(0)`) and silent error swallowing (`.catch(() => {})`).
+
+**Fixes Applied**:
+
+1. **countdown-timers.spec.js**: Fixed `toBeGreaterThanOrEqual(0)` pattern to track initial count and verify decrease:
 ```javascript
-// Should not cause errors - wait briefly for any error to manifest
-await page.waitForFunction(() => document.readyState === 'complete');
-
-// Page should still be functional
-const remainingCountdowns = page.locator('.countdown-display');
-expect(await remainingCountdowns.count()).toBeGreaterThanOrEqual(0);
-// ^ This ALWAYS passes - count cannot be negative
+// Before removal
+const initialCount = await initialCountdowns.count();
+// After removal
+expect(remainingCount).toBe(initialCount - 1);
 ```
 
-**Impact**: Test provides false confidence. A bug that removes all countdowns would still pass.
-
-**Fix**:
+2. **search-functionality.spec.js**: Fixed 4 instances of `.catch(() => {})` pattern to use explicit timeout handling:
 ```javascript
-// Capture count before removal
-const initialCount = await countdowns.count();
+// Before:
+.catch(() => {}); // Silent error swallowing
 
-// Remove one countdown
-await page.evaluate(() => {
-  document.querySelector('.countdown-display')?.remove();
+// After:
+.catch(error => {
+  if (!error.message.includes('Timeout')) {
+    throw error; // Re-throw unexpected errors
+  }
 });
-
-// Verify count decreased
-const newCount = await remainingCountdowns.count();
-expect(newCount).toBe(initialCount - 1);
 ```
+
+**Commits**:
+- `test(e2e): replace silent error swallowing with explicit timeout handling`
 
 ---
 
 ### 15. Missing E2E Test Coverage
 
-**Problem**: Several critical user flows have no E2E test coverage.
+**Status**: ✅ PARTIALLY FIXED - Added comprehensive favorites and dashboard E2E tests
 
-**Missing E2E Tests**:
+**Original Problem**: Several critical user flows had no E2E test coverage.
 
-| User Flow | Current Coverage |
-|-----------|------------------|
-| Adding conference to favorites | None |
-| Dashboard page functionality | None |
-| Calendar integration | None |
-| Series subscription | None |
-| Export/Import favorites | None |
+**Tests Added** (`tests/e2e/specs/favorites.spec.js`):
+
+| User Flow | Status |
+|-----------|--------|
+| Adding conference to favorites | ✅ Added (7 tests) |
+| Dashboard page functionality | ✅ Added (10 tests) |
+| Series subscription | ✅ Added |
+| Favorites persistence | ✅ Added |
+| Favorites counter | ✅ Added |
+| Calendar integration | ⏳ Remaining |
+| Export/Import favorites | ⏳ Remaining |
 | Mobile navigation | Partial |
 
-**Fix**: Add E2E tests for favorites workflow:
-```javascript
-// tests/e2e/specs/favorites.spec.js
-test.describe('Favorites', () => {
-  test('should add conference to favorites', async ({ page }) => {
-    await page.goto('/');
+**Commit**: `test(e2e): add comprehensive favorites and dashboard E2E tests`
 
-    // Find first favorite button
-    const favoriteBtn = page.locator('.favorite-btn').first();
-    await favoriteBtn.click();
-
-    // Verify icon changed
-    await expect(favoriteBtn.locator('i')).toHaveClass(/fas/);
-
-    // Navigate to dashboard
-    await page.goto('/my-conferences');
-
-    // Verify conference appears
-    const card = page.locator('.conference-card');
-    await expect(card).toHaveCount(1);
-  });
-});
-```
+**Test Coverage Added**:
+- Favorites Workflow: Adding, removing, toggling, persistence
+- Dashboard Functionality: View toggle, filter panel, empty state
+- Series Subscriptions: Quick subscribe buttons
+- Notification Settings: Modal, time options, save settings
+- Conference Detail Actions
 
 ---
 
