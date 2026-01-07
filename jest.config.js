@@ -37,8 +37,7 @@ module.exports = {
     '!static/js/ouical*.js',
     '!static/js/bootstrap-multiselect*.js',
     '!static/js/jquery.countdown*.js',
-    '!static/js/snek.js',
-    '!static/js/about.js'
+    '!static/js/snek.js'
   ],
 
   coverageDirectory: '<rootDir>/coverage',
@@ -115,6 +114,18 @@ module.exports = {
       functions: 30,
       lines: 40,
       statements: 40
+    },
+    './static/js/dashboard-filters.js': {
+      branches: 70,
+      functions: 85,
+      lines: 88,
+      statements: 86
+    },
+    './static/js/about.js': {
+      branches: 80,
+      functions: 85,
+      lines: 95,
+      statements: 93
     }
   },
 
