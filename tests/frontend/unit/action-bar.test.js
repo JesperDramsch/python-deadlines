@@ -77,27 +77,8 @@ describe('ActionBar', () => {
     // Mock dispatchEvent
     window.dispatchEvent = jest.fn();
 
-    // Create a mock jQuery
-    global.$ = jest.fn((selector) => {
-      if (typeof selector === 'function') {
-        // Document ready
-        selector();
-        return;
-      }
-      if (selector === document) {
-        return {
-          ready: jest.fn((cb) => cb()),
-          on: jest.fn()
-        };
-      }
-      const elements = document.querySelectorAll(selector);
-      return {
-        length: elements.length,
-        each: jest.fn((cb) => {
-          elements.forEach((el, i) => cb.call(el, i, el));
-        })
-      };
-    });
+    // Note: action-bar.js uses vanilla JavaScript, not jQuery.
+    // No jQuery mock needed - the real jQuery from setup.js works fine.
 
     // Load ActionBar using jest.isolateModules for fresh instance
     jest.isolateModules(() => {

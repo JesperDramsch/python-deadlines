@@ -7,7 +7,6 @@ const { mockStore } = require('../utils/mockHelpers');
 describe('ConferenceStateManager', () => {
   let ConferenceStateManager;
   let storeMock;
-  let originalJQuery;
 
   beforeEach(() => {
     // Set up DOM with conference elements
@@ -40,55 +39,8 @@ describe('ConferenceStateManager', () => {
       </div>
     `;
 
-    // Mock jQuery for DOM extraction
-    originalJQuery = global.$;
-    global.$ = jest.fn((selector) => {
-      // Handle different selector types
-      let elements;
-      if (!selector) {
-        elements = [];
-      } else if (selector && selector.nodeType) {
-        // DOM element
-        elements = [selector];
-      } else if (selector instanceof NodeList) {
-        elements = Array.from(selector);
-      } else if (Array.isArray(selector)) {
-        elements = selector;
-      } else if (typeof selector === 'string') {
-        elements = Array.from(document.querySelectorAll(selector));
-      } else if (selector === document) {
-        elements = [document];
-      } else {
-        elements = [];
-      }
-
-      const result = {
-        each: jest.fn((callback) => {
-          elements.forEach((el, index) => {
-            // Create jQuery-like wrapper for each element
-            const $el = {
-              data: jest.fn((key) => {
-                const attrName = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-                return el.getAttribute(attrName);
-              })
-            };
-            callback.call(el, index, el);
-            // Make data available on mock jQuery object
-            global.$.mockElement = $el;
-          });
-        })
-      };
-
-      // For individual element queries
-      if (elements.length === 1) {
-        result.data = jest.fn((key) => {
-          const attrName = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-          return elements[0].getAttribute(attrName);
-        });
-      }
-
-      return result;
-    });
+    // Note: ConferenceStateManager is vanilla JavaScript - no jQuery mock needed.
+    // The real jQuery from setup.js works fine.
 
     storeMock = mockStore();
 
@@ -140,7 +92,6 @@ describe('ConferenceStateManager', () => {
   });
 
   afterEach(() => {
-    global.$ = originalJQuery;
     delete window.ConferenceStateManager;
   });
 
