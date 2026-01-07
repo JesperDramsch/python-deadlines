@@ -193,7 +193,7 @@ END:VCALENDAR"""
         mock_tidy.return_value = test_ics_df  # Return same data after tidy
 
         # Run the import
-        result = import_python_official.main()
+        import_python_official.main()
 
         # Verify data was loaded
         assert mock_load.called, "Should load existing conference data"

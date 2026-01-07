@@ -171,9 +171,7 @@ class TestLinkCheckingWithResponses:
 
         test_start = date(2025, 6, 1)
 
-        results = []
-        for url in urls:
-            results.append(links.check_link_availability(url, test_start))
+        results = [links.check_link_availability(url, test_start) for url in urls]
 
         # All should succeed - compare without trailing slashes for flexibility
         assert len(results) == 3

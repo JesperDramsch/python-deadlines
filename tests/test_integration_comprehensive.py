@@ -604,10 +604,9 @@ class TestBusinessLogicIntegration:
 
     def test_cfp_priority_logic(self):
         """Test CFP vs CFP extended priority logic."""
-        from datetime import date
         from datetime import timedelta
 
-        today = date.today()
+        today = datetime.now(timezone.utc).date()
 
         # Conference where cfp is in range but cfp_ext is NOT
         # If cfp_ext takes priority (as it should), this should NOT be included
@@ -692,14 +691,14 @@ class TestRealDataProcessing:
     data and only mock external I/O operations.
     """
 
-    @pytest.fixture()
+    @pytest.fixture
     def temp_data_dir(self, tmp_path):
         """Create a temporary data directory with real YAML files."""
         data_dir = tmp_path / "_data"
         data_dir.mkdir()
 
         # Create realistic conference data
-        today = date.today()
+        today = datetime.now(timezone.utc).date()
         test_conferences = [
             {
                 "conference": "Test PyCon US",
@@ -822,7 +821,7 @@ class TestRealDataProcessing:
 
     def test_sort_by_cfp_with_real_conferences(self):
         """Test sorting actually orders conferences correctly by CFP deadline."""
-        today = date.today()
+        today = datetime.now(timezone.utc).date()
 
         # Create Conference objects for proper sorting
         # Using "Online" as place avoids needing location coordinates
