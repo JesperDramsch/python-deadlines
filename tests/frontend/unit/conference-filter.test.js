@@ -454,27 +454,16 @@ describe('ConferenceFilter', () => {
     test('should update multiselect when filters change', () => {
       ConferenceFilter.init();
 
-      // Spy on jQuery to track val and multiselect calls
-      const valSpy = jest.fn();
-      const multiselectSpy = jest.fn();
-      const originalJquery = global.$;
-
-      global.$ = jest.fn((selector) => {
-        const result = originalJquery(selector);
-        if (selector === '#subject-select') {
-          result.val = valSpy.mockReturnValue(result);
-          result.multiselect = multiselectSpy.mockReturnValue(result);
-        }
-        return result;
-      });
+      // Spy on the multiselect plugin - it's already mocked in beforeEach
+      // Clear any previous calls and track new ones
+      $.fn.multiselect.mockClear();
 
       ConferenceFilter.filterBySub('PY');
 
-      // Restore original
-      global.$ = originalJquery;
-
-      expect(valSpy).toHaveBeenCalledWith(['PY']);
-      expect(multiselectSpy).toHaveBeenCalledWith('refresh');
+      // Verify val was set correctly
+      expect($('#subject-select').val()).toEqual(['PY']);
+      // Verify multiselect refresh was called
+      expect($.fn.multiselect).toHaveBeenCalledWith('refresh');
     });
 
     test('should handle multiselect change events', () => {
@@ -542,29 +531,14 @@ describe('ConferenceFilter', () => {
     test('should update multiselect when clearing', () => {
       ConferenceFilter.init();
 
-      // Spy on jQuery to track multiselect calls
-      const multiselectSpy = jest.fn();
-      const originalJquery = global.$;
-
-      global.$ = jest.fn((selector) => {
-        const result = originalJquery(selector);
-        if (selector === '#subject-select') {
-          result.multiselect = multiselectSpy.mockReturnValue(result);
-        }
-        return result;
-      });
-
       ConferenceFilter.filterBySub('PY');
 
       // Clear the spy to only capture the clear action
-      multiselectSpy.mockClear();
+      $.fn.multiselect.mockClear();
 
       ConferenceFilter.clearFilters();
 
-      // Restore original
-      global.$ = originalJquery;
-
-      expect(multiselectSpy).toHaveBeenCalledWith('selectAll', false);
+      expect($.fn.multiselect).toHaveBeenCalledWith('selectAll', false);
     });
   });
 
