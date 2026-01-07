@@ -604,7 +604,8 @@ class TestBusinessLogicIntegration:
 
     def test_cfp_priority_logic(self):
         """Test CFP vs CFP extended priority logic."""
-        from datetime import date, timedelta
+        from datetime import date
+        from datetime import timedelta
 
         today = date.today()
 
@@ -691,7 +692,7 @@ class TestRealDataProcessing:
     data and only mock external I/O operations.
     """
 
-    @pytest.fixture
+    @pytest.fixture()
     def temp_data_dir(self, tmp_path):
         """Create a temporary data directory with real YAML files."""
         data_dir = tmp_path / "_data"
@@ -817,7 +818,7 @@ class TestRealDataProcessing:
             assert len(result) == len(test_data)
         ```
         """
-        pass  # Skipped - needs `responses` library
+        # Skipped - needs `responses` library
 
     def test_sort_by_cfp_with_real_conferences(self):
         """Test sorting actually orders conferences correctly by CFP deadline."""

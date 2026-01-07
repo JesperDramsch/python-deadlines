@@ -451,7 +451,7 @@ class TestSemanticCorrectness:
                 if cfp_date > start_date:
                     errors.append(f"{name}: CFP ({cfp_date}) after start ({start_date})")
 
-        assert len(errors) == 0, f"Logical date errors found:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Logical date errors found:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_conference_year_matches_dates(self, critical_data_files):
@@ -477,7 +477,7 @@ class TestSemanticCorrectness:
                 if abs(year - start_year) > 1:
                     errors.append(f"{name}: year={year} but start={start_str}")
 
-        assert len(errors) == 0, f"Year/date mismatches:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Year/date mismatches:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_latitude_longitude_ranges(self, critical_data_files):
@@ -511,7 +511,7 @@ class TestSemanticCorrectness:
                         if not (-180 <= lon <= 180):
                             errors.append(f"{name}: invalid longitude {lon}")
 
-        assert len(errors) == 0, f"Invalid coordinates:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Invalid coordinates:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_url_format_validity(self, critical_data_files):
@@ -542,7 +542,7 @@ class TestSemanticCorrectness:
                     elif " " in url:
                         errors.append(f"{name}: {field} '{url}' contains spaces")
 
-        assert len(errors) == 0, f"URL format errors:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "URL format errors:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_topic_codes_are_valid(self, critical_data_files, valid_topic_codes):
@@ -566,7 +566,7 @@ class TestSemanticCorrectness:
                     if code and code not in valid_topic_codes:
                         errors.append(f"{name}: unknown topic code '{code}'")
 
-        assert len(errors) == 0, f"Invalid topic codes:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Invalid topic codes:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_cfp_extended_after_original(self, critical_data_files):
@@ -599,7 +599,7 @@ class TestSemanticCorrectness:
                 if cfp_ext_date < cfp_date:
                     errors.append(f"{name}: cfp_ext ({cfp_ext_date}) before cfp ({cfp_date})")
 
-        assert len(errors) == 0, f"CFP extension errors:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "CFP extension errors:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_conference_names_meaningful(self, critical_data_files):
@@ -625,7 +625,7 @@ class TestSemanticCorrectness:
             elif len(name) < 3:
                 errors.append(f"Conference with year {year}: name too short '{name}'")
 
-        assert len(errors) == 0, f"Conference name issues:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Conference name issues:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_no_future_conferences_too_far_out(self, critical_data_files):
@@ -651,7 +651,7 @@ class TestSemanticCorrectness:
             if year and year > max_year:
                 errors.append(f"{name} {year}: too far in future (max {max_year})")
 
-        assert len(errors) == 0, f"Conferences too far in future:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Conferences too far in future:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_place_field_has_country(self, critical_data_files):
@@ -676,7 +676,7 @@ class TestSemanticCorrectness:
                 if "," not in place:
                     errors.append(f"{name}: place '{place}' missing country (no comma)")
 
-        assert len(errors) == 0, f"Place format issues:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Place format issues:\n" + "\n".join(errors[:10])
 
     @pytest.mark.smoke()
     def test_online_conferences_consistent_data(self, critical_data_files):
@@ -708,9 +708,7 @@ class TestSemanticCorrectness:
                     if lat is not None and lon is not None:
                         # Allow 0,0 as a placeholder/default
                         if abs(lat) > 0.1 or abs(lon) > 0.1:
-                            errors.append(
-                                f"{name}: online event has specific coordinates ({lat}, {lon})"
-                            )
+                            errors.append(f"{name}: online event has specific coordinates ({lat}, {lon})")
 
         # Verify no contradictory data found
-        assert len(errors) == 0, f"Online conference data issues:\n" + "\n".join(errors[:10])
+        assert len(errors) == 0, "Online conference data issues:\n" + "\n".join(errors[:10])

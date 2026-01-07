@@ -2,16 +2,12 @@
 
 import sys
 from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
 from pathlib import Path
 from unittest.mock import Mock
-from unittest.mock import mock_open
 from unittest.mock import patch
 
 import pytest
 import pytz
-import yaml
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -595,17 +591,14 @@ class TestSortDataIntegration:
     @pytest.mark.skip(reason="Test requires complex Path mock with context manager - covered by real integration tests")
     def test_sort_data_basic_flow(self):
         """Test basic sort_data workflow."""
-        pass
 
     @pytest.mark.skip(reason="Test requires complex Path mock with context manager - covered by real integration tests")
     def test_sort_data_no_files_exist(self):
         """Test sort_data when no data files exist."""
-        pass
 
     @pytest.mark.skip(reason="Test requires complex Path mock with context manager - covered by real integration tests")
     def test_sort_data_validation_errors(self):
         """Test sort_data with validation errors."""
-        pass
 
 
 class TestCommandLineInterface:
@@ -685,4 +678,3 @@ class TestErrorHandlingAndEdgeCases:
     @pytest.mark.skip(reason="Test requires complex Path mock with context manager - covered by real integration tests")
     def test_sort_data_yaml_error_handling(self):
         """Test sort_data handles YAML errors gracefully."""
-        pass

@@ -172,25 +172,21 @@ END:VCALENDAR"""
     def test_main_function_with_data_flow(self, mock_tidy, mock_ics, mock_write, mock_load):
         """Test main function processes data correctly through pipeline."""
         # Setup test data that flows through the pipeline
-        test_ics_df = pd.DataFrame({
-            "conference": ["Test Conf"],
-            "year": [2026],
-            "cfp": ["TBA"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-            "link": ["https://test.com"],
-            "place": ["Test City"]
-        })
+        test_ics_df = pd.DataFrame(
+            {
+                "conference": ["Test Conf"],
+                "year": [2026],
+                "cfp": ["TBA"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+                "link": ["https://test.com"],
+                "place": ["Test City"],
+            },
+        )
 
-        test_yml_df = pd.DataFrame({
-            "conference": [],
-            "year": [],
-            "cfp": [],
-            "start": [],
-            "end": [],
-            "link": [],
-            "place": []
-        })
+        test_yml_df = pd.DataFrame(
+            {"conference": [], "year": [], "cfp": [], "start": [], "end": [], "link": [], "place": []},
+        )
 
         mock_load.return_value = test_yml_df
         mock_ics.return_value = test_ics_df
@@ -308,17 +304,19 @@ class TestPythonOrganizersImport:
 
     def test_map_columns_data_preservation(self):
         """Test that map_columns preserves data values while renaming columns."""
-        input_df = pd.DataFrame({
-            "Subject": ["PyCon US 2025", "DjangoCon 2025"],
-            "Start Date": ["2025-06-01", "2025-09-01"],
-            "End Date": ["2025-06-03", "2025-09-03"],
-            "Tutorial Deadline": ["2025-02-01", "2025-05-01"],
-            "Talk Deadline": ["2025-02-15", "2025-05-15"],
-            "Website URL": ["https://pycon.us", "https://djangocon.us"],
-            "Proposal URL": ["https://pycon.us/cfp", "https://djangocon.us/cfp"],
-            "Sponsorship URL": ["https://pycon.us/sponsor", "https://djangocon.us/sponsor"],
-            "Location": ["Pittsburgh, PA, USA", "San Francisco, CA, USA"]
-        })
+        input_df = pd.DataFrame(
+            {
+                "Subject": ["PyCon US 2025", "DjangoCon 2025"],
+                "Start Date": ["2025-06-01", "2025-09-01"],
+                "End Date": ["2025-06-03", "2025-09-03"],
+                "Tutorial Deadline": ["2025-02-01", "2025-05-01"],
+                "Talk Deadline": ["2025-02-15", "2025-05-15"],
+                "Website URL": ["https://pycon.us", "https://djangocon.us"],
+                "Proposal URL": ["https://pycon.us/cfp", "https://djangocon.us/cfp"],
+                "Sponsorship URL": ["https://pycon.us/sponsor", "https://djangocon.us/sponsor"],
+                "Location": ["Pittsburgh, PA, USA", "San Francisco, CA, USA"],
+            },
+        )
 
         result = import_python_organizers.map_columns(input_df)
 
@@ -338,17 +336,19 @@ class TestPythonOrganizersImport:
         """Test reverse column mapping from internal format to CSV format."""
         # The reverse mapping only renames specific columns defined in cols dict
         # 'place' column is handled separately in map_columns (df["place"] = df["Location"])
-        input_df = pd.DataFrame({
-            "conference": ["Test Conf"],
-            "start": ["2025-06-01"],
-            "end": ["2025-06-03"],
-            "tutorial_deadline": ["2025-02-01"],
-            "cfp": ["2025-02-15"],
-            "link": ["https://test.com"],
-            "cfp_link": ["https://test.com/cfp"],
-            "sponsor": ["https://test.com/sponsor"],
-            "Location": ["Test City, Country"]  # Must include original Location column for reverse
-        })
+        input_df = pd.DataFrame(
+            {
+                "conference": ["Test Conf"],
+                "start": ["2025-06-01"],
+                "end": ["2025-06-03"],
+                "tutorial_deadline": ["2025-02-01"],
+                "cfp": ["2025-02-15"],
+                "link": ["https://test.com"],
+                "cfp_link": ["https://test.com/cfp"],
+                "sponsor": ["https://test.com/sponsor"],
+                "Location": ["Test City, Country"],  # Must include original Location column for reverse
+            },
+        )
 
         result = import_python_organizers.map_columns(input_df, reverse=True)
 
@@ -365,17 +365,19 @@ class TestPythonOrganizersImport:
     @patch("import_python_organizers.pd.read_csv")
     def test_load_remote_year_in_url(self, mock_read_csv):
         """Test that load_remote uses correct year in URL."""
-        mock_read_csv.return_value = pd.DataFrame({
-            "Subject": [],
-            "Start Date": [],
-            "End Date": [],
-            "Tutorial Deadline": [],
-            "Talk Deadline": [],
-            "Website URL": [],
-            "Proposal URL": [],
-            "Sponsorship URL": [],
-            "Location": []
-        })
+        mock_read_csv.return_value = pd.DataFrame(
+            {
+                "Subject": [],
+                "Start Date": [],
+                "End Date": [],
+                "Tutorial Deadline": [],
+                "Talk Deadline": [],
+                "Website URL": [],
+                "Proposal URL": [],
+                "Sponsorship URL": [],
+                "Location": [],
+            },
+        )
 
         # Test different years
         for year in [2024, 2025, 2026]:

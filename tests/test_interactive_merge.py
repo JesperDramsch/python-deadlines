@@ -14,7 +14,7 @@ from tidy_conf.interactive_merge import fuzzy_match
 from tidy_conf.interactive_merge import merge_conferences
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_title_mappings():
     """Mock the title mappings to avoid file I/O issues.
 
@@ -25,9 +25,9 @@ def mock_title_mappings():
     It also calls update_title_mappings which writes to files.
     We need to mock all of these to avoid file system operations.
     """
-    with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load1, \
-         patch("tidy_conf.titles.load_title_mappings") as mock_load2, \
-         patch("tidy_conf.interactive_merge.update_title_mappings") as mock_update:
+    with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load1, patch(
+        "tidy_conf.titles.load_title_mappings",
+    ) as mock_load2, patch("tidy_conf.interactive_merge.update_title_mappings") as mock_update:
         # Return empty mappings (list, dict) for both load calls
         mock_load1.return_value = ([], {})
         mock_load2.return_value = ([], {})
@@ -155,15 +155,17 @@ class TestFuzzyMatch:
 
         # Verify the dissimilar CSV conference remains in remote (unmatched)
         remote_names = remote["conference"].tolist()
-        assert "DjangoCon Completely Different" in remote_names, \
-            f"Unmatched CSV conference should be in remote: {remote_names}"
+        assert (
+            "DjangoCon Completely Different" in remote_names
+        ), f"Unmatched CSV conference should be in remote: {remote_names}"
 
         # Verify the dissimilar conferences weren't incorrectly merged
         # The YML row should still have its original link (not overwritten by CSV)
         yml_rows = merged[merged["conference"] == "PyCon Test"]
         assert not yml_rows.empty, "YML conference should exist in merged"
-        assert yml_rows.iloc[0]["link"] == "https://existing.com", \
-            "YML link should not be changed when no match is found"
+        assert (
+            yml_rows.iloc[0]["link"] == "https://existing.com"
+        ), "YML link should not be changed when no match is found"
 
 
 class TestMergeConferences:
@@ -477,6 +479,6 @@ class TestDataIntegrity:
         if len(result) > 0:
             # Check that original conference name appears in result
             conference_names = result["conference"].tolist()
-            assert original_data["conference"] in conference_names, (
-                f"Original conference '{original_data['conference']}' not found in result: {conference_names}"
-            )
+            assert (
+                original_data["conference"] in conference_names
+            ), f"Original conference '{original_data['conference']}' not found in result: {conference_names}"
