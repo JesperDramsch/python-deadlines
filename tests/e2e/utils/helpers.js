@@ -157,16 +157,22 @@ export async function isConferenceFavorited(page, confId) {
 export async function toggleFavorite(page, confId) {
   const card = await getConferenceCard(page, confId);
   const favoriteBtn = card.locator('.favorite-btn');
+
+  // Get initial state before clicking
+  const wasFavorited = await favoriteBtn.evaluate(btn => btn.classList.contains('favorited'));
+
   await favoriteBtn.click();
-  // Wait for the button state to change instead of arbitrary timeout
+
+  // Wait for the button state to actually change
   await page.waitForFunction(
-    (id) => {
+    ({ id, initialState }) => {
       const btn = document.querySelector(`[data-conf-id="${id}"] .favorite-btn`);
-      return btn && btn.classList.contains('favorited') !== btn.classList.contains('favorited');
+      // Button state should have changed from initial
+      return btn && btn.classList.contains('favorited') !== initialState;
     },
-    confId,
+    { id: confId, initialState: wasFavorited },
     { timeout: 2000 }
-  ).catch(() => {}); // Graceful fallback if animation doesn't trigger class change
+  );
 }
 
 /**

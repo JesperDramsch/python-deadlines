@@ -67,12 +67,13 @@ test.describe('Search Functionality', () => {
       const results = page.locator('#search-results .ConfItem, .search-results .conference-item');
       const count = await results.count();
 
-      if (count > 0) {
-        // Verify at least one result contains "pycon" (case-insensitive)
-        const firstResult = results.first();
-        const text = await firstResult.textContent();
-        expect(text.toLowerCase()).toContain('pycon');
-      }
+      // Skip if no results returned (search index may not be available)
+      test.skip(count === 0, 'No search results returned - search index may not be available');
+
+      // Verify at least one result contains "pycon" (case-insensitive)
+      const firstResult = results.first();
+      const text = await firstResult.textContent();
+      expect(text.toLowerCase()).toContain('pycon');
     });
 
     test('should search for conferences by location', async ({ page }) => {
@@ -86,11 +87,13 @@ test.describe('Search Functionality', () => {
 
       // Check if results contain online conferences
       const results = page.locator('#search-results .conf-place, .search-results .location');
+      const count = await results.count();
 
-      if (await results.count() > 0) {
-        const firstLocation = await results.first().textContent();
-        expect(firstLocation.toLowerCase()).toContain('online');
-      }
+      // Skip if no location elements found (search may not have returned results)
+      test.skip(count === 0, 'No location elements found in search results');
+
+      const firstLocation = await results.first().textContent();
+      expect(firstLocation.toLowerCase()).toContain('online');
     });
 
     test('should show no results message for empty search', async ({ page }) => {
@@ -104,10 +107,12 @@ test.describe('Search Functionality', () => {
 
       // Check for no results message
       const noResults = page.locator('.no-results, [class*="no-result"], :text("No results"), :text("not found")');
+      const count = await noResults.count();
 
-      if (await noResults.count() > 0) {
-        await expect(noResults.first()).toBeVisible();
-      }
+      // Skip if no "no results" message element found (UI may handle empty results differently)
+      test.skip(count === 0, 'No "no results" message element found - UI may handle empty results differently');
+
+      await expect(noResults.first()).toBeVisible();
     });
 
     test('should clear search and show all results', async ({ page }) => {
@@ -123,10 +128,13 @@ test.describe('Search Functionality', () => {
       await searchInput.press('Enter');
       await page.waitForFunction(() => document.readyState === 'complete');
 
-      // Should show results (either all or a default set)
+      // After clearing search, verify the page handles it gracefully
+      // Either shows all results, a default set, or properly hides results
       const results = page.locator('#search-results .ConfItem, .search-results .conference-item');
-      const count = await results.count();
-      expect(count).toBeGreaterThanOrEqual(0);
+      const searchContainer = page.locator('#search-results, .search-results');
+      // The search container should exist and not show an error state
+      const errorState = page.locator('.error, .exception, [class*="error"]');
+      expect(await errorState.count()).toBe(0);
     });
 
     test('should handle special characters in search', async ({ page }) => {
@@ -157,29 +165,35 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       const firstResult = page.locator('#search-results .ConfItem, .search-results .conference-item').first();
+      const isVisible = await firstResult.isVisible();
 
-      if (await firstResult.isVisible()) {
-        // Check for essential conference information
-        // On mobile viewports, .conf-title is hidden and .conf-title-small is shown instead
-        // We need to check each separately since Playwright only checks the first DOM element
-        const confTitle = firstResult.locator('.conf-title');
-        const confTitleSmall = firstResult.locator('.conf-title-small');
-        const hasVisibleTitle = await confTitle.isVisible() || await confTitleSmall.isVisible();
-        expect(hasVisibleTitle).toBeTruthy();
+      // Skip if no search results visible
+      test.skip(!isVisible, 'No search results visible - search may not have returned results');
 
-        // Check for deadline or date
-        const deadline = firstResult.locator('.deadline, .timer, .countdown-display, .date');
-        if (await deadline.count() > 0) {
-          await expect(deadline.first()).toBeVisible();
-        }
+      // Check for essential conference information
+      // On mobile viewports, .conf-title is hidden and .conf-title-small is shown instead
+      // We need to check each separately since Playwright only checks the first DOM element
+      const confTitle = firstResult.locator('.conf-title');
+      const confTitleSmall = firstResult.locator('.conf-title-small');
+      const hasVisibleTitle = await confTitle.isVisible() || await confTitleSmall.isVisible();
+      expect(hasVisibleTitle).toBeTruthy();
 
-        // Check for location (hidden on mobile viewports via CSS)
-        const isMobile = testInfo.project.name.includes('mobile');
-        if (!isMobile) {
-          const location = firstResult.locator('.conf-place, .location, .place');
-          if (await location.count() > 0) {
-            await expect(location.first()).toBeVisible();
-          }
+      // Check for deadline or date (optional element - document if not present)
+      const deadline = firstResult.locator('.deadline, .timer, .countdown-display, .date');
+      const deadlineCount = await deadline.count();
+      // Note: Deadline elements are optional in search results (may not be rendered for all conferences)
+      if (deadlineCount > 0) {
+        await expect(deadline.first()).toBeVisible();
+      }
+
+      // Check for location (hidden on mobile viewports via CSS, optional element)
+      const isMobile = testInfo.project.name.includes('mobile');
+      if (!isMobile) {
+        const location = firstResult.locator('.conf-place, .location, .place');
+        const locationCount = await location.count();
+        // Note: Location elements may not be rendered for online conferences
+        if (locationCount > 0) {
+          await expect(location.first()).toBeVisible();
         }
       }
     });
@@ -192,20 +206,30 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Wait for search results to be populated by JavaScript
-      await page.waitForTimeout(1000);
+      // Timeout is expected when search returns no results - subsequent test.skip() handles this
+      await page.waitForFunction(
+        () => document.querySelector('#search-results')?.children.length > 0,
+        { timeout: 5000 }
+      ).catch(error => {
+        if (!error.message.includes('Timeout')) {
+          throw error; // Re-throw unexpected errors
+        }
+      });
 
       // Look for conference type badges in search results
       const tags = page.locator('#search-results .conf-sub');
+      const tagCount = await tags.count();
 
-      if (await tags.count() > 0) {
-        const firstTag = tags.first();
-        await expect(firstTag).toBeVisible();
+      // Skip if no tags found (search may not have returned results with tags)
+      test.skip(tagCount === 0, 'No conference tags found in search results');
 
-        // Tag should have some text or at least a data-sub attribute
-        const tagText = await firstTag.textContent();
-        const dataSub = await firstTag.getAttribute('data-sub');
-        expect(tagText || dataSub).toBeTruthy();
-      }
+      const firstTag = tags.first();
+      await expect(firstTag).toBeVisible();
+
+      // Tag should have some text or at least a data-sub attribute
+      const tagText = await firstTag.textContent();
+      const dataSub = await firstTag.getAttribute('data-sub');
+      expect(tagText || dataSub).toBeTruthy();
     });
 
     test('should display countdown timers in results', async ({ page }) => {
@@ -217,15 +241,17 @@ test.describe('Search Functionality', () => {
 
       // Look for countdown timers
       const timers = page.locator('.search-timer, .countdown-display, .timer');
+      const timerCount = await timers.count();
 
-      if (await timers.count() > 0) {
-        const firstTimer = timers.first();
-        await expect(firstTimer).toBeVisible();
+      // Skip if no timers found (search may not have returned results with timers)
+      test.skip(timerCount === 0, 'No countdown timers found in search results');
 
-        // Timer should have content (either countdown or "Passed")
-        const timerText = await firstTimer.textContent();
-        expect(timerText).toBeTruthy();
-      }
+      const firstTimer = timers.first();
+      await expect(firstTimer).toBeVisible();
+
+      // Timer should have content (either countdown or "Passed")
+      const timerText = await firstTimer.textContent();
+      expect(timerText).toBeTruthy();
     });
 
     test('should show calendar buttons for conferences', async ({ page }) => {
@@ -236,7 +262,15 @@ test.describe('Search Functionality', () => {
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Wait for search results to be populated by JavaScript
-      await page.waitForTimeout(1000);
+      // Timeout is expected when search returns no results - calendar test proceeds anyway
+      await page.waitForFunction(
+        () => document.querySelector('#search-results')?.children.length > 0,
+        { timeout: 5000 }
+      ).catch(error => {
+        if (!error.message.includes('Timeout')) {
+          throw error; // Re-throw unexpected errors
+        }
+      });
 
       // Look for calendar containers in search results
       const calendarContainers = page.locator('#search-results [class*="calendar"]');
@@ -244,8 +278,16 @@ test.describe('Search Functionality', () => {
       // Calendar buttons are created dynamically by JavaScript
       // They may not be visible if calendar library isn't loaded
       const count = await calendarContainers.count();
-      // Just verify the containers exist (calendar functionality is optional)
-      expect(count).toBeGreaterThanOrEqual(0);
+
+      // Calendar functionality is optional - if present, verify it rendered correctly
+      if (count > 0) {
+        // At least one calendar container should be visible
+        await expect(calendarContainers.first()).toBeAttached();
+      }
+      // If no calendar containers, that's acceptable (feature is optional)
+      // Main assertion: page shouldn't have errors
+      const errorState = page.locator('.error, .exception');
+      expect(await errorState.count()).toBe(0);
     });
   });
 
@@ -256,10 +298,21 @@ test.describe('Search Functionality', () => {
       await waitForPageReady(page);
 
       // Wait for search index to load and process the query
-      await page.waitForTimeout(1000);
+      const searchInput = await getVisibleSearchInput(page);
+      // Timeout is expected if search index fails to load - conditional below handles this
+      await page.waitForFunction(
+        () => {
+          const input = document.querySelector('input[type="search"], input[name="query"], #search-input');
+          return input && input.value.length > 0;
+        },
+        { timeout: 5000 }
+      ).catch(error => {
+        if (!error.message.includes('Timeout')) {
+          throw error; // Re-throw unexpected errors
+        }
+      });
 
       // Check if search input has the query (navbar search box gets populated)
-      const searchInput = await getVisibleSearchInput(page);
       const value = await searchInput.inputValue();
       // The value might be set by JavaScript after the search index loads
       if (value) {
@@ -285,7 +338,14 @@ test.describe('Search Functionality', () => {
       // Use Promise.all to wait for both the key press and navigation
       // This handles webkit's different form submission timing
       await Promise.all([
-        page.waitForURL(/query=django/, { timeout: 10000 }).catch(() => null),
+        page.waitForURL(/query=django/, { timeout: 10000 }).catch(error => {
+          // Timeout may occur in some browsers that don't update URL for form submissions
+          // Let the assertion below verify the expected behavior
+          if (!error.message.includes('Timeout')) {
+            throw error; // Re-throw unexpected errors
+          }
+          return null;
+        }),
         searchInput.press('Enter')
       ]);
 
@@ -310,22 +370,23 @@ test.describe('Search Functionality', () => {
       // Click on a conference type tag
       const tag = page.locator('.conf-sub, .badge').first();
 
-      if (await tag.isVisible()) {
-        const tagText = await tag.textContent();
-        await tag.click();
+      const isTagVisible = await tag.isVisible({ timeout: 3000 }).catch(() => false);
+      test.skip(!isTagVisible, 'No conference tags visible in search results');
 
-        await page.waitForFunction(() => document.readyState === 'complete');
+      const tagText = await tag.textContent();
+      await tag.click();
 
-        // Check if filtering occurred (URL change or results update)
-        const url = page.url();
-        const resultsChanged = url.includes('type=') || url.includes('sub=');
+      await page.waitForFunction(() => document.readyState === 'complete');
 
-        // Or check if filter UI updated
-        const activeFilter = page.locator('.active-filter, .filter-active, [class*="active"]');
-        const hasActiveFilter = await activeFilter.count() > 0;
+      // Check if filtering occurred (URL change or results update)
+      const url = page.url();
+      const resultsChanged = url.includes('type=') || url.includes('sub=');
 
-        expect(resultsChanged || hasActiveFilter).toBe(true);
-      }
+      // Or check if filter UI updated
+      const activeFilter = page.locator('.active-filter, .filter-active, [class*="active"]');
+      const hasActiveFilter = await activeFilter.count() > 0;
+
+      expect(resultsChanged || hasActiveFilter).toBe(true);
     });
   });
 

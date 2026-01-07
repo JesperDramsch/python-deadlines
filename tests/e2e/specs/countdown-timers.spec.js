@@ -48,7 +48,13 @@ test.describe('Countdown Timers', () => {
       const countdown = page.locator('.countdown-display').first();
       const initialText = await countdown.textContent();
 
+      // Skip test for passed or TBA countdowns (they don't update)
+      if (initialText?.includes('Passed') || initialText?.includes('TBA')) {
+        return;
+      }
+
       // Wait for countdown to update (should update every second)
+      // Don't swallow errors - let test fail if countdown doesn't update
       await page.waitForFunction(
         (initial) => {
           const el = document.querySelector('.countdown-display');
@@ -56,14 +62,10 @@ test.describe('Countdown Timers', () => {
         },
         initialText,
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       const updatedText = await countdown.textContent();
-
-      // Text should have changed (unless it's passed or TBA)
-      if (!initialText?.includes('Passed') && !initialText?.includes('TBA')) {
-        expect(updatedText).not.toBe(initialText);
-      }
+      expect(updatedText).not.toBe(initialText);
     });
 
     test('should show correct format for regular countdown', async ({ page }) => {
@@ -82,14 +84,16 @@ test.describe('Countdown Timers', () => {
     test('should show compact format for small countdown', async ({ page }) => {
       // Look for small countdown if exists
       const smallCountdown = page.locator('.countdown-display.countdown-small');
+      const count = await smallCountdown.count();
 
-      if (await smallCountdown.count() > 0) {
-        const text = await smallCountdown.first().textContent();
+      // Skip if no small countdowns exist in test data
+      test.skip(count === 0, 'No small countdown elements found in test data');
 
-        // Should match format: "Xd XX:XX:XX" or "Passed"
-        if (text && !text.includes('Passed') && !text.includes('TBA')) {
-          expect(text).toMatch(/\d+d \d{2}:\d{2}:\d{2}/);
-        }
+      const text = await smallCountdown.first().textContent();
+
+      // Should match format: "Xd XX:XX:XX" or "Passed"
+      if (text && !text.includes('Passed') && !text.includes('TBA')) {
+        expect(text).toMatch(/\d+d \d{2}:\d{2}:\d{2}/);
       }
     });
   });
@@ -100,11 +104,13 @@ test.describe('Countdown Timers', () => {
 
       // Look for passed deadlines
       const passedCountdowns = page.locator('.countdown-display.deadline-passed, .countdown-display:has-text("passed")');
+      const count = await passedCountdowns.count();
 
-      if (await passedCountdowns.count() > 0) {
-        const text = await passedCountdowns.first().textContent();
-        expect(text).toMatch(/passed/i);
-      }
+      // Skip if no passed deadlines exist in test data
+      test.skip(count === 0, 'No passed deadline elements found in test data');
+
+      const text = await passedCountdowns.first().textContent();
+      expect(text).toMatch(/passed/i);
     });
 
     test('should handle TBA deadlines', async ({ page }) => {
@@ -115,22 +121,25 @@ test.describe('Countdown Timers', () => {
         elements.filter(el => el.dataset.deadline === 'TBA').length
       );
 
-      if (tbaElements > 0) {
-        const tbaCountdown = page.locator('.countdown-display[data-deadline="TBA"]').first();
-        const text = await tbaCountdown.textContent();
-        expect(text).toBe('');
-      }
+      // Skip if no TBA deadlines exist in test data
+      test.skip(tbaElements === 0, 'No TBA deadline elements found in test data');
+
+      const tbaCountdown = page.locator('.countdown-display[data-deadline="TBA"]').first();
+      const text = await tbaCountdown.textContent();
+      expect(text).toBe('');
     });
 
     test('should add deadline-passed class to past deadlines', async ({ page }) => {
       await waitForCountdowns(page);
 
       const passedCountdowns = page.locator('.countdown-display.deadline-passed');
+      const count = await passedCountdowns.count();
 
-      if (await passedCountdowns.count() > 0) {
-        // Should have the deadline-passed class
-        await expect(passedCountdowns.first()).toHaveClass(/deadline-passed/);
-      }
+      // Skip if no passed deadlines exist in test data
+      test.skip(count === 0, 'No deadline-passed elements found in test data');
+
+      // Should have the deadline-passed class
+      await expect(passedCountdowns.first()).toHaveClass(/deadline-passed/);
     });
   });
 
@@ -139,15 +148,17 @@ test.describe('Countdown Timers', () => {
       await waitForCountdowns(page);
 
       // Check if any countdowns have timezone attributes
-      const timezonedCountdown = page.locator('.countdown-display[data-timezone]').first();
+      const timezonedCountdowns = page.locator('.countdown-display[data-timezone]');
+      const count = await timezonedCountdowns.count();
 
-      if (await timezonedCountdown.count() > 0) {
-        const timezone = await timezonedCountdown.getAttribute('data-timezone');
-        expect(timezone).toBeTruthy();
+      // Skip if no timezoned countdowns exist in test data
+      test.skip(count === 0, 'No countdown elements with timezone attribute found in test data');
 
-        // Timezone should be valid IANA format or UTC offset
-        expect(timezone).toMatch(/^([A-Z][a-z]+\/[A-Z][a-z]+|UTC[+-]\d+)$/);
-      }
+      const timezone = await timezonedCountdowns.first().getAttribute('data-timezone');
+      expect(timezone).toBeTruthy();
+
+      // Timezone should be valid IANA format or UTC offset
+      expect(timezone).toMatch(/^([A-Z][a-z]+\/[A-Z][a-z]+|UTC[+-]\d+)$/);
     });
 
     test('should default to UTC-12 (AoE) when no timezone specified', async ({ page }) => {
@@ -231,13 +242,14 @@ test.describe('Countdown Timers', () => {
       });
 
       // Wait for the timer to pick it up
+      // Don't swallow errors - if timer doesn't initialize, test should fail
       await page.waitForFunction(
         () => {
           const el = document.querySelector('#dynamic-countdown');
           return el && el.textContent.trim() !== '';
         },
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       // Check that the new countdown has content
       const dynamicCountdown = page.locator('#dynamic-countdown');
@@ -250,6 +262,10 @@ test.describe('Countdown Timers', () => {
     test('should handle countdown removal', async ({ page }) => {
       await waitForCountdowns(page);
 
+      // Get initial count
+      const initialCountdowns = page.locator('.countdown-display');
+      const initialCount = await initialCountdowns.count();
+
       // Remove a countdown element
       await page.evaluate(() => {
         const countdown = document.querySelector('.countdown-display');
@@ -261,9 +277,17 @@ test.describe('Countdown Timers', () => {
       // Should not cause errors - wait briefly for any error to manifest
       await page.waitForFunction(() => document.readyState === 'complete');
 
-      // Page should still be functional
+      // Page should still be functional - verify:
+      // 1. No error elements appeared
+      const errorState = page.locator('.error, .exception, [class*="error"]');
+      expect(await errorState.count()).toBe(0);
+
+      // 2. Countdown count should have decreased by 1 (if there was one to remove)
       const remainingCountdowns = page.locator('.countdown-display');
-      expect(await remainingCountdowns.count()).toBeGreaterThanOrEqual(0);
+      const remainingCount = await remainingCountdowns.count();
+      if (initialCount > 0) {
+        expect(remainingCount).toBe(initialCount - 1);
+      }
     });
   });
 
@@ -279,13 +303,14 @@ test.describe('Countdown Timers', () => {
       });
 
       // Wait for error message to appear
+      // Don't swallow errors - test should fail if no error message appears
       await page.waitForFunction(
         () => {
           const el = document.querySelector('#invalid-countdown');
           return el && el.textContent.trim() !== '';
         },
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       // Should show error message
       const invalidCountdown = page.locator('#invalid-countdown');
@@ -353,7 +378,13 @@ test.describe('Countdown Timers', () => {
       const countdown = page.locator('.countdown-display').first();
       const text1 = await countdown.textContent();
 
+      // Skip test for passed or TBA countdowns (they don't update)
+      if (text1?.includes('Passed') || text1?.includes('TBA')) {
+        return;
+      }
+
       // Wait for countdown to update
+      // Don't swallow errors - let test fail if countdown doesn't update
       await page.waitForFunction(
         (initial) => {
           const el = document.querySelector('.countdown-display');
@@ -361,14 +392,10 @@ test.describe('Countdown Timers', () => {
         },
         text1,
         { timeout: 3000 }
-      ).catch(() => {});
+      );
 
       const text2 = await countdown.textContent();
-
-      // Should still be updating (unless passed/TBA)
-      if (!text1?.includes('Passed') && !text1?.includes('TBA')) {
-        expect(text2).not.toBe(text1);
-      }
+      expect(text2).not.toBe(text1);
     });
   });
 });

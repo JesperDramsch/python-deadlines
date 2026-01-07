@@ -280,6 +280,9 @@ const SeriesManager = {
     }
 };
 
+// Expose SeriesManager for testing
+window.SeriesManager = SeriesManager;
+
 // Initialize on document ready
 $(document).ready(function() {
     SeriesManager.init();

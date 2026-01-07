@@ -7,10 +7,189 @@ from unittest.mock import Mock
 from unittest.mock import patch
 
 import requests
+import responses
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
 from tidy_conf import links
+
+
+class TestLinkCheckingWithResponses:
+    """Test link checking using responses library for cleaner HTTP mocking."""
+
+    @responses.activate
+    def test_successful_link_check_clean(self):
+        """Test successful link checking with responses library."""
+        test_url = "https://example.com/"  # Include trailing slash for normalized URL
+        responses.add(responses.GET, test_url, status=200, headers={"Content-Type": "text/html"})
+
+        test_start = date(2025, 6, 1)
+        result = links.check_link_availability(test_url, test_start)
+
+        # URL should be returned (possibly with trailing slash normalization)
+        assert result.rstrip("/") == test_url.rstrip("/")
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_redirect_handling_clean(self):
+        """Test redirect handling with responses library."""
+        original_url = "https://example.com"
+        redirected_url = "https://example.com/new-page"
+
+        responses.add(responses.GET, original_url, status=301, headers={"Location": redirected_url})
+        responses.add(responses.GET, redirected_url, status=200, headers={"Content-Type": "text/html"})
+
+        test_start = date(2025, 6, 1)
+
+        # The actual behavior depends on how requests handles redirects
+        # By default requests follows redirects, so we should get the final URL
+        result = links.check_link_availability(original_url, test_start)
+
+        # Result should be the redirected URL
+        assert redirected_url in result or original_url in result
+
+    @responses.activate
+    def test_404_triggers_archive_lookup(self):
+        """Test that 404 triggers archive.org lookup."""
+        test_url = "https://example.com/missing"
+        archive_api_url = "https://archive.org/wayback/available"
+
+        # First request returns 404
+        responses.add(
+            responses.GET,
+            test_url,
+            status=404,
+        )
+
+        # Archive.org API response - no archive found
+        responses.add(
+            responses.GET,
+            archive_api_url,
+            json={"archived_snapshots": {}},
+            status=200,
+        )
+
+        test_start = date(2025, 6, 1)
+
+        with patch("tidy_conf.links.get_cache") as mock_cache, patch(
+            "tidy_conf.links.get_cache_location",
+        ) as mock_cache_location:
+            mock_cache.return_value = (set(), set())
+            mock_cache_file = Mock()
+            mock_file_handle = Mock()
+            mock_file_handle.__enter__ = Mock(return_value=mock_file_handle)
+            mock_file_handle.__exit__ = Mock(return_value=None)
+            mock_cache_file.open.return_value = mock_file_handle
+            mock_cache_location.return_value = (mock_cache_file, Mock())
+
+            result = links.check_link_availability(test_url, test_start)
+
+        # Should return original URL when no archive is found
+        assert result == test_url
+
+    @responses.activate
+    def test_archive_found_returns_archive_url(self):
+        """Test that archive URL is returned when found."""
+        test_url = "https://example.com/old-page"
+        archive_url = "https://web.archive.org/web/20240101/https://example.com/old-page"
+        archive_api_url = "https://archive.org/wayback/available"
+
+        # First request returns 404
+        responses.add(
+            responses.GET,
+            test_url,
+            status=404,
+        )
+
+        # Archive.org API returns a valid snapshot
+        responses.add(
+            responses.GET,
+            archive_api_url,
+            json={"archived_snapshots": {"closest": {"available": True, "url": archive_url}}},
+            status=200,
+        )
+
+        test_start = date(2025, 6, 1)
+
+        with patch("tidy_conf.links.tqdm.write"):
+            result = links.check_link_availability(test_url, test_start)
+
+        # Should return the archive URL
+        assert result == archive_url
+
+    @responses.activate
+    def test_timeout_handling(self):
+        """Test handling of timeout errors."""
+        test_url = "https://slow-server.com"
+
+        # Simulate timeout
+        responses.add(
+            responses.GET,
+            test_url,
+            body=requests.exceptions.Timeout("Connection timed out"),
+        )
+
+        test_start = date(2025, 6, 1)
+
+        # Should handle timeout gracefully
+        result = links.check_link_availability(test_url, test_start)
+
+        # Should return original URL on timeout
+        assert result == test_url
+
+    @responses.activate
+    def test_ssl_error_handling(self):
+        """Test handling of SSL certificate errors."""
+        test_url = "https://invalid-cert.com"
+
+        # Simulate SSL error
+        responses.add(
+            responses.GET,
+            test_url,
+            body=requests.exceptions.SSLError("SSL certificate verify failed"),
+        )
+
+        test_start = date(2025, 6, 1)
+
+        result = links.check_link_availability(test_url, test_start)
+
+        # Should return original URL on SSL error
+        assert result == test_url
+
+    @responses.activate
+    def test_multiple_links_batch(self):
+        """Test checking multiple links."""
+        # Use trailing slashes for normalized URLs
+        urls = ["https://pycon.us/", "https://djangocon.us/", "https://europython.eu/"]
+
+        for url in urls:
+            responses.add(
+                responses.GET,
+                url,
+                status=200,
+            )
+
+        test_start = date(2025, 6, 1)
+
+        results = [links.check_link_availability(url, test_start) for url in urls]
+
+        # All should succeed - compare without trailing slashes for flexibility
+        assert len(results) == 3
+        for url, result in zip(urls, results, strict=False):
+            assert result.rstrip("/") == url.rstrip("/")
+
+    @responses.activate
+    def test_archive_org_url_passthrough(self):
+        """Test that archive.org URLs are returned unchanged."""
+        archive_url = "https://web.archive.org/web/20240101/https://example.com"
+
+        test_start = date(2025, 6, 1)
+
+        # Should not make any HTTP requests
+        result = links.check_link_availability(archive_url, test_start)
+
+        assert result == archive_url
+        assert len(responses.calls) == 0  # No HTTP calls made
 
 
 class TestLinkAvailability:

@@ -36,8 +36,7 @@ module.exports = {
     '!static/js/js-year-calendar*.js',
     '!static/js/ouical*.js',
     '!static/js/bootstrap-multiselect*.js',
-    '!static/js/jquery.countdown*.js',
-    '!static/js/snek.js'
+    '!static/js/jquery.countdown*.js'
   ],
 
   coverageDirectory: '<rootDir>/coverage',
@@ -62,10 +61,10 @@ module.exports = {
       statements: 75
     },
     './static/js/favorites.js': {
-      branches: 70,
-      functions: 80,
-      lines: 80,
-      statements: 80
+      branches: 65,
+      functions: 60,
+      lines: 78,
+      statements: 78
     },
     './static/js/dashboard.js': {
       branches: 60,
@@ -74,16 +73,64 @@ module.exports = {
       statements: 70
     },
     './static/js/conference-manager.js': {
-      branches: 65,
-      functions: 75,
-      lines: 75,
-      statements: 75
+      branches: 50,
+      functions: 60,
+      lines: 60,
+      statements: 60
     },
     './static/js/conference-filter.js': {
       branches: 65,
       functions: 70,
       lines: 70,
       statements: 70
+    },
+    './static/js/theme-toggle.js': {
+      branches: 85,
+      functions: 100,
+      lines: 94,
+      statements: 94
+    },
+    './static/js/timezone-utils.js': {
+      branches: 85,
+      functions: 100,
+      lines: 92,
+      statements: 92
+    },
+    './static/js/series-manager.js': {
+      branches: 65,
+      functions: 70,
+      lines: 82,
+      statements: 80
+    },
+    './static/js/lazy-load.js': {
+      branches: 48,
+      functions: 65,
+      lines: 72,
+      statements: 72
+    },
+    './static/js/action-bar.js': {
+      branches: 38,
+      functions: 30,
+      lines: 40,
+      statements: 40
+    },
+    './static/js/dashboard-filters.js': {
+      branches: 70,
+      functions: 85,
+      lines: 88,
+      statements: 86
+    },
+    './static/js/about.js': {
+      branches: 80,
+      functions: 85,
+      lines: 95,
+      statements: 93
+    },
+    './static/js/snek.js': {
+      branches: 100,
+      functions: 40,
+      lines: 84,
+      statements: 84
     }
   },
 

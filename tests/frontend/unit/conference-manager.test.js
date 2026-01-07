@@ -7,7 +7,6 @@ const { mockStore } = require('../utils/mockHelpers');
 describe('ConferenceStateManager', () => {
   let ConferenceStateManager;
   let storeMock;
-  let originalJQuery;
 
   beforeEach(() => {
     // Set up DOM with conference elements
@@ -40,55 +39,8 @@ describe('ConferenceStateManager', () => {
       </div>
     `;
 
-    // Mock jQuery for DOM extraction
-    originalJQuery = global.$;
-    global.$ = jest.fn((selector) => {
-      // Handle different selector types
-      let elements;
-      if (!selector) {
-        elements = [];
-      } else if (selector && selector.nodeType) {
-        // DOM element
-        elements = [selector];
-      } else if (selector instanceof NodeList) {
-        elements = Array.from(selector);
-      } else if (Array.isArray(selector)) {
-        elements = selector;
-      } else if (typeof selector === 'string') {
-        elements = Array.from(document.querySelectorAll(selector));
-      } else if (selector === document) {
-        elements = [document];
-      } else {
-        elements = [];
-      }
-
-      const result = {
-        each: jest.fn((callback) => {
-          elements.forEach((el, index) => {
-            // Create jQuery-like wrapper for each element
-            const $el = {
-              data: jest.fn((key) => {
-                const attrName = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-                return el.getAttribute(attrName);
-              })
-            };
-            callback.call(el, index, el);
-            // Make data available on mock jQuery object
-            global.$.mockElement = $el;
-          });
-        })
-      };
-
-      // For individual element queries
-      if (elements.length === 1) {
-        result.data = jest.fn((key) => {
-          const attrName = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-          return elements[0].getAttribute(attrName);
-        });
-      }
-
-      return result;
-    });
+    // Note: ConferenceStateManager is vanilla JavaScript - no jQuery mock needed.
+    // The real jQuery from setup.js works fine.
 
     storeMock = mockStore();
 
@@ -110,7 +62,6 @@ describe('ConferenceStateManager', () => {
       }
       // Old format keys - return null since we're using the new format
       if (key === 'savedEvents' || key === 'followedSeries' || key === 'notificationSettings') {
-        console.log('  -> Returning null for old format key');
         return null;
       }
       return null;
@@ -130,29 +81,17 @@ describe('ConferenceStateManager', () => {
       writable: true
     });
 
-    // Load ConferenceStateManager
-    const managerCode = require('fs').readFileSync(
-      require('path').resolve(__dirname, '../../../static/js/conference-manager.js'),
-      'utf8'
-    );
+    // Load ConferenceStateManager using jest.isolateModules for proper coverage
+    jest.isolateModules(() => {
+      require('../../../static/js/conference-manager.js');
+    });
 
-    // Execute the code with mocked localStorage in scope
-    const wrapper = `
-      (function(localStorage) {
-        ${managerCode}
-        return ConferenceStateManager;
-      })
-    `;
-    const createConferenceStateManager = eval(wrapper);
-    ConferenceStateManager = createConferenceStateManager(window.localStorage);
-
-    // Make it available globally for tests
+    // Get the class from window where the module exports it
+    ConferenceStateManager = window.ConferenceStateManager;
     global.ConferenceStateManager = ConferenceStateManager;
-    window.ConferenceStateManager = ConferenceStateManager;
   });
 
   afterEach(() => {
-    global.$ = originalJQuery;
     delete window.ConferenceStateManager;
   });
 
@@ -170,11 +109,14 @@ describe('ConferenceStateManager', () => {
       expect(manager.conferenceBySeries).toBeDefined();
     });
 
-    test('should extract visible conferences from DOM', () => {
+    test('should initialize with empty state when no data provided', () => {
+      // ConferenceStateManager doesn't auto-extract from DOM
+      // It requires conferenceData to be passed in the constructor
       const manager = new ConferenceStateManager();
 
-      // The manager should have extracted the two conferences from DOM
-      expect(manager.allConferences.size).toBeGreaterThanOrEqual(0);
+      // Without data, allConferences should be empty
+      expect(manager.allConferences.size).toBe(0);
+      expect(manager.conferenceBySeries.size).toBe(0);
     });
 
     test('should load saved events from localStorage', () => {

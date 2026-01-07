@@ -311,6 +311,9 @@ class ConferenceStateManager {
     }
 }
 
+// Export to window for testing and external access
+window.ConferenceStateManager = ConferenceStateManager;
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     // Wait for conference data to be injected

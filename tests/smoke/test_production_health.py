@@ -3,6 +3,7 @@
 import json
 import sys
 from datetime import datetime
+from datetime import timezone
 from pathlib import Path
 from unittest.mock import Mock
 from unittest.mock import patch
@@ -84,6 +85,8 @@ class TestProductionHealth:
     @pytest.mark.smoke()
     def test_conference_dates_valid(self, critical_data_files):
         """Test that conference dates are properly formatted."""
+        import datetime as dt
+
         conf_file = critical_data_files["conferences"]
         if conf_file.exists():
             with conf_file.open(encoding="utf-8") as f:
@@ -94,24 +97,32 @@ class TestProductionHealth:
                 # Check date format for CFP
                 cfp = conf.get("cfp")
                 if cfp and cfp not in ["TBA", "Cancelled", "None"]:
-                    try:
-                        # Should be in YYYY-MM-DD HH:MM:SS format
-                        datetime.strptime(cfp, "%Y-%m-%d %H:%M:%S").replace(
-                            tzinfo=datetime.timezone.utc,
-                        )
-                    except ValueError:
-                        errors.append(f"Conference {i}: Invalid CFP date format: {cfp}")
+                    # YAML may parse datetimes as datetime objects
+                    if isinstance(cfp, dt.datetime | dt.date):
+                        pass  # Already valid
+                    else:
+                        try:
+                            # Should be in YYYY-MM-DD HH:MM:SS format
+                            datetime.strptime(cfp, "%Y-%m-%d %H:%M:%S").replace(
+                                tzinfo=timezone.utc,
+                            )
+                        except ValueError:
+                            errors.append(f"Conference {i}: Invalid CFP date format: {cfp}")
 
                 # Check start/end dates
                 for field in ["start", "end"]:
                     date_val = conf.get(field)
                     if date_val and date_val != "TBA":
-                        try:
-                            datetime.strptime(date_val, "%Y-%m-%d").replace(
-                                tzinfo=datetime.timezone.utc,
-                            )
-                        except ValueError:
-                            errors.append(f"Conference {i}: Invalid {field} date format: {date_val}")
+                        # YAML may parse dates as date objects
+                        if isinstance(date_val, dt.datetime | dt.date):
+                            pass  # Already valid
+                        else:
+                            try:
+                                datetime.strptime(date_val, "%Y-%m-%d").replace(
+                                    tzinfo=timezone.utc,
+                                )
+                            except ValueError:
+                                errors.append(f"Conference {i}: Invalid {field} date format: {date_val}")
 
             assert len(errors) == 0, f"Date format errors: {errors[:5]}"  # Show first 5 errors
 
@@ -321,6 +332,16 @@ class TestProductionHealth:
 class TestProductionDataIntegrity:
     """Tests to ensure data integrity in production."""
 
+    @pytest.fixture()
+    def critical_data_files(self):
+        """Critical data files that must exist and be valid."""
+        project_root = Path(__file__).parent.parent.parent
+        return {
+            "conferences": project_root / "_data" / "conferences.yml",
+            "archive": project_root / "_data" / "archive.yml",
+            "types": project_root / "_data" / "types.yml",
+        }
+
     @pytest.mark.smoke()
     def test_no_test_data_in_production(self, critical_data_files):
         """Ensure no test data makes it to production files."""
@@ -362,6 +383,328 @@ class TestProductionDataIntegrity:
             with archive_file.open(encoding="utf-8") as f:
                 archive = yaml.safe_load(f)
 
-            # Archive should have reasonable amount
-            assert len(archive) >= 0, "Archive has negative conferences?"
+            # Archive should have reasonable amount (at least 1 if file exists)
+            assert len(archive) >= 1, f"Archive file exists but has no conferences: {len(archive)}"
             assert len(archive) <= 10000, f"Archive seems too large: {len(archive)}"
+
+
+class TestSemanticCorrectness:
+    """Tests for semantic correctness of conference data.
+
+    These tests verify that data makes logical sense, not just that it exists.
+    Section 9 of the test audit identified that smoke tests checked existence
+    but not correctness.
+    """
+
+    @pytest.fixture()
+    def critical_data_files(self):
+        """Critical data files for semantic checks."""
+        project_root = Path(__file__).parent.parent.parent
+        return {
+            "conferences": project_root / "_data" / "conferences.yml",
+            "archive": project_root / "_data" / "archive.yml",
+            "types": project_root / "_data" / "types.yml",
+        }
+
+    @pytest.fixture()
+    def valid_topic_codes(self, critical_data_files):
+        """Load valid topic codes from types.yml."""
+        types_file = critical_data_files["types"]
+        if types_file.exists():
+            with types_file.open(encoding="utf-8") as f:
+                types_data = yaml.safe_load(f)
+            return {t["sub"] for t in types_data}
+        return {"PY", "SCIPY", "DATA", "WEB", "BIZ", "GEO", "CAMP", "DAY"}
+
+    @pytest.mark.smoke()
+    def test_conference_dates_are_logical(self, critical_data_files):
+        """Test that conference dates make logical sense.
+
+        - Start date should be before or equal to end date
+        - CFP deadline should be before conference start
+        """
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        for conf in conferences:
+            name = f"{conf.get('conference')} {conf.get('year')}"
+
+            # Start should be before or equal to end
+            start = conf.get("start")
+            end = conf.get("end")
+            if start and end and str(start) != "TBA" and str(end) != "TBA":
+                start_str = str(start)[:10]
+                end_str = str(end)[:10]
+                if start_str > end_str:
+                    errors.append(f"{name}: start ({start_str}) > end ({end_str})")
+
+            # CFP should be before start (with some tolerance for last-minute CFPs)
+            cfp = conf.get("cfp")
+            if cfp and cfp not in ["TBA", "Cancelled", "None"] and start and str(start) != "TBA":
+                cfp_date = str(cfp)[:10]
+                start_date = str(start)[:10]
+                if cfp_date > start_date:
+                    errors.append(f"{name}: CFP ({cfp_date}) after start ({start_date})")
+
+        assert len(errors) == 0, "Logical date errors found:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_conference_year_matches_dates(self, critical_data_files):
+        """Test that the year field matches the conference dates."""
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        for conf in conferences:
+            name = conf.get("conference")
+            year = conf.get("year")
+            start = conf.get("start")
+
+            if year and start and str(start) != "TBA":
+                start_str = str(start)[:10]
+                start_year = int(start_str[:4])
+
+                # Year should match start date year (or be one year before for Dec-Jan spanning)
+                if abs(year - start_year) > 1:
+                    errors.append(f"{name}: year={year} but start={start_str}")
+
+        assert len(errors) == 0, "Year/date mismatches:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_latitude_longitude_ranges(self, critical_data_files):
+        """Test that geographic coordinates are within valid ranges.
+
+        - Latitude: -90 to 90
+        - Longitude: -180 to 180
+        """
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        for conf in conferences:
+            name = f"{conf.get('conference')} {conf.get('year')}"
+            location = conf.get("location")
+
+            if location and isinstance(location, list):
+                for loc in location:
+                    lat = loc.get("latitude")
+                    lon = loc.get("longitude")
+
+                    if lat is not None and not (-90 <= lat <= 90):
+                        errors.append(f"{name}: invalid latitude {lat}")
+
+                    if lon is not None and not (-180 <= lon <= 180):
+                        errors.append(f"{name}: invalid longitude {lon}")
+
+        assert len(errors) == 0, "Invalid coordinates:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_url_format_validity(self, critical_data_files):
+        """Test that URLs are properly formatted."""
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        url_fields = ["link", "cfp_link", "finaid", "sponsor"]
+
+        for conf in conferences:
+            name = f"{conf.get('conference')} {conf.get('year')}"
+
+            for field in url_fields:
+                url = conf.get(field)
+                if url:
+                    # Must start with http:// or https://
+                    if not url.startswith(("http://", "https://")):
+                        errors.append(f"{name}: {field} '{url}' missing protocol")
+                    # Should have a domain
+                    elif "." not in url:
+                        errors.append(f"{name}: {field} '{url}' missing domain")
+                    # Should not have spaces
+                    elif " " in url:
+                        errors.append(f"{name}: {field} '{url}' contains spaces")
+
+        assert len(errors) == 0, "URL format errors:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_topic_codes_are_valid(self, critical_data_files, valid_topic_codes):
+        """Test that all topic codes (sub field) are valid."""
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        for conf in conferences:
+            name = f"{conf.get('conference')} {conf.get('year')}"
+            sub = conf.get("sub", "")
+
+            if sub:
+                # Sub can be comma-separated
+                codes = [c.strip() for c in str(sub).split(",")]
+                errors.extend(
+                    f"{name}: unknown topic code '{code}'" for code in codes if code and code not in valid_topic_codes
+                )
+
+        assert len(errors) == 0, "Invalid topic codes:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_cfp_extended_after_original(self, critical_data_files):
+        """Test that extended CFP deadline is on or after the original CFP.
+
+        An extension can be on the same day (extending hours) or a later date.
+        """
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        for conf in conferences:
+            name = f"{conf.get('conference')} {conf.get('year')}"
+            cfp = conf.get("cfp")
+            cfp_ext = conf.get("cfp_ext")
+
+            # Both must be valid dates
+            if cfp and cfp_ext:
+                if cfp in ["TBA", "Cancelled", "None"] or cfp_ext in ["TBA", "Cancelled", "None"]:
+                    continue
+
+                cfp_date = str(cfp)[:10]
+                cfp_ext_date = str(cfp_ext)[:10]
+
+                # Extension should be on same day or later (not before original)
+                if cfp_ext_date < cfp_date:
+                    errors.append(f"{name}: cfp_ext ({cfp_ext_date}) before cfp ({cfp_date})")
+
+        assert len(errors) == 0, "CFP extension errors:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_conference_names_meaningful(self, critical_data_files):
+        """Test that conference names are meaningful (not empty or just numbers)."""
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        for conf in conferences:
+            name = conf.get("conference", "")
+            year = conf.get("year")
+
+            if not name:
+                errors.append(f"Conference with year {year}: empty name")
+            elif name.strip() == "":
+                errors.append(f"Conference with year {year}: whitespace-only name")
+            elif name.isdigit():
+                errors.append(f"Conference with year {year}: name is just numbers '{name}'")
+            elif len(name) < 3:
+                errors.append(f"Conference with year {year}: name too short '{name}'")
+
+        assert len(errors) == 0, "Conference name issues:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_no_future_conferences_too_far_out(self, critical_data_files):
+        """Test that conferences aren't scheduled too far in the future.
+
+        Conferences more than 3 years out are suspicious data entry errors.
+        """
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        current_year = datetime.now(timezone.utc).year
+        max_year = current_year + 3
+
+        errors = []
+        for conf in conferences:
+            name = conf.get("conference")
+            year = conf.get("year")
+
+            if year and year > max_year:
+                errors.append(f"{name} {year}: too far in future (max {max_year})")
+
+        assert len(errors) == 0, "Conferences too far in future:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_place_field_has_country(self, critical_data_files):
+        """Test that place field includes country information.
+
+        Place should typically be in format "City, Country" or similar.
+        """
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        errors = []
+        for conf in conferences:
+            name = f"{conf.get('conference')} {conf.get('year')}"
+            place = conf.get("place", "")
+
+            if place and place not in ["TBA", "Online", "Virtual", "Remote"] and "," not in place:
+                # Should contain a comma separating city and country
+                errors.append(f"{name}: place '{place}' missing country (no comma)")
+
+        assert len(errors) == 0, "Place format issues:\n" + "\n".join(errors[:10])
+
+    @pytest.mark.smoke()
+    def test_online_conferences_consistent_data(self, critical_data_files):
+        """Test that online conferences have consistent metadata.
+
+        Online/virtual conferences should not have contradictory location data
+        that suggests a physical venue.
+        """
+        conf_file = critical_data_files["conferences"]
+        if not conf_file.exists():
+            pytest.skip("No conferences file")
+
+        with conf_file.open(encoding="utf-8") as f:
+            conferences = yaml.safe_load(f)
+
+        online_keywords = ["online", "virtual", "remote"]
+        errors = []
+
+        for conf in conferences:
+            place = conf.get("place", "")
+            name = conf.get("conference", "Unknown")
+
+            if place.lower() in online_keywords:
+                location = conf.get("location")
+                # Online conferences shouldn't have GPS coordinates suggesting physical venue
+                if location:
+                    lat, lon = location.get("lat"), location.get("lon")
+                    # If location is set, it should be null/default, not specific coordinates
+                    if lat is not None and lon is not None and (abs(lat) > 0.1 or abs(lon) > 0.1):
+                        # Allow 0,0 as a placeholder/default
+                        errors.append(f"{name}: online event has specific coordinates ({lat}, {lon})")
+
+        # Verify no contradictory data found
+        assert len(errors) == 0, "Online conference data issues:\n" + "\n".join(errors[:10])

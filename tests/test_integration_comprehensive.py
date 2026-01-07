@@ -604,25 +604,42 @@ class TestBusinessLogicIntegration:
 
     def test_cfp_priority_logic(self):
         """Test CFP vs CFP extended priority logic."""
-        # Conference with both CFP and extended CFP
-        conference_data = {
-            "conference": "Extended CFP Conference",
-            "year": 2025,
-            "cfp": "2025-02-15",
-            "cfp_ext": "2025-03-01",  # Extended deadline
+        from datetime import timedelta
+
+        today = datetime.now(timezone.utc).date()
+
+        # Conference where cfp is in range but cfp_ext is NOT
+        # If cfp_ext takes priority (as it should), this should NOT be included
+        conf_cfp_only_in_range = {
+            "conference": "CFP Only In Range",
+            "year": today.year,
+            "cfp": (today + timedelta(days=5)).isoformat(),  # In 30-day range
+            "cfp_ext": (today + timedelta(days=60)).isoformat(),  # Outside 30-day range
             "place": "Test City",
-            "start": "2025-06-01",
-            "end": "2025-06-03",
+            "start": (today + timedelta(days=90)).isoformat(),
+            "end": (today + timedelta(days=92)).isoformat(),
         }
 
-        # Test newsletter prioritization
-        df = pd.DataFrame([conference_data])
+        # Conference where cfp is NOT in range but cfp_ext IS
+        # If cfp_ext takes priority (as it should), this SHOULD be included
+        conf_cfp_ext_in_range = {
+            "conference": "CFP Ext In Range",
+            "year": today.year,
+            "cfp": (today - timedelta(days=30)).isoformat(),  # Past/outside range
+            "cfp_ext": (today + timedelta(days=10)).isoformat(),  # In 30-day range
+            "place": "Test City",
+            "start": (today + timedelta(days=90)).isoformat(),
+            "end": (today + timedelta(days=92)).isoformat(),
+        }
+
+        df = pd.DataFrame([conf_cfp_only_in_range, conf_cfp_ext_in_range])
 
         with patch("builtins.print"):
             filtered = newsletter.filter_conferences(df, days=30)
 
-        # Should use cfp_ext for filtering when available
-        assert len(filtered) >= 0  # May or may not be in range depending on test date
+        # cfp_ext takes priority: only "CFP Ext In Range" should be included
+        assert len(filtered) == 1, f"Expected 1 conference, got {len(filtered)}"
+        assert filtered.iloc[0]["conference"] == "CFP Ext In Range"
 
     def test_archive_vs_live_link_logic(self):
         """Test logic for handling archive vs live links."""
@@ -664,3 +681,257 @@ class TestBusinessLogicIntegration:
         # Should produce consistent date format
         assert isinstance(result, str)
         assert len(result) == 19  # YYYY-MM-DD HH:MM:SS format
+
+
+class TestRealDataProcessing:
+    """Integration tests that use real data processing with minimal mocking.
+
+    These tests address the audit finding that many tests over-mock, hiding
+    potential bugs. Instead of mocking every function, we create real test
+    data and only mock external I/O operations.
+    """
+
+    @pytest.fixture()
+    def temp_data_dir(self, tmp_path):
+        """Create a temporary data directory with real YAML files."""
+        data_dir = tmp_path / "_data"
+        data_dir.mkdir()
+
+        # Create realistic conference data
+        today = datetime.now(timezone.utc).date()
+        test_conferences = [
+            {
+                "conference": "Test PyCon US",
+                "year": today.year,
+                "link": "https://pycon.us",
+                "cfp": (today + timedelta(days=30)).isoformat(),
+                "place": "Pittsburgh, PA, USA",
+                "start": (today + timedelta(days=90)).isoformat(),
+                "end": (today + timedelta(days=93)).isoformat(),
+                "sub": "PY",
+            },
+            {
+                "conference": "Test DjangoCon",
+                "year": today.year,
+                "link": "https://djangocon.us",
+                "cfp": (today + timedelta(days=15)).isoformat(),
+                "place": "Durham, NC, USA",
+                "start": (today + timedelta(days=60)).isoformat(),
+                "end": (today + timedelta(days=62)).isoformat(),
+                "sub": "WEB",
+            },
+        ]
+
+        from yaml import safe_dump
+
+        # Write conferences.yml (use safe_dump to avoid custom representers)
+        with (data_dir / "conferences.yml").open("w") as f:
+            safe_dump(test_conferences, f, default_flow_style=False)
+
+        # Write empty archive and legacy files
+        with (data_dir / "archive.yml").open("w") as f:
+            safe_dump([], f)
+
+        with (data_dir / "legacy.yml").open("w") as f:
+            safe_dump([], f)
+
+        return tmp_path
+
+    def test_tidy_dates_with_real_data(self, temp_data_dir):
+        """Test tidy_dates with real conference data, not mocks.
+
+        This verifies actual date processing logic works correctly.
+        """
+        from yaml import safe_load
+
+        # Load the test data
+        with (temp_data_dir / "_data" / "conferences.yml").open() as f:
+            data = safe_load(f)
+
+        # Process with real tidy_dates function
+        result = sort_yaml.tidy_dates(data)
+
+        # Verify actual data transformation
+        assert len(result) == 2
+        for conf in result:
+            # CFP should have time component added
+            assert "cfp" in conf
+            if conf["cfp"] not in ["TBA", "Cancelled"]:
+                assert " " in conf["cfp"], f"CFP should have time: {conf['cfp']}"
+                assert conf["cfp"].endswith("23:59:00"), f"CFP should end with 23:59:00: {conf['cfp']}"
+
+    def test_tidy_titles_with_real_data(self, temp_data_dir):
+        """Test tidy_titles preserves conference names correctly."""
+        from yaml import safe_load
+
+        with (temp_data_dir / "_data" / "conferences.yml").open() as f:
+            data = safe_load(f)
+
+        original_names = [d["conference"] for d in data]
+
+        result = sort_yaml.tidy_titles(data)
+
+        # Names should be preserved (not corrupted)
+        result_names = [d["conference"] for d in result]
+        for name in original_names:
+            assert name in result_names, f"Conference name '{name}' was lost"
+
+    def test_auto_add_sub_with_real_data(self, temp_data_dir):
+        """Test auto_add_sub correctly assigns topic codes."""
+        # Create data without 'sub' field
+        data_without_sub = [
+            {
+                "conference": "PyCon US",
+                "year": 2025,
+                "link": "https://pycon.us",
+                "cfp": "2025-02-15 23:59:00",
+                "place": "Pittsburgh, PA, USA",
+                "start": "2025-06-01",
+                "end": "2025-06-03",
+            },
+        ]
+
+        result = sort_yaml.auto_add_sub(data_without_sub)
+
+        # Should have added a 'sub' field
+        assert "sub" in result[0], "auto_add_sub should add 'sub' field"
+
+    @pytest.mark.skip(reason="Requires `responses` library for proper HTTP-level mocking; see audit item #6")
+    def test_check_links_with_http_mock(self):
+        """Test link checking with HTTP-level mocking (not function mocking).
+
+        This addresses audit finding #6: mock at HTTP level, not function level.
+
+        Note: This test should use the `responses` or `httpretty` library
+        for proper HTTP-level mocking instead of mocking requests.get directly.
+        The current Mock approach doesn't properly simulate HTTP responses.
+
+        Example using responses:
+        ```python
+        import responses
+
+        @responses.activate
+        def test_check_links_real():
+            responses.add(responses.GET, "https://pycon.us", status=200)
+            result = sort_yaml.check_links(test_data)
+            assert len(result) == len(test_data)
+        ```
+        """
+        # Skipped - needs `responses` library
+
+    def test_sort_by_cfp_with_real_conferences(self):
+        """Test sorting actually orders conferences correctly by CFP deadline."""
+        today = datetime.now(timezone.utc).date()
+
+        # Create Conference objects for proper sorting
+        # Using "Online" as place avoids needing location coordinates
+        unsorted_confs = [
+            Conference(
+                conference="Late CFP",
+                year=today.year,
+                link="https://late.com",
+                cfp=(today + timedelta(days=30)).isoformat() + " 23:59:00",
+                place="Online",
+                start=(today + timedelta(days=90)).isoformat(),
+                end=(today + timedelta(days=92)).isoformat(),
+                sub="PY",
+            ),
+            Conference(
+                conference="Early CFP",
+                year=today.year,
+                link="https://early.com",
+                cfp=(today + timedelta(days=10)).isoformat() + " 23:59:00",
+                place="Online",
+                start=(today + timedelta(days=90)).isoformat(),
+                end=(today + timedelta(days=92)).isoformat(),
+                sub="PY",
+            ),
+            Conference(
+                conference="Mid CFP",
+                year=today.year,
+                link="https://mid.com",
+                cfp=(today + timedelta(days=20)).isoformat() + " 23:59:00",
+                place="Online",
+                start=(today + timedelta(days=90)).isoformat(),
+                end=(today + timedelta(days=92)).isoformat(),
+                sub="PY",
+            ),
+        ]
+
+        # Sort using actual sort_by_cfp function
+        sorted_confs = sorted(unsorted_confs, key=sort_yaml.sort_by_cfp)
+
+        # Verify sorting works (earliest deadline first)
+        assert sorted_confs[0].conference == "Early CFP"
+        assert sorted_confs[1].conference == "Mid CFP"
+        assert sorted_confs[2].conference == "Late CFP"
+
+    def test_merge_duplicates_with_real_data(self):
+        """Test duplicate detection and merging with real data.
+
+        merge_duplicates uses conference+year+place as the key.
+        Same conference+year+place = merge. Different place = keep separate.
+        """
+        # Same conference, same year, same place = should merge
+        duplicates_same_place = [
+            {
+                "conference": "PyCon US",
+                "year": 2025,
+                "link": "https://pycon.us",
+                "cfp": "2025-02-15 23:59:00",
+                "place": "Pittsburgh, USA",
+                "start": "2025-06-01",
+                "end": "2025-06-03",
+                "sub": "PY",
+            },
+            {
+                "conference": "PyCon US",  # Same conference
+                "year": 2025,
+                "link": "https://pycon.us/2025",  # Different link but same event
+                "cfp": "2025-02-20 23:59:00",  # Different CFP (update)
+                "place": "Pittsburgh, USA",  # SAME place
+                "start": "2025-06-01",
+                "end": "2025-06-03",
+                "sub": "PY",
+            },
+        ]
+
+        result = sort_yaml.merge_duplicates(duplicates_same_place)
+
+        # Should merge into one conference (same conference+year+place)
+        assert len(result) == 1, f"Expected 1 merged conference, got {len(result)}"
+        # Name should be preserved
+        assert result[0]["conference"] == "PyCon US"
+
+    def test_merge_duplicates_different_places_preserved(self):
+        """Test that conferences with different places are NOT merged.
+
+        Different places indicates different events (e.g., regional conferences).
+        """
+        different_places = [
+            {
+                "conference": "PyCon US",
+                "year": 2025,
+                "link": "https://pycon.us",
+                "cfp": "2025-02-15 23:59:00",
+                "place": "Pittsburgh, USA",  # Place A
+                "start": "2025-06-01",
+                "end": "2025-06-03",
+                "sub": "PY",
+            },
+            {
+                "conference": "PyCon US",
+                "year": 2025,
+                "link": "https://pycon-satellite.us",
+                "cfp": "2025-02-20 23:59:00",
+                "place": "Online",  # Different place
+                "start": "2025-06-01",
+                "end": "2025-06-03",
+                "sub": "PY",
+            },
+        ]
+
+        result = sort_yaml.merge_duplicates(different_places)
+
+        # Should keep both (different places = potentially different events)
+        assert len(result) == 2, f"Expected 2 conferences (different places), got {len(result)}"

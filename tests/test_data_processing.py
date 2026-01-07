@@ -125,7 +125,7 @@ class TestDateHandling:
 
         for date_str in valid_date_formats:
             # Should not raise an exception
-            parsed_date = datetime.strptime(date_str, sort_yaml.dateformat).replace(tzinfo=timezone.utc)
+            parsed_date = datetime.strptime(date_str, sort_yaml.DATEFORMAT).replace(tzinfo=timezone.utc)
             assert isinstance(parsed_date, datetime)
 
     def test_tba_words_handling(self):
@@ -133,7 +133,7 @@ class TestDateHandling:
         tba_variations = ["tba", "tbd", "cancelled", "none", "na", "n/a", "nan", "n.a."]
 
         for tba_word in tba_variations:
-            assert tba_word in sort_yaml.tba_words
+            assert tba_word in sort_yaml.TBA_WORDS
 
     def test_timezone_handling(self, sample_conference):
         """Test timezone field handling."""

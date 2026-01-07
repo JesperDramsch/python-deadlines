@@ -43,12 +43,10 @@ describe('TimezoneUtils', () => {
     };
     window.luxon = global.luxon;
 
-    // Load the timezone-utils module
-    const script = require('fs').readFileSync(
-      require('path').resolve(__dirname, '../../../static/js/timezone-utils.js'),
-      'utf8'
-    );
-    eval(script);
+    // Load the REAL timezone-utils module using jest.isolateModules
+    jest.isolateModules(() => {
+      require('../../../static/js/timezone-utils.js');
+    });
 
     TimezoneUtils = window.TimezoneUtils;
   });

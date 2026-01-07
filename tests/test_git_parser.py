@@ -596,3 +596,255 @@ class TestIntegration:
         assert commit is not None
         url = commit.generate_url()
         assert "https://pythondeadlin.es/conference/" in url
+
+
+class TestCommitFormatVerification:
+    """Test parsing accuracy for various commit message formats.
+
+    Section 10 of the test audit identified that tests verify commits are
+    parsed, but don't verify the regex patterns work correctly for real
+    commit messages from actual usage.
+    """
+
+    def test_parse_various_commit_formats(self):
+        """Test parsing different commit message formats from real usage."""
+        parser = GitCommitParser()
+
+        test_cases = [
+            # (message, expected_prefix, expected_content)
+            ("cfp: Add PyCon US 2025", "cfp", "Add PyCon US 2025"),
+            ("conf: DjangoCon Europe 2025", "conf", "DjangoCon Europe 2025"),
+            ("CFP: Fix deadline for EuroPython", "cfp", "Fix deadline for EuroPython"),
+            ("CONF: PyData Berlin announcement", "conf", "PyData Berlin announcement"),
+            ("Cfp: Mixed case prefix", "cfp", "Mixed case prefix"),
+            ("Merge pull request #123", None, None),  # Should not parse
+            ("fix: Bug fix for deadline parsing", None, None),  # Wrong prefix
+            ("feat: Add new feature", None, None),  # Wrong prefix
+            ("chore: Update dependencies", None, None),  # Wrong prefix
+            ("docs: Update README", None, None),  # Wrong prefix
+        ]
+
+        for msg, expected_prefix, expected_content in test_cases:
+            result = parser.parse_commit_message(
+                commit_hash="test123",
+                message=msg,
+                author="Test Author",
+                date_str="2025-01-15 10:30:00 +0000",
+            )
+
+            if expected_prefix is not None:
+                assert result is not None, f"Expected to parse '{msg}' but got None"
+                assert (
+                    result.prefix == expected_prefix
+                ), f"Expected prefix '{expected_prefix}' for '{msg}', got '{result.prefix}'"
+                assert (
+                    result.message == expected_content
+                ), f"Expected content '{expected_content}' for '{msg}', got '{result.message}'"
+            else:
+                assert result is None, f"Expected '{msg}' to NOT parse but got {result}"
+
+    def test_commit_message_edge_cases(self):
+        """Test edge cases in commit message parsing."""
+        parser = GitCommitParser()
+
+        # Colon without space - the regex uses \s* so this IS valid
+        result = parser.parse_commit_message("abc123", "cfp:NoSpace", "Author", "2025-01-01 00:00:00 +0000")
+        assert result is not None, "Colon without space should parse (regex allows \\s*)"
+        assert result.message == "NoSpace"
+
+        # Multiple colons
+        result = parser.parse_commit_message(
+            "abc123",
+            "cfp: PyCon US: Call for Papers",
+            "Author",
+            "2025-01-01 00:00:00 +0000",
+        )
+        assert result is not None
+        assert result.message == "PyCon US: Call for Papers"
+
+        # Leading whitespace in message
+        result = parser.parse_commit_message("abc123", "   cfp: Whitespace test", "Author", "2025-01-01 00:00:00 +0000")
+        assert result is not None
+        assert result.message == "Whitespace test"
+
+        # Trailing whitespace in message
+        result = parser.parse_commit_message(
+            "abc123",
+            "cfp: Trailing whitespace   ",
+            "Author",
+            "2025-01-01 00:00:00 +0000",
+        )
+        assert result is not None
+        assert result.message == "Trailing whitespace"
+
+        # Empty content after prefix
+        result = parser.parse_commit_message("abc123", "cfp: ", "Author", "2025-01-01 00:00:00 +0000")
+        assert result is None, "Should not parse empty content"
+
+        # Just prefix with colon
+        result = parser.parse_commit_message("abc123", "cfp:", "Author", "2025-01-01 00:00:00 +0000")
+        assert result is None, "Should not parse just prefix"
+
+    def test_special_characters_in_conference_names(self):
+        """Test parsing and URL generation for conference names with special characters.
+
+        Note: urllib.parse.quote() uses safe='/' by default, so '/' is NOT encoded.
+        """
+        parser = GitCommitParser()
+
+        special_cases = [
+            ("cfp: PyCon US & Canada", "pycon-us-%26-canada"),
+            ("conf: PyData 2025 (Berlin)", "pydata-2025-%28berlin%29"),
+            ("cfp: EuroSciPy #1 Conference", "euroscipy-%231-conference"),
+            ("conf: Python-Day@Munich", "python-day%40munich"),
+            ("cfp: Test/Event", "test/event"),  # '/' is in default safe chars, not encoded
+        ]
+
+        for message, expected_url_part in special_cases:
+            result = parser.parse_commit_message("test123", message, "Author", "2025-01-01 00:00:00 +0000")
+            assert result is not None, f"Failed to parse '{message}'"
+            url = result.generate_url()
+            assert expected_url_part in url, f"Expected '{expected_url_part}' in URL for '{message}', got '{url}'"
+
+    def test_unicode_in_conference_names(self):
+        """Test handling of Unicode characters in conference names."""
+        parser = GitCommitParser()
+
+        unicode_cases = [
+            "cfp: PyCon España 2025",
+            "conf: Python日本 Summit",
+            "cfp: PyConFr Café Edition",
+            "conf: München Python Day",
+        ]
+
+        for message in unicode_cases:
+            result = parser.parse_commit_message("test123", message, "Author", "2025-01-01 00:00:00 +0000")
+            assert result is not None, f"Failed to parse Unicode message: '{message}'"
+            url = result.generate_url()
+            assert "https://pythondeadlin.es/conference/" in url
+
+    def test_date_parsing_various_timezones(self):
+        """Test date parsing with various timezone formats."""
+        parser = GitCommitParser()
+
+        timezone_cases = [
+            ("2025-01-15 10:30:00 +0000", 2025, 1, 15, 10, 30),  # UTC
+            ("2025-06-20 14:15:30 +0100", 2025, 6, 20, 14, 15),  # CET
+            ("2025-03-10 09:00:00 -0500", 2025, 3, 10, 9, 0),  # EST
+            ("2025-08-25 16:45:00 +0530", 2025, 8, 25, 16, 45),  # IST
+            ("2025-12-31 23:59:59 +1200", 2025, 12, 31, 23, 59),  # NZST
+        ]
+
+        for date_str, year, month, day, hour, minute in timezone_cases:
+            result = parser.parse_commit_message("test123", "cfp: Test Conference", "Author", date_str)
+            assert result is not None, f"Failed to parse date: {date_str}"
+            assert result.date.year == year
+            assert result.date.month == month
+            assert result.date.day == day
+            assert result.date.hour == hour
+            assert result.date.minute == minute
+
+    def test_markdown_output_format_correctness(self):
+        """Test that markdown output format is correct and parseable."""
+        parser = GitCommitParser()
+
+        result = parser.parse_commit_message(
+            "abc123",
+            "cfp: PyCon US 2025",
+            "John Doe",
+            "2025-03-15 14:30:00 +0000",
+        )
+
+        markdown = result.to_markdown()
+
+        # Verify markdown format: - [date] [title](url)
+        assert markdown.startswith("- ["), "Should start with '- ['"
+        assert "2025-03-15" in markdown, "Should contain the date"
+        assert "[PyCon US 2025]" in markdown, "Should contain the title in brackets"
+        assert "(https://pythondeadlin.es/conference/" in markdown, "Should contain URL in parentheses"
+        assert markdown.endswith(")"), "Should end with ')'"
+
+        # Verify it's valid markdown link format
+        import re
+
+        link_pattern = r"\[.+\]\(https://[^)]+\)"
+        assert re.search(link_pattern, markdown), "Should contain valid markdown link"
+
+    def test_url_generation_consistency(self):
+        """Test that URL generation is consistent and deterministic."""
+        parser = GitCommitParser()
+
+        # Same input should produce same URL
+        result1 = parser.parse_commit_message("abc123", "cfp: PyCon US 2025", "Author", "2025-01-15 10:30:00 +0000")
+        result2 = parser.parse_commit_message(
+            "def456",
+            "cfp: PyCon US 2025",
+            "Different Author",
+            "2025-01-16 10:30:00 +0000",
+        )
+
+        assert result1.generate_url() == result2.generate_url(), "Same conference name should generate same URL"
+
+        # Different case should produce same URL (lowercase)
+        result3 = parser.parse_commit_message("ghi789", "cfp: PYCON US 2025", "Author", "2025-01-17 10:30:00 +0000")
+        # Note: The message preserves case, but URL should be lowercase
+        url3 = result3.generate_url()
+        assert "pycon" in url3.lower()
+
+    def test_custom_prefixes_parsing(self):
+        """Test parsing with custom prefix configurations."""
+        # Custom prefixes for different use cases
+        custom_parser = GitCommitParser(prefixes=["event", "workshop", "meetup"])
+
+        valid_cases = [
+            ("event: Python Day Berlin", "event", "Python Day Berlin"),
+            ("workshop: Django Girls Workshop", "workshop", "Django Girls Workshop"),
+            ("meetup: Monthly Python Meetup", "meetup", "Monthly Python Meetup"),
+            ("WORKSHOP: Advanced Flask", "workshop", "Advanced Flask"),
+        ]
+
+        invalid_for_custom = [
+            "cfp: PyCon US 2025",  # Not in custom prefixes
+            "conf: DjangoCon",  # Not in custom prefixes
+        ]
+
+        for msg, expected_prefix, expected_content in valid_cases:
+            result = custom_parser.parse_commit_message("test", msg, "Author", "2025-01-01 00:00:00 +0000")
+            assert result is not None, f"Custom parser should parse '{msg}'"
+            assert result.prefix == expected_prefix
+            assert result.message == expected_content
+
+        for msg in invalid_for_custom:
+            result = custom_parser.parse_commit_message("test", msg, "Author", "2025-01-01 00:00:00 +0000")
+            assert result is None, f"Custom parser should NOT parse '{msg}'"
+
+    def test_real_world_commit_messages(self):
+        """Test with realistic commit messages from actual repository history."""
+        parser = GitCommitParser()
+
+        real_world_messages = [
+            # Typical CFP announcements
+            ("cfp: PyCon US 2025 Call for Proposals now open", "cfp", "PyCon US 2025 Call for Proposals now open"),
+            ("cfp: Extended deadline for EuroPython 2025", "cfp", "Extended deadline for EuroPython 2025"),
+            ("cfp: PyData Global - last chance to submit", "cfp", "PyData Global - last chance to submit"),
+            # Conference announcements
+            ("conf: DjangoCon US 2025 announced", "conf", "DjangoCon US 2025 announced"),
+            ("conf: Added PyConDE & PyData Berlin 2025", "conf", "Added PyConDE & PyData Berlin 2025"),
+            ("conf: Update PyCon APAC schedule", "conf", "Update PyCon APAC schedule"),
+            # Messages that should NOT be parsed
+            ("Update README with new conference links", None, None),
+            ("Fix typo in EuroPython CFP deadline", None, None),
+            ("Merge branch 'feature/add-pycon-2025'", None, None),
+            ('Revert "cfp: PyCon US 2025"', None, None),  # Revert shouldn't match
+            ("[skip ci] cfp: Test commit", None, None),  # Skip CI prefix
+        ]
+
+        for msg, expected_prefix, expected_content in real_world_messages:
+            result = parser.parse_commit_message("test123", msg, "Contributor", "2025-01-15 12:00:00 +0000")
+
+            if expected_prefix is not None:
+                assert result is not None, f"Should parse: '{msg}'"
+                assert result.prefix == expected_prefix
+                assert result.message == expected_content
+            else:
+                assert result is None, f"Should NOT parse: '{msg}'"
