@@ -951,13 +951,23 @@ grep -r "toBeGreaterThanOrEqual(0)" tests/e2e/
 
 ### A.8 Arbitrary Wait Times
 
-**Problem**: Using fixed `waitForTimeout()` instead of proper condition-based waiting leads to flaky tests.
+**Status**: ✅ RESOLVED - Arbitrary waits removed from spec files
 
-| File | Line | Wait | Better Alternative |
-|------|------|------|-------------------|
-| `search-functionality.spec.js` | 195 | `waitForTimeout(1000)` | `waitForSelector('.conf-sub')` |
-| `search-functionality.spec.js` | 239 | `waitForTimeout(1000)` | `waitForSelector('[class*="calendar"]')` |
-| `search-functionality.spec.js` | 259 | `waitForTimeout(1000)` | `waitForFunction(() => ...)` |
+**Original Problem**: Using fixed `waitForTimeout()` instead of proper condition-based waiting leads to flaky tests.
+
+**Resolution**: All `waitForTimeout()` calls have been removed from E2E spec files. The original instances in search-functionality.spec.js were already addressed. The remaining instance in notification-system.spec.js was removed by relying on the existing `isVisible({ timeout: 3000 })` check which already handles waiting.
+
+**Remaining in helpers.js** (acceptable):
+- `helpers.js:336` - 400ms for navbar collapse animation (animation timing)
+- `helpers.js:371` - 100ms for click registration (very short, necessary)
+
+These are utility functions with short, necessary waits for animations that don't have clear completion events.
+
+**Verification**:
+```bash
+grep -r "waitForTimeout" tests/e2e/specs/
+# No matches found
+```
 
 ---
 
@@ -1060,7 +1070,7 @@ grep -r "expect(true).toBe(true)" tests/frontend/unit/
 | `toBeGreaterThanOrEqual(0)` | 7 | High | ✅ RESOLVED (removed from E2E tests) |
 | Conditional testing `if visible` | 20+ | High | ✅ RESOLVED (specs fixed, helpers are utilities) |
 | Silent error swallowing `.catch(() => {})` | 5 | Medium | ✅ RESOLVED (replaced with explicit handling) |
-| Arbitrary `waitForTimeout()` | 3 | Low | ⏳ Pending |
+| Arbitrary `waitForTimeout()` | 3 | Low | ✅ RESOLVED (spec files fixed, helpers acceptable) |
 
 ---
 
@@ -1098,8 +1108,8 @@ grep -r "expect(true).toBe(true)" tests/frontend/unit/
 9. **Add coverage thresholds for all tested files** ⏳
    - Update jest.config.js
 
-10. **Fix arbitrary waitForTimeout() calls** ⏳
-    - Replace with condition-based waiting
+10. ~~**Fix arbitrary waitForTimeout() calls**~~ ✅
+    - Removed from spec files, helpers acceptable
 
 11. **Add tests for about.js** (Low Priority)
     - Currently has no test coverage
