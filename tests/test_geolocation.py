@@ -304,8 +304,15 @@ class TestAddLatLon:
 class TestErrorHandling:
     """Test error handling in geolocation functionality."""
 
-    def test_index_error_handling(self):
+    @patch("tidy_conf.latlon.requests.get")
+    @patch("tidy_conf.latlon.time.sleep")
+    def test_index_error_handling(self, mock_sleep, mock_get):
         """Test handling of IndexError during place processing."""
+        # Mock HTTP response to avoid real network calls
+        mock_response = Mock()
+        mock_response.json.return_value = []  # No results
+        mock_get.return_value = mock_response
+
         data = [
             {
                 "conference": "Test Conference",
@@ -398,11 +405,18 @@ class TestLoggingIntegration:
             assert mock_logger.debug.called
             assert mock_logger.warning.called  # Warning for no results
 
+    @patch("tidy_conf.latlon.requests.get")
+    @patch("tidy_conf.latlon.time.sleep")
     @patch("tidy_conf.latlon.get_tqdm_logger")
-    def test_error_logging(self, mock_get_logger):
+    def test_error_logging(self, mock_get_logger, mock_sleep, mock_get):
         """Test that errors are logged appropriately."""
         mock_logger = Mock()
         mock_get_logger.return_value = mock_logger
+
+        # Mock HTTP response to avoid real network calls
+        mock_response = Mock()
+        mock_response.json.return_value = []  # No results
+        mock_get.return_value = mock_response
 
         data = [
             {

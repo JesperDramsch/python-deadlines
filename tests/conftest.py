@@ -49,7 +49,8 @@ def temp_yaml_file(tmp_path):
     def _create_yaml_file(data):
         yaml_file = tmp_path / "test_conferences.yml"
         with yaml_file.open("w", encoding="utf-8") as f:
-            yaml.dump(data, f, default_flow_style=False)
+            # Use safe_dump to avoid Python 2/3 dict representer issues
+            yaml.safe_dump(data, f, default_flow_style=False)
         return str(yaml_file)
 
     return _create_yaml_file
