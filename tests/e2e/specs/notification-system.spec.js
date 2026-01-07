@@ -70,9 +70,8 @@ test.describe('Notification System', () => {
       // Click enable notifications button
       const enableBtn = page.locator('#enable-notifications');
 
-      // Wait a bit for the prompt to be rendered (webkit may be slower)
-      await page.waitForTimeout(500);
-
+      // Wait for the enable button to be visible (with timeout instead of arbitrary wait)
+      // The isVisible check handles waiting for slow rendering (webkit)
       const isEnableBtnVisible = await enableBtn.isVisible({ timeout: 3000 }).catch(() => false);
 
       // Skip if button not visible - permission may already be granted
