@@ -36,8 +36,7 @@ module.exports = {
     '!static/js/js-year-calendar*.js',
     '!static/js/ouical*.js',
     '!static/js/bootstrap-multiselect*.js',
-    '!static/js/jquery.countdown*.js',
-    '!static/js/snek.js'
+    '!static/js/jquery.countdown*.js'
   ],
 
   coverageDirectory: '<rootDir>/coverage',
@@ -126,6 +125,12 @@ module.exports = {
       functions: 85,
       lines: 95,
       statements: 93
+    },
+    './static/js/snek.js': {
+      branches: 100,
+      functions: 40,
+      lines: 84,
+      statements: 84
     }
   },
 
