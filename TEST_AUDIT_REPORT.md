@@ -2,32 +2,37 @@
 
 ## Executive Summary
 
-The test suite for pythondeadlin.es contains **289 Python test functions across 16 test files** plus **13 frontend unit test files and 4 e2e spec files**. While this represents comprehensive coverage breadth, the audit identified several patterns that reduce effectiveness: **over-reliance on mocking** (167 Python @patch decorators, 250+ lines of jQuery mocks in frontend), **weak assertions** that always pass, and **missing tests for critical components** (dashboard.js has partial test coverage).
+The test suite for pythondeadlin.es contains **338 Python test functions across 16 test files** plus **15 frontend unit test files (418 tests) and 5 e2e spec files**.
+
+**Frontend Status: ✅ COMPLETE** - All 11 identified issues have been resolved. jQuery mocks removed (~740 lines), all test files now use real modules, no skipped tests, no weak assertions.
+
+**Python Status: ❌ PENDING** - All 10 critical findings remain unaddressed: over-reliance on mocking (178 @patch decorators), weak assertions that always pass, and tests that don't verify actual behavior.
 
 ## Key Statistics
 
-### Python Tests
+### Python Tests (❌ No fixes applied yet)
 
 | Metric | Count |
 |--------|-------|
 | Total test files | 16 |
-| Total test functions | 289 |
+| Total test functions | 338 |
 | Skipped tests | 7 (legitimate file/environment checks) |
-| @patch decorators used | 167 |
+| @patch decorators used | 178 |
 | Mock-only assertions (assert_called) | 65 |
 | Weak assertions (len >= 0/1) | 15+ |
 | Tests without meaningful assertions | ~8 |
 
-### Frontend Tests
+### Frontend Tests (✅ All issues resolved)
 
 | Metric | Count |
 |--------|-------|
-| Unit test files | 13 |
-| E2E spec files | 4 |
+| Unit test files | 15 |
+| E2E spec files | 5 |
 | JavaScript implementation files | 24 (14 custom, 10 vendor/min) |
-| Files without tests | 1 (dashboard.js partial) |
-| Skipped tests | 1 (`test.skip` in conference-filter.test.js) |
-| Heavy mock setup files | 4 (250+ lines of mocking each) |
+| Files without tests | 0 (all custom files now tested) |
+| Skipped tests | 0 |
+| Heavy mock setup files | 0 (refactored to use real jQuery) |
+| Total unit tests passing | 418 |
 
 ---
 
@@ -849,7 +854,7 @@ grep -r "eval(" tests/frontend/unit/
 
 **Original Problem**: 20+ tests were skipped across the codebase without documented reasons.
 
-**Resolution**: Verification shows no `test.skip`, `it.skip`, or `.skip()` patterns remain in frontend tests. All 367 unit tests run and pass.
+**Resolution**: Verification shows no `test.skip`, `it.skip`, or `.skip()` patterns remain in frontend tests. All 418 unit tests run and pass.
 
 **Verification**:
 ```bash
@@ -857,7 +862,7 @@ grep -r "test\.skip\|it\.skip\|\.skip(" tests/frontend/unit/
 # No matches found
 
 npm test 2>&1 | grep "Tests:"
-# Tests: 367 passed, 367 total
+# Tests: 418 passed, 418 total
 ```
 
 ---
@@ -1080,7 +1085,7 @@ grep -r "expect(true).toBe(true)" tests/frontend/unit/
    - All 7 instances removed from E2E tests
 
 3. ~~**Re-enable or delete skipped tests**~~ ✅
-   - All 22 skipped tests have been addressed, 367 tests now pass
+   - All 22 skipped tests have been addressed, 418 tests now pass
 
 4. ~~**Replace `eval()` with proper module imports**~~ ✅
    - All test files now use `jest.isolateModules()` instead of `eval()`
@@ -1110,3 +1115,27 @@ grep -r "expect(true).toBe(true)" tests/frontend/unit/
 11. ~~**Add tests for about.js**~~ ✅
     - Added 22 tests covering presentation mode, slide navigation, keyboard controls, scroll animations
     - Coverage: 95% statements, 85% branches, 89% functions, 98% lines
+
+12. ~~**Add tests for snek.js**~~ ✅
+    - Added 29 tests covering seasonal themes, click counter, scroll behavior, Easter date calculation
+    - Coverage: 84% statements, 100% branches, 40% functions, 84% lines
+    - Added threshold for snek.js (100/40/84/84%)
+
+---
+
+## Appendix D: Python Test Findings (Pending Work)
+
+The following 10 critical findings for Python tests have been identified but **not yet addressed**:
+
+1. **"Always passes" assertions** (Critical) - `assert len(x) >= 0` patterns
+2. **Over-mocking** (Critical) - 178 @patch decorators hiding real behavior
+3. **Tests don't verify actual behavior** (Critical) - Mock configurations tested, not real code
+4. **Fuzzy match weak assertions** (High) - Doesn't verify correct matches
+5. **Date handling edge cases** (High) - Timezone, leap year, malformed dates untested
+6. **Link checking tests mock wrong layer** (High) - Needs HTTP-level mocking
+7. **Data corruption prevention** (High) - Test doesn't verify names aren't corrupted
+8. **Newsletter filter logic** (Medium) - Filtering accuracy untested
+9. **Smoke tests check existence, not correctness** (Medium) - Missing semantic validation
+10. **Git parser parsing accuracy** (Medium) - Regex patterns untested
+
+See sections 1-10 of Critical Findings and High Priority Findings for full details and recommended fixes.
