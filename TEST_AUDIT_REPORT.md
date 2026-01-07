@@ -504,23 +504,29 @@ def test_parse_various_commit_formats(self):
 
 ### 11. Extensive jQuery Mocking Obscures Real Behavior
 
-**Status**: DOCUMENTED - Systemic refactor needed (Medium Term priority)
+**Status**: PARTIALLY FIXED - 2 files refactored, 4 files still need jQuery mocking
 
 **Problem**: Frontend unit tests create extensive jQuery mocks (250+ lines per test file) that simulate jQuery behavior, making tests fragile and hard to maintain.
 
-**Affected Files** (files with complete jQuery mock replacement):
-- `conference-filter.test.js` - 250+ lines of jQuery mock
-- `favorites.test.js` - Extensive jQuery mock
-- `dashboard.test.js` - Extensive jQuery mock
-- `dashboard-filters.test.js` - Extensive jQuery mock
-- `action-bar.test.js` - Extensive jQuery mock
-- `conference-manager.test.js` - Extensive jQuery mock
-- `search.test.js` - Partial jQuery mock
+**Refactored Files** (jQuery mock removed - source uses vanilla JS):
+- `action-bar.test.js` - ✅ Removed 20-line mock (action-bar.js is vanilla JS)
+- `conference-manager.test.js` - ✅ Removed 50-line mock (ES6 class, no jQuery)
+
+**Still Need jQuery Mock** (source files use jQuery heavily):
+- `conference-filter.test.js` - Source has 23 jQuery usages
+- `favorites.test.js` - Source has 19 jQuery usages
+- `dashboard.test.js` - Source has 43 jQuery usages
+- `dashboard-filters.test.js` - Source has 50 jQuery usages
+
+**Minimal jQuery Mock** (acceptable - only mocks plugin):
+- `search.test.js` - Only mocks $.fn.countdown plugin (4 lines)
 
 **Good Examples** (tests using real jQuery):
 - `theme-toggle.test.js` - Uses real DOM with no jQuery mocking ✓
 - `notifications.test.js` - Only mocks specific methods (`$.fn.ready`) ✓
 - `timezone-utils.test.js` - Pure function tests, no DOM ✓
+- `action-bar.test.js` - ✅ Refactored to use real jQuery
+- `conference-manager.test.js` - ✅ Refactored to use real jQuery
 
 **Evidence** (`tests/frontend/unit/conference-filter.test.js:55-285`):
 ```javascript
