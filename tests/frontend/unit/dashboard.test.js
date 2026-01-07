@@ -172,212 +172,63 @@ describe('DashboardManager', () => {
       { sub: 'DATA', color: '#f68e56' }
     ];
 
-    // Set up jQuery mock that works with the real module
-    global.$ = jest.fn((selector) => {
-      if (typeof selector === 'function') {
-        // Document ready shorthand - DON'T auto-execute during module load
-        // Store callback for manual testing if needed
-        global.$.readyCallback = selector;
-        return;
+    // Use real jQuery from setup.js - just mock Bootstrap plugins
+    // that aren't available in the test environment
+    $.fn.modal = jest.fn(function() { return this; });
+    $.fn.countdown = jest.fn(function() { return this; });
+
+    // Override show/hide to explicitly set display (tests expect specific values)
+    $.fn.show = function() {
+      this.each(function() {
+        this.style.display = 'block';
+      });
+      return this;
+    };
+    $.fn.hide = function() {
+      this.each(function() {
+        this.style.display = 'none';
+      });
+      return this;
+    };
+
+    // Mock fadeOut to execute callback immediately (no animation in tests)
+    $.fn.fadeOut = function(duration, callback) {
+      if (typeof duration === 'function') {
+        callback = duration;
       }
+      this.each(function() {
+        if (callback) callback.call($(this));
+      });
+      return this;
+    };
 
-      // Handle document selector
-      if (selector === document) {
-        return {
-          ready: jest.fn((callback) => {
-            if (callback) callback();
-          }),
-          on: jest.fn((event, handler) => {
-            document.addEventListener(event, handler);
-            return this;
-          })
-        };
-      }
-
-      // Handle when selector is a DOM element
-      if (selector && selector.nodeType) {
-        selector = [selector];
-      }
-
-      // Handle when selector is an array or NodeList
-      let elements;
-      if (Array.isArray(selector)) {
-        elements = selector;
-      } else if (selector instanceof NodeList) {
-        elements = Array.from(selector);
-      } else if (typeof selector === 'string') {
-        // Handle HTML string creation (including template literals with newlines)
-        const trimmed = selector.trim();
-
-        // Check if this looks like HTML (starts with < and contains HTML tags)
-        if (trimmed.charAt(0) === '<' && trimmed.includes('>')) {
-          // This is HTML content, create elements from it
-          const container = document.createElement('div');
-          container.innerHTML = trimmed;
-
-          // Get all top-level children
-          elements = Array.from(container.children);
-
-          if (elements.length === 0) {
-            elements = [container];
-          } else if (elements.length === 1) {
-            elements = [elements[0]];
-          }
-        } else if (trimmed.startsWith('#')) {
-          const element = document.getElementById(trimmed.substring(1));
-          elements = element ? [element] : [];
-        } else {
-          elements = Array.from(document.querySelectorAll(trimmed));
-        }
-      } else {
-        elements = [];
-      }
-
-      const mockJquery = {
-        length: elements.length,
-        get: jest.fn((index) => {
-          if (index === undefined) {
-            return elements;
-          }
-          return elements[index];
-        }),
-        0: elements[0],
-        1: elements[1],
-        2: elements[2],
-        show: jest.fn(() => {
-          elements.forEach(el => {
-            if (el && el.style) {
-              el.style.display = 'block';
-            }
-          });
-          return mockJquery;
-        }),
-        hide: jest.fn(() => {
-          elements.forEach(el => {
-            if (el && el.style) {
-              el.style.display = 'none';
-            }
-          });
-          return mockJquery;
-        }),
-        empty: jest.fn(() => {
-          elements.forEach(el => el.innerHTML = '');
-          return mockJquery;
-        }),
-        html: jest.fn((content) => {
-          if (content !== undefined) {
-            elements.forEach(el => el.innerHTML = content);
-            return mockJquery;
-          }
-          return elements[0]?.innerHTML || '';
-        }),
-        text: jest.fn((content) => {
-          if (content !== undefined) {
-            elements.forEach(el => el.textContent = content);
-            return mockJquery;
-          }
-          return elements[0]?.textContent || '';
-        }),
-        append: jest.fn((content) => {
-          elements.forEach(el => {
-            if (typeof content === 'string') {
-              el.insertAdjacentHTML('beforeend', content);
-            } else if (content && content.nodeType) {
-              el.appendChild(content);
-            } else if (content && content[0] && content[0].nodeType) {
-              // jQuery object - append the first DOM element
-              el.appendChild(content[0]);
-            }
-          });
-          return mockJquery;
-        }),
-        map: jest.fn(function(callback) {
-          const results = [];
-          elements.forEach((el, i) => {
-            results.push(callback.call(el, i, el));
-          });
-          return {
-            get: () => results
-          };
-        }),
-        val: jest.fn((value) => {
-          if (value !== undefined) {
-            elements.forEach(el => el.value = value);
-            return mockJquery;
-          }
-          return elements[0]?.value;
-        }),
-        is: jest.fn((checkSelector) => {
-          if (checkSelector === ':checked') {
-            return elements[0]?.checked || false;
-          }
-          return false;
-        }),
-        on: jest.fn((event, handler) => {
-          elements.forEach(el => {
-            el.addEventListener(event, handler);
-          });
-          return mockJquery;
-        }),
-        click: jest.fn(() => {
-          elements.forEach(el => el.click());
-          return mockJquery;
-        }),
-        prop: jest.fn((prop, value) => {
-          if (value !== undefined) {
-            elements.forEach(el => {
-              if (prop === 'checked') {
-                el.checked = value;
-              } else {
-                el[prop] = value;
-              }
-            });
-            return mockJquery;
-          }
-          return elements[0]?.[prop];
-        }),
-        removeClass: jest.fn((className) => {
-          elements.forEach(el => {
-            if (el && el.classList) {
-              className.split(' ').forEach(c => el.classList.remove(c));
-            }
-          });
-          return mockJquery;
-        }),
-        addClass: jest.fn((className) => {
-          elements.forEach(el => {
-            if (el && el.classList) {
-              className.split(' ').forEach(c => el.classList.add(c));
-            }
-          });
-          return mockJquery;
-        }),
-        modal: jest.fn(() => mockJquery),
-        first: jest.fn(() => {
-          return global.$(elements[0] ? [elements[0]] : []);
-        }),
-        trigger: jest.fn((event) => {
-          elements.forEach(el => {
-            el.dispatchEvent(new Event(event, { bubbles: true }));
-          });
-          return mockJquery;
-        })
-      };
-
-      // Add numeric index access
-      if (elements.length > 0) {
-        for (let i = 0; i < elements.length; i++) {
-          mockJquery[i] = elements[i];
-        }
-      }
-
-      return mockJquery;
+    // Store document ready callback for manual execution if needed
+    const originalReady = $.fn.ready;
+    $.fn.ready = jest.fn(function(callback) {
+      // Execute immediately since DOM is already ready in tests
+      if (callback) callback();
+      return this;
     });
 
-    // Add $.fn for jQuery plugins
-    $.fn = $.fn || {};
-    $.fn.countdown = jest.fn(function() { return this; });
-    $.fn.modal = jest.fn(function() { return this; });
+    // Also handle $(function) shorthand
+    const original$ = global.$;
+    global.$ = function(selector) {
+      if (typeof selector === 'function') {
+        // Document ready shorthand - execute immediately
+        selector();
+        return;
+      }
+      return original$(selector);
+    };
+    // Copy over jQuery properties
+    Object.keys(original$).forEach(key => {
+      global.$[key] = original$[key];
+    });
+    global.$.fn = original$.fn;
+    global.$.each = original$.each;
+    global.$.extend = original$.extend;
+    global.$.ajax = original$.ajax;
+
 
     // Load the REAL module using jest.isolateModules
     jest.isolateModules(() => {

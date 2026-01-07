@@ -75,143 +75,31 @@ describe('DashboardFilters', () => {
       showToast: jest.fn()
     };
 
-    // Set up jQuery mock that works with the real module
-    global.$ = jest.fn((selector) => {
-      if (typeof selector === 'function') {
-        // Document ready shorthand - DON'T auto-execute during module load
-        // Store callback for manual testing if needed
-        global.$.readyCallback = selector;
-        return;
-      }
-
-      // Handle document selector
-      if (selector === document) {
-        return {
-          ready: jest.fn((callback) => {
-            if (callback) callback();
-          })
-        };
-      }
-
-      // Handle string selectors
-      if (typeof selector === 'string') {
-        // Check if this is HTML content (starts with <)
-        const trimmed = selector.trim();
-        if (trimmed.startsWith('<')) {
-          const container = document.createElement('div');
-          container.innerHTML = trimmed;
-          const elements = Array.from(container.children);
-          return createMockJquery(elements);
-        }
-
-        // Regular selector
-        const elements = Array.from(document.querySelectorAll(selector));
-        return createMockJquery(elements);
-      }
-
-      // Handle DOM elements
-      const elements = selector.nodeType ? [selector] : Array.from(selector);
-      return createMockJquery(elements);
+    // Use real jQuery from setup.js - just need to handle document ready
+    // Store document ready callback for manual execution if needed
+    $.fn.ready = jest.fn(function(callback) {
+      // Execute immediately since DOM is already ready in tests
+      if (callback) callback();
+      return this;
     });
 
-    // Helper to create jQuery-like object
-    function createMockJquery(elements) {
-      const mockJquery = {
-        length: elements.length,
-        get: (index) => index !== undefined ? elements[index] : elements,
-        first: () => createMockJquery(elements.slice(0, 1)),
-        prop: jest.fn((prop, value) => {
-          if (value !== undefined) {
-            elements.forEach(el => {
-              if (prop === 'checked') el.checked = value;
-              else el[prop] = value;
-            });
-            return mockJquery;
-          }
-          return elements[0]?.[prop];
-        }),
-        is: jest.fn((selector) => {
-          if (selector === ':checked') {
-            return elements[0]?.checked || false;
-          }
-          return false;
-        }),
-        map: jest.fn((callback) => {
-          const results = [];
-          elements.forEach((el, i) => {
-            results.push(callback.call(el, i, el));
-          });
-          return {
-            get: () => results
-          };
-        }),
-        val: jest.fn((value) => {
-          if (value !== undefined) {
-            elements.forEach(el => el.value = value);
-            return mockJquery;
-          }
-          return elements[0]?.value;
-        }),
-        on: jest.fn((event, handler) => {
-          elements.forEach(el => {
-            el.addEventListener(event, handler);
-          });
-          return mockJquery;
-        }),
-        trigger: jest.fn((event) => {
-          elements.forEach(el => {
-            el.dispatchEvent(new Event(event, { bubbles: true }));
-          });
-          return mockJquery;
-        }),
-        removeClass: jest.fn(() => mockJquery),
-        addClass: jest.fn(() => mockJquery),
-        text: jest.fn((value) => {
-          if (value !== undefined) {
-            elements.forEach(el => el.textContent = value);
-            return mockJquery;
-          }
-          return elements[0]?.textContent;
-        }),
-        append: jest.fn((content) => {
-          elements.forEach(el => {
-            if (typeof content === 'string') {
-              el.insertAdjacentHTML('beforeend', content);
-            } else if (content.nodeType) {
-              el.appendChild(content);
-            } else if (content && content[0] && content[0].nodeType) {
-              // jQuery object - append the first DOM element
-              el.appendChild(content[0]);
-            }
-          });
-          return mockJquery;
-        }),
-        empty: jest.fn(() => {
-          elements.forEach(el => el.innerHTML = '');
-          return mockJquery;
-        }),
-        remove: jest.fn(() => {
-          elements.forEach(el => el.remove());
-          return mockJquery;
-        })
-      };
-
-      // Add array-like access
-      elements.forEach((el, i) => {
-        mockJquery[i] = el;
-      });
-
-      return mockJquery;
-    }
-
-    // Add $.fn for jQuery plugins
-    $.fn = {
-      ready: jest.fn((callback) => {
-        // Store but don't auto-execute
-        $.fn.ready.callback = callback;
-        return $;
-      })
+    // Also handle $(function) shorthand
+    const original$ = global.$;
+    global.$ = function(selector) {
+      if (typeof selector === 'function') {
+        // Document ready shorthand - execute immediately
+        selector();
+        return;
+      }
+      return original$(selector);
     };
+    // Copy over jQuery properties
+    Object.keys(original$).forEach(key => {
+      global.$[key] = original$[key];
+    });
+    global.$.fn = original$.fn;
+    global.$.each = original$.each;
+    global.$.extend = original$.extend;
 
     // FIXED: Load the REAL DashboardFilters module instead of inline mock
     jest.isolateModules(() => {

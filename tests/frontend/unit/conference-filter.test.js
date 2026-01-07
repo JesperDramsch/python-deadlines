@@ -51,238 +51,55 @@ describe('ConferenceFilter', () => {
       </div>
     `;
 
-    // Mock jQuery
-    global.$ = jest.fn((selector) => {
-      // Handle document selector specially
-      if (selector === document) {
-        return {
-          ready: jest.fn((callback) => callback()),
-          on: jest.fn((event, selectorOrHandler, handlerOrOptions, finalHandler) => {
-            if (typeof selectorOrHandler === 'function') {
-              // Direct event binding
-              document.addEventListener(event.split('.')[0], selectorOrHandler);
-            } else {
-              // Delegated event binding
-              const handler = handlerOrOptions || finalHandler;
-              document.addEventListener(event.split('.')[0], (e) => {
-                if (e.target.matches(selectorOrHandler) || e.target.closest(selectorOrHandler)) {
-                  handler.call(e.target, e);
-                }
-              });
-            }
-          }),
-          off: jest.fn((event, selector) => {
-            // Mock removing event handlers
-            return $(document);
-          }),
-          trigger: jest.fn((event, data) => {
-            const customEvent = new CustomEvent(event, { detail: data });
-            document.dispatchEvent(customEvent);
-          })
-        };
-      }
+    // Use real jQuery from setup.js with extensions for test environment
 
-      // Handle :visible selector by filtering visible elements
-      let elements;
-      if (typeof selector === 'string') {
-        if (selector.includes(':visible')) {
-          // Remove :visible and get base elements
-          const baseSelector = selector.replace(':visible', '').trim();
-          const allElements = baseSelector ? document.querySelectorAll(baseSelector) : [];
-          // Filter to only visible elements (not display: none)
-          elements = Array.from(allElements).filter(el => {
-            // Check inline style for display: none
-            return !el.style || el.style.display !== 'none';
-          });
-        } else {
-          elements = Array.from(document.querySelectorAll(selector));
-        }
-      } else if (selector && selector.nodeType) {
-        elements = [selector];
-      } else {
-        elements = [];
-      }
-      const mockJquery = {
-        length: elements.length,
-        show: jest.fn(() => {
-          elements.forEach(el => {
-            if (el && el.style) el.style.display = '';
-          });
-          return mockJquery;
-        }),
-        hide: jest.fn(() => {
-          elements.forEach(el => {
-            if (el && el.style) el.style.display = 'none';
-          });
-          return mockJquery;
-        }),
-        each: jest.fn(function(callback) {
-          elements.forEach((el, index) => {
-            // In jQuery, 'this' in the callback is the DOM element
-            // The callback gets (index, element) as parameters
-            callback.call(el, index, el);
-          });
-          return mockJquery;
-        }),
-        val: jest.fn((value) => {
-          if (value !== undefined) {
-            // Set value
-            elements.forEach(el => {
-              if (el.tagName === 'SELECT') {
-                // For multiselect, simulate selecting options
-                const opts = el.querySelectorAll('option');
-                opts.forEach(opt => {
-                  opt.selected = Array.isArray(value) ? value.includes(opt.value) : value === opt.value;
-                });
-                // Store the value for later retrieval
-                el._mockValue = value;
-              } else {
-                el.value = value;
-              }
-            });
-            return mockJquery;
-          } else {
-            // Get value
-            if (elements[0] && elements[0].tagName === 'SELECT') {
-              // Return the mock value if it was set
-              if (elements[0]._mockValue !== undefined) {
-                return elements[0]._mockValue;
-              }
-              const selected = [];
-              elements[0].querySelectorAll('option:checked').forEach(opt => {
-                selected.push(opt.value);
-              });
-              return selected.length > 0 ? selected : null;
-            }
-            return elements[0]?.value || null;
-          }
-        }),
-        text: jest.fn(function() {
-          // For a single element, return its text content
-          if (elements.length === 1) {
-            return elements[0]?.textContent || '';
-          }
-          // For multiple elements, return combined text
-          return elements.map(el => el?.textContent || '').join('');
-        }),
-        data: jest.fn((key) => {
-          const el = elements[0];
-          if (el) {
-            // Handle multiselect data attribute
-            if (key === 'multiselect' && el.id === 'subject-select') {
-              return true;  // Indicate multiselect is initialized
-            }
-            const attrName = `data-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
-            return el.getAttribute(attrName);
-          }
-        }),
-        multiselect: jest.fn((action) => {
-          // Mock multiselect methods
-          if (action === 'refresh') {
-            return mockJquery;
-          }
-          if (action === 'selectAll') {
-            const opts = elements[0]?.querySelectorAll('option');
-            opts?.forEach(opt => opt.selected = true);
-            return mockJquery;
-          }
-          // Mock that multiselect is initialized
-          elements[0]?.setAttribute('data-multiselect', 'true');
-          return mockJquery;
-        }),
-        css: jest.fn((prop, value) => {
-          if (typeof prop === 'object') {
-            Object.entries(prop).forEach(([key, val]) => {
-              elements.forEach(el => {
-                if (el) el.style[key] = val;
-              });
-            });
-          } else if (value !== undefined) {
-            elements.forEach(el => {
-              if (el) el.style[prop] = value;
-            });
-          }
-          return mockJquery;
-        }),
-        hide: jest.fn(() => {
-          elements.forEach(el => {
-            if (el && el.style) el.style.display = 'none';
-          });
-          return mockJquery;
-        }),
-        show: jest.fn(() => {
-          elements.forEach(el => {
-            if (el && el.style) el.style.display = '';
-          });
-          return mockJquery;
-        }),
-        off: jest.fn(() => mockJquery),
-        on: jest.fn((event, handler) => {
-          elements.forEach(el => {
-            el?.addEventListener(event.split('.')[0], handler);
-          });
-          return mockJquery;
-        }),
-        each: jest.fn((callback) => {
-          elements.forEach((el, index) => {
-            if (el) {
-              // In jQuery, 'this' is the element in the callback
-              callback.call(el, index, el);
-            }
-          });
-          return mockJquery;
-        }),
-        closest: jest.fn((selector) => {
-          // Find the closest matching parent element
-          const closestElements = [];
-          elements.forEach(el => {
-            if (el && el.closest) {
-              const closest = el.closest(selector);
-              if (closest) {
-                closestElements.push(closest);
-              }
-            }
-          });
-          return $(closestElements.length > 0 ? closestElements : []);
-        })
-      };
-
-      // Add filter method for :visible selector
-      mockJquery.filter = jest.fn((selector) => {
-        if (selector === ':visible') {
-          const visible = Array.from(elements).filter(el => el.style.display !== 'none');
-          return $(visible);
-        }
-        return mockJquery;
+    // Override show/hide to explicitly set display (tests expect specific values)
+    $.fn.show = function() {
+      this.each(function() {
+        this.style.display = '';
       });
-
-      // Add trigger method for event handling
-      mockJquery.trigger = jest.fn((event) => {
-        elements.forEach(el => {
-          // Use appropriate event type for different events
-          let evt;
-          if (event === 'click') {
-            evt = new MouseEvent(event, { bubbles: true, cancelable: true });
-          } else if (event === 'change') {
-            evt = new Event(event, { bubbles: true, cancelable: true });
-          } else {
-            evt = new CustomEvent(event, { bubbles: true, cancelable: true });
-          }
-          el.dispatchEvent(evt);
-        });
-        return mockJquery;
+      return this;
+    };
+    $.fn.hide = function() {
+      this.each(function() {
+        this.style.display = 'none';
       });
+      return this;
+    };
 
-      // Special handling for :visible selector
-      if (selector && typeof selector === 'string' && selector.includes(':visible')) {
-        const baseSelector = selector.replace(':visible', '').trim();
-        const baseElements = document.querySelectorAll(baseSelector);
-        const visibleElements = Array.from(baseElements).filter(el => el.style.display !== 'none');
-        return $(visibleElements);
+    // Mock multiselect plugin (not available in test environment)
+    $.fn.multiselect = jest.fn(function(action) {
+      if (action === 'refresh') return this;
+      if (action === 'selectAll') {
+        this.find('option').each(function() { this.selected = true; });
       }
-
-      return mockJquery;
+      this.attr('data-multiselect', 'true');
+      return this;
     });
+
+    // Handle document ready - execute immediately in tests
+    $.fn.ready = function(callback) {
+      if (callback) callback();
+      return this;
+    };
+
+    // Also handle $(function) shorthand
+    const original$ = global.$;
+    global.$ = function(selector) {
+      if (typeof selector === 'function') {
+        selector();
+        return;
+      }
+      return original$(selector);
+    };
+    // Copy over jQuery properties
+    Object.keys(original$).forEach(key => {
+      global.$[key] = original$[key];
+    });
+    global.$.fn = original$.fn;
+    global.$.each = original$.each;
+    global.$.extend = original$.extend;
+    global.$.expr = original$.expr;
 
     // Mock store
     storeMock = mockStore();
@@ -519,13 +336,13 @@ describe('ConferenceFilter', () => {
       ConferenceFilter.init();
 
       const badge = document.querySelector('.conf-sub[data-sub="PY"]');
-      const mouseEnter = new MouseEvent('mouseenter', { bubbles: true });
-      badge.dispatchEvent(mouseEnter);
+
+      // Use jQuery to trigger mouseenter since source uses jQuery delegation
+      $(badge).trigger('mouseenter');
 
       expect(badge.style.opacity).toBe('0.8');
 
-      const mouseLeave = new MouseEvent('mouseleave', { bubbles: true });
-      badge.dispatchEvent(mouseLeave);
+      $(badge).trigger('mouseleave');
 
       expect(badge.style.opacity).toBe('1');
     });
@@ -755,7 +572,9 @@ describe('ConferenceFilter', () => {
     test('should trigger conference-filter-change event', () => {
       ConferenceFilter.init();
       const eventSpy = jest.fn();
-      document.addEventListener('conference-filter-change', eventSpy);
+
+      // Use jQuery to listen for the event since source uses $(document).trigger()
+      $(document).on('conference-filter-change', eventSpy);
 
       ConferenceFilter.filterBySub('PY');
 

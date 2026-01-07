@@ -19,7 +19,6 @@ const {
 
 describe('Search Module', () => {
   let originalLuxon;
-  let originalJQuery;
   let timerController;
 
   beforeEach(() => {
@@ -47,13 +46,15 @@ describe('Search Module', () => {
       }
     };
 
-    // Mock jQuery countdown
-    originalJQuery = global.$;
-    global.$ = jest.fn((selector) => ({
-      countdown: jest.fn(),
-      html: jest.fn()
-    }));
-    global.$.fn = { countdown: jest.fn() };
+    // Use real jQuery from setup.js, just mock the countdown plugin
+    // (countdown is a third-party plugin not included in test environment)
+    $.fn.countdown = jest.fn(function(date, callback) {
+      // Simulate countdown callback with mock event
+      if (callback) {
+        callback.call(this, { strftime: () => '10 days 05h 30m 00s' });
+      }
+      return this;
+    });
 
     // Mock calendar creation
     global.createCalendarFromObject = jest.fn(() => {
@@ -73,7 +74,6 @@ describe('Search Module', () => {
 
   afterEach(() => {
     global.luxon = originalLuxon;
-    global.$ = originalJQuery;
     delete global.createCalendarFromObject;
     timerController.cleanup();
   });

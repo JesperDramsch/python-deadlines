@@ -50,195 +50,21 @@ describe('FavoritesManager', () => {
       </div>
     `;
 
-    // Mock jQuery
-    global.$ = jest.fn((selector) => {
-      // Handle body selector specially
-      if (selector === 'body') {
-        return {
-          append: jest.fn((html) => {
-            document.body.insertAdjacentHTML('beforeend', html);
-          })
-        };
+    // Use real jQuery from setup.js - just mock Bootstrap plugins
+    // that aren't available in the test environment
+    $.fn.toast = jest.fn(function() { return this; });
+    $.fn.modal = jest.fn(function() { return this; });
+
+    // Mock fadeOut to execute callback immediately (no animation in tests)
+    $.fn.fadeOut = function(duration, callback) {
+      if (typeof duration === 'function') {
+        callback = duration;
       }
-
-      // Handle document selector specially
-      if (selector === document) {
-        return {
-          on: jest.fn((event, delegateSelector, handler) => {
-            // Handle event delegation
-            if (typeof delegateSelector === 'function') {
-              // Direct event binding (no delegation)
-              handler = delegateSelector;
-              document.addEventListener(event, handler);
-            } else {
-              // Delegated event binding
-              document.addEventListener(event, (e) => {
-                const target = e.target.matches(delegateSelector) ? e.target : e.target.closest(delegateSelector);
-                if (target) {
-                  // Create a jQuery event object with preventDefault and stopPropagation
-                  const jqEvent = Object.assign({}, e, {
-                    preventDefault: () => e.preventDefault(),
-                    stopPropagation: () => e.stopPropagation(),
-                    target: target,
-                    currentTarget: target
-                  });
-                  handler.call(target, jqEvent);
-                }
-              });
-            }
-          }),
-          trigger: jest.fn((event, data) => {
-            const customEvent = new CustomEvent(event, { detail: data });
-            document.dispatchEvent(customEvent);
-          })
-        };
-      }
-
-      // Check if selector is HTML content (starts with < and ends with >)
-      if (typeof selector === 'string' && selector.trim().startsWith('<') && selector.trim().endsWith('>')) {
-        // Create element from HTML
-        const div = document.createElement('div');
-        div.innerHTML = selector.trim();
-        const newElement = div.firstChild;
-        const mockJquery = {
-          toast: jest.fn(),
-          on: jest.fn(),
-          remove: jest.fn()
-        };
-        return mockJquery;
-      }
-
-      // Handle when selector is a DOM element (from $(this) in event handlers)
-      const elements = typeof selector === 'string'
-        ? Array.from(document.querySelectorAll(selector))
-        : (selector.nodeType ? [selector] : Array.from(selector));
-
-      const mockJquery = {
-        length: elements.length,
-        first: () => {
-          // Return a jQuery-like object for the first element
-          if (elements[0]) {
-            return $(elements[0]);
-          }
-          return mockJquery;
-        },
-        text: jest.fn((value) => {
-          if (value !== undefined) {
-            elements.forEach(el => el.textContent = value);
-            return mockJquery;
-          } else {
-            return elements[0]?.textContent || '';
-          }
-        }),
-        data: jest.fn((key) => {
-          const el = elements[0];
-          if (el) {
-            // jQuery data() converts between camelCase and kebab-case
-            // 'conf-name' -> 'data-conf-name'
-            // 'confName' -> 'data-conf-name'
-            // 'location' -> 'data-location'
-
-            // Try the key as-is first
-            let attrName = `data-${key}`;
-            let value = el.getAttribute(attrName);
-
-            // If not found and key has hyphens, try as-is
-            if (!value && key.includes('-')) {
-              value = el.getAttribute(attrName);
-            }
-
-            // If still not found, try converting camelCase to kebab-case
-            if (!value) {
-              const kebabKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-              attrName = `data-${kebabKey}`;
-              value = el.getAttribute(attrName);
-            }
-
-            return value;
-          }
-          return null;
-        }),
-        find: jest.fn((selector) => {
-          const foundElements = [];
-          elements.forEach(el => {
-            const found = el.querySelectorAll(selector);
-            foundElements.push(...found);
-          });
-
-          if (foundElements.length > 0) {
-            return $(foundElements);
-          }
-
-          return {
-            first: () => ({ text: () => '' }),
-            removeClass: jest.fn().mockReturnThis(),
-            addClass: jest.fn().mockReturnThis(),
-            length: 0
-          };
-        }),
-        removeClass: jest.fn(function(className) {
-          elements.forEach(el => el.classList.remove(className));
-          return mockJquery;
-        }),
-        addClass: jest.fn(function(className) {
-          elements.forEach(el => el.classList.add(className));
-          return mockJquery;
-        }),
-        css: jest.fn(function(prop, value) {
-          if (typeof prop === 'string' && value !== undefined) {
-            elements.forEach(el => el.style[prop] = value);
-          }
-          return mockJquery;
-        }),
-        fadeOut: jest.fn((duration, callback) => {
-          if (callback) callback();
-          return mockJquery;
-        }),
-        remove: jest.fn(),
-        trigger: jest.fn((event, data) => {
-          const customEvent = new CustomEvent(event, { detail: data });
-          elements.forEach(el => {
-            el.dispatchEvent(customEvent);
-          });
-        }),
-        on: jest.fn((event, handler) => {
-          elements.forEach(el => {
-            el.addEventListener(event, handler);
-          });
-          return mockJquery;
-        }),
-        append: jest.fn((html) => {
-          elements.forEach(el => {
-            if (typeof html === 'string') {
-              el.insertAdjacentHTML('beforeend', html);
-            }
-          });
-          return mockJquery;
-        }),
-        closest: jest.fn((selector) => {
-          // Find the closest matching parent element
-          const closestElements = [];
-          elements.forEach(el => {
-            const closest = el.closest(selector);
-            if (closest) {
-              closestElements.push(closest);
-            }
-          });
-          return $(closestElements.length > 0 ? closestElements : []);
-        })
-      };
-      return mockJquery;
-    });
-
-    // Add $.fn for Bootstrap modal/toast support and other jQuery plugins
-    $.fn = {
-      trigger: jest.fn(),
-      toast: jest.fn(function(action) {
-        return this;
-      }),
-      modal: jest.fn(function(action) {
-        return this;
-      })
+      // Execute callback for each element in the jQuery collection
+      this.each(function() {
+        if (callback) callback.call($(this));
+      });
+      return this;
     };
 
     // Mock ConferenceStateManager
@@ -504,11 +330,11 @@ describe('FavoritesManager', () => {
         writable: true
       });
 
-      document.body.innerHTML += `
-        <div id="conference-cards">
-          <div class="col-md-6 col-lg-4">
-            <div class="conference-card" data-conf-id="pycon-2025">Conference Card</div>
-          </div>
+      // Add conference card to existing conference-cards element (from beforeEach)
+      const conferenceCards = document.getElementById('conference-cards');
+      conferenceCards.innerHTML = `
+        <div class="col-md-6 col-lg-4">
+          <div class="conference-card" data-conf-id="pycon-2025">Conference Card</div>
         </div>
       `;
 
@@ -613,54 +439,33 @@ describe('FavoritesManager', () => {
 
       const confData = { conference: 'Test', year: 2025 };
 
-      // Track if trigger was called by spying on document triggers
+      // Use real jQuery event listener to capture the triggered event
       const eventSpy = jest.fn();
-
-      // Temporarily override $(document).trigger
-      const originalJquery = global.$;
-      global.$ = jest.fn((selector) => {
-        if (selector === document) {
-          return {
-            on: jest.fn(),
-            trigger: eventSpy
-          };
-        }
-        return originalJquery(selector);
-      });
+      $(document).on('favorite:added', eventSpy);
 
       FavoritesManager.add('test-conf', confData);
 
-      // Restore original
-      global.$ = originalJquery;
-
-      expect(eventSpy).toHaveBeenCalledWith('favorite:added', ['test-conf', confData]);
+      expect(eventSpy).toHaveBeenCalled();
+      // jQuery passes event object as first arg, then custom data
+      const callArgs = eventSpy.mock.calls[0];
+      expect(callArgs[1]).toBe('test-conf');
+      expect(callArgs[2]).toEqual(confData);
     });
 
     test('should trigger custom events when removing favorites', () => {
       FavoritesManager.init();
       FavoritesManager.showToast = jest.fn();
 
-      // Track if trigger was called by spying on document triggers
+      // Use real jQuery event listener to capture the triggered event
       const eventSpy = jest.fn();
-
-      // Temporarily override $(document).trigger
-      const originalJquery = global.$;
-      global.$ = jest.fn((selector) => {
-        if (selector === document) {
-          return {
-            on: jest.fn(),
-            trigger: eventSpy
-          };
-        }
-        return originalJquery(selector);
-      });
+      $(document).on('favorite:removed', eventSpy);
 
       FavoritesManager.remove('pycon-2025');
 
-      // Restore original
-      global.$ = originalJquery;
-
-      expect(eventSpy).toHaveBeenCalledWith('favorite:removed', ['pycon-2025']);
+      expect(eventSpy).toHaveBeenCalled();
+      // jQuery passes event object as first arg, then custom data
+      const callArgs = eventSpy.mock.calls[0];
+      expect(callArgs[1]).toBe('pycon-2025');
     });
   });
 
