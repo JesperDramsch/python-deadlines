@@ -24,7 +24,7 @@ from tidy_conf.schema import Conference
 class TestConferenceArchiving:
     """Test automatic conference archiving logic."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def past_conference(self):
         """Create a conference that should be archived."""
         past_date = datetime.now(timezone.utc) - timedelta(days=30)
@@ -39,7 +39,7 @@ class TestConferenceArchiving:
             "sub": "PY",
         }
 
-    @pytest.fixture
+    @pytest.fixture()
     def future_conference(self):
         """Create a conference that should NOT be archived."""
         future_date = datetime.now(timezone.utc) + timedelta(days=30)
@@ -54,7 +54,7 @@ class TestConferenceArchiving:
             "sub": "PY",
         }
 
-    @pytest.fixture
+    @pytest.fixture()
     def edge_case_conference(self):
         """Create a conference right at the archiving boundary."""
         boundary_date = datetime.now(timezone.utc) - timedelta(hours=1)

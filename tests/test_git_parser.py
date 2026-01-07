@@ -654,7 +654,10 @@ class TestCommitFormatVerification:
 
         # Multiple colons
         result = parser.parse_commit_message(
-            "abc123", "cfp: PyCon US: Call for Papers", "Author", "2025-01-01 00:00:00 +0000",
+            "abc123",
+            "cfp: PyCon US: Call for Papers",
+            "Author",
+            "2025-01-01 00:00:00 +0000",
         )
         assert result is not None
         assert result.message == "PyCon US: Call for Papers"
@@ -666,7 +669,10 @@ class TestCommitFormatVerification:
 
         # Trailing whitespace in message
         result = parser.parse_commit_message(
-            "abc123", "cfp: Trailing whitespace   ", "Author", "2025-01-01 00:00:00 +0000",
+            "abc123",
+            "cfp: Trailing whitespace   ",
+            "Author",
+            "2025-01-01 00:00:00 +0000",
         )
         assert result is not None
         assert result.message == "Trailing whitespace"
@@ -771,7 +777,10 @@ class TestCommitFormatVerification:
         # Same input should produce same URL
         result1 = parser.parse_commit_message("abc123", "cfp: PyCon US 2025", "Author", "2025-01-15 10:30:00 +0000")
         result2 = parser.parse_commit_message(
-            "def456", "cfp: PyCon US 2025", "Different Author", "2025-01-16 10:30:00 +0000",
+            "def456",
+            "cfp: PyCon US 2025",
+            "Different Author",
+            "2025-01-16 10:30:00 +0000",
         )
 
         assert result1.generate_url() == result2.generate_url(), "Same conference name should generate same URL"
