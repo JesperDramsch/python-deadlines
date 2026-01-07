@@ -188,4 +188,3 @@ utils/tidy_conf/data/.tmp/
 
 # Node modules
 node_modules/
-TEST_AUDIT_REPORT.md
