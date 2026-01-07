@@ -178,9 +178,11 @@ test.describe('Search Functionality', () => {
       const hasVisibleTitle = await confTitle.isVisible() || await confTitleSmall.isVisible();
       expect(hasVisibleTitle).toBeTruthy();
 
-      // Check for deadline or date (optional element - skip check if not present)
+      // Check for deadline or date (optional element - document if not present)
       const deadline = firstResult.locator('.deadline, .timer, .countdown-display, .date');
-      if (await deadline.count() > 0) {
+      const deadlineCount = await deadline.count();
+      // Note: Deadline elements are optional in search results (may not be rendered for all conferences)
+      if (deadlineCount > 0) {
         await expect(deadline.first()).toBeVisible();
       }
 
@@ -188,7 +190,9 @@ test.describe('Search Functionality', () => {
       const isMobile = testInfo.project.name.includes('mobile');
       if (!isMobile) {
         const location = firstResult.locator('.conf-place, .location, .place');
-        if (await location.count() > 0) {
+        const locationCount = await location.count();
+        // Note: Location elements may not be rendered for online conferences
+        if (locationCount > 0) {
           await expect(location.first()).toBeVisible();
         }
       }
@@ -366,22 +370,23 @@ test.describe('Search Functionality', () => {
       // Click on a conference type tag
       const tag = page.locator('.conf-sub, .badge').first();
 
-      if (await tag.isVisible()) {
-        const tagText = await tag.textContent();
-        await tag.click();
+      const isTagVisible = await tag.isVisible({ timeout: 3000 }).catch(() => false);
+      test.skip(!isTagVisible, 'No conference tags visible in search results');
 
-        await page.waitForFunction(() => document.readyState === 'complete');
+      const tagText = await tag.textContent();
+      await tag.click();
 
-        // Check if filtering occurred (URL change or results update)
-        const url = page.url();
-        const resultsChanged = url.includes('type=') || url.includes('sub=');
+      await page.waitForFunction(() => document.readyState === 'complete');
 
-        // Or check if filter UI updated
-        const activeFilter = page.locator('.active-filter, .filter-active, [class*="active"]');
-        const hasActiveFilter = await activeFilter.count() > 0;
+      // Check if filtering occurred (URL change or results update)
+      const url = page.url();
+      const resultsChanged = url.includes('type=') || url.includes('sub=');
 
-        expect(resultsChanged || hasActiveFilter).toBe(true);
-      }
+      // Or check if filter UI updated
+      const activeFilter = page.locator('.active-filter, .filter-active, [class*="active"]');
+      const hasActiveFilter = await activeFilter.count() > 0;
+
+      expect(resultsChanged || hasActiveFilter).toBe(true);
     });
   });
 

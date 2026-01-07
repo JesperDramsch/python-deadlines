@@ -67,28 +67,34 @@ test.describe('Notification System', () => {
 
       test.skip(!hasNotificationManager, 'NotificationManager not available on this page');
 
-      // Click enable notifications button if visible
+      // Click enable notifications button
       const enableBtn = page.locator('#enable-notifications');
 
       // Wait a bit for the prompt to be rendered (webkit may be slower)
       await page.waitForTimeout(500);
 
-      if (await enableBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await enableBtn.click();
+      const isEnableBtnVisible = await enableBtn.isVisible({ timeout: 3000 }).catch(() => false);
 
-        // Should show a toast (either enabled or blocked - webkit may not honor granted permissions)
-        const toast = await waitForToast(page);
-        const toastText = await toast.textContent();
-        // Accept either "Notifications Enabled" or "Notifications Blocked" as valid outcomes
-        // Webkit sometimes doesn't honor context.grantPermissions() for notifications
-        expect(toastText).toMatch(/Notifications (Enabled|Blocked)/);
-      } else {
-        // If button is not visible, permission may already be granted - verify notification manager works
+      // Skip if button not visible - permission may already be granted
+      if (!isEnableBtnVisible) {
+        // Verify notification manager exists as fallback assertion
         const hasNotificationManager = await page.evaluate(() => {
           return typeof window.NotificationManager !== 'undefined';
         });
+        test.skip(hasNotificationManager, 'Enable button not visible - permission likely already granted');
+        // If NotificationManager doesn't exist, fail the test
         expect(hasNotificationManager).toBe(true);
+        return;
       }
+
+      await enableBtn.click();
+
+      // Should show a toast (either enabled or blocked - webkit may not honor granted permissions)
+      const toast = await waitForToast(page);
+      const toastText = await toast.textContent();
+      // Accept either "Notifications Enabled" or "Notifications Blocked" as valid outcomes
+      // Webkit sometimes doesn't honor context.grantPermissions() for notifications
+      expect(toastText).toMatch(/Notifications (Enabled|Blocked)/);
     });
 
     test('should hide prompt after permission granted', async ({ page, context }) => {
@@ -97,10 +103,11 @@ test.describe('Notification System', () => {
       const prompt = page.locator('#notification-prompt');
       const enableBtn = page.locator('#enable-notifications');
 
-      if (await enableBtn.isVisible()) {
-        await enableBtn.click();
-        await expect(prompt).toBeHidden({ timeout: 5000 });
-      }
+      const isEnableBtnVisible = await enableBtn.isVisible({ timeout: 3000 }).catch(() => false);
+      test.skip(!isEnableBtnVisible, 'Enable button not visible - prompt may not be shown for granted permissions');
+
+      await enableBtn.click();
+      await expect(prompt).toBeHidden({ timeout: 5000 });
     });
   });
 
@@ -249,51 +256,53 @@ test.describe('Notification System', () => {
 
   test.describe('Notification Settings', () => {
     test('should open settings modal', async ({ page }) => {
-      // Click notification settings button (if exists)
+      // Click notification settings button
       const settingsBtn = page.locator('[data-target="#notificationModal"], [data-bs-target="#notificationModal"]').first();
 
-      if (await settingsBtn.isVisible()) {
-        await settingsBtn.click();
+      const isSettingsBtnVisible = await settingsBtn.isVisible({ timeout: 3000 }).catch(() => false);
+      test.skip(!isSettingsBtnVisible, 'Notification settings button not visible on this page');
 
-        // Modal should be visible
-        const modal = page.locator('#notificationModal');
-        await expect(modal).toBeVisible();
+      await settingsBtn.click();
 
-        // Should have notification day options
-        await expect(modal.locator('.notify-days')).toHaveCount(4); // 14, 7, 3, 1 days
-      }
+      // Modal should be visible
+      const modal = page.locator('#notificationModal');
+      await expect(modal).toBeVisible();
+
+      // Should have notification day options
+      await expect(modal.locator('.notify-days')).toHaveCount(4); // 14, 7, 3, 1 days
     });
 
     test('should save notification preferences', async ({ page }) => {
       const settingsBtn = page.locator('[data-target="#notificationModal"], [data-bs-target="#notificationModal"]').first();
 
-      if (await settingsBtn.isVisible()) {
-        await settingsBtn.click();
+      const isSettingsBtnVisible = await settingsBtn.isVisible({ timeout: 3000 }).catch(() => false);
+      test.skip(!isSettingsBtnVisible, 'Notification settings button not visible on this page');
 
-        const modal = page.locator('#notificationModal');
+      await settingsBtn.click();
 
-        // Uncheck 14-day notifications
-        await modal.locator('input[value="14"]').uncheck();
+      const modal = page.locator('#notificationModal');
 
-        // Check 1-day notifications
-        await modal.locator('input[value="1"]').check();
+      // Uncheck 14-day notifications
+      await modal.locator('input[value="14"]').uncheck();
 
-        // Save settings
-        await modal.locator('#save-notification-settings').click();
+      // Check 1-day notifications
+      await modal.locator('input[value="1"]').check();
 
-        // Modal should close
-        await expect(modal).toBeHidden({ timeout: 5000 });
+      // Save settings
+      await modal.locator('#save-notification-settings').click();
 
-        // Verify settings were saved
-        const settings = await page.evaluate(() => {
-          const data = localStorage.getItem('pythondeadlines-notification-settings');
-          return data ? JSON.parse(data) : null;
-        });
+      // Modal should close
+      await expect(modal).toBeHidden({ timeout: 5000 });
 
-        expect(settings).toBeTruthy();
-        expect(settings.days).toContain(1);
-        expect(settings.days).not.toContain(14);
-      }
+      // Verify settings were saved
+      const settings = await page.evaluate(() => {
+        const data = localStorage.getItem('pythondeadlines-notification-settings');
+        return data ? JSON.parse(data) : null;
+      });
+
+      expect(settings).toBeTruthy();
+      expect(settings.days).toContain(1);
+      expect(settings.days).not.toContain(14);
     });
   });
 
