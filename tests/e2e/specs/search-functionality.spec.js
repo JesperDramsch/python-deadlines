@@ -451,10 +451,17 @@ test.describe('Search Functionality', () => {
 
       await page.waitForFunction(() => document.readyState === 'complete');
 
-      // Tab through results
+      // WebKit requires focus to be explicitly established after page navigation
+      // before Tab key navigation works correctly. Without this, WebKit returns
+      // focus to BODY when Tab is pressed. Re-focus on the search input (which
+      // now contains the query) to establish a proper focus context.
+      const searchInputAfterNav = await getVisibleSearchInput(page);
+      await searchInputAfterNav.focus();
+
+      // Tab to the next focusable element
       await page.keyboard.press('Tab');
 
-      // Check if a result link is focused
+      // Check if a focusable element is focused (could be button, link, or input)
       const focusedElement = await page.evaluate(() => document.activeElement?.tagName);
       expect(['A', 'BUTTON', 'INPUT']).toContain(focusedElement);
     });
