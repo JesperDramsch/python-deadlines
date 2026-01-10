@@ -16,6 +16,22 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: DjangoCon US
+  year: 2026
+  link: https://2026.djangocon.us/
+  cfp_link: https://pretalx.com/djangocon-us-2026/cfp
+  cfp: '2026-03-16 11:00:00'
+  timezone: America/Chicago
+  place: Chicago, USA
+  start: 2026-09-14
+  end: 2026-09-18
+  mastodon: https://fosstodon.org/@djangocon
+  sub: WEB
+  location:
+  - title: DjangoCon US 2026
+    latitude: 41.8755616
+    longitude: -87.6244212
+
 - conference: PyCon Austria
   year: 2026
   link: https://pycon.at/
@@ -30,6 +46,21 @@
   - title: PyCon Austria 2026
     latitude: 47.8454821
     longitude: 16.5249288
+
+- conference: PyCon Poland
+  alt_name: PyCon PL
+  year: 2026
+  link: https://pl.pycon.org/2026
+  cfp: '2026-02-15 23:59:59'
+  timezone: Europe/Warsaw
+  place: Gliwice, Poland
+  start: 2026-08-27
+  end: 2026-08-30
+  sub: PY
+  location:
+  - title: PyCon Poland 2026
+    latitude: 50.294113
+    longitude: 18.6657306
 
 - conference: PyCon Lithuania
   alt_name: PyCon LT
@@ -63,6 +94,23 @@
     latitude: 17.426801501802966
     longitude: 78.37126527965896
 
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2026
+  link: https://2026.pycon.it/en
+  cfp_link: https://pycon.it/cfp
+  cfp: '2026-01-06 23:59:59'
+  place: Bologna, Italy
+  start: 2026-05-27
+  end: 2026-05-30
+  finaid: https://2026.pycon.it/en
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+  - title: PyCon Italy 2026
+    latitude: 44.4938203
+    longitude: 11.3426327
+
 - conference: PyCon Germany & PyData Conference
   alt_name: PyCon Germany
   year: 2026
@@ -80,23 +128,6 @@
   - title: PyCon Germany & PyData Conference 2026
     latitude: 49.872775
     longitude: 8.651177
-
-- conference: PyCon Italy
-  alt_name: PyCon Italia
-  year: 2026
-  link: https://2026.pycon.it/en
-  cfp_link: https://pycon.it/cfp
-  cfp: '2026-01-06 23:59:59'
-  place: Bologna, Italy
-  start: 2026-05-27
-  end: 2026-05-30
-  finaid: https://2026.pycon.it/en
-  mastodon: https://social.python.it/@pycon
-  sub: PY
-  location:
-  - title: PyCon Italy 2026
-    latitude: 44.4938203
-    longitude: 11.3426327
 
 - conference: PyCon US
   year: 2026
@@ -213,21 +244,6 @@
     latitude: -6.175247
     longitude: 106.8270488
 
-- conference: PyCon Senegambia
-  year: 2025
-  link: https://www.pyconsenegambia.org/en
-  cfp_link: https://sessionize.com/pycon-senegambia
-  cfp: '2025-09-04 23:59:00'
-  timezone: UTC
-  place: Banjul, Gambia
-  start: 2025-11-28
-  end: 2025-11-29
-  sub: PY
-  location:
-  - title: PyCon Senegambia 2025
-    latitude: 13.45535
-    longitude: -16.575646
-
 - conference: PyLadiesCon
   year: 2025
   link: https://2025.conference.pyladies.com/en/
@@ -280,22 +296,6 @@
     latitude: 59.4372155
     longitude: 24.7453688
 
-- conference: DjangoCon US
-  year: 2026
-  link: https://2026.djangocon.us/
-  cfp_link: https://pretalx.com/djangocon-us-2026/cfp
-  cfp: '2026-03-16 11:00:00'
-  timezone: America/Chicago
-  place: Chicago, USA
-  start: 2026-09-14
-  end: 2026-09-18
-  mastodon: https://fosstodon.org/@djangocon
-  sub: WEB
-  location:
-  - title: DjangoCon US 2026
-    latitude: 41.8755616
-    longitude: -87.6244212
-
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
@@ -309,21 +309,6 @@
   - title: PyCon Kenya 2026
     latitude: -1.2136405
     longitude: 36.87930533266044
-
-- conference: PyCon Poland
-  alt_name: PyCon PL
-  year: 2026
-  link: https://pl.pycon.org/2026
-  cfp: '2026-02-15 23:59:59'
-  timezone: Europe/Warsaw
-  place: Gliwice, Poland
-  start: 2026-08-27
-  end: 2026-08-30
-  sub: PY
-  location:
-  - title: PyCon Poland 2026
-    latitude: 50.294113
-    longitude: 18.6657306
 
 - conference: PyCon Australia
   alt_name: PyCon AU
