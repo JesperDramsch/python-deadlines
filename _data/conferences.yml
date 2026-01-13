@@ -1,5 +1,23 @@
 ---
 
+- conference: PyCon Lithuania
+  alt_name: PyCon LT
+  year: 2026
+  link: https://pycon.lt/2026
+  cfp_link: https://pycon.lt/2026/call-for-proposals
+  cfp: TBA
+  timezone: Europe/Vilnius
+  place: Vilnius, Lithuania
+  start: 2026-04-08
+  end: 2026-04-10
+  sponsor: https://pycon.lt/2026/partnership
+  twitter: pyconlt
+  sub: PY
+  location:
+  - title: College of Applied Sciences SMK
+    latitude: 54.7730331
+    longitude: 23.9393154
+
 - conference: Xtreme Python
   year: 2025
   link: https://xtremepython.dev/2025/
