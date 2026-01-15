@@ -14,7 +14,7 @@ from tidy_conf.interactive_merge import fuzzy_match
 from tidy_conf.interactive_merge import merge_conferences
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_title_mappings():
     """Mock the title mappings to avoid file I/O issues.
 

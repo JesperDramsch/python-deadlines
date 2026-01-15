@@ -691,7 +691,7 @@ class TestRealDataProcessing:
     data and only mock external I/O operations.
     """
 
-    @pytest.fixture
+    @pytest.fixture()
     def temp_data_dir(self, tmp_path):
         """Create a temporary data directory with real YAML files."""
         data_dir = tmp_path / "_data"

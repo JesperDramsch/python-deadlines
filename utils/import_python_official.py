@@ -341,7 +341,7 @@ DTEND;VALUE=DATE:{row["end"].strftime("%Y%m%d")}
 DESCRIPTION:<a href="{row.link}">{ reverse_title }</a>
 LOCATION:{ row.place }
 END:VEVENT
-END:VCALENDAR"""
+END:VCALENDAR""",
             )
             processed_years += 1
 

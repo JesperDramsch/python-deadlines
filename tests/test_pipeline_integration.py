@@ -145,7 +145,7 @@ class TestConflictResolution:
         assert reason == "yaml_preferred"
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_title_mappings():
     """Mock title mappings for testing."""
     with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load1, patch(
