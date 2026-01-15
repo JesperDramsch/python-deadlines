@@ -10,10 +10,11 @@ import pytest
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
-from tidy_conf.interactive_merge import fuzzy_match, merge_conferences
+from tidy_conf.interactive_merge import fuzzy_match
+from tidy_conf.interactive_merge import merge_conferences
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_title_mappings():
     """Mock the title mappings to avoid file I/O issues.
 
@@ -99,7 +100,8 @@ class TestFuzzyMatch:
         )
 
         with patch(
-            "builtins.input", return_value="y",
+            "builtins.input",
+            return_value="y",
         ):  # Simulate user accepting the match
             merged, remote, _report = fuzzy_match(df_yml, df_csv)
 
@@ -110,14 +112,10 @@ class TestFuzzyMatch:
         conference_names = merged["conference"].tolist()
         # Note: title mappings may transform names (e.g., "PyCon US" -> "PyCon USA")
         # Check that we have at least one conference in the result
-        assert (
-            len(conference_names) >= 1
-        ), "Should have at least one conference in result"
+        assert len(conference_names) >= 1, "Should have at least one conference in result"
 
         # Verify fuzzy matching was attempted - remote should still be returned
-        assert (
-            remote is not None
-        ), "Remote dataframe should be returned for further processing"
+        assert remote is not None, "Remote dataframe should be returned for further processing"
 
     def test_fuzzy_match_no_matches(self, mock_title_mappings):
         """Test fuzzy matching when there are no matches."""
@@ -153,9 +151,7 @@ class TestFuzzyMatch:
 
         # Verify the YML conference is preserved in merged result
         conference_names = merged["conference"].tolist()
-        assert (
-            "PyCon Test" in conference_names
-        ), f"YML conference 'PyCon Test' should be in {conference_names}"
+        assert "PyCon Test" in conference_names, f"YML conference 'PyCon Test' should be in {conference_names}"
 
         # Verify the dissimilar CSV conference remains in remote (unmatched)
         remote_names = remote["conference"].tolist()
@@ -214,9 +210,7 @@ class TestMergeConferences:
 
         # Should combine both DataFrames - we expect exactly 2 conferences
         assert isinstance(result, pd.DataFrame)
-        assert (
-            len(result) == 2
-        ), f"Expected 2 conferences (1 merged + 1 remote), got {len(result)}"
+        assert len(result) == 2, f"Expected 2 conferences (1 merged + 1 remote), got {len(result)}"
 
         # Verify conference names are preserved correctly (not corrupted to index values)
         assert "conference" in result.columns
@@ -228,9 +222,7 @@ class TestMergeConferences:
                 name,
             ).isdigit(), f"Conference name '{name}' is corrupted to index value"
 
-        assert (
-            "PyCon Test" in conference_names
-        ), "Original YML conference should be in result"
+        assert "PyCon Test" in conference_names, "Original YML conference should be in result"
         assert "DjangoCon" in conference_names, "Remote conference should be in result"
 
     def test_merge_conferences_preserves_names(self, mock_title_mappings):
@@ -410,9 +402,7 @@ class TestInteractivePrompts:
             _merged, remote, _ = fuzzy_match(df_yml, df_csv)
 
         # Should reject the match and keep data separate
-        assert (
-            len(remote) == 1
-        ), f"Expected exactly 1 rejected conference in remote, got {len(remote)}"
+        assert len(remote) == 1, f"Expected exactly 1 rejected conference in remote, got {len(remote)}"
         assert remote.iloc[0]["conference"] == "PyCon Slightly Different"
 
 
@@ -495,16 +485,12 @@ class TestDataIntegrity:
                 name,
             ).isdigit(), f"Conference name '{name}' appears to be a numeric index value"
             # Names should be reasonable strings (not just numbers)
-            assert (
-                len(str(name)) > 2
-            ), f"Conference name '{name}' is too short, likely corrupted"
+            assert len(str(name)) > 2, f"Conference name '{name}' is too short, likely corrupted"
 
         # Verify the expected conference names are present (at least one should be)
         expected_names = {original_name, remote_name}
         actual_names = set(conference_names)
-        assert (
-            actual_names & expected_names
-        ), f"Expected at least one of {expected_names} but got {actual_names}"
+        assert actual_names & expected_names, f"Expected at least one of {expected_names} but got {actual_names}"
 
     def test_data_consistency_after_merge(self, mock_title_mappings):
         """Test that data remains consistent after merge operations."""

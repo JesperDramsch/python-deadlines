@@ -1,6 +1,8 @@
 # Standard library
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from pathlib import Path
 
 # Third-party
@@ -11,20 +13,26 @@ from icalendar import Calendar
 # Local imports
 try:
     from logging_config import get_tqdm_logger
-    from tidy_conf import fuzzy_match, load_conferences, merge_conferences
+    from tidy_conf import fuzzy_match
+    from tidy_conf import load_conferences
+    from tidy_conf import merge_conferences
     from tidy_conf.date import create_nice_date
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import fill_missing_required
-    from tidy_conf.yaml import load_title_mappings, write_df_yaml
+    from tidy_conf.yaml import load_title_mappings
+    from tidy_conf.yaml import write_df_yaml
 except ImportError:
     from .logging_config import get_tqdm_logger
-    from .tidy_conf import fuzzy_match, load_conferences, merge_conferences
+    from .tidy_conf import fuzzy_match
+    from .tidy_conf import load_conferences
+    from .tidy_conf import merge_conferences
     from .tidy_conf.date import create_nice_date
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.titles import tidy_df_names
     from .tidy_conf.utils import fill_missing_required
-    from .tidy_conf.yaml import load_title_mappings, write_df_yaml
+    from .tidy_conf.yaml import load_title_mappings
+    from .tidy_conf.yaml import write_df_yaml
 
 logger = get_tqdm_logger(__name__)
 
@@ -41,7 +49,9 @@ def ics_to_dataframe() -> pd.DataFrame:
         ConnectionError: If unable to fetch the calendar data
         ValueError: If calendar data is invalid
     """
-    calendar_url = "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c@group.calendar.google.com/public/basic.ics"
+    calendar_url = (
+        "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c@group.calendar.google.com/public/basic.ics"
+    )
 
     # Validate URL scheme for security
     if not calendar_url.startswith("https://"):
@@ -279,10 +289,7 @@ def main(year=None, base="") -> bool:
 
         for y in range(year, year + 10):
             # Skip years that are not in the new data
-            if (
-                df_ics.loc[df_ics["year"] == y].empty
-                or df_yml[df_yml["year"] == y].empty
-            ):
+            if df_ics.loc[df_ics["year"] == y].empty or df_yml[df_yml["year"] == y].empty:
                 # Concatenate the new data with the existing data
                 df_new = pd.concat(
                     [
@@ -325,9 +332,7 @@ def main(year=None, base="") -> bool:
                 else:
                     reverse_title = f"{row['conference']} {row['year']}"
 
-            timezone_str = (
-                row["timezone"] if isinstance(row["timezone"], str) else "UTC"
-            )
+            timezone_str = row["timezone"] if isinstance(row["timezone"], str) else "UTC"
             dates = f'{create_nice_date(row)["date"]} ({timezone_str})'
             link = f'<a href="{row["link"]}">{row["conference"]}</a>'
             out = f""" * name of the event: {reverse_title}
@@ -384,7 +389,9 @@ if __name__ == "__main__":
         description="Import Python conferences from official calendar",
     )
     parser.add_argument(
-        "--year", type=int, help="Year to import (defaults to current year)",
+        "--year",
+        type=int,
+        help="Year to import (defaults to current year)",
     )
     parser.add_argument("--base", type=str, default="", help="Base path for data files")
     parser.add_argument(

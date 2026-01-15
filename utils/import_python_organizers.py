@@ -1,6 +1,7 @@
 # Standard library
 import re
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from pathlib import Path
 from urllib import error as urllib_error
 
@@ -10,17 +11,23 @@ import pandas as pd
 
 # Local imports
 try:
-    from tidy_conf import fuzzy_match, load_conferences, merge_conferences
+    from tidy_conf import fuzzy_match
+    from tidy_conf import load_conferences
+    from tidy_conf import merge_conferences
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.schema import get_schema
     from tidy_conf.utils import fill_missing_required
-    from tidy_conf.yaml import load_title_mappings, write_df_yaml
+    from tidy_conf.yaml import load_title_mappings
+    from tidy_conf.yaml import write_df_yaml
 except ImportError:
-    from .tidy_conf import fuzzy_match, load_conferences, merge_conferences
+    from .tidy_conf import fuzzy_match
+    from .tidy_conf import load_conferences
+    from .tidy_conf import merge_conferences
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.schema import get_schema
     from .tidy_conf.utils import fill_missing_required
-    from .tidy_conf.yaml import load_title_mappings, write_df_yaml
+    from .tidy_conf.yaml import load_title_mappings
+    from .tidy_conf.yaml import write_df_yaml
 
 
 def load_remote(year: int) -> pd.DataFrame:
@@ -124,19 +131,9 @@ def write_csv(df: pd.DataFrame, year: int, csv_location: str) -> None:
                 df.at[idx, "conference"] = f"Conference_{idx}"
 
     # Sanitize CFP and deadline data safely
-    df["cfp"] = (
-        df["cfp"]
-        .fillna("")
-        .astype(str)
-        .str.slice(stop=10)
-        .str.replace(r"\b(TBA|None)\b", "", regex=True)
-    )
+    df["cfp"] = df["cfp"].fillna("").astype(str).str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
     df["tutorial_deadline"] = (
-        df["tutorial_deadline"]
-        .fillna("")
-        .astype(str)
-        .str.slice(stop=10)
-        .str.replace(r"\b(TBA|None)\b", "", regex=True)
+        df["tutorial_deadline"].fillna("").astype(str).str.slice(stop=10).str.replace(r"\b(TBA|None)\b", "", regex=True)
     )
 
     # Ensure empty strings instead of nan values
@@ -148,22 +145,14 @@ def write_csv(df: pd.DataFrame, year: int, csv_location: str) -> None:
 
     # Additional cleaning after column mapping to ensure consistency
     if "Talk Deadline" in df.columns:
-        df["Talk Deadline"] = (
-            df["Talk Deadline"].fillna("").astype(str).replace("nan", "")
-        )
+        df["Talk Deadline"] = df["Talk Deadline"].fillna("").astype(str).replace("nan", "")
     if "Tutorial Deadline" in df.columns:
-        df["Tutorial Deadline"] = (
-            df["Tutorial Deadline"].fillna("").astype(str).replace("nan", "")
-        )
+        df["Tutorial Deadline"] = df["Tutorial Deadline"].fillna("").astype(str).replace("nan", "")
     logger.debug(f"After map_columns, df shape: {df.shape}")
 
     for y in range(year, datetime.now(tz=timezone.utc).year + 10):
         # Extract and prepare data for this year (even if empty)
-        df_year_subset = (
-            df.loc[df["year"] == y]
-            if y in df["year"].unique()
-            else pd.DataFrame(columns=df.columns)
-        )
+        df_year_subset = df.loc[df["year"] == y] if y in df["year"].unique() else pd.DataFrame(columns=df.columns)
         logger.debug(f"Year {y} subset shape: {df_year_subset.shape}")
 
         # Only create CSV if we have data or if the original df was not empty (to handle empty year subsets)
@@ -301,10 +290,7 @@ def main(year: int | None = None, base: str = "") -> None:
 
     # Process year by year
     for y in range(year, datetime.now(tz=timezone.utc).year + 10):
-        if (
-            df_csv_for_merge.loc[df_csv_for_merge["year"] == y].empty
-            or df_yml[df_yml["year"] == y].empty
-        ):
+        if df_csv_for_merge.loc[df_csv_for_merge["year"] == y].empty or df_yml[df_yml["year"] == y].empty:
             # Concatenate the new data with the existing data
             df_new = pd.concat(
                 [
@@ -386,7 +372,8 @@ def main(year: int | None = None, base: str = "") -> None:
             .str.strip()
             .apply(
                 lambda x: iso3166.countries_by_name.get(
-                    x.upper(), iso3166.Country("", "", "", "", ""),
+                    x.upper(),
+                    iso3166.Country("", "", "", "", ""),
                 ).alpha3,
             )
         )
