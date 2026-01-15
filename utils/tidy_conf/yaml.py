@@ -81,10 +81,7 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
     module_dir = Path(__file__).parent
 
     # Determine filename based on what was requested
-    if "rejection" in str(original_path).lower():
-        filename = "rejections.yml"
-    else:
-        filename = "titles.yml"
+    filename = "rejections.yml" if "rejection" in str(original_path).lower() else "titles.yml"
 
     # Try paths in order of preference, checking for non-empty files
     # Priority: module-relative path (most reliable for imports from any working directory)
@@ -171,10 +168,7 @@ def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
     module_dir = Path(__file__).parent
 
     # Determine filename based on what was requested
-    if "rejection" in str(original_path).lower():
-        filename = "rejections.yml"
-    else:
-        filename = "titles.yml"
+    filename = "rejections.yml" if "rejection" in str(original_path).lower() else "titles.yml"
 
     # Use module-relative path (most reliable)
     path = module_dir / "data" / filename

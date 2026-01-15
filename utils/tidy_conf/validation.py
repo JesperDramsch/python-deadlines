@@ -132,20 +132,21 @@ class MergeReport:
 
         if self.dropped_conferences:
             lines.append("\nDROPPED CONFERENCES (DATA LOSS):")
-            for dropped in self.dropped_conferences:
-                lines.append(f"  - {dropped['yaml_name']} / {dropped['remote_name']} ({dropped['year']})")
+            lines.extend(
+                f"  - {dropped['yaml_name']} / {dropped['remote_name']} ({dropped['year']})"
+                for dropped in self.dropped_conferences
+            )
 
         if self.warnings:
             lines.append("\nWARNINGS:")
-            for warning in self.warnings[:10]:  # Show first 10
-                lines.append(f"  - {warning}")
+            # Show first 10
+            lines.extend(f"  - {warning}" for warning in self.warnings[:10])
             if len(self.warnings) > 10:
                 lines.append(f"  ... and {len(self.warnings) - 10} more warnings")
 
         if self.errors:
             lines.append("\nERRORS:")
-            for error in self.errors:
-                lines.append(f"  - {error}")
+            lines.extend(f"  - {error}" for error in self.errors)
 
         return "\n".join(lines)
 
@@ -201,8 +202,12 @@ def validate_dataframe(
     # Check required columns exist
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        errors.append(f"{source_name}: Missing required columns: {missing_columns}")
-        errors.append(f"{source_name}: Available columns: {df.columns.tolist()}")
+        errors.extend(
+            (
+                f"{source_name}: Missing required columns: {missing_columns}",
+                f"{source_name}: Available columns: {df.columns.tolist()}",
+            ),
+        )
 
     # Check 'conference' column data type
     if "conference" in df.columns:
