@@ -96,7 +96,8 @@ def tidy_titles(data):
 def expand_country_codes(name):
     """Expand country codes at the end of conference names to full country names.
 
-    Examples:
+    Examples
+    --------
         "PyCon PL" -> "PyCon Poland"
         "PyCon DE" -> "PyCon Germany"
         "PyData Berlin" -> "PyData Berlin" (unchanged, no country code)

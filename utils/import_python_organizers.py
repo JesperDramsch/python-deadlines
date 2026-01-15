@@ -297,8 +297,10 @@ def main(year: int | None = None, base: str = "") -> None:
         result = fuzzy_match(df_yml_year, df_csv_year)
         if len(result) == 3:
             df_merged, df_remote, merge_report = result
-            logger.info(f"Merge report: {merge_report.exact_matches} exact, "
-                       f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match")
+            logger.info(
+                f"Merge report: {merge_report.exact_matches} exact, "
+                f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
+            )
         else:
             # Backwards compatibility
             df_merged, df_remote = result

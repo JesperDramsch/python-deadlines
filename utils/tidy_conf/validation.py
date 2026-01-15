@@ -7,8 +7,8 @@ This module provides:
 """
 
 import logging
-from dataclasses import dataclass, field
-from typing import Optional
+from dataclasses import dataclass
+from dataclasses import field
 
 import pandas as pd
 
@@ -41,8 +41,6 @@ ALL_KNOWN_COLUMNS = REQUIRED_COLUMNS + OPTIONAL_COLUMNS
 
 class ValidationError(Exception):
     """Raised when input validation fails."""
-
-    pass
 
 
 @dataclass
@@ -98,7 +96,7 @@ class MergeReport:
 
         if record.action == "dropped":
             self.dropped_conferences.append(
-                {"yaml_name": record.yaml_name, "remote_name": record.remote_name, "year": record.year}
+                {"yaml_name": record.yaml_name, "remote_name": record.remote_name, "year": record.year},
             )
 
     def add_warning(self, message: str) -> None:
@@ -160,14 +158,14 @@ class MergeReport:
         if self.total_output < expected_total:
             self.add_error(
                 f"Data loss detected: expected at least {expected_total} conferences, "
-                f"got {self.total_output}. {len(self.dropped_conferences)} dropped."
+                f"got {self.total_output}. {len(self.dropped_conferences)} dropped.",
             )
             return False
         return True
 
 
 def validate_dataframe(
-    df: pd.DataFrame, source_name: str, required_columns: Optional[list] = None
+    df: pd.DataFrame, source_name: str, required_columns: list | None = None,
 ) -> tuple[bool, list[str]]:
     """Validate a DataFrame has expected columns and data types.
 
@@ -210,7 +208,7 @@ def validate_dataframe(
         if not non_string_conferences.empty:
             errors.append(
                 f"{source_name}: {len(non_string_conferences)} conference names are not strings: "
-                f"{non_string_conferences['conference'].head().tolist()}"
+                f"{non_string_conferences['conference'].head().tolist()}",
             )
 
         # Check for empty conference names
@@ -233,7 +231,7 @@ def validate_dataframe(
 
 
 def validate_merge_inputs(
-    df_yaml: pd.DataFrame, df_remote: pd.DataFrame, report: Optional[MergeReport] = None
+    df_yaml: pd.DataFrame, df_remote: pd.DataFrame, report: MergeReport | None = None,
 ) -> tuple[bool, MergeReport]:
     """Validate both DataFrames before merging.
 
@@ -306,7 +304,9 @@ def ensure_conference_strings(df: pd.DataFrame, source_name: str = "DataFrame") 
         if not isinstance(val, str):
             if pd.notna(val):
                 df.at[idx, "conference"] = str(val).strip()
-                logger.debug(f"{source_name}: Converted conference[{idx}] to string: {val} -> {df.at[idx, 'conference']}")
+                logger.debug(
+                    f"{source_name}: Converted conference[{idx}] to string: {val} -> {df.at[idx, 'conference']}",
+                )
             else:
                 df.at[idx, "conference"] = f"Unknown_Conference_{idx}"
                 logger.warning(f"{source_name}: Replaced null conference[{idx}] with placeholder")

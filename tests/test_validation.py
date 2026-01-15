@@ -15,18 +15,16 @@ import pytest
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
-from tidy_conf.validation import (
-    ALL_KNOWN_COLUMNS,
-    OPTIONAL_COLUMNS,
-    REQUIRED_COLUMNS,
-    MergeRecord,
-    MergeReport,
-    ValidationError,
-    ensure_conference_strings,
-    log_dataframe_state,
-    validate_dataframe,
-    validate_merge_inputs,
-)
+from tidy_conf.validation import ALL_KNOWN_COLUMNS
+from tidy_conf.validation import OPTIONAL_COLUMNS
+from tidy_conf.validation import REQUIRED_COLUMNS
+from tidy_conf.validation import MergeRecord
+from tidy_conf.validation import MergeReport
+from tidy_conf.validation import ValidationError
+from tidy_conf.validation import ensure_conference_strings
+from tidy_conf.validation import log_dataframe_state
+from tidy_conf.validation import validate_dataframe
+from tidy_conf.validation import validate_merge_inputs
 
 
 class TestValidationConstants:
@@ -256,12 +254,14 @@ class TestValidateDataframe:
 
     def test_validate_valid_dataframe(self):
         """Test validation of a valid DataFrame."""
-        df = pd.DataFrame({
-            "conference": ["PyCon Test"],
-            "year": [2025],
-            "start": ["2025-06-01"],
-            "end": ["2025-06-03"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["PyCon Test"],
+                "year": [2025],
+                "start": ["2025-06-01"],
+                "end": ["2025-06-03"],
+            },
+        )
         is_valid, errors = validate_dataframe(df, "Test")
         assert is_valid is True
         assert len(errors) == 0
@@ -281,56 +281,66 @@ class TestValidateDataframe:
 
     def test_validate_missing_columns(self):
         """Test validation detects missing required columns."""
-        df = pd.DataFrame({
-            "conference": ["Test"],
-            # Missing: year, start, end
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                # Missing: year, start, end
+            },
+        )
         is_valid, errors = validate_dataframe(df, "Test")
         assert is_valid is False
         assert any("Missing required columns" in e for e in errors)
 
     def test_validate_non_string_conference(self):
         """Test validation detects non-string conference names."""
-        df = pd.DataFrame({
-            "conference": [123, 456],  # Numbers, not strings
-            "year": [2025, 2025],
-            "start": ["2025-06-01", "2025-07-01"],
-            "end": ["2025-06-03", "2025-07-03"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": [123, 456],  # Numbers, not strings
+                "year": [2025, 2025],
+                "start": ["2025-06-01", "2025-07-01"],
+                "end": ["2025-06-03", "2025-07-03"],
+            },
+        )
         is_valid, errors = validate_dataframe(df, "Test")
         assert is_valid is False
         assert any("not strings" in e for e in errors)
 
     def test_validate_empty_conference_names(self):
         """Test validation detects empty conference names."""
-        df = pd.DataFrame({
-            "conference": ["", "   "],  # Empty strings
-            "year": [2025, 2025],
-            "start": ["2025-06-01", "2025-07-01"],
-            "end": ["2025-06-03", "2025-07-03"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["", "   "],  # Empty strings
+                "year": [2025, 2025],
+                "start": ["2025-06-01", "2025-07-01"],
+                "end": ["2025-06-03", "2025-07-03"],
+            },
+        )
         is_valid, errors = validate_dataframe(df, "Test")
         assert is_valid is False
         assert any("empty" in e.lower() for e in errors)
 
     def test_validate_invalid_year(self):
         """Test validation detects invalid year values."""
-        df = pd.DataFrame({
-            "conference": ["Test"],
-            "year": ["not a year"],
-            "start": ["2025-06-01"],
-            "end": ["2025-06-03"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": ["not a year"],
+                "start": ["2025-06-01"],
+                "end": ["2025-06-03"],
+            },
+        )
         is_valid, errors = validate_dataframe(df, "Test")
         assert is_valid is False
         assert any("invalid year" in e.lower() for e in errors)
 
     def test_validate_custom_required_columns(self):
         """Test validation with custom required columns."""
-        df = pd.DataFrame({
-            "name": ["Test"],
-            "date": ["2025-06-01"],
-        })
+        df = pd.DataFrame(
+            {
+                "name": ["Test"],
+                "date": ["2025-06-01"],
+            },
+        )
         is_valid, errors = validate_dataframe(df, "Test", required_columns=["name", "date"])
         assert is_valid is True
 
@@ -340,18 +350,22 @@ class TestValidateMergeInputs:
 
     def test_validate_both_valid(self):
         """Test validation when both DataFrames are valid."""
-        df_yaml = pd.DataFrame({
-            "conference": ["PyCon Test"],
-            "year": [2025],
-            "start": ["2025-06-01"],
-            "end": ["2025-06-03"],
-        })
-        df_remote = pd.DataFrame({
-            "conference": ["DjangoCon Test"],
-            "year": [2025],
-            "start": ["2025-07-01"],
-            "end": ["2025-07-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["PyCon Test"],
+                "year": [2025],
+                "start": ["2025-06-01"],
+                "end": ["2025-06-03"],
+            },
+        )
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["DjangoCon Test"],
+                "year": [2025],
+                "start": ["2025-07-01"],
+                "end": ["2025-07-03"],
+            },
+        )
         is_valid, report = validate_merge_inputs(df_yaml, df_remote)
         assert is_valid is True
         assert report.source_yaml_count == 1
@@ -360,24 +374,28 @@ class TestValidateMergeInputs:
     def test_validate_yaml_invalid(self):
         """Test validation when YAML DataFrame is invalid."""
         df_yaml = pd.DataFrame()  # Empty
-        df_remote = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2025],
-            "start": ["2025-06-01"],
-            "end": ["2025-06-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2025],
+                "start": ["2025-06-01"],
+                "end": ["2025-06-03"],
+            },
+        )
         is_valid, report = validate_merge_inputs(df_yaml, df_remote)
         assert is_valid is False
         assert len(report.errors) > 0
 
     def test_validate_remote_invalid(self):
         """Test validation when remote DataFrame is invalid."""
-        df_yaml = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2025],
-            "start": ["2025-06-01"],
-            "end": ["2025-06-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2025],
+                "start": ["2025-06-01"],
+                "end": ["2025-06-03"],
+            },
+        )
         df_remote = pd.DataFrame()  # Empty
         is_valid, report = validate_merge_inputs(df_yaml, df_remote)
         assert is_valid is False
@@ -388,18 +406,22 @@ class TestValidateMergeInputs:
         existing_report = MergeReport()
         existing_report.add_warning("Previous warning")
 
-        df_yaml = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2025],
-            "start": ["2025-06-01"],
-            "end": ["2025-06-03"],
-        })
-        df_remote = pd.DataFrame({
-            "conference": ["Test2"],
-            "year": [2025],
-            "start": ["2025-07-01"],
-            "end": ["2025-07-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2025],
+                "start": ["2025-06-01"],
+                "end": ["2025-06-03"],
+            },
+        )
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Test2"],
+                "year": [2025],
+                "start": ["2025-07-01"],
+                "end": ["2025-07-03"],
+            },
+        )
 
         is_valid, report = validate_merge_inputs(df_yaml, df_remote, existing_report)
         assert is_valid is True
@@ -411,28 +433,34 @@ class TestEnsureConferenceStrings:
 
     def test_already_strings(self):
         """Test function handles already-string conference names."""
-        df = pd.DataFrame({
-            "conference": ["PyCon Test", "DjangoCon"],
-            "year": [2025, 2025],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["PyCon Test", "DjangoCon"],
+                "year": [2025, 2025],
+            },
+        )
         result = ensure_conference_strings(df, "Test")
         assert result["conference"].tolist() == ["PyCon Test", "DjangoCon"]
 
     def test_converts_numbers(self):
         """Test function converts numeric conference names to strings."""
-        df = pd.DataFrame({
-            "conference": [123, 456],
-            "year": [2025, 2025],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": [123, 456],
+                "year": [2025, 2025],
+            },
+        )
         result = ensure_conference_strings(df, "Test")
         assert result["conference"].tolist() == ["123", "456"]
 
     def test_handles_none_values(self):
         """Test function handles None/NaN conference names."""
-        df = pd.DataFrame({
-            "conference": [None, "Valid"],
-            "year": [2025, 2025],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": [None, "Valid"],
+                "year": [2025, 2025],
+            },
+        )
         result = ensure_conference_strings(df, "Test")
         # None should be replaced with placeholder
         assert "Unknown_Conference" in result.iloc[0]["conference"]
@@ -440,20 +468,24 @@ class TestEnsureConferenceStrings:
 
     def test_handles_missing_column(self):
         """Test function handles DataFrame without conference column."""
-        df = pd.DataFrame({
-            "year": [2025],
-            "place": ["Test City"],
-        })
+        df = pd.DataFrame(
+            {
+                "year": [2025],
+                "place": ["Test City"],
+            },
+        )
         result = ensure_conference_strings(df, "Test")
         # Should return unchanged
         assert "conference" not in result.columns
 
     def test_does_not_modify_original(self):
         """Test function returns copy, not modifying original."""
-        df = pd.DataFrame({
-            "conference": [123],
-            "year": [2025],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": [123],
+                "year": [2025],
+            },
+        )
         original_value = df.iloc[0]["conference"]
         result = ensure_conference_strings(df, "Test")
         # Original should be unchanged
@@ -467,10 +499,12 @@ class TestLogDataframeState:
 
     def test_logs_without_error(self):
         """Test that log_dataframe_state doesn't raise errors."""
-        df = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2025],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2025],
+            },
+        )
         # Should not raise any exceptions
         log_dataframe_state(df, "Test DataFrame")
 
@@ -482,8 +516,10 @@ class TestLogDataframeState:
 
     def test_logs_without_sample(self):
         """Test logging without sample data."""
-        df = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2025],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2025],
+            },
+        )
         log_dataframe_state(df, "Test", show_sample=False)

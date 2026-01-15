@@ -116,7 +116,7 @@ class TestFuzzyMatch:
         conference_names = merged["conference"].tolist()
         # Note: title mappings may transform names (e.g., "PyCon US" -> "PyCon USA")
         # Check that we have at least one conference in the result
-        assert len(conference_names) >= 1, f"Should have at least one conference in result"
+        assert len(conference_names) >= 1, "Should have at least one conference in result"
 
         # Verify fuzzy matching was attempted - remote should still be returned
         assert remote is not None, "Remote dataframe should be returned for further processing"

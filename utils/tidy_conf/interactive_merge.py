@@ -19,28 +19,23 @@ try:
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
-    from tidy_conf.validation import (
-        MergeRecord,
-        MergeReport,
-        ValidationError,
-        ensure_conference_strings,
-        log_dataframe_state,
-        validate_merge_inputs,
-    )
+    from tidy_conf.validation import MergeRecord
+    from tidy_conf.validation import MergeReport
+    from tidy_conf.validation import ValidationError
+    from tidy_conf.validation import ensure_conference_strings
+    from tidy_conf.validation import log_dataframe_state
+    from tidy_conf.validation import validate_merge_inputs
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
-    from .validation import (
-        MergeRecord,
-        MergeReport,
-        ValidationError,
-        ensure_conference_strings,
-        log_dataframe_state,
-        validate_merge_inputs,
-    )
+    from .validation import MergeRecord
+    from .validation import MergeReport
+    from .validation import ensure_conference_strings
+    from .validation import log_dataframe_state
+    from .validation import validate_merge_inputs
     from .yaml import load_title_mappings
     from .yaml import update_title_mappings
 
@@ -196,8 +191,7 @@ def fuzzy_match(df_yml, df_remote, report=None):
     all_exclusions = set()
     for name1, data in known_rejections.items():
         variations = data.get("variations", []) if isinstance(data, dict) else []
-        for name2 in variations:
-            all_exclusions.add(frozenset([name1, name2]))
+        all_exclusions.update(frozenset([name1, name2]) for name2 in variations)
 
     logger.debug(f"Loaded {len(all_exclusions)} rejection pairs from rejections.yml")
 
@@ -318,8 +312,10 @@ def fuzzy_match(df_yml, df_remote, report=None):
         logger.warning("Potential data loss detected - check merge report for details")
 
     logger.info("fuzzy_match completed successfully")
-    logger.info(f"Merge summary: {report.exact_matches} exact, {report.fuzzy_matches} fuzzy, "
-                f"{report.excluded_matches} excluded, {report.no_matches} no match")
+    logger.info(
+        f"Merge summary: {report.exact_matches} exact, {report.fuzzy_matches} fuzzy, "
+        f"{report.excluded_matches} excluded, {report.no_matches} no match",
+    )
 
     return df_new, df_remote, report
 

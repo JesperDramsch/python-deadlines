@@ -9,29 +9,22 @@ This module provides comprehensive tests that verify:
 
 import sys
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
-from tidy_conf.interactive_merge import (
-    FUZZY_MATCH_THRESHOLD,
-    MERGE_STRATEGY,
-    conference_scorer,
-    fuzzy_match,
-    is_placeholder_value,
-    merge_conferences,
-    resolve_conflict,
-)
-from tidy_conf.validation import (
-    MergeRecord,
-    MergeReport,
-    ensure_conference_strings,
-    validate_dataframe,
-    validate_merge_inputs,
-)
+from tidy_conf.interactive_merge import FUZZY_MATCH_THRESHOLD
+from tidy_conf.interactive_merge import MERGE_STRATEGY
+from tidy_conf.interactive_merge import conference_scorer
+from tidy_conf.interactive_merge import fuzzy_match
+from tidy_conf.interactive_merge import is_placeholder_value
+from tidy_conf.interactive_merge import resolve_conflict
+from tidy_conf.validation import MergeRecord
+from tidy_conf.validation import MergeReport
 
 
 class TestMergeStrategyConfiguration:
@@ -155,9 +148,9 @@ class TestConflictResolution:
 @pytest.fixture()
 def mock_title_mappings():
     """Mock title mappings for testing."""
-    with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load1, \
-         patch("tidy_conf.titles.load_title_mappings") as mock_load2, \
-         patch("tidy_conf.interactive_merge.update_title_mappings") as mock_update:
+    with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load1, patch(
+        "tidy_conf.titles.load_title_mappings",
+    ) as mock_load2, patch("tidy_conf.interactive_merge.update_title_mappings") as mock_update:
         mock_load1.return_value = ([], {})
         mock_load2.return_value = ([], {})
         mock_update.return_value = None
@@ -170,27 +163,31 @@ class TestPipelineIntegration:
     def test_full_pipeline_simple_case(self, mock_title_mappings):
         """Test full pipeline with simple matching case."""
         # Simulate YAML data (source of truth)
-        df_yaml = pd.DataFrame({
-            "conference": ["PyCon Test"],
-            "year": [2026],
-            "cfp": ["2026-02-15 23:59:00"],
-            "link": ["https://pycon-test.org"],
-            "place": ["Test City, USA"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-            "sub": ["PY"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["PyCon Test"],
+                "year": [2026],
+                "cfp": ["2026-02-15 23:59:00"],
+                "link": ["https://pycon-test.org"],
+                "place": ["Test City, USA"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+                "sub": ["PY"],
+            },
+        )
 
         # Simulate remote CSV data
-        df_remote = pd.DataFrame({
-            "conference": ["PyCon Test"],
-            "year": [2026],
-            "cfp": ["2026-02-15 23:59:00"],
-            "link": ["https://pycon-test.org/2026"],
-            "place": ["Test City, United States"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["PyCon Test"],
+                "year": [2026],
+                "cfp": ["2026-02-15 23:59:00"],
+                "link": ["https://pycon-test.org/2026"],
+                "place": ["Test City, United States"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         # Run fuzzy match
         result = fuzzy_match(df_yaml, df_remote)
@@ -208,25 +205,29 @@ class TestPipelineIntegration:
 
     def test_pipeline_with_new_conference(self, mock_title_mappings):
         """Test pipeline handles new conferences not in YAML."""
-        df_yaml = pd.DataFrame({
-            "conference": ["Existing Conference"],
-            "year": [2026],
-            "cfp": ["2026-02-15 23:59:00"],
-            "link": ["https://existing.org"],
-            "place": ["City A, USA"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["Existing Conference"],
+                "year": [2026],
+                "cfp": ["2026-02-15 23:59:00"],
+                "link": ["https://existing.org"],
+                "place": ["City A, USA"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["New Conference"],
-            "year": [2026],
-            "cfp": ["2026-03-15 23:59:00"],
-            "link": ["https://new.org"],
-            "place": ["City B, USA"],
-            "start": ["2026-07-01"],
-            "end": ["2026-07-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["New Conference"],
+                "year": [2026],
+                "cfp": ["2026-03-15 23:59:00"],
+                "link": ["https://new.org"],
+                "place": ["City B, USA"],
+                "start": ["2026-07-01"],
+                "end": ["2026-07-03"],
+            },
+        )
 
         result = fuzzy_match(df_yaml, df_remote)
         merged, remote, report = result
@@ -244,25 +245,29 @@ class TestPipelineIntegration:
         handled in the merge_conferences step. This test verifies the merge
         tracking works correctly even with TBA values.
         """
-        df_yaml = pd.DataFrame({
-            "conference": ["PyCon Enrich"],
-            "year": [2026],
-            "cfp": ["TBA"],  # Placeholder
-            "link": ["https://pycon.org"],
-            "place": ["TBA"],  # Placeholder
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["PyCon Enrich"],
+                "year": [2026],
+                "cfp": ["TBA"],  # Placeholder
+                "link": ["https://pycon.org"],
+                "place": ["TBA"],  # Placeholder
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["PyCon Enrich"],
-            "year": [2026],
-            "cfp": ["2026-02-15 23:59:00"],  # Real value
-            "link": ["https://pycon.org"],
-            "place": ["Denver, USA"],  # Real value
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["PyCon Enrich"],
+                "year": [2026],
+                "cfp": ["2026-02-15 23:59:00"],  # Real value
+                "link": ["https://pycon.org"],
+                "place": ["Denver, USA"],  # Real value
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         result = fuzzy_match(df_yaml, df_remote)
         merged, remote, report = result
@@ -276,33 +281,41 @@ class TestPipelineIntegration:
         """Test that exclusion pairs are respected."""
         with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load:
             # Mock exclusions including Austria/Australia
-            mock_load.return_value = ([], {
-                "PyCon Austria": {"variations": ["PyCon Australia"]},
-                "PyCon Australia": {"variations": ["PyCon Austria"]},
-            })
+            mock_load.return_value = (
+                [],
+                {
+                    "PyCon Austria": {"variations": ["PyCon Australia"]},
+                    "PyCon Australia": {"variations": ["PyCon Austria"]},
+                },
+            )
 
-            df_yaml = pd.DataFrame({
-                "conference": ["PyCon Austria"],
-                "year": [2026],
-                "cfp": ["2026-02-15 23:59:00"],
-                "link": ["https://pycon.at"],
-                "place": ["Vienna, Austria"],
-                "start": ["2026-06-01"],
-                "end": ["2026-06-03"],
-            })
+            df_yaml = pd.DataFrame(
+                {
+                    "conference": ["PyCon Austria"],
+                    "year": [2026],
+                    "cfp": ["2026-02-15 23:59:00"],
+                    "link": ["https://pycon.at"],
+                    "place": ["Vienna, Austria"],
+                    "start": ["2026-06-01"],
+                    "end": ["2026-06-03"],
+                },
+            )
 
-            df_remote = pd.DataFrame({
-                "conference": ["PyCon Australia"],
-                "year": [2026],
-                "cfp": ["2026-03-15 23:59:00"],
-                "link": ["https://pycon.org.au"],
-                "place": ["Sydney, Australia"],
-                "start": ["2026-08-01"],
-                "end": ["2026-08-03"],
-            })
+            df_remote = pd.DataFrame(
+                {
+                    "conference": ["PyCon Australia"],
+                    "year": [2026],
+                    "cfp": ["2026-03-15 23:59:00"],
+                    "link": ["https://pycon.org.au"],
+                    "place": ["Sydney, Australia"],
+                    "start": ["2026-08-01"],
+                    "end": ["2026-08-03"],
+                },
+            )
 
-            with patch("tidy_conf.titles.load_title_mappings", return_value=([], {})), \
-                 patch("tidy_conf.interactive_merge.update_title_mappings"):
+            with patch("tidy_conf.titles.load_title_mappings", return_value=([], {})), patch(
+                "tidy_conf.interactive_merge.update_title_mappings",
+            ):
                 result = fuzzy_match(df_yaml, df_remote)
                 merged, remote, report = result
 
@@ -311,25 +324,29 @@ class TestPipelineIntegration:
 
     def test_validation_before_merge(self, mock_title_mappings):
         """Test validation runs before merge."""
-        df_yaml = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2026],
-            "cfp": ["2026-02-15 23:59:00"],
-            "link": ["https://test.org"],
-            "place": ["Test City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2026],
+                "cfp": ["2026-02-15 23:59:00"],
+                "link": ["https://test.org"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["Test2"],
-            "year": [2026],
-            "cfp": ["2026-03-15 23:59:00"],
-            "link": ["https://test2.org"],
-            "place": ["Test City 2"],
-            "start": ["2026-07-01"],
-            "end": ["2026-07-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Test2"],
+                "year": [2026],
+                "cfp": ["2026-03-15 23:59:00"],
+                "link": ["https://test2.org"],
+                "place": ["Test City 2"],
+                "start": ["2026-07-01"],
+                "end": ["2026-07-03"],
+            },
+        )
 
         result = fuzzy_match(df_yaml, df_remote)
         merged, remote, report = result
@@ -344,25 +361,29 @@ class TestMergeReportIntegration:
 
     def test_report_tracks_all_matches(self, mock_title_mappings):
         """Test report tracks exact, fuzzy, and no matches."""
-        df_yaml = pd.DataFrame({
-            "conference": ["Exact Match", "No Match"],
-            "year": [2026, 2026],
-            "cfp": ["2026-02-15", "2026-03-15"],
-            "link": ["https://a.org", "https://b.org"],
-            "place": ["City A", "City B"],
-            "start": ["2026-06-01", "2026-07-01"],
-            "end": ["2026-06-03", "2026-07-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["Exact Match", "No Match"],
+                "year": [2026, 2026],
+                "cfp": ["2026-02-15", "2026-03-15"],
+                "link": ["https://a.org", "https://b.org"],
+                "place": ["City A", "City B"],
+                "start": ["2026-06-01", "2026-07-01"],
+                "end": ["2026-06-03", "2026-07-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["Exact Match", "Different Conf"],
-            "year": [2026, 2026],
-            "cfp": ["2026-02-15", "2026-04-15"],
-            "link": ["https://a.org", "https://c.org"],
-            "place": ["City A", "City C"],
-            "start": ["2026-06-01", "2026-08-01"],
-            "end": ["2026-06-03", "2026-08-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Exact Match", "Different Conf"],
+                "year": [2026, 2026],
+                "cfp": ["2026-02-15", "2026-04-15"],
+                "link": ["https://a.org", "https://c.org"],
+                "place": ["City A", "City C"],
+                "start": ["2026-06-01", "2026-08-01"],
+                "end": ["2026-06-03", "2026-08-03"],
+            },
+        )
 
         result = fuzzy_match(df_yaml, df_remote)
         merged, remote, report = result
@@ -370,35 +391,34 @@ class TestMergeReportIntegration:
         # Should have records for each input
         assert len(report.records) >= 2
         # Should count different match types
-        total_counted = (
-            report.exact_matches
-            + report.fuzzy_matches
-            + report.excluded_matches
-            + report.no_matches
-        )
+        total_counted = report.exact_matches + report.fuzzy_matches + report.excluded_matches + report.no_matches
         assert total_counted >= 2
 
     def test_report_summary_contains_all_info(self, mock_title_mappings):
         """Test report summary is comprehensive."""
-        df_yaml = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2026],
-            "cfp": ["2026-02-15"],
-            "link": ["https://test.org"],
-            "place": ["Test City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2026],
+                "cfp": ["2026-02-15"],
+                "link": ["https://test.org"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["Test"],
-            "year": [2026],
-            "cfp": ["2026-02-15"],
-            "link": ["https://test.org"],
-            "place": ["Test City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Test"],
+                "year": [2026],
+                "cfp": ["2026-02-15"],
+                "link": ["https://test.org"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         result = fuzzy_match(df_yaml, df_remote)
         merged, remote, report = result
@@ -417,25 +437,29 @@ class TestDataPreservation:
 
     def test_no_data_loss_simple_merge(self, mock_title_mappings):
         """Test no data loss in simple merge case."""
-        df_yaml = pd.DataFrame({
-            "conference": ["Conference Alpha", "Conference Beta"],
-            "year": [2026, 2026],
-            "cfp": ["2026-02-15 23:59:00", "2026-03-15 23:59:00"],
-            "link": ["https://alpha.org", "https://beta.org"],
-            "place": ["City Alpha", "City Beta"],
-            "start": ["2026-06-01", "2026-07-01"],
-            "end": ["2026-06-03", "2026-07-03"],
-        })
+        df_yaml = pd.DataFrame(
+            {
+                "conference": ["Conference Alpha", "Conference Beta"],
+                "year": [2026, 2026],
+                "cfp": ["2026-02-15 23:59:00", "2026-03-15 23:59:00"],
+                "link": ["https://alpha.org", "https://beta.org"],
+                "place": ["City Alpha", "City Beta"],
+                "start": ["2026-06-01", "2026-07-01"],
+                "end": ["2026-06-03", "2026-07-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["Conference Alpha"],  # Only one exact match
-            "year": [2026],
-            "cfp": ["2026-02-15 23:59:00"],
-            "link": ["https://alpha.org"],
-            "place": ["City Alpha"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Conference Alpha"],  # Only one exact match
+                "year": [2026],
+                "cfp": ["2026-02-15 23:59:00"],
+                "link": ["https://alpha.org"],
+                "place": ["City Alpha"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         # Mock user input to reject any fuzzy matches
         with patch("builtins.input", return_value="n"):
@@ -474,25 +498,29 @@ class TestRealWorldScenarios:
         with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load:
             mock_load.return_value = ([], {})
 
-            df_yaml = pd.DataFrame({
-                "conference": ["PyCon DE"],
-                "year": [2026],
-                "cfp": ["2026-02-15 23:59:00"],
-                "link": ["https://pycon.de"],
-                "place": ["Berlin, Germany"],
-                "start": ["2026-04-01"],
-                "end": ["2026-04-03"],
-            })
+            df_yaml = pd.DataFrame(
+                {
+                    "conference": ["PyCon DE"],
+                    "year": [2026],
+                    "cfp": ["2026-02-15 23:59:00"],
+                    "link": ["https://pycon.de"],
+                    "place": ["Berlin, Germany"],
+                    "start": ["2026-04-01"],
+                    "end": ["2026-04-03"],
+                },
+            )
 
-            df_remote = pd.DataFrame({
-                "conference": ["PyCon DE & PyData"],  # Common variant
-                "year": [2026],
-                "cfp": ["2026-02-15 23:59:00"],
-                "link": ["https://pycon.de"],
-                "place": ["Berlin, Germany"],
-                "start": ["2026-04-01"],
-                "end": ["2026-04-03"],
-            })
+            df_remote = pd.DataFrame(
+                {
+                    "conference": ["PyCon DE & PyData"],  # Common variant
+                    "year": [2026],
+                    "cfp": ["2026-02-15 23:59:00"],
+                    "link": ["https://pycon.de"],
+                    "place": ["Berlin, Germany"],
+                    "start": ["2026-04-01"],
+                    "end": ["2026-04-03"],
+                },
+            )
 
             # Check scorer recognizes these as similar
             score = conference_scorer("PyCon DE", "PyCon DE & PyData")
@@ -503,9 +531,9 @@ class TestRealWorldScenarios:
         pycon_variant_score = conference_scorer("PyCon US", "PyCon United States")
         djangocon_score = conference_scorer("PyCon US", "DjangoCon US")
         # DjangoCon should score lower than a PyCon variant
-        assert djangocon_score < pycon_variant_score, (
-            f"DjangoCon ({djangocon_score}) should score lower than PyCon variant ({pycon_variant_score})"
-        )
+        assert (
+            djangocon_score < pycon_variant_score
+        ), f"DjangoCon ({djangocon_score}) should score lower than PyCon variant ({pycon_variant_score})"
 
     def test_year_in_name_handling(self, mock_title_mappings):
         """Test conference names with years are handled correctly."""

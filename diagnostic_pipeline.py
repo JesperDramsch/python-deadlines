@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Diagnostic script to trace the conference data sync pipeline and identify breaks."""
 
-import sys
 import os
-import re
+import sys
 from pathlib import Path
 
 # Change to utils directory for proper imports
@@ -12,19 +11,25 @@ sys.path.insert(0, str(Path(__file__).parent / "utils"))
 
 import pandas as pd
 import yaml
-from thefuzz import fuzz, process
+from thefuzz import fuzz
+from thefuzz import process
+from tidy_conf.interactive_merge import FUZZY_MATCH_THRESHOLD
+from tidy_conf.interactive_merge import conference_scorer
 
 # Import our improved functions
-from tidy_conf.titles import tidy_df_names, expand_country_codes, COUNTRY_CODE_TO_NAME
-from tidy_conf.interactive_merge import conference_scorer, FUZZY_MATCH_THRESHOLD
+from tidy_conf.titles import COUNTRY_CODE_TO_NAME
+from tidy_conf.titles import tidy_df_names
+
 
 def print_header(title):
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(f" {title}")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
+
 
 def print_subheader(title):
     print(f"\n--- {title} ---\n")
+
 
 def print_df_info(df, name):
     """Print detailed DataFrame info."""
@@ -33,8 +38,9 @@ def print_df_info(df, name):
     print(f"  Columns: {df.columns.tolist()}")
     print(f"  Index type: {type(df.index).__name__}")
     print(f"  Index values (first 5): {df.index.tolist()[:5]}")
-    if 'conference' in df.columns:
+    if "conference" in df.columns:
         print(f"  Conference values (first 5): {df['conference'].tolist()[:5]}")
+
 
 # ============================================================================
 # STEP 1: LOAD RAW DATA
@@ -49,9 +55,9 @@ with Path("../_data/conferences.yml").open(encoding="utf-8") as file:
 df_yml = pd.DataFrame.from_dict(yaml_data)
 print(f"Loaded {len(df_yml)} conferences from YAML")
 print(f"Columns: {df_yml.columns.tolist()}")
-print(f"\nSample YAML conferences (2026):")
-df_yml_2026 = df_yml[df_yml['year'] == 2026]
-print(df_yml_2026[['conference', 'year', 'place']].to_string())
+print("\nSample YAML conferences (2026):")
+df_yml_2026 = df_yml[df_yml["year"] == 2026]
+print(df_yml_2026[["conference", "year", "place"]].to_string())
 
 # 1.2 Load CSV from GitHub
 print_subheader("1.2 Loading 2026 CSV from GitHub")
@@ -60,8 +66,8 @@ try:
     df_csv = pd.read_csv(csv_url)
     print(f"Loaded {len(df_csv)} conferences from CSV")
     print(f"Columns: {df_csv.columns.tolist()}")
-    print(f"\nSample CSV conferences:")
-    print(df_csv[['Subject', 'Location']].to_string())
+    print("\nSample CSV conferences:")
+    print(df_csv[["Subject", "Location"]].to_string())
 except Exception as e:
     print(f"ERROR loading CSV: {e}")
     df_csv = pd.DataFrame()
@@ -70,6 +76,7 @@ except Exception as e:
 # STEP 2: COLUMN MAPPING
 # ============================================================================
 print_header("STEP 2: COLUMN MAPPING (CSV -> Schema)")
+
 
 def map_columns(df):
     """Map columns between CSV format and conference schema."""
@@ -86,13 +93,14 @@ def map_columns(df):
     df["place"] = df["Location"]
     return df.rename(columns=cols)
 
+
 df_csv_mapped = map_columns(df_csv.copy())
 df_csv_mapped["year"] = 2026
 
 print("After column mapping:")
 print(f"Columns: {df_csv_mapped.columns.tolist()}")
-print(f"\nConference names from CSV:")
-print(df_csv_mapped[['conference', 'place']].to_string())
+print("\nConference names from CSV:")
+print(df_csv_mapped[["conference", "place"]].to_string())
 
 # ============================================================================
 # STEP 3: TITLE NORMALIZATION (tidy_df_names) - MANUAL VERSION
@@ -116,11 +124,10 @@ rejections_alt_names = rejections_data.get("alt_name", {})
 exclusions = set()
 for name1, data in rejections_alt_names.items():
     variations = data.get("variations", []) if isinstance(data, dict) else []
-    for name2 in variations:
-        exclusions.add(frozenset([name1, name2]))
+    exclusions.update(frozenset([name1, name2]) for name2 in variations)
 
 print(f"Loaded {len(exclusions)} rejection pairs from rejections.yml:")
-for pair in sorted(exclusions, key=lambda x: sorted(x)[0]):
+for pair in sorted(exclusions, key=lambda x: min(x)):
     names = sorted(list(pair))
     print(f"  - '{names[0]}' <-> '{names[1]}'")
 
@@ -150,9 +157,10 @@ for k, v in list(known_mappings.items())[:15]:
 # Show the country code expansion feature
 print(f"Loaded {len(COUNTRY_CODE_TO_NAME)} country code mappings")
 print("Sample country codes:")
-for code in ['US', 'DE', 'PL', 'AU', 'AT', 'UK', 'JP', 'KR']:
+for code in ["US", "DE", "PL", "AU", "AT", "UK", "JP", "KR"]:
     if code in COUNTRY_CODE_TO_NAME:
         print(f"  {code} -> {COUNTRY_CODE_TO_NAME[code]}")
+
 
 # Apply tidy_df_names verbose to show before/after
 def tidy_df_names_verbose(df, source_name):
@@ -164,11 +172,12 @@ def tidy_df_names_verbose(df, source_name):
 
     # Show transformations
     print(f"\n{source_name} Transformations:")
-    for orig, final in zip(original, df_tidy["conference"]):
+    for orig, final in zip(original, df_tidy["conference"], strict=False):
         changed = " [CHANGED]" if orig != final else ""
         print(f"  '{orig}' -> '{final}'{changed}")
 
     return df_tidy
+
 
 print_subheader("3.1 YAML Conference Names (before/after)")
 df_yml_2026_tidy = tidy_df_names_verbose(df_yml_2026.copy(), "YAML")
@@ -182,8 +191,8 @@ df_csv_tidy = tidy_df_names_verbose(df_csv_mapped.copy(), "CSV")
 print_header("STEP 4: FUZZY MATCHING ANALYSIS")
 
 # Get unique conference names from each source
-yml_names = df_yml_2026_tidy['conference'].unique().tolist()
-csv_names = df_csv_tidy['conference'].unique().tolist()
+yml_names = df_yml_2026_tidy["conference"].unique().tolist()
+csv_names = df_csv_tidy["conference"].unique().tolist()
 
 print(f"YAML conference names AFTER tidy ({len(yml_names)}):")
 for name in sorted(yml_names):
@@ -217,12 +226,7 @@ for csv_name in csv_names:
         best_match, best_score = None, 0
 
     status = "EXACT" if best_score == 100 else "FUZZY" if best_score >= FUZZY_MATCH_THRESHOLD else "NO MATCH"
-    match_results.append({
-        'csv_name': csv_name,
-        'best_match': best_match,
-        'score': best_score,
-        'status': status
-    })
+    match_results.append({"csv_name": csv_name, "best_match": best_match, "score": best_score, "status": status})
 
     print(f"\nCSV: '{csv_name}'")
     for match_tuple in matches:
@@ -249,28 +253,32 @@ for csv_name in csv_names:
 print_header("STEP 5: PROBLEM CASES ANALYSIS")
 
 print_subheader(f"5.1 Conferences that SHOULD match but DON'T (score < {FUZZY_MATCH_THRESHOLD})")
-no_match = [r for r in match_results if r['score'] < FUZZY_MATCH_THRESHOLD]
+no_match = [r for r in match_results if r["score"] < FUZZY_MATCH_THRESHOLD]
 if no_match:
     for r in no_match:
-        print(f"\n*** PROBLEM: CSV conference has no YAML match ***")
+        print("\n*** PROBLEM: CSV conference has no YAML match ***")
         print(f"CSV: '{r['csv_name']}'")
         print(f"  Best YAML match: '{r['best_match']}' (score: {r['score']})")
 
         # Analyze why they don't match
-        csv_n = r['csv_name']
-        yml_n = r['best_match']
+        csv_n = r["csv_name"]
+        yml_n = r["best_match"]
 
         # Different fuzzy scoring methods
-        print(f"\n  Detailed similarity scores:")
+        print("\n  Detailed similarity scores:")
         print(f"    - ratio: {fuzz.ratio(csv_n, yml_n)}")
         print(f"    - partial_ratio: {fuzz.partial_ratio(csv_n, yml_n)}")
         print(f"    - token_sort_ratio: {fuzz.token_sort_ratio(csv_n, yml_n)}")
         print(f"    - token_set_ratio: {fuzz.token_set_ratio(csv_n, yml_n)}")
 
         # Check what the original names were
-        print(f"\n  Original names before tidy:")
-        csv_orig = df_csv_mapped[df_csv_mapped['conference'].str.contains(csv_n.split()[0], case=False, na=False)]['conference'].values
-        yml_orig = df_yml_2026[df_yml_2026['conference'].str.contains(yml_n.split()[0], case=False, na=False)]['conference'].values
+        print("\n  Original names before tidy:")
+        csv_orig = df_csv_mapped[df_csv_mapped["conference"].str.contains(csv_n.split()[0], case=False, na=False)][
+            "conference"
+        ].values
+        yml_orig = df_yml_2026[df_yml_2026["conference"].str.contains(yml_n.split()[0], case=False, na=False)][
+            "conference"
+        ].values
         print(f"    CSV original: {csv_orig}")
         print(f"    YAML original: {yml_orig}")
 else:
@@ -279,8 +287,8 @@ else:
 print_subheader("5.2 Conferences in YAML without CSV match")
 yml_in_csv = set()
 for r in match_results:
-    if r['score'] >= FUZZY_MATCH_THRESHOLD:
-        yml_in_csv.add(r['best_match'])
+    if r["score"] >= FUZZY_MATCH_THRESHOLD:
+        yml_in_csv.add(r["best_match"])
 
 yml_no_csv = set(yml_names) - yml_in_csv
 if yml_no_csv:
@@ -300,8 +308,8 @@ print_subheader("5.3 Checking Title Mappings Coverage")
 # Check if problematic names are in the mappings
 print("\nChecking if problem cases are covered in titles.yml:")
 for r in no_match:
-    csv_name = r['csv_name']
-    yml_name = r['best_match']
+    csv_name = r["csv_name"]
+    yml_name = r["best_match"]
 
     # Check if either name is in the mappings
     csv_in_mappings = csv_name in known_mappings
@@ -351,16 +359,16 @@ for i, row in df_test.iterrows():
     if row["title_match"]:
         match_tuple = row["title_match"][0]
         title, prob = (match_tuple[0], match_tuple[1]) if len(match_tuple) >= 2 else (match_tuple, 0)
-        conference_name = row['conference']
+        conference_name = row["conference"]
 
         # Check exclusions first
         is_pair_excluded = frozenset([conference_name, title]) in exclusions
 
         if is_pair_excluded:
-            status = "EXCLUDED -> title_match = '{}' (exclusion rule applied)".format(conference_name)
+            status = f"EXCLUDED -> title_match = '{conference_name}' (exclusion rule applied)"
             resolved = conference_name
         elif prob == 100:
-            status = "EXACT -> title_match = '{}'".format(title)
+            status = f"EXACT -> title_match = '{title}'"
             resolved = title
         elif prob >= FUZZY_MATCH_THRESHOLD:
             status = f"FUZZY (>={FUZZY_MATCH_THRESHOLD}) -> Would prompt user, assuming 'yes'"
@@ -386,8 +394,8 @@ if no_match:
 
     print("\n*** ROOT CAUSE ANALYSIS ***")
     for r in no_match:
-        csv_name = r['csv_name']
-        yml_name = r['best_match']
+        csv_name = r["csv_name"]
+        yml_name = r["best_match"]
 
         # What would need to be in titles.yml to fix this
         print(f"\n1. The name '{csv_name}' from CSV")
@@ -400,9 +408,9 @@ if no_match:
             print(f"   Note: '{yml_name}' is NOT in any mapping")
 
         # Suggest fix
-        print(f"\n   SUGGESTED FIX - Add to titles.yml:")
+        print("\n   SUGGESTED FIX - Add to titles.yml:")
         print(f"   {yml_name}:")
-        print(f"     variations:")
+        print("     variations:")
         print(f"       - {csv_name}")
 else:
     print("No major breaks detected in fuzzy matching phase.")
@@ -413,9 +421,9 @@ else:
 # ============================================================================
 print_header("STEP 8: SUMMARY AND NEXT STEPS")
 
-exact_matches = len([r for r in match_results if r['score'] == 100])
-fuzzy_matches = len([r for r in match_results if FUZZY_MATCH_THRESHOLD <= r['score'] < 100])
-no_matches = len([r for r in match_results if r['score'] < FUZZY_MATCH_THRESHOLD])
+exact_matches = len([r for r in match_results if r["score"] == 100])
+fuzzy_matches = len([r for r in match_results if FUZZY_MATCH_THRESHOLD <= r["score"] < 100])
+no_matches = len([r for r in match_results if r["score"] < FUZZY_MATCH_THRESHOLD])
 
 print("Match Statistics:")
 print(f"  - Exact matches (100%): {exact_matches}")
