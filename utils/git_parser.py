@@ -99,7 +99,7 @@ class GitCommitParser:
         """Implementation remains unchanged."""
         try:
             result = subprocess.run(
-                ["git", *command],  # noqa: S607
+                ["git", *command],  # noqa: S603, S607
                 cwd=self.repo_path,
                 capture_output=True,
                 text=True,
