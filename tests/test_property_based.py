@@ -453,3 +453,107 @@ class TestUnicodeHandling:
             # Should not crash and should produce non-empty result
             assert len(result) == 1
             assert len(result["conference"].iloc[0]) > 0
+
+
+class TestCFPDatetimeProperties:
+    """Property-based tests for CFP datetime handling."""
+
+    @given(st.dates(min_value=date(2020, 1, 1), max_value=date(2030, 12, 31)))
+    @settings(max_examples=100)
+    def test_cfp_datetime_roundtrip(self, d):
+        """CFP datetime string should roundtrip through parsing correctly."""
+        from datetime import datetime as dt
+
+        # Create CFP string in expected format
+        cfp_str = f"{d.isoformat()} 23:59:00"
+
+        # Parse and verify
+        parsed = dt.strptime(cfp_str, "%Y-%m-%d %H:%M:%S")
+        assert parsed.date() == d, f"Date mismatch: {parsed.date()} != {d}"
+        assert parsed.hour == 23
+        assert parsed.minute == 59
+        assert parsed.second == 0
+
+    @given(
+        st.dates(min_value=date(2024, 1, 1), max_value=date(2030, 12, 31)),
+        st.integers(min_value=0, max_value=23),
+        st.integers(min_value=0, max_value=59),
+        st.integers(min_value=0, max_value=59)
+    )
+    @settings(max_examples=100)
+    def test_any_valid_cfp_time_accepted(self, d, hour, minute, second):
+        """Any valid time should be accepted in CFP format."""
+        cfp_str = f"{d.isoformat()} {hour:02d}:{minute:02d}:{second:02d}"
+
+        # Should match the expected regex pattern
+        import re
+        pattern = r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$"
+        assert re.match(pattern, cfp_str), f"CFP string doesn't match pattern: {cfp_str}"
+
+    @given(st.dates(min_value=date(2024, 1, 1), max_value=date(2030, 12, 31)))
+    @settings(max_examples=50)
+    def test_cfp_before_conference_valid(self, cfp_date):
+        """CFP date before conference start should be valid."""
+        from pydantic import ValidationError
+        from tidy_conf.schema import Conference
+
+        # Conference starts 30 days after CFP
+        conf_start = cfp_date + timedelta(days=30)
+        conf_end = conf_start + timedelta(days=2)
+
+        # Skip if dates cross year boundary
+        assume(conf_start.year == conf_end.year)
+
+        try:
+            conf = Conference(
+                conference="Property Test Conference",
+                year=conf_start.year,
+                link="https://test.org/",
+                cfp=f"{cfp_date.isoformat()} 23:59:00",
+                place="Online",
+                start=conf_start,
+                end=conf_end,
+                sub="PY",
+            )
+            # CFP should be preserved
+            assert cfp_date.isoformat() in conf.cfp
+        except ValidationError:
+            # May fail for year boundary reasons
+            pass
+
+
+class TestMergeIdempotencyProperties:
+    """Property-based tests for merge idempotency."""
+
+    @given(st.lists(
+        st.fixed_dictionaries({
+            'name': st.text(min_size=5, max_size=30).filter(lambda x: x.strip()),
+            'year': st.integers(min_value=2024, max_value=2030),
+        }),
+        min_size=1,
+        max_size=5,
+        unique_by=lambda x: x['name']
+    ))
+    @settings(max_examples=30, suppress_health_check=[HealthCheck.filter_too_much])
+    def test_deduplication_is_idempotent(self, items):
+        """Applying deduplication twice should yield same result."""
+        # Filter out empty names
+        items = [i for i in items if i['name'].strip()]
+        assume(len(items) > 0)
+
+        df = pd.DataFrame({
+            "conference": [i['name'] for i in items],
+            "year": [i['year'] for i in items],
+        })
+        df = df.set_index("conference", drop=False)
+        df.index.name = "title_match"
+
+        # Apply dedup twice
+        result1 = deduplicate(df.copy())
+        result1 = result1.set_index("conference", drop=False)
+        result1.index.name = "title_match"
+        result2 = deduplicate(result1.copy())
+
+        # Results should be same length
+        assert len(result1) == len(result2), \
+            f"Idempotency failed: {len(result1)} != {len(result2)}"

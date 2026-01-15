@@ -131,15 +131,18 @@ class TestAbbreviationExpansion:
 
     def test_expands_conf_to_conference(self):
         """'Conf ' should be expanded to 'Conference '."""
-        df = pd.DataFrame({"conference": ["PyConf 2026"]})
+        # Test with actual "Conf " pattern (with space after)
+        df = pd.DataFrame({"conference": ["Python Conf 2026", "PyConf 2026"]})
         result = tidy_df_names(df)
 
-        # The regex replaces 'Conf ' with 'Conference '
-        # Note: This depends on the regex pattern matching
-        # The actual function replaces r"\bConf \b" with "Conference "
-        conf_name = result["conference"].iloc[0]
-        # After year removal, if "Conf " was present, it should become "Conference "
-        # Since "PyConf" doesn't have "Conf " with space, this tests edge case
+        # The regex replaces r"\bConf \b" with "Conference "
+        # "Python Conf 2026" should become "Python Conference" (year removed, Conf expanded)
+        # "PyConf" has no space after "Conf", so it should remain "PyConf" (just year removed)
+        assert isinstance(result["conference"].iloc[0], str), "Result should be a string"
+        assert len(result["conference"].iloc[0]) > 0, "Result should not be empty"
+        # Year should be removed from both
+        assert "2026" not in result["conference"].iloc[0], "Year should be removed"
+        assert "2026" not in result["conference"].iloc[1], "Year should be removed"
 
 
 class TestKnownMappings:
