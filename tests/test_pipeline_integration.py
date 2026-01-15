@@ -145,7 +145,7 @@ class TestConflictResolution:
         assert reason == "yaml_preferred"
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_title_mappings():
     """Mock title mappings for testing."""
     with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load1, patch(
@@ -192,7 +192,7 @@ class TestPipelineIntegration:
         # Run fuzzy match
         result = fuzzy_match(df_yaml, df_remote)
         assert len(result) == 3, "fuzzy_match should return 3-tuple"
-        merged, remote, report = result
+        merged, _remote, report = result
 
         # Verify merge report
         assert isinstance(report, MergeReport)
@@ -230,7 +230,7 @@ class TestPipelineIntegration:
         )
 
         result = fuzzy_match(df_yaml, df_remote)
-        merged, remote, report = result
+        merged, remote, _report = result
 
         # New conference should be in remote (unmatched)
         assert "New Conference" in remote["conference"].tolist()
@@ -270,7 +270,7 @@ class TestPipelineIntegration:
         )
 
         result = fuzzy_match(df_yaml, df_remote)
-        merged, remote, report = result
+        merged, _remote, report = result
 
         # Verify merge completed and report tracked the match
         assert report.exact_matches >= 1
@@ -317,7 +317,7 @@ class TestPipelineIntegration:
                 "tidy_conf.interactive_merge.update_title_mappings",
             ):
                 result = fuzzy_match(df_yaml, df_remote)
-                merged, remote, report = result
+                _merged, _remote, report = result
 
                 # Both should remain separate (not merged)
                 assert report.excluded_matches >= 1 or report.no_matches >= 1
@@ -349,7 +349,7 @@ class TestPipelineIntegration:
         )
 
         result = fuzzy_match(df_yaml, df_remote)
-        merged, remote, report = result
+        _merged, _remote, report = result
 
         # Report should have source counts
         assert report.source_yaml_count == 1
@@ -386,7 +386,7 @@ class TestMergeReportIntegration:
         )
 
         result = fuzzy_match(df_yaml, df_remote)
-        merged, remote, report = result
+        _merged, _remote, report = result
 
         # Should have records for each input
         assert len(report.records) >= 2
@@ -421,7 +421,7 @@ class TestMergeReportIntegration:
         )
 
         result = fuzzy_match(df_yaml, df_remote)
-        merged, remote, report = result
+        _merged, _remote, report = result
 
         summary = report.summary()
 
@@ -464,7 +464,7 @@ class TestDataPreservation:
         # Mock user input to reject any fuzzy matches
         with patch("builtins.input", return_value="n"):
             result = fuzzy_match(df_yaml, df_remote)
-            merged, remote, report = result
+            merged, _remote, _report = result
 
         # Both YAML conferences should be in output
         conf_names = merged["conference"].tolist()
@@ -495,36 +495,9 @@ class TestRealWorldScenarios:
 
     def test_pycon_variants_match(self, mock_title_mappings):
         """Test common PyCon naming variants match correctly."""
-        with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load:
-            mock_load.return_value = ([], {})
-
-            df_yaml = pd.DataFrame(
-                {
-                    "conference": ["PyCon DE"],
-                    "year": [2026],
-                    "cfp": ["2026-02-15 23:59:00"],
-                    "link": ["https://pycon.de"],
-                    "place": ["Berlin, Germany"],
-                    "start": ["2026-04-01"],
-                    "end": ["2026-04-03"],
-                },
-            )
-
-            df_remote = pd.DataFrame(
-                {
-                    "conference": ["PyCon DE & PyData"],  # Common variant
-                    "year": [2026],
-                    "cfp": ["2026-02-15 23:59:00"],
-                    "link": ["https://pycon.de"],
-                    "place": ["Berlin, Germany"],
-                    "start": ["2026-04-01"],
-                    "end": ["2026-04-03"],
-                },
-            )
-
-            # Check scorer recognizes these as similar
-            score = conference_scorer("PyCon DE", "PyCon DE & PyData")
-            assert score >= 70, f"PyCon DE variants should score >= 70, got {score}"
+        # Check scorer recognizes these as similar
+        score = conference_scorer("PyCon DE", "PyCon DE & PyData")
+        assert score >= 70, f"PyCon DE variants should score >= 70, got {score}"
 
     def test_djangocon_scores_lower_than_pycon_variant(self, mock_title_mappings):
         """Test DjangoCon scores lower than PyCon variants."""

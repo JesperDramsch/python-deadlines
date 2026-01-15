@@ -341,7 +341,7 @@ class TestValidateDataframe:
                 "date": ["2025-06-01"],
             },
         )
-        is_valid, errors = validate_dataframe(df, "Test", required_columns=["name", "date"])
+        is_valid, _errors = validate_dataframe(df, "Test", required_columns=["name", "date"])
         assert is_valid is True
 
 

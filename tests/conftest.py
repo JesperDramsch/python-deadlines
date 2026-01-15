@@ -4,7 +4,7 @@ import pytest
 import yaml
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_conference():
     """Sample valid conference data for testing."""
     return {
@@ -27,7 +27,7 @@ def sample_conference():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def invalid_conference():
     """Sample invalid conference data for testing validation."""
     return {
@@ -42,7 +42,7 @@ def invalid_conference():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_yaml_file(tmp_path):
     """Create a temporary YAML file for testing."""
 
@@ -56,7 +56,7 @@ def temp_yaml_file(tmp_path):
     return _create_yaml_file
 
 
-@pytest.fixture()
+@pytest.fixture
 def online_conference():
     """Sample online conference data for testing."""
     return {
@@ -72,7 +72,7 @@ def online_conference():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def sample_csv_data():
     """Sample CSV data for import testing."""
     return """Conference Name,Year,Website,CFP Deadline,Location,Start Date,End Date,Type

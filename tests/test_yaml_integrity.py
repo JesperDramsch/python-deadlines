@@ -17,7 +17,7 @@ from tidy_conf.schema import Conference
 class TestYAMLIntegrity:
     """Test YAML file integrity and structure."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def data_files(self):
         """Get paths to data files."""
         project_root = Path(__file__).parent.parent
@@ -168,7 +168,7 @@ class TestYAMLIntegrity:
 class TestDataConsistency:
     """Test data consistency across files."""
 
-    @pytest.fixture()
+    @pytest.fixture
     def all_conference_data(self):
         """Load all conference data."""
         project_root = Path(__file__).parent.parent

@@ -331,9 +331,8 @@ def main(year=None, base="") -> bool:
             with Path("missing_conferences.txt").open("a") as f:
                 f.write(out + "\n\n")
             Path(".tmp").mkdir(exist_ok=True, parents=True)
-            with Path(".tmp", f"{reverse_title}.ics".lower().replace(" ", "-")).open("w") as f:
-                f.write(
-                    f"""BEGIN:VCALENDAR
+            Path(".tmp", f"{reverse_title}.ics".lower().replace(" ", "-")).write_text(
+                f"""BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:{reverse_title}
@@ -342,8 +341,8 @@ DTEND;VALUE=DATE:{row["end"].strftime("%Y%m%d")}
 DESCRIPTION:<a href="{row.link}">{ reverse_title }</a>
 LOCATION:{ row.place }
 END:VEVENT
-END:VCALENDAR""",
-                )
+END:VCALENDAR"""
+            )
             processed_years += 1
 
         logger.info(f"Fuzzy matching complete: processed {processed_years} years")

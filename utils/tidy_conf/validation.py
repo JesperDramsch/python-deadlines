@@ -165,7 +165,9 @@ class MergeReport:
 
 
 def validate_dataframe(
-    df: pd.DataFrame, source_name: str, required_columns: list | None = None,
+    df: pd.DataFrame,
+    source_name: str,
+    required_columns: list | None = None,
 ) -> tuple[bool, list[str]]:
     """Validate a DataFrame has expected columns and data types.
 
@@ -231,7 +233,9 @@ def validate_dataframe(
 
 
 def validate_merge_inputs(
-    df_yaml: pd.DataFrame, df_remote: pd.DataFrame, report: MergeReport | None = None,
+    df_yaml: pd.DataFrame,
+    df_remote: pd.DataFrame,
+    report: MergeReport | None = None,
 ) -> tuple[bool, MergeReport]:
     """Validate both DataFrames before merging.
 

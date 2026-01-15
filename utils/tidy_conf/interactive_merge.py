@@ -21,7 +21,6 @@ try:
     from tidy_conf.utils import query_yes_no
     from tidy_conf.validation import MergeRecord
     from tidy_conf.validation import MergeReport
-    from tidy_conf.validation import ValidationError
     from tidy_conf.validation import ensure_conference_strings
     from tidy_conf.validation import log_dataframe_state
     from tidy_conf.validation import validate_merge_inputs

@@ -14,7 +14,7 @@ from tidy_conf.interactive_merge import fuzzy_match
 from tidy_conf.interactive_merge import merge_conferences
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_title_mappings():
     """Mock the title mappings to avoid file I/O issues.
 
@@ -67,7 +67,7 @@ class TestFuzzyMatch:
         # fuzzy_match now returns 3-tuple: (merged, remote, report)
         result = fuzzy_match(df_yml, df_csv)
         if len(result) == 3:
-            merged, _remote, report = result
+            merged, _remote, _report = result
         else:
             merged, _remote = result
 
@@ -105,7 +105,7 @@ class TestFuzzyMatch:
         with patch("builtins.input", return_value="y"):  # Simulate user accepting the match
             result = fuzzy_match(df_yml, df_csv)
             if len(result) == 3:
-                merged, remote, report = result
+                merged, remote, _report = result
             else:
                 merged, remote = result
 
@@ -149,7 +149,7 @@ class TestFuzzyMatch:
 
         result = fuzzy_match(df_yml, df_csv)
         if len(result) == 3:
-            merged, remote, report = result
+            merged, remote, _report = result
         else:
             merged, remote = result
 
