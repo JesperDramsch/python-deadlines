@@ -507,3 +507,94 @@ class TestDataPreservation:
             if len(yaml_rows) > 0:
                 assert pd.notna(yaml_rows["mastodon"].iloc[0]), \
                     "Extra YAML field (mastodon) should be preserved"
+
+
+# ---------------------------------------------------------------------------
+# Property-based tests using Hypothesis
+# ---------------------------------------------------------------------------
+
+# Import shared strategies from hypothesis_strategies module
+sys.path.insert(0, str(Path(__file__).parent))
+from hypothesis_strategies import HYPOTHESIS_AVAILABLE
+
+if HYPOTHESIS_AVAILABLE:
+    from hypothesis import HealthCheck, assume, given, settings
+    from hypothesis import strategies as st
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestFuzzyMatchProperties:
+    """Property-based tests for fuzzy matching."""
+
+    @given(st.lists(st.text(min_size=5, max_size=30), min_size=1, max_size=5, unique=True))
+    @settings(max_examples=50, suppress_health_check=[HealthCheck.filter_too_much])
+    def test_fuzzy_match_preserves_all_yaml_entries(self, names):
+        """All YAML entries should appear in result (no silent data loss)."""
+        # Filter out empty or whitespace-only names
+        names = [n for n in names if len(n.strip()) > 3]
+        assume(len(names) > 0)
+
+        with patch("tidy_conf.interactive_merge.load_title_mappings") as mock1, \
+             patch("tidy_conf.titles.load_title_mappings") as mock2, \
+             patch("tidy_conf.interactive_merge.update_title_mappings"):
+            mock1.return_value = ([], {})
+            mock2.return_value = ([], {})
+
+            df_yml = pd.DataFrame({
+                "conference": names,
+                "year": [2026] * len(names),
+                "cfp": ["2026-01-15 23:59:00"] * len(names),
+                "link": [f"https://conf{i}.org/" for i in range(len(names))],
+                "place": ["Test City"] * len(names),
+                "start": ["2026-06-01"] * len(names),
+                "end": ["2026-06-03"] * len(names),
+            })
+
+            df_remote = pd.DataFrame(
+                columns=["conference", "year", "cfp", "link", "place", "start", "end"]
+            )
+
+            result, _ = fuzzy_match(df_yml, df_remote)
+
+            # All input conferences should be in result
+            assert len(result) >= len(names), \
+                f"Expected at least {len(names)} results, got {len(result)}"
+
+    @given(st.text(min_size=10, max_size=50))
+    @settings(max_examples=30)
+    def test_exact_match_always_scores_100(self, name):
+        """Identical names should always match perfectly."""
+        assume(len(name.strip()) > 5)
+
+        with patch("tidy_conf.interactive_merge.load_title_mappings") as mock1, \
+             patch("tidy_conf.titles.load_title_mappings") as mock2, \
+             patch("tidy_conf.interactive_merge.update_title_mappings"):
+            mock1.return_value = ([], {})
+            mock2.return_value = ([], {})
+
+            df_yml = pd.DataFrame({
+                "conference": [name],
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],
+                "link": ["https://test.org/"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            })
+
+            df_remote = pd.DataFrame({
+                "conference": [name],  # Same name
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],
+                "link": ["https://other.org/"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            })
+
+            # No user prompts should be needed for exact match
+            with patch("builtins.input", side_effect=AssertionError("Should not prompt")):
+                result, _ = fuzzy_match(df_yml, df_remote)
+
+            # Should be merged (1 result, not 2)
+            assert len(result) == 1, f"Exact match should merge, got {len(result)} results"

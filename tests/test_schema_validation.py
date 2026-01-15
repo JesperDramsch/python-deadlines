@@ -404,3 +404,55 @@ class TestSchemaRegressions:
         conf = Conference(**sample_conference)
         assert conf.start == date(2025, 6, 1)
         assert conf.end == date(2025, 6, 3)
+
+
+# ---------------------------------------------------------------------------
+# Property-based tests using Hypothesis
+# ---------------------------------------------------------------------------
+
+# Import shared strategies from hypothesis_strategies module
+sys.path.insert(0, str(Path(__file__).parent))
+from hypothesis_strategies import HYPOTHESIS_AVAILABLE, valid_latitude, valid_longitude
+
+if HYPOTHESIS_AVAILABLE:
+    from hypothesis import HealthCheck, assume, given, settings
+    from hypothesis import strategies as st
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestCoordinateProperties:
+    """Property-based tests for coordinate validation."""
+
+    @given(valid_latitude, valid_longitude)
+    @settings(max_examples=100)
+    def test_valid_coordinates_accepted(self, lat, lon):
+        """Valid coordinates within bounds should be accepted."""
+        # Skip coordinates that are specifically rejected by the schema
+        special_invalid = [
+            (0.0, 0.0),  # Origin
+            (44.93796, 7.54012),  # 'None' location
+            (43.59047, 3.85951),  # 'Online' location
+        ]
+
+        for inv_lat, inv_lon in special_invalid:
+            if abs(lat - inv_lat) < 0.0001 and abs(lon - inv_lon) < 0.0001:
+                assume(False)
+
+        # Should be accepted
+        location = Location(title="Test", latitude=lat, longitude=lon)
+        assert location.latitude == lat
+        assert location.longitude == lon
+
+    @given(st.floats(min_value=91, max_value=1000, allow_nan=False))
+    @settings(max_examples=30)
+    def test_invalid_latitude_rejected(self, lat):
+        """Latitude > 90 should be rejected."""
+        with pytest.raises(ValidationError):
+            Location(title="Test", latitude=lat, longitude=0)
+
+    @given(st.floats(min_value=181, max_value=1000, allow_nan=False))
+    @settings(max_examples=30)
+    def test_invalid_longitude_rejected(self, lon):
+        """Longitude > 180 should be rejected."""
+        with pytest.raises(ValidationError):
+            Location(title="Test", latitude=0.1, longitude=lon)

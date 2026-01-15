@@ -570,3 +570,103 @@ class TestRegressionPreservesYAMLDetails:
             if "23:59" in cfp_val:
                 assert "23:59" in cfp_val, \
                     f"CFP time should be preserved, got: {cfp_val}"
+
+
+# ---------------------------------------------------------------------------
+# Property-based tests using Hypothesis
+# ---------------------------------------------------------------------------
+
+# Import shared strategies from hypothesis_strategies module
+sys.path.insert(0, str(Path(__file__).parent))
+from hypothesis_strategies import HYPOTHESIS_AVAILABLE
+
+if HYPOTHESIS_AVAILABLE:
+    from hypothesis import HealthCheck, assume, given, settings
+    from hypothesis import strategies as st
+    from tidy_conf.deduplicate import deduplicate
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestDeduplicationProperties:
+    """Property-based tests for deduplication logic."""
+
+    @given(st.lists(st.text(min_size=5, max_size=30), min_size=2, max_size=10))
+    @settings(max_examples=50, suppress_health_check=[HealthCheck.filter_too_much])
+    def test_dedup_reduces_or_maintains_row_count(self, names):
+        """Deduplication should never increase row count."""
+        # Filter and create duplicates intentionally
+        names = [n for n in names if len(n.strip()) > 3]
+        assume(len(names) >= 2)
+
+        # Add some duplicates
+        all_names = names + [names[0], names[0]]  # Intentional duplicates
+
+        df = pd.DataFrame({
+            "conference": all_names,
+            "year": [2026] * len(all_names),
+        })
+        df = df.set_index("conference", drop=False)
+        df.index.name = "title_match"
+
+        result = deduplicate(df)
+
+        # Should have fewer or equal rows (never more)
+        assert len(result) <= len(df), \
+            f"Dedup increased rows: {len(result)} > {len(df)}"
+
+    @given(st.text(min_size=5, max_size=30))
+    @settings(max_examples=30)
+    def test_dedup_merges_identical_rows(self, name):
+        """Rows with same key should be merged to one."""
+        assume(len(name.strip()) > 3)
+
+        df = pd.DataFrame({
+            "conference": [name, name, name],  # 3 identical
+            "year": [2026, 2026, 2026],
+            "cfp": ["2026-01-15 23:59:00", None, "2026-01-15 23:59:00"],  # Fill test
+        })
+        df = df.set_index("conference", drop=False)
+        df.index.name = "title_match"
+
+        result = deduplicate(df)
+
+        # Should have exactly 1 row
+        assert len(result) == 1, f"Expected 1 row after dedup, got {len(result)}"
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestMergeIdempotencyProperties:
+    """Property-based tests for merge idempotency."""
+
+    @given(st.lists(
+        st.fixed_dictionaries({
+            'name': st.text(min_size=5, max_size=30).filter(lambda x: x.strip()),
+            'year': st.integers(min_value=2024, max_value=2030),
+        }),
+        min_size=1,
+        max_size=5,
+        unique_by=lambda x: x['name']
+    ))
+    @settings(max_examples=30, suppress_health_check=[HealthCheck.filter_too_much])
+    def test_deduplication_is_idempotent(self, items):
+        """Applying deduplication twice should yield same result."""
+        # Filter out empty names
+        items = [i for i in items if i['name'].strip()]
+        assume(len(items) > 0)
+
+        df = pd.DataFrame({
+            "conference": [i['name'] for i in items],
+            "year": [i['year'] for i in items],
+        })
+        df = df.set_index("conference", drop=False)
+        df.index.name = "title_match"
+
+        # Apply dedup twice
+        result1 = deduplicate(df.copy())
+        result1 = result1.set_index("conference", drop=False)
+        result1.index.name = "title_match"
+        result2 = deduplicate(result1.copy())
+
+        # Results should be same length
+        assert len(result1) == len(result2), \
+            f"Idempotency failed: {len(result1)} != {len(result2)}"

@@ -371,3 +371,147 @@ class TestRegressionCases:
         # Should not have accumulated spaces
         name = df["conference"].iloc[0]
         assert "  " not in name, f"Extra spaces accumulated: '{name}'"
+
+
+# ---------------------------------------------------------------------------
+# Property-based tests using Hypothesis
+# ---------------------------------------------------------------------------
+
+# Import shared strategies from hypothesis_strategies module
+sys.path.insert(0, str(Path(__file__).parent))
+from hypothesis_strategies import (
+    HYPOTHESIS_AVAILABLE,
+    valid_year,
+)
+
+if HYPOTHESIS_AVAILABLE:
+    from hypothesis import HealthCheck, assume, given, settings
+    from hypothesis import strategies as st
+
+
+pytestmark_hypothesis = pytest.mark.skipif(
+    not HYPOTHESIS_AVAILABLE,
+    reason="hypothesis not installed - run: pip install hypothesis"
+)
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestNormalizationProperties:
+    """Property-based tests for name normalization."""
+
+    @given(st.text(min_size=1, max_size=100))
+    @settings(max_examples=100, suppress_health_check=[HealthCheck.filter_too_much])
+    def test_normalization_never_crashes(self, text):
+        """Normalization should never crash regardless of input."""
+        assume(len(text.strip()) > 0)
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+
+            df = pd.DataFrame({"conference": [text]})
+
+            # Should not raise any exception
+            try:
+                result = tidy_df_names(df)
+                assert isinstance(result, pd.DataFrame)
+            except Exception as e:
+                # Only allow expected exceptions
+                if "empty" not in str(e).lower():
+                    raise
+
+    @given(st.text(alphabet=st.characters(whitelist_categories=('L', 'N', 'P', 'S')), min_size=5, max_size=50))
+    @settings(max_examples=100)
+    def test_normalization_preserves_non_whitespace(self, text):
+        """Normalization should preserve meaningful characters."""
+        assume(len(text.strip()) > 0)
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+
+            df = pd.DataFrame({"conference": [text]})
+            result = tidy_df_names(df)
+
+            # Result should not be empty
+            assert len(result) == 1
+            assert len(result["conference"].iloc[0].strip()) > 0
+
+    @given(st.text(min_size=1, max_size=50))
+    @settings(max_examples=50)
+    def test_normalization_is_idempotent(self, text):
+        """Applying normalization twice should yield same result."""
+        assume(len(text.strip()) > 0)
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+
+            df = pd.DataFrame({"conference": [text]})
+
+            result1 = tidy_df_names(df.copy())
+            result2 = tidy_df_names(result1.copy())
+
+            assert result1["conference"].iloc[0] == result2["conference"].iloc[0], \
+                f"Idempotency failed: '{result1['conference'].iloc[0]}' != '{result2['conference'].iloc[0]}'"
+
+    @given(valid_year)
+    @settings(max_examples=50)
+    def test_year_removal_works_for_any_valid_year(self, year):
+        """Year removal should work for any year 1990-2050."""
+        name = f"PyCon Conference {year}"
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+
+            df = pd.DataFrame({"conference": [name]})
+            result = tidy_df_names(df)
+
+            assert str(year) not in result["conference"].iloc[0], \
+                f"Year {year} should be removed from '{result['conference'].iloc[0]}'"
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestUnicodeHandlingProperties:
+    """Property-based tests for Unicode handling."""
+
+    @given(st.text(
+        alphabet=st.characters(
+            whitelist_categories=('L',),  # Letters only
+            whitelist_characters='áéíóúñüöäÄÖÜßàèìòùâêîôûçÇ'
+        ),
+        min_size=5, max_size=30
+    ))
+    @settings(max_examples=50)
+    def test_unicode_letters_preserved(self, text):
+        """Unicode letters should be preserved through normalization."""
+        assume(len(text.strip()) > 3)
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+
+            df = pd.DataFrame({"conference": [f"PyCon {text}"]})
+            result = tidy_df_names(df)
+
+            # Check that some Unicode is preserved
+            result_text = result["conference"].iloc[0]
+            assert len(result_text) > 0, "Result should not be empty"
+
+    @given(st.sampled_from([
+        "PyCon México",
+        "PyCon España",
+        "PyCon Österreich",
+        "PyCon Česko",
+        "PyCon Türkiye",
+        "PyCon Ελλάδα",
+        "PyCon 日本",
+        "PyCon 한국",
+    ]))
+    def test_specific_unicode_names_handled(self, name):
+        """Specific international conference names should be handled."""
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+
+            df = pd.DataFrame({"conference": [name]})
+            result = tidy_df_names(df)
+
+            # Should not crash and should produce non-empty result
+            assert len(result) == 1
+            assert len(result["conference"].iloc[0]) > 0

@@ -3,6 +3,9 @@
 This module provides shared fixtures for testing the conference synchronization
 pipeline. Fixtures use real data structures and only mock external I/O boundaries
 (network, file system) following testing best practices.
+
+Note: Shared Hypothesis strategies are in hypothesis_strategies.py - import
+them directly in test files that need property-based testing.
 """
 
 from pathlib import Path
