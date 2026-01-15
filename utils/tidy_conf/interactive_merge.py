@@ -41,10 +41,23 @@ def fuzzy_match(df_yml, df_remote):
     logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
     logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
 
+    # Load session-based rejections (user rejected these during previous runs)
     _, known_rejections = load_title_mappings(path="utils/tidy_conf/data/.tmp/rejections.yml")
 
-    # Load explicit exclusions (pairs that should never match)
-    exclusions = load_exclusions()
+    # Load permanent exclusions from titles.yml (version-controlled)
+    permanent_exclusions = load_exclusions()
+
+    # Convert known_rejections to frozenset pairs for unified checking
+    # known_rejections format: {name1: {variations: [name2, name3]}, ...}
+    session_exclusions = set()
+    for name1, data in known_rejections.items():
+        variations = data.get("variations", []) if isinstance(data, dict) else []
+        for name2 in variations:
+            session_exclusions.add(frozenset([name1, name2]))
+
+    # Combine permanent and session exclusions
+    all_exclusions = permanent_exclusions | session_exclusions
+    logger.debug(f"Loaded {len(permanent_exclusions)} permanent exclusions, {len(session_exclusions)} session rejections")
 
     new_mappings = defaultdict(list)
     new_rejections = defaultdict(list)
@@ -60,10 +73,10 @@ def fuzzy_match(df_yml, df_remote):
         lambda x: process.extract(x, df_remote["conference"], limit=1),
     )
 
-    # Helper function to check if a pair is in exclusions
+    # Helper function to check if a pair is excluded (permanent or session-based)
     def is_excluded(name1, name2):
-        """Check if two conference names are in the exclusion list."""
-        return frozenset([name1, name2]) in exclusions
+        """Check if two conference names are in the combined exclusion list."""
+        return frozenset([name1, name2]) in all_exclusions
 
     # Process matches
     for i, row in df.iterrows():
@@ -75,25 +88,21 @@ def fuzzy_match(df_yml, df_remote):
         title, prob, _ = row["title_match"][0]
         conference_name = row["conference"]
 
-        # Check if this pair is explicitly excluded (e.g., Austria/Australia)
+        # Check if this pair is excluded (either permanent from titles.yml or session-based)
         if is_excluded(conference_name, title):
             logger.info(f"Excluded match: '{conference_name}' and '{title}' are in exclusion list")
             df.at[i, "title_match"] = i
         elif prob == 100:
             df.at[i, "title_match"] = title
         elif prob >= 90:
-            if (title in known_rejections and i in known_rejections[title]) or (
-                i in known_rejections and title in known_rejections[i]
-            ):
+            # Prompt user for fuzzy matches that aren't excluded
+            if not query_yes_no(f"Do '{row['conference']}' and '{title}' match? (y/n): "):
+                new_rejections[title].append(conference_name)
+                new_rejections[conference_name].append(title)
                 df.at[i, "title_match"] = i
             else:
-                if not query_yes_no(f"Do '{row['conference']}' and '{title}' match? (y/n): "):
-                    new_rejections[title].append(i)
-                    new_rejections[i].append(title)
-                    df.at[i, "title_match"] = i
-                else:
-                    new_mappings[i].append(title)
-                    df.at[i, "title_match"] = title
+                new_mappings[conference_name].append(title)
+                df.at[i, "title_match"] = title
         else:
             df.at[i, "title_match"] = i
 
