@@ -1,3 +1,12 @@
+"""Interactive merge module for conference data synchronization.
+
+Merge Strategy:
+- YAML is the source of truth for existing conferences
+- Remote data (CSV/ICS) enriches YAML with new information
+- Conflicts are resolved by preferring YAML values, with user prompts for ambiguous cases
+- All operations are logged to MergeReport for tracking and debugging
+"""
+
 import contextlib
 import logging
 from collections import defaultdict
@@ -10,18 +19,92 @@ try:
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
+    from tidy_conf.validation import (
+        MergeRecord,
+        MergeReport,
+        ValidationError,
+        ensure_conference_strings,
+        log_dataframe_state,
+        validate_merge_inputs,
+    )
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
+    from .validation import (
+        MergeRecord,
+        MergeReport,
+        ValidationError,
+        ensure_conference_strings,
+        log_dataframe_state,
+        validate_merge_inputs,
+    )
     from .yaml import load_title_mappings
     from .yaml import update_title_mappings
 
 # Configuration for fuzzy matching
 FUZZY_MATCH_THRESHOLD = 90  # Minimum score to consider a fuzzy match
 EXACT_MATCH_THRESHOLD = 100  # Score for exact matches
+
+# Merge strategy configuration
+MERGE_STRATEGY = {
+    "source_of_truth": "yaml",  # YAML is authoritative for existing data
+    "remote_enriches": True,  # Remote data can add new fields
+    "prefer_non_tba": True,  # Prefer actual values over TBA/TBD
+    "log_conflicts": True,  # Log all conflict resolutions
+}
+
+
+def is_placeholder_value(value) -> bool:
+    """Check if a value is a placeholder (TBA, TBD, None, empty)."""
+    if pd.isna(value):
+        return True
+    if not isinstance(value, str):
+        return False
+    stripped = str(value).strip().upper()
+    return stripped in ("TBA", "TBD", "NONE", "N/A", "") or not stripped
+
+
+def resolve_conflict(yaml_val, remote_val, column: str, conference: str, logger) -> tuple:
+    """Resolve a conflict between YAML and remote values.
+
+    Strategy:
+    1. If one is a placeholder, use the other
+    2. If YAML has a value, prefer it (source of truth)
+    3. Log the resolution for debugging
+
+    Returns
+    -------
+    tuple[value, str]
+        (resolved value, resolution reason)
+    """
+    yaml_is_placeholder = is_placeholder_value(yaml_val)
+    remote_is_placeholder = is_placeholder_value(remote_val)
+
+    # If both are placeholders, use YAML (source of truth)
+    if yaml_is_placeholder and remote_is_placeholder:
+        return yaml_val, "both_placeholder"
+
+    # If YAML is placeholder but remote has value, use remote
+    if yaml_is_placeholder and not remote_is_placeholder:
+        if MERGE_STRATEGY["log_conflicts"]:
+            logger.debug(f"Conflict [{conference}][{column}]: Using remote '{remote_val}' (YAML was placeholder)")
+        return remote_val, "yaml_placeholder"
+
+    # If remote is placeholder but YAML has value, use YAML
+    if not yaml_is_placeholder and remote_is_placeholder:
+        return yaml_val, "remote_placeholder"
+
+    # Both have values - prefer YAML as source of truth
+    if yaml_val == remote_val:
+        return yaml_val, "equal"
+
+    # Values differ - log and use YAML (or prompt user)
+    if MERGE_STRATEGY["log_conflicts"]:
+        logger.info(f"Conflict [{conference}][{column}]: YAML='{yaml_val}' vs Remote='{remote_val}' -> keeping YAML")
+    return yaml_val, "yaml_preferred"
 
 
 def conference_scorer(s1, s2):
@@ -52,7 +135,7 @@ def conference_scorer(s1, s2):
     return max(scores)
 
 
-def fuzzy_match(df_yml, df_remote):
+def fuzzy_match(df_yml, df_remote, report=None):
     """Fuzzy merge conferences from two pandas dataframes on title.
 
     Loads known mappings from a YAML file and uses them to harmonise conference titles.
@@ -61,12 +144,45 @@ def fuzzy_match(df_yml, df_remote):
     Keeps temporary track of rejections to avoid asking the same question multiple
     times. Also respects explicit exclusions from titles.yml to prevent known
     false-positive matches (e.g., PyCon Austria vs PyCon Australia).
+
+    Parameters
+    ----------
+    df_yml : pd.DataFrame
+        YAML source DataFrame (source of truth)
+    df_remote : pd.DataFrame
+        Remote source DataFrame (CSV or ICS)
+    report : MergeReport, optional
+        Merge report for tracking operations
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.DataFrame, MergeReport]
+        (merged DataFrame, remote DataFrame, merge report)
     """
     logger = logging.getLogger(__name__)
     logger.info(f"Starting fuzzy_match with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
 
+    # Initialize or update merge report
+    if report is None:
+        report = MergeReport()
+
+    # Validate inputs before proceeding
+    inputs_valid, report = validate_merge_inputs(df_yml, df_remote, report)
+    if not inputs_valid:
+        logger.warning("Input validation failed, attempting to continue with warnings")
+        # Don't raise - try to continue and track issues
+
+    # Ensure conference names are strings
+    df_yml = ensure_conference_strings(df_yml, "YAML")
+    df_remote = ensure_conference_strings(df_remote, "Remote")
+
+    # Tidy conference names
     df_yml = tidy_df_names(df_yml)
     df_remote = tidy_df_names(df_remote)
+
+    # Log state after tidying
+    log_dataframe_state(df_yml, "df_yml after tidy_df_names")
+    log_dataframe_state(df_remote, "df_remote after tidy_df_names")
 
     logger.debug(f"After tidy_df_names - df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
     logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
@@ -104,7 +220,7 @@ def fuzzy_match(df_yml, df_remote):
         """Check if two conference names are in the combined exclusion list."""
         return frozenset([name1, name2]) in all_exclusions
 
-    # Process matches
+    # Process matches and track in report
     for i, row in df.iterrows():
         if isinstance(row["title_match"], str):
             continue
@@ -119,14 +235,29 @@ def fuzzy_match(df_yml, df_remote):
             title, prob = match_result
 
         conference_name = row["conference"]
+        year = row.get("year", 0)
+
+        # Create merge record for tracking
+        record = MergeRecord(
+            yaml_name=conference_name,
+            remote_name=title,
+            match_score=prob,
+            match_type="pending",
+            action="pending",
+            year=int(year) if pd.notna(year) else 0,
+        )
 
         # Check if this pair is excluded (either permanent from titles.yml or session-based)
         if is_excluded(conference_name, title):
             logger.info(f"Excluded match: '{conference_name}' and '{title}' are in exclusion list")
             df.at[i, "title_match"] = conference_name  # Use original name, not index
+            record.match_type = "excluded"
+            record.action = "kept_yaml"
         elif prob >= EXACT_MATCH_THRESHOLD:
             logger.debug(f"Exact match: '{conference_name}' -> '{title}' (score: {prob})")
             df.at[i, "title_match"] = title
+            record.match_type = "exact"
+            record.action = "merged"
         elif prob >= FUZZY_MATCH_THRESHOLD:
             # Prompt user for fuzzy matches that aren't excluded
             logger.info(f"Fuzzy match candidate: '{conference_name}' -> '{title}' (score: {prob})")
@@ -134,12 +265,21 @@ def fuzzy_match(df_yml, df_remote):
                 new_rejections[title].append(conference_name)
                 new_rejections[conference_name].append(title)
                 df.at[i, "title_match"] = conference_name  # Use original name, not index
+                record.match_type = "fuzzy"
+                record.action = "kept_yaml"
             else:
                 new_mappings[conference_name].append(title)
                 df.at[i, "title_match"] = title
+                record.match_type = "fuzzy"
+                record.action = "merged"
         else:
             logger.debug(f"No match: '{conference_name}' (best: '{title}', score: {prob})")
             df.at[i, "title_match"] = conference_name  # Use original name, not index
+            record.match_type = "no_match"
+            record.action = "kept_yaml"
+
+        # Add record to report
+        report.add_record(record)
 
     # Update mappings and rejections
     update_title_mappings(new_mappings)
@@ -170,14 +310,51 @@ def fuzzy_match(df_yml, df_remote):
     # Fill missing CFPs with "TBA"
     df_new.loc[df_new["cfp"].isna(), "cfp"] = "TBA"
 
+    # Update report with final counts
+    report.total_output = len(df_new)
+
+    # Check for data loss
+    if not report.validate_no_data_loss():
+        logger.warning("Potential data loss detected - check merge report for details")
+
     logger.info("fuzzy_match completed successfully")
-    return df_new, df_remote
+    logger.info(f"Merge summary: {report.exact_matches} exact, {report.fuzzy_matches} fuzzy, "
+                f"{report.excluded_matches} excluded, {report.no_matches} no match")
+
+    return df_new, df_remote, report
 
 
-def merge_conferences(df_yml, df_remote):
-    """Merge two dataframes on title and interactively resolve conflicts."""
+def merge_conferences(df_yml, df_remote, report=None):
+    """Merge two dataframes on title and interactively resolve conflicts.
+
+    Merge Strategy (defined by MERGE_STRATEGY):
+    - YAML is the source of truth for existing conferences
+    - Remote data enriches YAML with new or missing information
+    - Non-TBA values are preferred over TBA/TBD placeholders
+    - Conflicts are logged and can be resolved interactively
+
+    Parameters
+    ----------
+    df_yml : pd.DataFrame
+        YAML source DataFrame (source of truth)
+    df_remote : pd.DataFrame
+        Remote source DataFrame
+    report : MergeReport, optional
+        Merge report for tracking operations
+
+    Returns
+    -------
+    pd.DataFrame
+        Merged DataFrame
+    """
     logger = logging.getLogger(__name__)
     logger.info(f"Starting merge_conferences with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
+
+    # Initialize report if not provided
+    if report is None:
+        report = MergeReport()
+        report.source_yaml_count = len(df_yml)
+        report.source_remote_count = len(df_remote)
 
     # Data validation before merge
     logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")

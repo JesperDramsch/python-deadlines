@@ -293,7 +293,15 @@ def main(year: int | None = None, base: str = "") -> None:
         df_csv_year = df_csv_for_merge.loc[df_csv_for_merge["year"] == y]
         logger.debug(f"Year {y}: df_yml_year shape: {df_yml_year.shape}, df_csv_year shape: {df_csv_year.shape}")
 
-        df_merged, df_remote = fuzzy_match(df_yml_year, df_csv_year)
+        # fuzzy_match now returns 3 values: (merged_df, remote_df, report)
+        result = fuzzy_match(df_yml_year, df_csv_year)
+        if len(result) == 3:
+            df_merged, df_remote, merge_report = result
+            logger.info(f"Merge report: {merge_report.exact_matches} exact, "
+                       f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match")
+        else:
+            # Backwards compatibility
+            df_merged, df_remote = result
         logger.info(f"Fuzzy match completed for year {y}. df_merged shape: {df_merged.shape}")
 
         df_merged["year"] = y

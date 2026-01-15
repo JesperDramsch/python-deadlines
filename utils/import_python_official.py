@@ -284,7 +284,15 @@ def main(year=None, base="") -> bool:
                 )
                 continue
 
-        df_merged, df_remote = fuzzy_match(df_yml[df_yml["year"] == y], df_ics.loc[df_ics["year"] == y])
+        # fuzzy_match now returns 3 values: (merged_df, remote_df, report)
+        result = fuzzy_match(df_yml[df_yml["year"] == y], df_ics.loc[df_ics["year"] == y])
+        if len(result) == 3:
+            df_merged, df_remote, merge_report = result
+            logger.info(f"Merge report: {merge_report.exact_matches} exact, "
+                       f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match")
+        else:
+            # Backwards compatibility
+            df_merged, df_remote = result
         df_merged["year"] = year
         diff_idx = df_merged.index.difference(df_remote.index)
         df_missing = df_merged.loc[diff_idx, :].sort_values("start")
