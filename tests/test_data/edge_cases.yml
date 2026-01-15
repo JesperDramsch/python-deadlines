@@ -1,0 +1,72 @@
+---
+
+# Conference with missing CFP (TBA)
+- conference: PyCon Future
+  year: 2026
+  link: https://future.pycon.org/
+  cfp: TBA
+  place: TBA
+  start: 2026-10-01
+  end: 2026-10-03
+  sub: PY
+  location:
+  - title: PyCon Future 2026
+    latitude: 40.7128
+    longitude: -74.0060
+
+# Online-only conference (no physical location needed)
+- conference: PyConf Online
+  year: 2026
+  link: https://online.pyconf.org/
+  cfp: '2026-03-01 23:59:00'
+  place: Online
+  start: 2026-06-15
+  end: 2026-06-17
+  sub: PY
+
+# Conference with extra places (multiple venues)
+- conference: Multi-Venue Python Summit
+  year: 2026
+  link: https://multi-venue-summit.org/
+  cfp: '2026-04-01 23:59:00'
+  place: New York, USA
+  extra_places:
+  - San Francisco, USA
+  - Boston, USA
+  start: 2026-08-10
+  end: 2026-08-15
+  sub: PY
+  location:
+  - title: Multi-Venue Python Summit 2026
+    latitude: 40.7128
+    longitude: -74.0060
+
+# Conference with special characters in name
+- conference: PyCon México
+  year: 2026
+  link: https://pycon.mx/
+  cfp: '2026-02-28 23:59:00'
+  place: Ciudad de México, Mexico
+  start: 2026-06-20
+  end: 2026-06-22
+  sub: PY
+  location:
+  - title: PyCon México 2026
+    latitude: 19.4326077
+    longitude: -99.133208
+
+# Conference with workshop and tutorial deadlines
+- conference: Advanced Python Conference
+  year: 2026
+  link: https://advanced-python.conf/
+  cfp: '2026-03-15 23:59:00'
+  workshop_deadline: '2026-02-15 23:59:00'
+  tutorial_deadline: '2026-02-28 23:59:00'
+  place: London, UK
+  start: 2026-09-01
+  end: 2026-09-04
+  sub: PY
+  location:
+  - title: Advanced Python Conference 2026
+    latitude: 51.5073509
+    longitude: -0.1277583

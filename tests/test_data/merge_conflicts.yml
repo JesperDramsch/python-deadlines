@@ -1,0 +1,34 @@
+---
+
+# Conference with CFP date conflict (YAML has full datetime, CSV has different date)
+- conference: Conflicting Conf
+  year: 2026
+  link: https://conflict.pycon.org/
+  cfp: '2026-02-15 23:59:00'
+  place: Berlin, Germany
+  start: 2026-06-01
+  end: 2026-06-03
+  sub: PY
+  location:
+  - title: Conflicting Conf 2026
+    latitude: 52.5200066
+    longitude: 13.404954
+
+# Conference where YAML has more details than CSV
+- conference: Detailed Conference
+  year: 2026
+  link: https://detailed.pycon.org/
+  cfp: '2026-03-01 23:59:00'
+  cfp_ext: '2026-03-15 23:59:00'
+  place: Munich, Germany
+  start: 2026-07-01
+  end: 2026-07-03
+  sponsor: https://detailed.pycon.org/sponsors/
+  finaid: https://detailed.pycon.org/finaid/
+  mastodon: https://fosstodon.org/@detailed
+  twitter: detailed_conf
+  sub: PY,DATA
+  location:
+  - title: Detailed Conference 2026
+    latitude: 48.1351253
+    longitude: 11.5819805

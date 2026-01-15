@@ -196,3 +196,211 @@ class TestLocationSchema:
         # Should accept the coordinates even with high precision
         assert location.latitude == 40.712812345678
         assert location.longitude == -74.006012345678
+
+
+class TestSchemaEdgeCases:
+    """Test schema validation edge cases and boundary conditions."""
+
+    def test_missing_required_link_fails(self, sample_conference):
+        """Missing required 'link' field should fail validation."""
+        del sample_conference["link"]
+
+        with pytest.raises(ValidationError) as exc_info:
+            Conference(**sample_conference)
+
+        errors = exc_info.value.errors()
+        assert any("link" in str(e["loc"]) for e in errors), \
+            "Link field should be reported as missing"
+
+    def test_invalid_date_format_fails(self, sample_conference):
+        """Invalid date format should fail validation.
+
+        Note: The CFP field uses string pattern matching.
+        """
+        # Completely wrong format
+        sample_conference["cfp"] = "not-a-date-format"
+
+        with pytest.raises(ValidationError):
+            Conference(**sample_conference)
+
+    def test_invalid_cfp_datetime_format(self, sample_conference):
+        """CFP with wrong datetime format should fail.
+
+        The schema uses a regex pattern: ^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$
+        """
+        invalid_cfps = [
+            "2025/02/15 23:59:00",  # Wrong separator (/)
+            "02-15-2025 23:59:00",  # Wrong order (MM-DD-YYYY)
+            "2025-02-15T23:59:00",  # ISO format with T
+            "15 Feb 2025 23:59:00",  # Written format
+        ]
+
+        for cfp in invalid_cfps:
+            sample_conference["cfp"] = cfp
+            with pytest.raises(ValidationError):
+                Conference(**sample_conference)
+
+    def test_invalid_latitude_out_of_bounds(self, sample_conference):
+        """Latitude outside -90 to 90 should fail."""
+        sample_conference["location"] = [
+            {"title": "Test", "latitude": 999, "longitude": 10}  # 999 > 90
+        ]
+
+        with pytest.raises(ValidationError):
+            Conference(**sample_conference)
+
+    def test_invalid_longitude_out_of_bounds(self, sample_conference):
+        """Longitude outside -180 to 180 should fail."""
+        sample_conference["location"] = [
+            {"title": "Test", "latitude": 10, "longitude": 999}  # 999 > 180
+        ]
+
+        with pytest.raises(ValidationError):
+            Conference(**sample_conference)
+
+    def test_year_before_python_existed_fails(self, sample_conference):
+        """Year before 1989 (Python's creation) should fail."""
+        sample_conference["year"] = 1988
+        sample_conference["start"] = date(1988, 6, 1)
+        sample_conference["end"] = date(1988, 6, 3)
+
+        with pytest.raises(ValidationError):
+            Conference(**sample_conference)
+
+    def test_year_far_future_accepted(self, sample_conference):
+        """Year up to 3000 should be accepted."""
+        sample_conference["year"] = 2999
+
+        # Need to update dates to match
+        sample_conference["start"] = date(2999, 6, 1)
+        sample_conference["end"] = date(2999, 6, 3)
+
+        conf = Conference(**sample_conference)
+        assert conf.year == 2999
+
+    def test_twitter_handle_strips_at_symbol(self, sample_conference):
+        """Twitter handle with @ should have it stripped."""
+        sample_conference["twitter"] = "@testconf"
+
+        conf = Conference(**sample_conference)
+        assert conf.twitter == "testconf", \
+            f"@ should be stripped from Twitter handle, got: {conf.twitter}"
+
+    def test_conference_name_year_stripped(self, sample_conference):
+        """Year in conference name should be stripped."""
+        sample_conference["conference"] = "PyCon Test 2025"
+
+        conf = Conference(**sample_conference)
+        assert "2025" not in conf.conference, \
+            f"Year should be stripped from name, got: {conf.conference}"
+
+    def test_location_required_for_non_online(self, sample_conference):
+        """In-person conferences should require location."""
+        sample_conference["place"] = "Berlin, Germany"  # Not online
+        sample_conference["location"] = None  # No location
+
+        with pytest.raises(ValidationError) as exc_info:
+            Conference(**sample_conference)
+
+        assert "location is required" in str(exc_info.value).lower()
+
+    def test_empty_location_title_fails(self):
+        """Location with empty title should fail."""
+        with pytest.raises(ValidationError):
+            Location(title="", latitude=40.7128, longitude=-74.0060)
+
+    def test_null_location_title_fails(self):
+        """Location with null title should fail."""
+        with pytest.raises(ValidationError):
+            Location(title=None, latitude=40.7128, longitude=-74.0060)
+
+    def test_special_invalid_coordinates_rejected(self):
+        """Special invalid coordinates should be rejected.
+
+        These are coordinates that map to 'None' or 'Online' in geocoding.
+        """
+        # Coordinates that map to 'None' location
+        with pytest.raises(ValidationError):
+            Location(title="Test", latitude=44.93796, longitude=7.54012)
+
+        # Coordinates that map to 'Online' location
+        with pytest.raises(ValidationError):
+            Location(title="Test", latitude=43.59047, longitude=3.85951)
+
+    def test_multiple_subs_comma_separated(self, sample_conference):
+        """Multiple sub types should be comma-separated."""
+        sample_conference["sub"] = "PY,DATA,WEB"
+
+        conf = Conference(**sample_conference)
+        assert conf.sub == "PY,DATA,WEB"
+
+    def test_invalid_sub_type_fails(self, sample_conference):
+        """Invalid sub type should fail validation."""
+        sample_conference["sub"] = "INVALID_TYPE"
+
+        with pytest.raises(ValidationError):
+            Conference(**sample_conference)
+
+    def test_extra_places_list_format(self, sample_conference):
+        """Extra places should be a list of strings."""
+        sample_conference["extra_places"] = ["Online", "Hybrid Session"]
+
+        conf = Conference(**sample_conference)
+        assert conf.extra_places == ["Online", "Hybrid Session"]
+
+    def test_timezone_accepted(self, sample_conference):
+        """Valid timezone strings should be accepted."""
+        valid_timezones = [
+            "America/New_York",
+            "Europe/Berlin",
+            "Asia/Tokyo",
+            "UTC",
+            "America/Los_Angeles",
+        ]
+
+        for tz in valid_timezones:
+            sample_conference["timezone"] = tz
+            conf = Conference(**sample_conference)
+            assert conf.timezone == tz
+
+
+class TestSchemaRegressions:
+    """Regression tests for schema validation bugs."""
+
+    def test_regression_zero_zero_coordinates_rejected(self):
+        """REGRESSION: (0, 0) coordinates should be rejected.
+
+        This is a common default/error value that shouldn't be accepted.
+        """
+        with pytest.raises(ValidationError) as exc_info:
+            Location(title="Test", latitude=0.0, longitude=0.0)
+
+        assert "0" in str(exc_info.value) or "default" in str(exc_info.value).lower()
+
+    def test_regression_http_urls_accepted(self, sample_conference):
+        """REGRESSION: HTTP URLs should be accepted (not just HTTPS).
+
+        Some older conference sites may still use HTTP.
+        """
+        sample_conference["link"] = "http://old-conference.org"
+
+        conf = Conference(**sample_conference)
+        assert "http://" in str(conf.link)
+
+    def test_regression_date_objects_accepted(self, sample_conference):
+        """REGRESSION: Python date objects should be accepted for start/end."""
+        sample_conference["start"] = date(2025, 6, 1)
+        sample_conference["end"] = date(2025, 6, 3)
+
+        conf = Conference(**sample_conference)
+        assert conf.start == date(2025, 6, 1)
+        assert conf.end == date(2025, 6, 3)
+
+    def test_regression_string_dates_accepted(self, sample_conference):
+        """REGRESSION: String dates in ISO format should be accepted."""
+        sample_conference["start"] = "2025-06-01"
+        sample_conference["end"] = "2025-06-03"
+
+        conf = Conference(**sample_conference)
+        assert conf.start == date(2025, 6, 1)
+        assert conf.end == date(2025, 6, 3)
