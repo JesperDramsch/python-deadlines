@@ -9,12 +9,14 @@ try:
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
+    from tidy_conf.yaml import load_exclusions
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
+    from .yaml import load_exclusions
     from .yaml import load_title_mappings
     from .yaml import update_title_mappings
 
@@ -26,7 +28,8 @@ def fuzzy_match(df_yml, df_remote):
     Updates those when we find a Fuzzy match.
 
     Keeps temporary track of rejections to avoid asking the same question multiple
-    times.
+    times. Also respects explicit exclusions from titles.yml to prevent known
+    false-positive matches (e.g., PyCon Austria vs PyCon Australia).
     """
     logger = logging.getLogger(__name__)
     logger.info(f"Starting fuzzy_match with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
@@ -39,6 +42,9 @@ def fuzzy_match(df_yml, df_remote):
     logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
 
     _, known_rejections = load_title_mappings(path="utils/tidy_conf/data/.tmp/rejections.yml")
+
+    # Load explicit exclusions (pairs that should never match)
+    exclusions = load_exclusions()
 
     new_mappings = defaultdict(list)
     new_rejections = defaultdict(list)
@@ -54,6 +60,11 @@ def fuzzy_match(df_yml, df_remote):
         lambda x: process.extract(x, df_remote["conference"], limit=1),
     )
 
+    # Helper function to check if a pair is in exclusions
+    def is_excluded(name1, name2):
+        """Check if two conference names are in the exclusion list."""
+        return frozenset([name1, name2]) in exclusions
+
     # Process matches
     for i, row in df.iterrows():
         if isinstance(row["title_match"], str):
@@ -62,7 +73,13 @@ def fuzzy_match(df_yml, df_remote):
             continue
 
         title, prob, _ = row["title_match"][0]
-        if prob == 100:
+        conference_name = row["conference"]
+
+        # Check if this pair is explicitly excluded (e.g., Austria/Australia)
+        if is_excluded(conference_name, title):
+            logger.info(f"Excluded match: '{conference_name}' and '{title}' are in exclusion list")
+            df.at[i, "title_match"] = i
+        elif prob == 100:
             df.at[i, "title_match"] = title
         elif prob >= 90:
             if (title in known_rejections and i in known_rejections[title]) or (

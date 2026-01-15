@@ -140,6 +140,15 @@ alt_name:
     variations:
     - Scipy
     - SciPy
+exclusions:
+  # Pairs of conferences that should NEVER be fuzzy-matched despite high similarity
+  # Format: list of [name1, name2] pairs
+  - ["PyCon Austria", "PyCon Australia"]
+  - ["PyCon AT", "PyCon AU"]
+  - ["Python Austria", "PyCon Australia"]
+  - ["PyCon Austria", "PyCon AU"]
+  - ["PyCon AT", "PyCon Australia"]
+
 spelling:
 - DjangoCon
 - EuroPython

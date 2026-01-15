@@ -103,6 +103,18 @@ with titles_yml_path.open(encoding="utf-8") as file:
 spellings = titles_data.get("spelling", [])
 alt_names = titles_data.get("alt_name", {})
 
+# Load exclusions
+exclusions_raw = titles_data.get("exclusions", [])
+exclusions = set()
+for pair in exclusions_raw:
+    if len(pair) == 2:
+        exclusions.add(frozenset(pair))
+
+print(f"Loaded {len(exclusions)} exclusion pairs:")
+for pair in exclusions:
+    names = list(pair)
+    print(f"  - '{names[0]}' <-> '{names[1]}'")
+
 print(f"Loaded {len(spellings)} spellings to check")
 print(f"Loaded {len(alt_names)} alt_name mappings")
 
@@ -224,7 +236,17 @@ for csv_name in csv_names:
             match, score, _ = match_tuple
         else:
             match, score = match_tuple
-        marker = " <-- WILL MATCH" if score >= 90 else " <-- NEEDS ATTENTION" if score >= 70 else ""
+
+        # Check if this pair is excluded
+        is_excluded = frozenset([csv_name, match]) in exclusions
+        if is_excluded:
+            marker = " <-- EXCLUDED (will not match)"
+        elif score >= 90:
+            marker = " <-- WILL MATCH"
+        elif score >= 70:
+            marker = " <-- NEEDS ATTENTION"
+        else:
+            marker = ""
         print(f"  -> YAML: '{match}' (score: {score}){marker}")
 
 # ============================================================================
@@ -335,16 +357,24 @@ for i, row in df_test.iterrows():
     if row["title_match"]:
         match_tuple = row["title_match"][0]
         title, prob = (match_tuple[0], match_tuple[1]) if len(match_tuple) >= 2 else (match_tuple, 0)
-        if prob == 100:
+        conference_name = row['conference']
+
+        # Check exclusions first
+        is_pair_excluded = frozenset([conference_name, title]) in exclusions
+
+        if is_pair_excluded:
+            status = "EXCLUDED -> title_match = '{}' (exclusion rule applied)".format(conference_name)
+            resolved = conference_name
+        elif prob == 100:
             status = "EXACT -> title_match = '{}'".format(title)
             resolved = title
         elif prob >= 90:
             status = "FUZZY (>=90) -> Would prompt user, assuming 'yes'"
             resolved = title
         else:
-            status = "NO MATCH (<90) -> title_match = '{}' (original)".format(row['conference'])
-            resolved = row['conference']
-        print(f"  YAML '{row['conference']}' -> CSV '{title}' (score: {prob})")
+            status = "NO MATCH (<90) -> title_match = '{}' (original)".format(conference_name)
+            resolved = conference_name
+        print(f"  YAML '{conference_name}' -> CSV '{title}' (score: {prob})")
         print(f"     Resolution: {status}")
 
 # ============================================================================
