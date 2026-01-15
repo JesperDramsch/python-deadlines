@@ -41,8 +41,8 @@ def fuzzy_match(df_yml, df_remote):
     logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
     logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
 
-    # Load session-based rejections (user rejected these during previous runs)
-    _, known_rejections = load_title_mappings(path="utils/tidy_conf/data/.tmp/rejections.yml")
+    # Load tracked rejections (user rejected these during previous runs)
+    _, known_rejections = load_title_mappings(path="utils/tidy_conf/data/rejections.yml")
 
     # Load permanent exclusions from titles.yml (version-controlled)
     permanent_exclusions = load_exclusions()
@@ -108,7 +108,7 @@ def fuzzy_match(df_yml, df_remote):
 
     # Update mappings and rejections
     update_title_mappings(new_mappings)
-    update_title_mappings(new_rejections, path="utils/tidy_conf/data/.tmp/rejections.yml")
+    update_title_mappings(new_rejections, path="utils/tidy_conf/data/rejections.yml")
 
     # Ensure all title_match values are strings (not lists from process.extract)
     for i, row in df.iterrows():

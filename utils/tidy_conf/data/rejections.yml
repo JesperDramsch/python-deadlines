@@ -1,0 +1,12 @@
+# User-rejected fuzzy matches
+# When a user says "no" to a fuzzy match prompt, the pair is added here
+# to prevent re-prompting in future runs.
+#
+# Format follows titles.yml structure:
+#   conference_name:
+#     variations:
+#       - rejected_match_1
+#       - rejected_match_2
+
+alt_name: {}
+spelling: []
