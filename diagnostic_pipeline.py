@@ -15,6 +15,7 @@ from thefuzz import fuzz  # noqa: E402
 from thefuzz import process  # noqa: E402
 from tidy_conf.interactive_merge import FUZZY_MATCH_THRESHOLD  # noqa: E402
 from tidy_conf.interactive_merge import conference_scorer  # noqa: E402
+
 # Import our improved functions
 from tidy_conf.titles import COUNTRY_CODE_TO_NAME  # noqa: E402
 from tidy_conf.titles import tidy_df_names  # noqa: E402
@@ -60,9 +61,7 @@ print(df_yml_2026[["conference", "year", "place"]].to_string())
 
 # 1.2 Load CSV from GitHub
 print_subheader("1.2 Loading 2026 CSV from GitHub")
-csv_url = (
-    "https://raw.githubusercontent.com/python-organizers/conferences/main/2026.csv"
-)
+csv_url = "https://raw.githubusercontent.com/python-organizers/conferences/main/2026.csv"
 try:
     df_csv = pd.read_csv(csv_url)
     print(f"Loaded {len(df_csv)} conferences from CSV")
@@ -226,11 +225,7 @@ for csv_name in csv_names:
     else:
         best_match, best_score = None, 0
 
-    status = (
-        "EXACT"
-        if best_score == 100
-        else "FUZZY" if best_score >= FUZZY_MATCH_THRESHOLD else "NO MATCH"
-    )
+    status = "EXACT" if best_score == 100 else "FUZZY" if best_score >= FUZZY_MATCH_THRESHOLD else "NO MATCH"
     match_results.append(
         {
             "csv_name": csv_name,
@@ -289,12 +284,16 @@ if no_match:
         print("\n  Original names before tidy:")
         csv_orig = df_csv_mapped[
             df_csv_mapped["conference"].str.contains(
-                csv_n.split()[0], case=False, na=False,
+                csv_n.split()[0],
+                case=False,
+                na=False,
             )
         ]["conference"].values
         yml_orig = df_yml_2026[
             df_yml_2026["conference"].str.contains(
-                yml_n.split()[0], case=False, na=False,
+                yml_n.split()[0],
+                case=False,
+                na=False,
             )
         ]["conference"].values
         print(f"    CSV original: {csv_orig}")
@@ -368,7 +367,10 @@ print_df_info(df_csv_for_match, "df_csv_for_match")
 df_test = df_yml_for_match.copy()
 df_test["title_match"] = df_test["conference"].apply(
     lambda x: process.extract(
-        x, df_csv_for_match["conference"], scorer=conference_scorer, limit=1,
+        x,
+        df_csv_for_match["conference"],
+        scorer=conference_scorer,
+        limit=1,
     ),
 )
 
@@ -378,11 +380,7 @@ print("\nWhat fuzzy_match() would produce:")
 for _i, row in df_test.iterrows():
     if row["title_match"]:
         match_tuple = row["title_match"][0]
-        title, prob = (
-            (match_tuple[0], match_tuple[1])
-            if len(match_tuple) >= 2
-            else (match_tuple, 0)
-        )
+        title, prob = (match_tuple[0], match_tuple[1]) if len(match_tuple) >= 2 else (match_tuple, 0)
         conference_name = row["conference"]
 
         # Check exclusions first

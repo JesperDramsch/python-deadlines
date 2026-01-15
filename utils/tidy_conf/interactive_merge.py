@@ -12,25 +12,31 @@ import logging
 from collections import defaultdict
 
 import pandas as pd
-from thefuzz import fuzz, process
+from thefuzz import fuzz
+from thefuzz import process
 
 try:
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
-    from tidy_conf.validation import (MergeRecord, MergeReport,
-                                      ensure_conference_strings,
-                                      log_dataframe_state,
-                                      validate_merge_inputs)
-    from tidy_conf.yaml import load_title_mappings, update_title_mappings
+    from tidy_conf.validation import MergeRecord
+    from tidy_conf.validation import MergeReport
+    from tidy_conf.validation import ensure_conference_strings
+    from tidy_conf.validation import log_dataframe_state
+    from tidy_conf.validation import validate_merge_inputs
+    from tidy_conf.yaml import load_title_mappings
+    from tidy_conf.yaml import update_title_mappings
 except ImportError:
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
-    from .validation import (MergeRecord, MergeReport,
-                             ensure_conference_strings, log_dataframe_state,
-                             validate_merge_inputs)
-    from .yaml import load_title_mappings, update_title_mappings
+    from .validation import MergeRecord
+    from .validation import MergeReport
+    from .validation import ensure_conference_strings
+    from .validation import log_dataframe_state
+    from .validation import validate_merge_inputs
+    from .yaml import load_title_mappings
+    from .yaml import update_title_mappings
 
 # Configuration for fuzzy matching
 FUZZY_MATCH_THRESHOLD = 90  # Minimum score to consider a fuzzy match
@@ -318,9 +324,7 @@ def fuzzy_match(
             ):
                 new_rejections[title].append(conference_name)
                 new_rejections[conference_name].append(title)
-                df.at[i, "title_match"] = (
-                    conference_name  # Use original name, not index
-                )
+                df.at[i, "title_match"] = conference_name  # Use original name, not index
                 record.match_type = "fuzzy"
                 record.action = "kept_yaml"
             else:
@@ -348,9 +352,7 @@ def fuzzy_match(
         if not isinstance(row["title_match"], str):
             # Fall back to original conference name
             original_name = row.get("conference", str(i))
-            df.at[i, "title_match"] = (
-                original_name if isinstance(original_name, str) else str(i)
-            )
+            df.at[i, "title_match"] = original_name if isinstance(original_name, str) else str(i)
             logger.debug(
                 f"Converted title_match[{i}] to string: {df.at[i, 'title_match']}",
             )
@@ -467,11 +469,7 @@ def merge_conferences(
 
     for i, row in df_merge.iterrows():
         # Use the actual conference name from title_match index, not the row index
-        conference_name = (
-            df_merge.index.name
-            if hasattr(df_merge.index, "name") and df_merge.index.name
-            else i
-        )
+        conference_name = df_merge.index.name if hasattr(df_merge.index, "name") and df_merge.index.name else i
         if hasattr(row, "name") and row.name:
             conference_name = row.name
             logger.debug(f"Using row.name for conference: {conference_name}")
@@ -509,10 +507,7 @@ def merge_conferences(
                     # Remove whitespaces
                     rx, ry = str.strip(rx), str.strip(ry)
                     # Look at strings with extra information
-                    if (
-                        rx.split(" ")[0] == ry.split(" ")[0]
-                        and rx.split(" ")[-1] == ry.split(" ")[-1]
-                    ):
+                    if rx.split(" ")[0] == ry.split(" ")[0] and rx.split(" ")[-1] == ry.split(" ")[-1]:
                         if len(ry) > len(rx):
                             df_new.loc[i, column] = rx
                             ry = rx
@@ -610,16 +605,8 @@ def merge_conferences(
                                 df_new.loc[i, column] = rx + cfp_time_x
                 elif column == "place" and rx != ry:
                     # Special Place stuff
-                    rxx = (
-                        ", ".join((rx.split(",")[0].strip(), rx.split(",")[-1].strip()))
-                        if "," in rx
-                        else rx
-                    )
-                    ryy = (
-                        ", ".join((ry.split(",")[0].strip(), ry.split(",")[-1].strip()))
-                        if "," in ry
-                        else ry
-                    )
+                    rxx = ", ".join((rx.split(",")[0].strip(), rx.split(",")[-1].strip())) if "," in rx else rx
+                    ryy = ", ".join((ry.split(",")[0].strip(), ry.split(",")[-1].strip())) if "," in ry else ry
 
                     # Chill on the TBA
                     if rxx == ryy or rxx in ["TBD", "TBA", "None"]:
