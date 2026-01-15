@@ -77,19 +77,42 @@ def load_conferences() -> pd.DataFrame:
 
 def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
     """Load the title mappings from the YAML file."""
-    path = Path(path)
-    if not path.exists():
-        # Check if the directory exists, and create it if it doesn't
-        path.parent.mkdir(parents=True, exist_ok=True)
+    original_path = Path(path)
+    module_dir = Path(__file__).parent
 
-        # Check if the file exists, and create it if it doesn't
-        if not path.is_file():
-            with path.open("w") as file:
-                yaml.dump({"spelling": [], "alt_name": {}}, file, default_flow_style=False, allow_unicode=True)
+    # Determine filename based on what was requested
+    if "rejection" in str(original_path).lower():
+        filename = "rejections.yml"
+    else:
+        filename = "titles.yml"
+
+    # Try paths in order of preference, checking for non-empty files
+    # Priority: module-relative path (most reliable for imports from any working directory)
+    candidates = [
+        module_dir / "data" / filename,  # Most reliable - relative to module
+        original_path,  # As specified (backwards compatibility)
+    ]
+
+    path = None
+    for candidate in candidates:
+        if candidate.exists() and candidate.stat().st_size > 0:
+            path = candidate
+            break
+
+    if path is None:
+        # Create default file in module's data directory
+        path = module_dir / "data" / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("w") as file:
+            yaml.dump({"spelling": [], "alt_name": {}}, file, default_flow_style=False, allow_unicode=True)
         return [], {}
 
     with path.open(encoding="utf-8") as file:
         data = yaml.safe_load(file)
+
+    # Handle case where file is empty or contains only whitespace
+    if data is None:
+        return [], {}
 
     spellings = data.get("spelling", [])
     alt_names = {}
@@ -103,17 +126,23 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
         for current_variation in (global_name, *variations_raw):
             if not current_variation:
                 continue
-            current_variations = set(current_variation.strip())
+            # Create a set with the string (not a set of characters!)
+            current_variations = {current_variation.strip()}
+            # Add variations without "Conference" or "Conf"
             current_variations.update(
-                variation.replace("Conference", "").strip().replace("Conf", "")
+                variation.replace("Conference", "").strip().replace("Conf", "").strip()
                 for variation in current_variations.copy()
             )
+            # Add variations without spaces
             current_variations.update(re.sub(r"\s+", "", variation).strip() for variation in current_variations.copy())
+            # Add variations without non-word characters
             current_variations.update(re.sub(r"\W", "", variation).strip() for variation in current_variations.copy())
+            # Add variations without years
             current_variations.update(
-                re.sub(r"\b\s+(19|20)\d{2}\s*\b", "", variation).strip() for variation in current_variations.copy()
+                re.sub(r"\b\s*(19|20)\d{2}\s*\b", "", variation).strip() for variation in current_variations.copy()
             )
-            variations.extend(current_variations)
+            # Filter out empty strings
+            variations.extend(v for v in current_variations if v)
 
         if reverse:
             # Reverse mapping: map variations and regexes back to the global name
@@ -138,8 +167,19 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
 
 def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
     """Update the title mappings in the YAML file."""
-    path = Path(path)
-    if not path.exists():
+    original_path = Path(path)
+    module_dir = Path(__file__).parent
+
+    # Determine filename based on what was requested
+    if "rejection" in str(original_path).lower():
+        filename = "rejections.yml"
+    else:
+        filename = "titles.yml"
+
+    # Use module-relative path (most reliable)
+    path = module_dir / "data" / filename
+
+    if not path.exists() or path.stat().st_size == 0:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open(
             "w",
@@ -149,6 +189,10 @@ def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
     else:
         with path.open(encoding="utf-8") as file:
             title_data = yaml.safe_load(file)
+        if title_data is None:
+            title_data = {"spelling": [], "alt_name": {}}
+        if "alt_name" not in title_data:
+            title_data["alt_name"] = {}
         for key, values in data.items():
             if key in title_data["alt_name"].values():
                 continue

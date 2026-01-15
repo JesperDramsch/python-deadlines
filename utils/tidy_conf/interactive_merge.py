@@ -3,6 +3,7 @@ import logging
 from collections import defaultdict
 
 import pandas as pd
+from thefuzz import fuzz
 from thefuzz import process
 
 try:
@@ -17,6 +18,38 @@ except ImportError:
     from .utils import query_yes_no
     from .yaml import load_title_mappings
     from .yaml import update_title_mappings
+
+# Configuration for fuzzy matching
+FUZZY_MATCH_THRESHOLD = 90  # Minimum score to consider a fuzzy match
+EXACT_MATCH_THRESHOLD = 100  # Score for exact matches
+
+
+def conference_scorer(s1, s2):
+    """Custom scorer optimized for conference name matching.
+
+    Uses a combination of scoring strategies:
+    1. token_sort_ratio: Good for same words in different order
+    2. token_set_ratio: Good when one name has extra words
+    3. partial_ratio: Good for substring matches
+
+    Returns the maximum score from all strategies.
+    """
+    # Normalize case for comparison
+    s1_lower = s1.lower().strip()
+    s2_lower = s2.lower().strip()
+
+    # Calculate different similarity scores
+    scores = [
+        fuzz.token_sort_ratio(s1_lower, s2_lower),
+        fuzz.token_set_ratio(s1_lower, s2_lower),
+        fuzz.ratio(s1_lower, s2_lower),
+    ]
+
+    # For short names, also try partial matching
+    if len(s1_lower) < 20 or len(s2_lower) < 20:
+        scores.append(fuzz.partial_ratio(s1_lower, s2_lower))
+
+    return max(scores)
 
 
 def fuzzy_match(df_yml, df_remote):
@@ -61,9 +94,9 @@ def fuzzy_match(df_yml, df_remote):
 
     df = df_yml.copy()
 
-    # Get closest match for titles
+    # Get closest match for titles using our custom scorer
     df["title_match"] = df["conference"].apply(
-        lambda x: process.extract(x, df_remote["conference"], limit=1),
+        lambda x: process.extract(x, df_remote["conference"], scorer=conference_scorer, limit=1),
     )
 
     # Helper function to check if a pair is excluded (permanent or session-based)
@@ -78,26 +111,35 @@ def fuzzy_match(df_yml, df_remote):
         if not row["title_match"]:
             continue
 
-        title, prob, _ = row["title_match"][0]
+        # Handle both 2-tuple and 3-tuple results from process.extract
+        match_result = row["title_match"][0]
+        if len(match_result) == 3:
+            title, prob, _ = match_result
+        else:
+            title, prob = match_result
+
         conference_name = row["conference"]
 
         # Check if this pair is excluded (either permanent from titles.yml or session-based)
         if is_excluded(conference_name, title):
             logger.info(f"Excluded match: '{conference_name}' and '{title}' are in exclusion list")
-            df.at[i, "title_match"] = i
-        elif prob == 100:
+            df.at[i, "title_match"] = conference_name  # Use original name, not index
+        elif prob >= EXACT_MATCH_THRESHOLD:
+            logger.debug(f"Exact match: '{conference_name}' -> '{title}' (score: {prob})")
             df.at[i, "title_match"] = title
-        elif prob >= 90:
+        elif prob >= FUZZY_MATCH_THRESHOLD:
             # Prompt user for fuzzy matches that aren't excluded
+            logger.info(f"Fuzzy match candidate: '{conference_name}' -> '{title}' (score: {prob})")
             if not query_yes_no(f"Do '{row['conference']}' and '{title}' match? (y/n): "):
                 new_rejections[title].append(conference_name)
                 new_rejections[conference_name].append(title)
-                df.at[i, "title_match"] = i
+                df.at[i, "title_match"] = conference_name  # Use original name, not index
             else:
                 new_mappings[conference_name].append(title)
                 df.at[i, "title_match"] = title
         else:
-            df.at[i, "title_match"] = i
+            logger.debug(f"No match: '{conference_name}' (best: '{title}', score: {prob})")
+            df.at[i, "title_match"] = conference_name  # Use original name, not index
 
     # Update mappings and rejections
     update_title_mappings(new_mappings)
@@ -106,7 +148,9 @@ def fuzzy_match(df_yml, df_remote):
     # Ensure all title_match values are strings (not lists from process.extract)
     for i, row in df.iterrows():
         if not isinstance(row["title_match"], str):
-            df.at[i, "title_match"] = str(i)
+            # Fall back to original conference name
+            original_name = row.get("conference", str(i))
+            df.at[i, "title_match"] = original_name if isinstance(original_name, str) else str(i)
             logger.debug(f"Converted title_match[{i}] to string: {df.at[i, 'title_match']}")
 
     # Combine dataframes

@@ -14,6 +14,10 @@ import pandas as pd
 import yaml
 from thefuzz import fuzz, process
 
+# Import our improved functions
+from tidy_conf.titles import tidy_df_names, expand_country_codes, COUNTRY_CODE_TO_NAME
+from tidy_conf.interactive_merge import conference_scorer, FUZZY_MATCH_THRESHOLD
+
 def print_header(title):
     print("\n" + "="*80)
     print(f" {title}")
@@ -143,47 +147,28 @@ print("\nReverse mappings sample:")
 for k, v in list(known_mappings.items())[:15]:
     print(f"  '{k}' -> '{v}'")
 
-# Apply tidy_df_names manually to show before/after
+# Show the country code expansion feature
+print(f"Loaded {len(COUNTRY_CODE_TO_NAME)} country code mappings")
+print("Sample country codes:")
+for code in ['US', 'DE', 'PL', 'AU', 'AT', 'UK', 'JP', 'KR']:
+    if code in COUNTRY_CODE_TO_NAME:
+        print(f"  {code} -> {COUNTRY_CODE_TO_NAME[code]}")
+
+# Apply tidy_df_names verbose to show before/after
 def tidy_df_names_verbose(df, source_name):
     """Verbose version of tidy_df_names to show transformations."""
-    regex_year = re.compile(r"\b\s*(19|20)\d{2}\s*\b")
-    regex_py = re.compile(r"\b(Python|PyCon)\b")
+    original = df["conference"].copy()
 
-    series = df["conference"].copy()
-    original = series.copy()
-
-    # Remove years
-    series = series.str.replace(regex_year, "", regex=True)
-
-    # Add space after Python/PyCon
-    series = series.str.replace(regex_py, r" \1 ", regex=True)
-
-    # Replace + with space
-    series = series.str.replace(r"[\+]", " ", regex=True)
-
-    # Replace Conf with Conference
-    series = series.str.replace(r"\bConf \b", "Conference ", regex=True)
-
-    # Remove extra spaces
-    series = series.str.replace(r"\s+", " ", regex=True)
-
-    # Apply known mappings
-    series_before_mapping = series.str.strip().copy()
-    series = series.str.strip().replace(known_mappings)
-
-    # Strip whitespace
-    series = series.str.strip()
+    # Use the actual tidy_df_names function
+    df_tidy = tidy_df_names(df.copy())
 
     # Show transformations
     print(f"\n{source_name} Transformations:")
-    for i, (orig, after_regex, final) in enumerate(zip(original, series_before_mapping, series)):
+    for orig, final in zip(original, df_tidy["conference"]):
         changed = " [CHANGED]" if orig != final else ""
-        mapped = f" (mapped: '{after_regex}'->'{ final}')" if after_regex != final else ""
-        print(f"  '{orig}' -> '{final}'{mapped}{changed}")
+        print(f"  '{orig}' -> '{final}'{changed}")
 
-    df = df.copy()
-    df.loc[:, "conference"] = series
-    return df
+    return df_tidy
 
 print_subheader("3.1 YAML Conference Names (before/after)")
 df_yml_2026_tidy = tidy_df_names_verbose(df_yml_2026.copy(), "YAML")
@@ -208,14 +193,18 @@ print(f"\nCSV conference names AFTER tidy ({len(csv_names)}):")
 for name in sorted(csv_names):
     print(f"  - {name}")
 
-print_subheader("4.1 Fuzzy Match Scores (CSV vs YAML)")
+print_subheader("4.1 Fuzzy Match Scores (CSV vs YAML) - Using Custom Scorer")
 
-# For each CSV conference, find best match in YAML
+print(f"\nUsing FUZZY_MATCH_THRESHOLD = {FUZZY_MATCH_THRESHOLD}")
+print("Custom scorer uses: token_sort_ratio, token_set_ratio, ratio, partial_ratio")
+
+# For each CSV conference, find best match in YAML using our custom scorer
 print("\nBest matches for CSV conferences in YAML:")
 print("-" * 80)
 match_results = []
 for csv_name in csv_names:
-    matches = process.extract(csv_name, yml_names, limit=3)
+    # Use our custom scorer
+    matches = process.extract(csv_name, yml_names, scorer=conference_scorer, limit=3)
 
     # Handle both old (3-tuple) and new (2-tuple) formats
     if matches:
@@ -227,7 +216,7 @@ for csv_name in csv_names:
     else:
         best_match, best_score = None, 0
 
-    status = "EXACT" if best_score == 100 else "FUZZY" if best_score >= 90 else "NO MATCH"
+    status = "EXACT" if best_score == 100 else "FUZZY" if best_score >= FUZZY_MATCH_THRESHOLD else "NO MATCH"
     match_results.append({
         'csv_name': csv_name,
         'best_match': best_match,
@@ -246,7 +235,7 @@ for csv_name in csv_names:
         is_excluded = frozenset([csv_name, match]) in exclusions
         if is_excluded:
             marker = " <-- EXCLUDED (will not match)"
-        elif score >= 90:
+        elif score >= FUZZY_MATCH_THRESHOLD:
             marker = " <-- WILL MATCH"
         elif score >= 70:
             marker = " <-- NEEDS ATTENTION"
@@ -259,8 +248,8 @@ for csv_name in csv_names:
 # ============================================================================
 print_header("STEP 5: PROBLEM CASES ANALYSIS")
 
-print_subheader("5.1 Conferences that SHOULD match but DON'T (score < 90)")
-no_match = [r for r in match_results if r['score'] < 90]
+print_subheader(f"5.1 Conferences that SHOULD match but DON'T (score < {FUZZY_MATCH_THRESHOLD})")
+no_match = [r for r in match_results if r['score'] < FUZZY_MATCH_THRESHOLD]
 if no_match:
     for r in no_match:
         print(f"\n*** PROBLEM: CSV conference has no YAML match ***")
@@ -290,15 +279,15 @@ else:
 print_subheader("5.2 Conferences in YAML without CSV match")
 yml_in_csv = set()
 for r in match_results:
-    if r['score'] >= 90:
+    if r['score'] >= FUZZY_MATCH_THRESHOLD:
         yml_in_csv.add(r['best_match'])
 
 yml_no_csv = set(yml_names) - yml_in_csv
 if yml_no_csv:
     print("YAML conferences with no CSV equivalent:")
     for name in sorted(yml_no_csv):
-        # Find best CSV match
-        matches = process.extract(name, csv_names, limit=1)
+        # Find best CSV match using custom scorer
+        matches = process.extract(name, csv_names, scorer=conference_scorer, limit=1)
         if matches:
             first = matches[0]
             best_match, score = (first[0], first[1]) if len(first) >= 2 else (first, 0)
@@ -349,13 +338,13 @@ print_df_info(df_yml_for_match, "df_yml_for_match")
 print()
 print_df_info(df_csv_for_match, "df_csv_for_match")
 
-# Step 2: Apply fuzzy matching like the real function
+# Step 2: Apply fuzzy matching like the real function using our custom scorer
 df_test = df_yml_for_match.copy()
 df_test["title_match"] = df_test["conference"].apply(
-    lambda x: process.extract(x, df_csv_for_match["conference"], limit=1),
+    lambda x: process.extract(x, df_csv_for_match["conference"], scorer=conference_scorer, limit=1),
 )
 
-print_subheader("6.1 Fuzzy Match Raw Results")
+print_subheader("6.1 Fuzzy Match Raw Results (Using Custom Scorer)")
 
 print("\nWhat fuzzy_match() would produce:")
 for i, row in df_test.iterrows():
@@ -373,11 +362,11 @@ for i, row in df_test.iterrows():
         elif prob == 100:
             status = "EXACT -> title_match = '{}'".format(title)
             resolved = title
-        elif prob >= 90:
-            status = "FUZZY (>=90) -> Would prompt user, assuming 'yes'"
+        elif prob >= FUZZY_MATCH_THRESHOLD:
+            status = f"FUZZY (>={FUZZY_MATCH_THRESHOLD}) -> Would prompt user, assuming 'yes'"
             resolved = title
         else:
-            status = "NO MATCH (<90) -> title_match = '{}' (original)".format(conference_name)
+            status = f"NO MATCH (<{FUZZY_MATCH_THRESHOLD}) -> title_match = '{conference_name}' (original)"
             resolved = conference_name
         print(f"  YAML '{conference_name}' -> CSV '{title}' (score: {prob})")
         print(f"     Resolution: {status}")
@@ -393,7 +382,7 @@ if no_match:
     for r in no_match:
         print(f"\n  CSV: '{r['csv_name']}'")
         print(f"  YAML: '{r['best_match']}'")
-        print(f"  Similarity: {r['score']}% (threshold is 90%)")
+        print(f"  Similarity: {r['score']}% (threshold is {FUZZY_MATCH_THRESHOLD}%)")
 
     print("\n*** ROOT CAUSE ANALYSIS ***")
     for r in no_match:
@@ -425,8 +414,8 @@ else:
 print_header("STEP 8: SUMMARY AND NEXT STEPS")
 
 exact_matches = len([r for r in match_results if r['score'] == 100])
-fuzzy_matches = len([r for r in match_results if 90 <= r['score'] < 100])
-no_matches = len([r for r in match_results if r['score'] < 90])
+fuzzy_matches = len([r for r in match_results if FUZZY_MATCH_THRESHOLD <= r['score'] < 100])
+no_matches = len([r for r in match_results if r['score'] < FUZZY_MATCH_THRESHOLD])
 
 print("Match Statistics:")
 print(f"  - Exact matches (100%): {exact_matches}")
