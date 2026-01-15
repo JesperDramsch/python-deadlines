@@ -63,6 +63,8 @@ alt_name:
     global: PyCon DE & PyData Berlin
   PyCon Germany & PyData Conference:
     global: PyCon DE & PyData
+    variations:
+    - PyCon DE & PyData
   PyCon Hong Kong:
     global: PyCon HK
   PyCon Indonesia:
@@ -140,6 +142,22 @@ alt_name:
     variations:
     - Scipy
     - SciPy
+  EuroPython:
+    variations:
+    - Euro Python
+    - EuroPython Conference
+  PythonAsia:
+    variations:
+    - Python Asia
+    - Python Asia Conference
+  PyConf Hyderabad:
+    variations:
+    - PyConf HYD
+    - Python Conference Hyderabad
+  PyLadiesCon:
+    variations:
+    - PyLadies Conference
+    - PyLadies Con
 spelling:
 - DjangoCon
 - EuroPython

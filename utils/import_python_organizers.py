@@ -108,13 +108,19 @@ def write_csv(df: pd.DataFrame, year: int, csv_location: str) -> None:
     logger.debug(f"write_csv input columns: {df.columns.tolist()}")
 
     # Validate and fix conference names before processing
-    invalid_mask = ~df["conference"].apply(lambda x: isinstance(x, str) and len(str(x).strip()) > 0)
+    invalid_mask = ~df["conference"].apply(
+        lambda x: isinstance(x, str) and len(str(x).strip()) > 0,
+    )
     invalid_conferences = df[invalid_mask]
 
     if not invalid_conferences.empty:
-        logger.error(f"Found {len(invalid_conferences)} rows with invalid conference names in write_csv:")
+        logger.error(
+            f"Found {len(invalid_conferences)} rows with invalid conference names in write_csv:",
+        )
         for idx, row in invalid_conferences.iterrows():
-            logger.error(f"  Row {idx}: conference = {row['conference']} (type: {type(row['conference'])})")
+            logger.error(
+                f"  Row {idx}: conference = {row['conference']} (type: {type(row['conference'])})",
+            )
 
         # Fix invalid conference names with proper indexing
         for idx in invalid_conferences.index:
@@ -193,9 +199,13 @@ def write_csv(df: pd.DataFrame, year: int, csv_location: str) -> None:
 
             logger.debug(f"Writing CSV for year {y} with {len(csv_data)} conferences")
             if not csv_data.empty:
-                logger.debug(f"Sample conference names: {csv_data['Subject'].head().tolist()}")
+                logger.debug(
+                    f"Sample conference names: {csv_data['Subject'].head().tolist()}",
+                )
                 if "Talk Deadline" in csv_data.columns:
-                    logger.debug(f"Talk Deadline values before CSV write: {csv_data['Talk Deadline'].tolist()}")
+                    logger.debug(
+                        f"Talk Deadline values before CSV write: {csv_data['Talk Deadline'].tolist()}",
+                    )
 
             csv_data.to_csv(Path(csv_location, f"{y}.csv"), index=False)
             logger.info(f"Successfully wrote {Path(csv_location, f'{y}.csv')}")
@@ -283,7 +293,11 @@ def main(year: int | None = None, base: str = "") -> None:
         if df_csv_for_merge.loc[df_csv_for_merge["year"] == y].empty or df_yml[df_yml["year"] == y].empty:
             # Concatenate the new data with the existing data
             df_new = pd.concat(
-                [df_new, df_yml[df_yml["year"] == y], df_csv_for_merge.loc[df_csv_for_merge["year"] == y]],
+                [
+                    df_new,
+                    df_yml[df_yml["year"] == y],
+                    df_csv_for_merge.loc[df_csv_for_merge["year"] == y],
+                ],
                 ignore_index=True,
             )
             continue
@@ -291,10 +305,18 @@ def main(year: int | None = None, base: str = "") -> None:
         logger.info(f"Processing year {y} merge operations")
         df_yml_year = df_yml[df_yml["year"] == y]
         df_csv_year = df_csv_for_merge.loc[df_csv_for_merge["year"] == y]
-        logger.debug(f"Year {y}: df_yml_year shape: {df_yml_year.shape}, df_csv_year shape: {df_csv_year.shape}")
+        logger.debug(
+            f"Year {y}: df_yml_year shape: {df_yml_year.shape}, df_csv_year shape: {df_csv_year.shape}",
+        )
 
-        df_merged, df_remote = fuzzy_match(df_yml_year, df_csv_year)
-        logger.info(f"Fuzzy match completed for year {y}. df_merged shape: {df_merged.shape}")
+        df_merged, df_remote, merge_report = fuzzy_match(df_yml_year, df_csv_year)
+        logger.info(
+            f"Merge report: {merge_report.exact_matches} exact, "
+            f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
+        )
+        logger.info(
+            f"Fuzzy match completed for year {y}. df_merged shape: {df_merged.shape}",
+        )
 
         df_merged["year"] = y
         df_merged = df_merged.drop(["conference"], axis=1)
@@ -302,10 +324,14 @@ def main(year: int | None = None, base: str = "") -> None:
 
         df_merged = deduplicate(df_merged)
         df_remote = deduplicate(df_remote)
-        logger.debug(f"After deduplication - df_merged: {df_merged.shape}, df_remote: {df_remote.shape}")
+        logger.debug(
+            f"After deduplication - df_merged: {df_merged.shape}, df_remote: {df_remote.shape}",
+        )
 
         df_merged = merge_conferences(df_merged, df_remote)
-        logger.info(f"Merge conferences completed for year {y}. Final shape: {df_merged.shape}")
+        logger.info(
+            f"Merge conferences completed for year {y}. Final shape: {df_merged.shape}",
+        )
 
         df_new = pd.concat([df_new, df_merged], ignore_index=True)
 
@@ -344,7 +370,12 @@ def main(year: int | None = None, base: str = "") -> None:
             df_csv_output.place.str.split(",")
             .str[-1]
             .str.strip()
-            .apply(lambda x: iso3166.countries_by_name.get(x.upper(), iso3166.Country("", "", "", "", "")).alpha3)
+            .apply(
+                lambda x: iso3166.countries_by_name.get(
+                    x.upper(),
+                    iso3166.Country("", "", "", "", ""),
+                ).alpha3,
+            )
         )
     except AttributeError as e:
         df_csv_output.loc[:, "Country"] = ""
