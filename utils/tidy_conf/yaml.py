@@ -75,26 +75,6 @@ def load_conferences() -> pd.DataFrame:
     ).set_index("conference", drop=False)
 
 
-def load_exclusions(path="utils/tidy_conf/data/titles.yml"):
-    """Load the exclusion pairs from the YAML file.
-
-    Returns a set of frozensets, where each frozenset contains two conference
-    names that should never be fuzzy-matched together.
-    """
-    path = Path(path)
-    if not path.exists():
-        return set()
-
-    with path.open(encoding="utf-8") as file:
-        data = yaml.safe_load(file)
-
-    exclusions = set()
-    for pair in data.get("exclusions", []):
-        if len(pair) == 2:
-            exclusions.add(frozenset(pair))
-    return exclusions
-
-
 def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
     """Load the title mappings from the YAML file."""
     path = Path(path)
@@ -105,7 +85,7 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
         # Check if the file exists, and create it if it doesn't
         if not path.is_file():
             with path.open("w") as file:
-                yaml.dump({"spelling": [], "alt_name": {}, "exclusions": []}, file, default_flow_style=False, allow_unicode=True)
+                yaml.dump({"spelling": [], "alt_name": {}}, file, default_flow_style=False, allow_unicode=True)
         return [], {}
 
     with path.open(encoding="utf-8") as file:

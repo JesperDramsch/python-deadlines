@@ -103,16 +103,21 @@ with titles_yml_path.open(encoding="utf-8") as file:
 spellings = titles_data.get("spelling", [])
 alt_names = titles_data.get("alt_name", {})
 
-# Load exclusions
-exclusions_raw = titles_data.get("exclusions", [])
-exclusions = set()
-for pair in exclusions_raw:
-    if len(pair) == 2:
-        exclusions.add(frozenset(pair))
+# Load rejections from rejections.yml
+rejections_yml_path = Path("tidy_conf/data/rejections.yml")
+with rejections_yml_path.open(encoding="utf-8") as file:
+    rejections_data = yaml.safe_load(file)
 
-print(f"Loaded {len(exclusions)} exclusion pairs:")
-for pair in exclusions:
-    names = list(pair)
+rejections_alt_names = rejections_data.get("alt_name", {})
+exclusions = set()
+for name1, data in rejections_alt_names.items():
+    variations = data.get("variations", []) if isinstance(data, dict) else []
+    for name2 in variations:
+        exclusions.add(frozenset([name1, name2]))
+
+print(f"Loaded {len(exclusions)} rejection pairs from rejections.yml:")
+for pair in sorted(exclusions, key=lambda x: sorted(x)[0]):
+    names = sorted(list(pair))
     print(f"  - '{names[0]}' <-> '{names[1]}'")
 
 print(f"Loaded {len(spellings)} spellings to check")

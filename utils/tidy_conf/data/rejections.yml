@@ -1,12 +1,27 @@
-# User-rejected fuzzy matches
-# When a user says "no" to a fuzzy match prompt, the pair is added here
-# to prevent re-prompting in future runs.
+# Rejected fuzzy matches
+# Pairs listed here will never be matched, even if fuzzy matching scores them highly.
+# This includes both:
+#   - Known false-positives (e.g., Austria/Australia)
+#   - User-rejected matches from interactive prompts
 #
-# Format follows titles.yml structure:
+# Format:
 #   conference_name:
 #     variations:
 #       - rejected_match_1
 #       - rejected_match_2
 
-alt_name: {}
+alt_name:
+  # Austria and Australia are different countries - never match these
+  PyCon Austria:
+    variations:
+      - PyCon Australia
+      - PyCon AU
+  PyCon AT:
+    variations:
+      - PyCon Australia
+      - PyCon AU
+  Python Austria:
+    variations:
+      - PyCon Australia
+
 spelling: []

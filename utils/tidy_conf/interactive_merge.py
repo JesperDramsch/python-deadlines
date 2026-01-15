@@ -9,14 +9,12 @@ try:
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
-    from tidy_conf.yaml import load_exclusions
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
-    from .yaml import load_exclusions
     from .yaml import load_title_mappings
     from .yaml import update_title_mappings
 
@@ -41,23 +39,18 @@ def fuzzy_match(df_yml, df_remote):
     logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
     logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
 
-    # Load tracked rejections (user rejected these during previous runs)
+    # Load rejections (pairs that should never match)
     _, known_rejections = load_title_mappings(path="utils/tidy_conf/data/rejections.yml")
 
-    # Load permanent exclusions from titles.yml (version-controlled)
-    permanent_exclusions = load_exclusions()
-
-    # Convert known_rejections to frozenset pairs for unified checking
-    # known_rejections format: {name1: {variations: [name2, name3]}, ...}
-    session_exclusions = set()
+    # Convert rejections to frozenset pairs for fast lookup
+    # Format: {name1: {variations: [name2, name3]}, ...}
+    all_exclusions = set()
     for name1, data in known_rejections.items():
         variations = data.get("variations", []) if isinstance(data, dict) else []
         for name2 in variations:
-            session_exclusions.add(frozenset([name1, name2]))
+            all_exclusions.add(frozenset([name1, name2]))
 
-    # Combine permanent and session exclusions
-    all_exclusions = permanent_exclusions | session_exclusions
-    logger.debug(f"Loaded {len(permanent_exclusions)} permanent exclusions, {len(session_exclusions)} session rejections")
+    logger.debug(f"Loaded {len(all_exclusions)} rejection pairs from rejections.yml")
 
     new_mappings = defaultdict(list)
     new_rejections = defaultdict(list)
