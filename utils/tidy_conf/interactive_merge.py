@@ -12,31 +12,25 @@ import logging
 from collections import defaultdict
 
 import pandas as pd
-from thefuzz import fuzz
-from thefuzz import process
+from thefuzz import fuzz, process
 
 try:
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
-    from tidy_conf.validation import MergeRecord
-    from tidy_conf.validation import MergeReport
-    from tidy_conf.validation import ensure_conference_strings
-    from tidy_conf.validation import log_dataframe_state
-    from tidy_conf.validation import validate_merge_inputs
-    from tidy_conf.yaml import load_title_mappings
-    from tidy_conf.yaml import update_title_mappings
+    from tidy_conf.validation import (MergeRecord, MergeReport,
+                                      ensure_conference_strings,
+                                      log_dataframe_state,
+                                      validate_merge_inputs)
+    from tidy_conf.yaml import load_title_mappings, update_title_mappings
 except ImportError:
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
-    from .validation import MergeRecord
-    from .validation import MergeReport
-    from .validation import ensure_conference_strings
-    from .validation import log_dataframe_state
-    from .validation import validate_merge_inputs
-    from .yaml import load_title_mappings
-    from .yaml import update_title_mappings
+    from .validation import (MergeRecord, MergeReport,
+                             ensure_conference_strings, log_dataframe_state,
+                             validate_merge_inputs)
+    from .yaml import load_title_mappings, update_title_mappings
 
 # Configuration for fuzzy matching
 FUZZY_MATCH_THRESHOLD = 90  # Minimum score to consider a fuzzy match
@@ -52,7 +46,18 @@ MERGE_STRATEGY = {
 
 
 def is_placeholder_value(value) -> bool:
-    """Check if a value is a placeholder (TBA, TBD, None, empty)."""
+    """Check if a value is a placeholder (TBA, TBD, None, empty).
+
+    Parameters
+    ----------
+    value : Any
+        Value to check for placeholder status
+
+    Returns
+    -------
+    bool
+        True if value is a placeholder, False otherwise
+    """
     if pd.isna(value):
         return True
     if not isinstance(value, str):
@@ -61,7 +66,13 @@ def is_placeholder_value(value) -> bool:
     return stripped in ("TBA", "TBD", "NONE", "N/A", "") or not stripped
 
 
-def resolve_conflict(yaml_val, remote_val, column: str, conference: str, logger) -> tuple:
+def resolve_conflict(
+    yaml_val,
+    remote_val,
+    column: str,
+    conference: str,
+    logger,
+) -> tuple:
     """Resolve a conflict between YAML and remote values.
 
     Strategy:
@@ -69,9 +80,22 @@ def resolve_conflict(yaml_val, remote_val, column: str, conference: str, logger)
     2. If YAML has a value, prefer it (source of truth)
     3. Log the resolution for debugging
 
+    Parameters
+    ----------
+    yaml_val : Any
+        Value from YAML source (source of truth)
+    remote_val : Any
+        Value from remote source (CSV/ICS)
+    column : str
+        Column name where conflict occurs
+    conference : str
+        Conference name for logging
+    logger : logging.Logger
+        Logger instance for debug output
+
     Returns
     -------
-    tuple[value, str]
+    tuple[Any, str]
         (resolved value, resolution reason)
     """
     yaml_is_placeholder = is_placeholder_value(yaml_val)
@@ -84,7 +108,9 @@ def resolve_conflict(yaml_val, remote_val, column: str, conference: str, logger)
     # If YAML is placeholder but remote has value, use remote
     if yaml_is_placeholder and not remote_is_placeholder:
         if MERGE_STRATEGY["log_conflicts"]:
-            logger.debug(f"Conflict [{conference}][{column}]: Using remote '{remote_val}' (YAML was placeholder)")
+            logger.debug(
+                f"Conflict [{conference}][{column}]: Using remote '{remote_val}' (YAML was placeholder)",
+            )
         return remote_val, "yaml_placeholder"
 
     # If remote is placeholder but YAML has value, use YAML
@@ -97,11 +123,13 @@ def resolve_conflict(yaml_val, remote_val, column: str, conference: str, logger)
 
     # Values differ - log and use YAML (or prompt user)
     if MERGE_STRATEGY["log_conflicts"]:
-        logger.info(f"Conflict [{conference}][{column}]: YAML='{yaml_val}' vs Remote='{remote_val}' -> keeping YAML")
+        logger.info(
+            f"Conflict [{conference}][{column}]: YAML='{yaml_val}' vs Remote='{remote_val}' -> keeping YAML",
+        )
     return yaml_val, "yaml_preferred"
 
 
-def conference_scorer(s1, s2):
+def conference_scorer(s1: str, s2: str) -> int:
     """Custom scorer optimized for conference name matching.
 
     Uses a combination of scoring strategies:
@@ -109,7 +137,17 @@ def conference_scorer(s1, s2):
     2. token_set_ratio: Good when one name has extra words
     3. partial_ratio: Good for substring matches
 
-    Returns the maximum score from all strategies.
+    Parameters
+    ----------
+    s1 : str
+        First conference name to compare
+    s2 : str
+        Second conference name to compare
+
+    Returns
+    -------
+    int
+        Maximum similarity score from all strategies (0-100)
     """
     # Normalize case for comparison
     s1_lower = s1.lower().strip()
@@ -129,7 +167,11 @@ def conference_scorer(s1, s2):
     return max(scores)
 
 
-def fuzzy_match(df_yml, df_remote, report=None):
+def fuzzy_match(
+    df_yml: pd.DataFrame,
+    df_remote: pd.DataFrame,
+    report: MergeReport | None = None,
+) -> tuple[pd.DataFrame, pd.DataFrame, MergeReport]:
     """Fuzzy merge conferences from two pandas dataframes on title.
 
     Loads known mappings from a YAML file and uses them to harmonise conference titles.
@@ -154,7 +196,9 @@ def fuzzy_match(df_yml, df_remote, report=None):
         (merged DataFrame, remote DataFrame, merge report)
     """
     logger = logging.getLogger(__name__)
-    logger.info(f"Starting fuzzy_match with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
+    logger.info(
+        f"Starting fuzzy_match with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}",
+    )
 
     # Initialize or update merge report
     if report is None:
@@ -178,12 +222,16 @@ def fuzzy_match(df_yml, df_remote, report=None):
     log_dataframe_state(df_yml, "df_yml after tidy_df_names")
     log_dataframe_state(df_remote, "df_remote after tidy_df_names")
 
-    logger.debug(f"After tidy_df_names - df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
+    logger.debug(
+        f"After tidy_df_names - df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}",
+    )
     logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
     logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
 
     # Load rejections (pairs that should never match)
-    _, known_rejections = load_title_mappings(path="utils/tidy_conf/data/rejections.yml")
+    _, known_rejections = load_title_mappings(
+        path="utils/tidy_conf/data/rejections.yml",
+    )
 
     # Convert rejections to frozenset pairs for fast lookup
     # Format: {name1: {variations: [name2, name3]}, ...}
@@ -205,7 +253,12 @@ def fuzzy_match(df_yml, df_remote, report=None):
 
     # Get closest match for titles using our custom scorer
     df["title_match"] = df["conference"].apply(
-        lambda x: process.extract(x, df_remote["conference"], scorer=conference_scorer, limit=1),
+        lambda x: process.extract(
+            x,
+            df_remote["conference"],
+            scorer=conference_scorer,
+            limit=1,
+        ),
     )
 
     # Helper function to check if a pair is excluded (permanent or session-based)
@@ -242,22 +295,32 @@ def fuzzy_match(df_yml, df_remote, report=None):
 
         # Check if this pair is excluded (either permanent from titles.yml or session-based)
         if is_excluded(conference_name, title):
-            logger.info(f"Excluded match: '{conference_name}' and '{title}' are in exclusion list")
+            logger.info(
+                f"Excluded match: '{conference_name}' and '{title}' are in exclusion list",
+            )
             df.at[i, "title_match"] = conference_name  # Use original name, not index
             record.match_type = "excluded"
             record.action = "kept_yaml"
         elif prob >= EXACT_MATCH_THRESHOLD:
-            logger.debug(f"Exact match: '{conference_name}' -> '{title}' (score: {prob})")
+            logger.debug(
+                f"Exact match: '{conference_name}' -> '{title}' (score: {prob})",
+            )
             df.at[i, "title_match"] = title
             record.match_type = "exact"
             record.action = "merged"
         elif prob >= FUZZY_MATCH_THRESHOLD:
             # Prompt user for fuzzy matches that aren't excluded
-            logger.info(f"Fuzzy match candidate: '{conference_name}' -> '{title}' (score: {prob})")
-            if not query_yes_no(f"Do '{row['conference']}' and '{title}' match? (y/n): "):
+            logger.info(
+                f"Fuzzy match candidate: '{conference_name}' -> '{title}' (score: {prob})",
+            )
+            if not query_yes_no(
+                f"Do '{row['conference']}' and '{title}' match? (y/n): ",
+            ):
                 new_rejections[title].append(conference_name)
                 new_rejections[conference_name].append(title)
-                df.at[i, "title_match"] = conference_name  # Use original name, not index
+                df.at[i, "title_match"] = (
+                    conference_name  # Use original name, not index
+                )
                 record.match_type = "fuzzy"
                 record.action = "kept_yaml"
             else:
@@ -266,7 +329,9 @@ def fuzzy_match(df_yml, df_remote, report=None):
                 record.match_type = "fuzzy"
                 record.action = "merged"
         else:
-            logger.debug(f"No match: '{conference_name}' (best: '{title}', score: {prob})")
+            logger.debug(
+                f"No match: '{conference_name}' (best: '{title}', score: {prob})",
+            )
             df.at[i, "title_match"] = conference_name  # Use original name, not index
             record.match_type = "no_match"
             record.action = "kept_yaml"
@@ -283,8 +348,12 @@ def fuzzy_match(df_yml, df_remote, report=None):
         if not isinstance(row["title_match"], str):
             # Fall back to original conference name
             original_name = row.get("conference", str(i))
-            df.at[i, "title_match"] = original_name if isinstance(original_name, str) else str(i)
-            logger.debug(f"Converted title_match[{i}] to string: {df.at[i, 'title_match']}")
+            df.at[i, "title_match"] = (
+                original_name if isinstance(original_name, str) else str(i)
+            )
+            logger.debug(
+                f"Converted title_match[{i}] to string: {df.at[i, 'title_match']}",
+            )
 
     # Combine dataframes
     logger.info("Combining dataframes using title_match index")
@@ -298,7 +367,9 @@ def fuzzy_match(df_yml, df_remote, report=None):
     # Validate that the index contains actual conference names, not integers
     integer_indices = [idx for idx in df_new.index if isinstance(idx, int)]
     if integer_indices:
-        logger.warning(f"Found {len(integer_indices)} integer indices in df_new: {integer_indices[:5]}...")
+        logger.warning(
+            f"Found {len(integer_indices)} integer indices in df_new: {integer_indices[:5]}...",
+        )
 
     # Fill missing CFPs with "TBA"
     df_new.loc[df_new["cfp"].isna(), "cfp"] = "TBA"
@@ -319,7 +390,11 @@ def fuzzy_match(df_yml, df_remote, report=None):
     return df_new, df_remote, report
 
 
-def merge_conferences(df_yml, df_remote, report=None):
+def merge_conferences(
+    df_yml: pd.DataFrame,
+    df_remote: pd.DataFrame,
+    report: MergeReport | None = None,
+) -> pd.DataFrame:
     """Merge two dataframes on title and interactively resolve conflicts.
 
     Merge Strategy (defined by MERGE_STRATEGY):
@@ -343,7 +418,9 @@ def merge_conferences(df_yml, df_remote, report=None):
         Merged DataFrame
     """
     logger = logging.getLogger(__name__)
-    logger.info(f"Starting merge_conferences with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}")
+    logger.info(
+        f"Starting merge_conferences with df_yml shape: {df_yml.shape}, df_remote shape: {df_remote.shape}",
+    )
 
     # Initialize report if not provided
     if report is None:
@@ -354,7 +431,9 @@ def merge_conferences(df_yml, df_remote, report=None):
     # Data validation before merge
     logger.debug(f"df_yml columns: {df_yml.columns.tolist()}")
     logger.debug(f"df_remote columns: {df_remote.columns.tolist()}")
-    logger.debug(f"df_yml index: {df_yml.index.tolist()[:5]}...")  # Show first 5 indices
+    logger.debug(
+        f"df_yml index: {df_yml.index.tolist()[:5]}...",
+    )  # Show first 5 indices
     logger.debug(f"df_remote index: {df_remote.index.tolist()[:5]}...")
 
     df_new = get_schema()
@@ -375,14 +454,24 @@ def merge_conferences(df_yml, df_remote, report=None):
     }
 
     logger.info("Performing pandas merge on 'title_match'")
-    df_merge = pd.merge(left=df_yml, right=df_remote, how="outer", on="title_match", validate="one_to_one")
+    df_merge = pd.merge(
+        left=df_yml,
+        right=df_remote,
+        how="outer",
+        on="title_match",
+        validate="one_to_one",
+    )
     logger.info(f"Merge completed. df_merge shape: {df_merge.shape}")
     logger.debug(f"df_merge columns: {df_merge.columns.tolist()}")
     logger.debug(f"df_merge index: {df_merge.index.tolist()[:5]}...")
 
     for i, row in df_merge.iterrows():
         # Use the actual conference name from title_match index, not the row index
-        conference_name = df_merge.index.name if hasattr(df_merge.index, "name") and df_merge.index.name else i
+        conference_name = (
+            df_merge.index.name
+            if hasattr(df_merge.index, "name") and df_merge.index.name
+            else i
+        )
         if hasattr(row, "name") and row.name:
             conference_name = row.name
             logger.debug(f"Using row.name for conference: {conference_name}")
@@ -395,7 +484,9 @@ def merge_conferences(df_yml, df_remote, report=None):
 
         # Validate conference name is a string
         if not isinstance(conference_name, str):
-            logger.error(f"Conference name is not a string: {type(conference_name)} = {conference_name}")
+            logger.error(
+                f"Conference name is not a string: {type(conference_name)} = {conference_name}",
+            )
             conference_name = str(conference_name)
 
         df_new.loc[i, "conference"] = conference_name
@@ -418,7 +509,10 @@ def merge_conferences(df_yml, df_remote, report=None):
                     # Remove whitespaces
                     rx, ry = str.strip(rx), str.strip(ry)
                     # Look at strings with extra information
-                    if rx.split(" ")[0] == ry.split(" ")[0] and rx.split(" ")[-1] == ry.split(" ")[-1]:
+                    if (
+                        rx.split(" ")[0] == ry.split(" ")[0]
+                        and rx.split(" ")[-1] == ry.split(" ")[-1]
+                    ):
                         if len(ry) > len(rx):
                             df_new.loc[i, column] = rx
                             ry = rx
@@ -453,7 +547,9 @@ def merge_conferences(df_yml, df_remote, report=None):
                             df_new.loc[i, column] = rx
                             ry = rx
                     else:
-                        if query_yes_no(f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?"):
+                        if query_yes_no(
+                            f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?",
+                        ):
                             df_new.loc[i, column] = ry
                         else:
                             df_new.loc[i, column] = rx
@@ -514,8 +610,16 @@ def merge_conferences(df_yml, df_remote, report=None):
                                 df_new.loc[i, column] = rx + cfp_time_x
                 elif column == "place" and rx != ry:
                     # Special Place stuff
-                    rxx = ", ".join((rx.split(",")[0].strip(), rx.split(",")[-1].strip())) if "," in rx else rx
-                    ryy = ", ".join((ry.split(",")[0].strip(), ry.split(",")[-1].strip())) if "," in ry else ry
+                    rxx = (
+                        ", ".join((rx.split(",")[0].strip(), rx.split(",")[-1].strip()))
+                        if "," in rx
+                        else rx
+                    )
+                    ryy = (
+                        ", ".join((ry.split(",")[0].strip(), ry.split(",")[-1].strip()))
+                        if "," in ry
+                        else ry
+                    )
 
                     # Chill on the TBA
                     if rxx == ryy or rxx in ["TBD", "TBA", "None"]:
@@ -532,13 +636,17 @@ def merge_conferences(df_yml, df_remote, report=None):
                     elif ryy in rxx:
                         df_new.loc[i, column] = rxx
                     else:
-                        if query_yes_no(f"For {i} in column '{column}' would you prefer '{ryy}' or keep '{rxx}'?"):
+                        if query_yes_no(
+                            f"For {i} in column '{column}' would you prefer '{ryy}' or keep '{rxx}'?",
+                        ):
                             df_new.loc[i, column] = ryy
                         else:
                             df_new.loc[i, column] = rxx
                 else:
                     # For everything else give a choice
-                    if query_yes_no(f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?"):
+                    if query_yes_no(
+                        f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?",
+                    ):
                         df_new.loc[i, column] = ry
                     else:
                         df_new.loc[i, column] = rx
@@ -562,11 +670,19 @@ def merge_conferences(df_yml, df_remote, report=None):
     logger.debug(f"Final df_new columns: {df_new.columns.tolist()}")
 
     # Validate conference names
-    invalid_conferences = df_new[~df_new["conference"].apply(lambda x: isinstance(x, str) and len(str(x).strip()) > 0)]
+    invalid_conferences = df_new[
+        ~df_new["conference"].apply(
+            lambda x: isinstance(x, str) and len(str(x).strip()) > 0,
+        )
+    ]
     if not invalid_conferences.empty:
-        logger.error(f"Found {len(invalid_conferences)} rows with invalid conference names:")
+        logger.error(
+            f"Found {len(invalid_conferences)} rows with invalid conference names:",
+        )
         for idx, row in invalid_conferences.iterrows():
-            logger.error(f"  Row {idx}: conference = {row['conference']} (type: {type(row['conference'])})")
+            logger.error(
+                f"  Row {idx}: conference = {row['conference']} (type: {type(row['conference'])})",
+            )
 
     # Check for null conference names
     null_conferences = df_new[df_new["conference"].isna()]
