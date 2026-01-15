@@ -1,8 +1,6 @@
 # Standard library
 import re
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 # Third-party
@@ -13,26 +11,20 @@ from icalendar import Calendar
 # Local imports
 try:
     from logging_config import get_tqdm_logger
-    from tidy_conf import fuzzy_match
-    from tidy_conf import load_conferences
-    from tidy_conf import merge_conferences
+    from tidy_conf import fuzzy_match, load_conferences, merge_conferences
     from tidy_conf.date import create_nice_date
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import fill_missing_required
-    from tidy_conf.yaml import load_title_mappings
-    from tidy_conf.yaml import write_df_yaml
+    from tidy_conf.yaml import load_title_mappings, write_df_yaml
 except ImportError:
     from .logging_config import get_tqdm_logger
-    from .tidy_conf import fuzzy_match
-    from .tidy_conf import load_conferences
-    from .tidy_conf import merge_conferences
+    from .tidy_conf import fuzzy_match, load_conferences, merge_conferences
     from .tidy_conf.date import create_nice_date
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.titles import tidy_df_names
     from .tidy_conf.utils import fill_missing_required
-    from .tidy_conf.yaml import load_title_mappings
-    from .tidy_conf.yaml import write_df_yaml
+    from .tidy_conf.yaml import load_title_mappings, write_df_yaml
 
 logger = get_tqdm_logger(__name__)
 
@@ -49,9 +41,7 @@ def ics_to_dataframe() -> pd.DataFrame:
         ConnectionError: If unable to fetch the calendar data
         ValueError: If calendar data is invalid
     """
-    calendar_url = (
-        "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c@group.calendar.google.com/public/basic.ics"
-    )
+    calendar_url = "https://www.google.com/calendar/ical/j7gov1cmnqr9tvg14k621j7t5c@group.calendar.google.com/public/basic.ics"
 
     # Validate URL scheme for security
     if not calendar_url.startswith("https://"):
@@ -72,12 +62,16 @@ def ics_to_dataframe() -> pd.DataFrame:
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to fetch calendar data: {e}")
-        raise ConnectionError(f"Unable to fetch calendar from {calendar_url}: {e}") from e
+        raise ConnectionError(
+            f"Unable to fetch calendar from {calendar_url}: {e}",
+        ) from e
     except Exception as e:
         logger.error(f"Failed to parse calendar data: {e}")
         raise ValueError(f"Invalid calendar data: {e}") from e
 
-    link_desc = re.compile(r".*<a .*?href=\"? ?((?:https|http):\/\/[\w\.\/\-\?= ]+)\"?.*?>(.*?)[#0-9 ]*<\/?a>.*")
+    link_desc = re.compile(
+        r".*<a .*?href=\"? ?((?:https|http):\/\/[\w\.\/\-\?= ]+)\"?.*?>(.*?)[#0-9 ]*<\/?a>.*",
+    )
 
     # Initialize a list to hold event data
     event_data = []
@@ -96,7 +90,9 @@ def ics_to_dataframe() -> pd.DataFrame:
                 dtend = component.get("dtend")
 
                 if not dtstart or not dtend:
-                    logger.warning(f"Skipping event '{conference}' - missing date information")
+                    logger.warning(
+                        f"Skipping event '{conference}' - missing date information",
+                    )
                     skipped_events += 1
                     continue
 
@@ -118,7 +114,9 @@ def ics_to_dataframe() -> pd.DataFrame:
             try:
                 raw_description = str(component.get("description", ""))
                 if not raw_description:
-                    logger.warning(f"Event '{conference}' has no description, skipping link extraction")
+                    logger.warning(
+                        f"Event '{conference}' has no description, skipping link extraction",
+                    )
                     link = ""
                 else:
                     # Clean HTML entities and format description
@@ -164,10 +162,15 @@ def ics_to_dataframe() -> pd.DataFrame:
             processed_events += 1
 
     # Log processing summary
-    logger.info(f"Calendar processing complete: {processed_events} events processed, {skipped_events} skipped")
+    logger.info(
+        f"Calendar processing complete: {processed_events} events processed, {skipped_events} skipped",
+    )
 
     # Convert the list into a pandas DataFrame
-    df = pd.DataFrame(event_data, columns=["conference", "year", "cfp", "start", "end", "link", "place"])
+    df = pd.DataFrame(
+        event_data,
+        columns=["conference", "year", "cfp", "start", "end", "link", "place"],
+    )
 
     if df.empty:
         logger.warning("No events were successfully processed from calendar")
@@ -276,25 +279,29 @@ def main(year=None, base="") -> bool:
 
         for y in range(year, year + 10):
             # Skip years that are not in the new data
-            if df_ics.loc[df_ics["year"] == y].empty or df_yml[df_yml["year"] == y].empty:
+            if (
+                df_ics.loc[df_ics["year"] == y].empty
+                or df_yml[df_yml["year"] == y].empty
+            ):
                 # Concatenate the new data with the existing data
                 df_new = pd.concat(
-                    [df_new, df_yml[df_yml["year"] == y], df_ics.loc[df_ics["year"] == y]],
+                    [
+                        df_new,
+                        df_yml[df_yml["year"] == y],
+                        df_ics.loc[df_ics["year"] == y],
+                    ],
                     ignore_index=True,
                 )
                 continue
 
-        # fuzzy_match now returns 3 values: (merged_df, remote_df, report)
-        result = fuzzy_match(df_yml[df_yml["year"] == y], df_ics.loc[df_ics["year"] == y])
-        if len(result) == 3:
-            df_merged, df_remote, merge_report = result
-            logger.info(
-                f"Merge report: {merge_report.exact_matches} exact, "
-                f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
-            )
-        else:
-            # Backwards compatibility
-            df_merged, df_remote = result
+        df_merged, df_remote, merge_report = fuzzy_match(
+            df_yml[df_yml["year"] == y],
+            df_ics.loc[df_ics["year"] == y],
+        )
+        logger.info(
+            f"Merge report: {merge_report.exact_matches} exact, "
+            f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
+        )
         df_merged["year"] = year
         diff_idx = df_merged.index.difference(df_remote.index)
         df_missing = df_merged.loc[diff_idx, :].sort_values("start")
@@ -318,7 +325,9 @@ def main(year=None, base="") -> bool:
                 else:
                     reverse_title = f"{row['conference']} {row['year']}"
 
-            timezone_str = row["timezone"] if isinstance(row["timezone"], str) else "UTC"
+            timezone_str = (
+                row["timezone"] if isinstance(row["timezone"], str) else "UTC"
+            )
             dates = f'{create_nice_date(row)["date"]} ({timezone_str})'
             link = f'<a href="{row["link"]}">{row["conference"]}</a>'
             out = f""" * name of the event: {reverse_title}
@@ -371,8 +380,12 @@ if __name__ == "__main__":
     import argparse
     import sys
 
-    parser = argparse.ArgumentParser(description="Import Python conferences from official calendar")
-    parser.add_argument("--year", type=int, help="Year to import (defaults to current year)")
+    parser = argparse.ArgumentParser(
+        description="Import Python conferences from official calendar",
+    )
+    parser.add_argument(
+        "--year", type=int, help="Year to import (defaults to current year)",
+    )
     parser.add_argument("--base", type=str, default="", help="Base path for data files")
     parser.add_argument(
         "--log-level",

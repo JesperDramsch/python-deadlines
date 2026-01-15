@@ -10,11 +10,10 @@ import pytest
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
-from tidy_conf.interactive_merge import fuzzy_match
-from tidy_conf.interactive_merge import merge_conferences
+from tidy_conf.interactive_merge import fuzzy_match, merge_conferences
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_title_mappings():
     """Mock the title mappings to avoid file I/O issues.
 
@@ -27,7 +26,9 @@ def mock_title_mappings():
     """
     with patch("tidy_conf.interactive_merge.load_title_mappings") as mock_load1, patch(
         "tidy_conf.titles.load_title_mappings",
-    ) as mock_load2, patch("tidy_conf.interactive_merge.update_title_mappings") as mock_update:
+    ) as mock_load2, patch(
+        "tidy_conf.interactive_merge.update_title_mappings",
+    ) as mock_update:
         # Return empty mappings (list, dict) for both load calls
         mock_load1.return_value = ([], {})
         mock_load2.return_value = ([], {})
@@ -64,12 +65,7 @@ class TestFuzzyMatch:
             },
         )
 
-        # fuzzy_match now returns 3-tuple: (merged, remote, report)
-        result = fuzzy_match(df_yml, df_csv)
-        if len(result) == 3:
-            merged, _remote, _report = result
-        else:
-            merged, _remote = result
+        merged, _remote, _report = fuzzy_match(df_yml, df_csv)
 
         # Should find a match and merge the data
         assert not merged.empty
@@ -102,12 +98,10 @@ class TestFuzzyMatch:
             },
         )
 
-        with patch("builtins.input", return_value="y"):  # Simulate user accepting the match
-            result = fuzzy_match(df_yml, df_csv)
-            if len(result) == 3:
-                merged, remote, _report = result
-            else:
-                merged, remote = result
+        with patch(
+            "builtins.input", return_value="y",
+        ):  # Simulate user accepting the match
+            merged, remote, _report = fuzzy_match(df_yml, df_csv)
 
         # Should find and accept a fuzzy match
         assert not merged.empty
@@ -116,10 +110,14 @@ class TestFuzzyMatch:
         conference_names = merged["conference"].tolist()
         # Note: title mappings may transform names (e.g., "PyCon US" -> "PyCon USA")
         # Check that we have at least one conference in the result
-        assert len(conference_names) >= 1, "Should have at least one conference in result"
+        assert (
+            len(conference_names) >= 1
+        ), "Should have at least one conference in result"
 
         # Verify fuzzy matching was attempted - remote should still be returned
-        assert remote is not None, "Remote dataframe should be returned for further processing"
+        assert (
+            remote is not None
+        ), "Remote dataframe should be returned for further processing"
 
     def test_fuzzy_match_no_matches(self, mock_title_mappings):
         """Test fuzzy matching when there are no matches."""
@@ -147,11 +145,7 @@ class TestFuzzyMatch:
             },
         )
 
-        result = fuzzy_match(df_yml, df_csv)
-        if len(result) == 3:
-            merged, remote, _report = result
-        else:
-            merged, remote = result
+        merged, remote, _report = fuzzy_match(df_yml, df_csv)
 
         # Both dataframes should be non-empty after fuzzy_match
         assert not merged.empty, "Merged dataframe should not be empty"
@@ -159,7 +153,9 @@ class TestFuzzyMatch:
 
         # Verify the YML conference is preserved in merged result
         conference_names = merged["conference"].tolist()
-        assert "PyCon Test" in conference_names, f"YML conference 'PyCon Test' should be in {conference_names}"
+        assert (
+            "PyCon Test" in conference_names
+        ), f"YML conference 'PyCon Test' should be in {conference_names}"
 
         # Verify the dissimilar CSV conference remains in remote (unmatched)
         remote_names = remote["conference"].tolist()
@@ -210,11 +206,7 @@ class TestMergeConferences:
 
         # First do fuzzy match to set up data properly
         with patch("builtins.input", return_value="n"):  # Reject any fuzzy matches
-            result = fuzzy_match(df_yml, df_remote)
-            if len(result) == 3:
-                df_merged, df_remote_processed, _ = result
-            else:
-                df_merged, df_remote_processed = result
+            df_merged, df_remote_processed, _ = fuzzy_match(df_yml, df_remote)
 
         # Then test merge_conferences
         with patch("sys.stdin", StringIO("")):
@@ -222,7 +214,9 @@ class TestMergeConferences:
 
         # Should combine both DataFrames - we expect exactly 2 conferences
         assert isinstance(result, pd.DataFrame)
-        assert len(result) == 2, f"Expected 2 conferences (1 merged + 1 remote), got {len(result)}"
+        assert (
+            len(result) == 2
+        ), f"Expected 2 conferences (1 merged + 1 remote), got {len(result)}"
 
         # Verify conference names are preserved correctly (not corrupted to index values)
         assert "conference" in result.columns
@@ -230,9 +224,13 @@ class TestMergeConferences:
 
         # Names should be actual conference names, not index values like "0"
         for name in conference_names:
-            assert not str(name).isdigit(), f"Conference name '{name}' is corrupted to index value"
+            assert not str(
+                name,
+            ).isdigit(), f"Conference name '{name}' is corrupted to index value"
 
-        assert "PyCon Test" in conference_names, "Original YML conference should be in result"
+        assert (
+            "PyCon Test" in conference_names
+        ), "Original YML conference should be in result"
         assert "DjangoCon" in conference_names, "Remote conference should be in result"
 
     def test_merge_conferences_preserves_names(self, mock_title_mappings):
@@ -265,15 +263,24 @@ class TestMergeConferences:
 
         # Mock user input to reject matches
         with patch("builtins.input", return_value="n"):
-            fuzzy_result = fuzzy_match(df_yml, df_remote)
-            if len(fuzzy_result) == 3:
-                df_merged, df_remote_processed, _ = fuzzy_result
-            else:
-                df_merged, df_remote_processed = fuzzy_result
+            df_merged, df_remote_processed, _ = fuzzy_match(df_yml, df_remote)
 
-        with patch("sys.stdin", StringIO("")), patch("tidy_conf.schema.get_schema") as mock_schema:
+        with patch("sys.stdin", StringIO("")), patch(
+            "tidy_conf.schema.get_schema",
+        ) as mock_schema:
             # Mock schema with empty DataFrame
-            empty_schema = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"])
+            empty_schema = pd.DataFrame(
+                columns=[
+                    "conference",
+                    "year",
+                    "cfp",
+                    "link",
+                    "place",
+                    "start",
+                    "end",
+                    "sub",
+                ],
+            )
             mock_schema.return_value = empty_schema
 
             result = merge_conferences(df_merged, df_remote_processed)
@@ -284,7 +291,18 @@ class TestMergeConferences:
 
     def test_merge_conferences_empty_dataframes(self, mock_title_mappings):
         """Test merging with empty DataFrames."""
-        df_empty = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"])
+        df_empty = pd.DataFrame(
+            columns=[
+                "conference",
+                "year",
+                "cfp",
+                "link",
+                "place",
+                "start",
+                "end",
+                "sub",
+            ],
+        )
         df_with_data = pd.DataFrame(
             {
                 "conference": ["Test Conference"],
@@ -300,15 +318,24 @@ class TestMergeConferences:
 
         # Test with empty remote - fuzzy_match should handle empty DataFrames gracefully
         with patch("builtins.input", return_value="n"):
-            fuzzy_result = fuzzy_match(df_with_data, df_empty)
-            if len(fuzzy_result) == 3:
-                df_merged, df_remote_processed, _ = fuzzy_result
-            else:
-                df_merged, df_remote_processed = fuzzy_result
+            df_merged, df_remote_processed, _ = fuzzy_match(df_with_data, df_empty)
 
-        with patch("sys.stdin", StringIO("")), patch("tidy_conf.schema.get_schema") as mock_schema:
+        with patch("sys.stdin", StringIO("")), patch(
+            "tidy_conf.schema.get_schema",
+        ) as mock_schema:
             # Mock schema
-            empty_schema = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"])
+            empty_schema = pd.DataFrame(
+                columns=[
+                    "conference",
+                    "year",
+                    "cfp",
+                    "link",
+                    "place",
+                    "start",
+                    "end",
+                    "sub",
+                ],
+            )
             mock_schema.return_value = empty_schema
 
             result = merge_conferences(df_merged, df_remote_processed)
@@ -347,11 +374,7 @@ class TestInteractivePrompts:
 
         # Mock user input to accept match
         with patch("builtins.input", return_value="y"):
-            result = fuzzy_match(df_yml, df_csv)
-            if len(result) == 3:
-                merged, _remote, _ = result
-            else:
-                merged, _remote = result
+            merged, _remote, _ = fuzzy_match(df_yml, df_csv)
 
         # Should accept the match
         assert not merged.empty
@@ -384,14 +407,12 @@ class TestInteractivePrompts:
 
         # Mock user input to reject match
         with patch("builtins.input", return_value="n"):
-            result = fuzzy_match(df_yml, df_csv)
-            if len(result) == 3:
-                _merged, remote, _ = result
-            else:
-                _merged, remote = result
+            _merged, remote, _ = fuzzy_match(df_yml, df_csv)
 
         # Should reject the match and keep data separate
-        assert len(remote) == 1, f"Expected exactly 1 rejected conference in remote, got {len(remote)}"
+        assert (
+            len(remote) == 1
+        ), f"Expected exactly 1 rejected conference in remote, got {len(remote)}"
         assert remote.iloc[0]["conference"] == "PyCon Slightly Different"
 
 
@@ -438,15 +459,24 @@ class TestDataIntegrity:
 
         # First do fuzzy match to set up data properly
         with patch("builtins.input", return_value="n"):
-            fuzzy_result = fuzzy_match(df_yml, df_remote)
-            if len(fuzzy_result) == 3:
-                df_merged, df_remote_processed, _ = fuzzy_result
-            else:
-                df_merged, df_remote_processed = fuzzy_result
+            df_merged, df_remote_processed, _ = fuzzy_match(df_yml, df_remote)
 
-        with patch("sys.stdin", StringIO("")), patch("tidy_conf.schema.get_schema") as mock_schema:
+        with patch("sys.stdin", StringIO("")), patch(
+            "tidy_conf.schema.get_schema",
+        ) as mock_schema:
             # Mock schema
-            empty_schema = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"])
+            empty_schema = pd.DataFrame(
+                columns=[
+                    "conference",
+                    "year",
+                    "cfp",
+                    "link",
+                    "place",
+                    "start",
+                    "end",
+                    "sub",
+                ],
+            )
             mock_schema.return_value = empty_schema
 
             result = merge_conferences(df_merged, df_remote_processed)
@@ -461,14 +491,20 @@ class TestDataIntegrity:
 
         for name in conference_names:
             # Names should not be numeric strings (the corruption bug)
-            assert not str(name).isdigit(), f"Conference name '{name}' appears to be a numeric index value"
+            assert not str(
+                name,
+            ).isdigit(), f"Conference name '{name}' appears to be a numeric index value"
             # Names should be reasonable strings (not just numbers)
-            assert len(str(name)) > 2, f"Conference name '{name}' is too short, likely corrupted"
+            assert (
+                len(str(name)) > 2
+            ), f"Conference name '{name}' is too short, likely corrupted"
 
         # Verify the expected conference names are present (at least one should be)
         expected_names = {original_name, remote_name}
         actual_names = set(conference_names)
-        assert actual_names & expected_names, f"Expected at least one of {expected_names} but got {actual_names}"
+        assert (
+            actual_names & expected_names
+        ), f"Expected at least one of {expected_names} but got {actual_names}"
 
     def test_data_consistency_after_merge(self, mock_title_mappings):
         """Test that data remains consistent after merge operations."""
@@ -485,20 +521,38 @@ class TestDataIntegrity:
 
         df_yml = pd.DataFrame([original_data])
         df_remote = pd.DataFrame(
-            columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"],
+            columns=[
+                "conference",
+                "year",
+                "cfp",
+                "link",
+                "place",
+                "start",
+                "end",
+                "sub",
+            ],
         )  # Empty remote
 
         # First do fuzzy match
         with patch("builtins.input", return_value="n"):
-            fuzzy_result = fuzzy_match(df_yml, df_remote)
-            if len(fuzzy_result) == 3:
-                df_merged, df_remote_processed, _ = fuzzy_result
-            else:
-                df_merged, df_remote_processed = fuzzy_result
+            df_merged, df_remote_processed, _ = fuzzy_match(df_yml, df_remote)
 
-        with patch("sys.stdin", StringIO("")), patch("tidy_conf.schema.get_schema") as mock_schema:
+        with patch("sys.stdin", StringIO("")), patch(
+            "tidy_conf.schema.get_schema",
+        ) as mock_schema:
             # Mock schema
-            empty_schema = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"])
+            empty_schema = pd.DataFrame(
+                columns=[
+                    "conference",
+                    "year",
+                    "cfp",
+                    "link",
+                    "place",
+                    "start",
+                    "end",
+                    "sub",
+                ],
+            )
             mock_schema.return_value = empty_schema
 
             result = merge_conferences(df_merged, df_remote_processed)
