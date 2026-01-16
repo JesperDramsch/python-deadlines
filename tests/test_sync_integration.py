@@ -13,12 +13,10 @@ Integration tests cover:
 """
 
 import sys
-import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
-import pytest
 import yaml
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
@@ -52,13 +50,12 @@ class TestYAMLNormalizePipeline:
                 assert col in result.columns, f"Column {col} should be preserved"
 
         # Should have same number of rows
-        assert len(result) == len(minimal_yaml_df), \
-            "Normalization should not change row count"
+        assert len(result) == len(minimal_yaml_df), "Normalization should not change row count"
 
         # All conferences should have valid names
         for name in result["conference"]:
             assert isinstance(name, str), f"Conference name should be string: {name}"
-            assert len(name) > 0, f"Conference name should not be empty"
+            assert len(name) > 0, "Conference name should not be empty"
 
     def test_round_trip_yaml_consistency(self, minimal_yaml_df, tmp_path):
         """Write YAML → Read YAML → Data should be consistent.
@@ -75,16 +72,18 @@ class TestYAMLNormalizePipeline:
             reloaded = yaml.safe_load(f)
 
         # Should have same number of conferences
-        assert len(reloaded) == len(minimal_yaml_df), \
-            f"Round trip should preserve count: {len(reloaded)} vs {len(minimal_yaml_df)}"
+        assert len(reloaded) == len(
+            minimal_yaml_df,
+        ), f"Round trip should preserve count: {len(reloaded)} vs {len(minimal_yaml_df)}"
 
         # Conference names should be preserved
         original_names = set(minimal_yaml_df["conference"].tolist())
         reloaded_names = {conf["conference"] for conf in reloaded}
 
         # At least core names should be preserved
-        assert len(reloaded_names) == len(original_names), \
-            f"Conference names should be preserved: {reloaded_names} vs {original_names}"
+        assert len(reloaded_names) == len(
+            original_names,
+        ), f"Conference names should be preserved: {reloaded_names} vs {original_names}"
 
 
 class TestCSVNormalizePipeline:
@@ -108,7 +107,7 @@ class TestCSVNormalizePipeline:
 
         # All years should be integers
         for year in result["year"]:
-            assert isinstance(year, (int, float)), f"Year should be numeric: {year}"
+            assert isinstance(year, int | float), f"Year should be numeric: {year}"
 
     def test_csv_column_mapping_correct(self, minimal_csv_df):
         """CSV columns should be mapped correctly to schema columns."""
@@ -116,8 +115,7 @@ class TestCSVNormalizePipeline:
         expected_columns = ["conference", "start", "end", "place", "link", "year"]
 
         for col in expected_columns:
-            assert col in minimal_csv_df.columns, \
-                f"Column {col} should exist after mapping"
+            assert col in minimal_csv_df.columns, f"Column {col} should exist after mapping"
 
 
 class TestFullMergePipeline:
@@ -143,7 +141,7 @@ class TestFullMergePipeline:
         # Step 2: Merge
         with patch("tidy_conf.interactive_merge.get_schema") as mock_schema:
             mock_schema.return_value = pd.DataFrame(
-                columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"]
+                columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"],
             )
 
             result = merge_conferences(matched, remote)
@@ -158,34 +156,39 @@ class TestFullMergePipeline:
     def test_pipeline_with_conflicts_logs_resolution(self, mock_title_mappings, caplog):
         """Pipeline with conflicts should log resolution decisions."""
         import logging
+
         caplog.set_level(logging.DEBUG)
 
-        df_yml = pd.DataFrame({
-            "conference": ["Test Conf"],
-            "year": [2026],
-            "cfp": ["2026-01-15 23:59:00"],
-            "link": ["https://yaml.conf/"],  # Different link
-            "place": ["Berlin, Germany"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["Test Conf"],
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],
+                "link": ["https://yaml.conf/"],  # Different link
+                "place": ["Berlin, Germany"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
-        df_csv = pd.DataFrame({
-            "conference": ["Test Conf"],
-            "year": [2026],
-            "cfp": ["2026-01-20 23:59:00"],  # Different CFP
-            "link": ["https://csv.conf/"],  # Different link
-            "place": ["Munich, Germany"],  # Different place
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_csv = pd.DataFrame(
+            {
+                "conference": ["Test Conf"],
+                "year": [2026],
+                "cfp": ["2026-01-20 23:59:00"],  # Different CFP
+                "link": ["https://csv.conf/"],  # Different link
+                "place": ["Munich, Germany"],  # Different place
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         with patch("builtins.input", return_value="y"):
             matched, remote = fuzzy_match(df_yml, df_csv)
 
         with patch("tidy_conf.interactive_merge.get_schema") as mock_schema:
             mock_schema.return_value = pd.DataFrame(
-                columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"]
+                columns=["conference", "year", "cfp", "link", "place", "start", "end", "sub"],
             )
 
             # Mock query_yes_no to auto-select options
@@ -205,15 +208,17 @@ class TestDeduplicationInPipeline:
         Contract: Final output should have no duplicate conferences.
         """
         # Create DataFrame with duplicates directly (bypassing fuzzy_match)
-        df = pd.DataFrame({
-            "conference": ["PyCon US", "PyCon US"],  # Duplicate
-            "year": [2026, 2026],
-            "cfp": ["2026-01-15 23:59:00", "2026-01-15 23:59:00"],
-            "link": ["https://us.pycon.org/", "https://us.pycon.org/"],
-            "place": ["Pittsburgh, USA", "Pittsburgh, USA"],
-            "start": ["2026-05-06", "2026-05-06"],
-            "end": ["2026-05-11", "2026-05-11"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["PyCon US", "PyCon US"],  # Duplicate
+                "year": [2026, 2026],
+                "cfp": ["2026-01-15 23:59:00", "2026-01-15 23:59:00"],
+                "link": ["https://us.pycon.org/", "https://us.pycon.org/"],
+                "place": ["Pittsburgh, USA", "Pittsburgh, USA"],
+                "start": ["2026-05-06", "2026-05-06"],
+                "end": ["2026-05-11", "2026-05-11"],
+            },
+        )
         df = df.set_index("conference", drop=False)
         df.index.name = "title_match"
 
@@ -238,15 +243,17 @@ class TestDataIntegrityThroughPipeline:
             "Unique Conference Gamma",
         ]
 
-        df_yml = pd.DataFrame({
-            "conference": unique_names,
-            "year": [2026, 2026, 2026],
-            "cfp": ["2026-01-15 23:59:00"] * 3,
-            "link": ["https://alpha.conf/", "https://beta.conf/", "https://gamma.conf/"],
-            "place": ["City A", "City B", "City C"],
-            "start": ["2026-06-01", "2026-07-01", "2026-08-01"],
-            "end": ["2026-06-03", "2026-07-03", "2026-08-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": unique_names,
+                "year": [2026, 2026, 2026],
+                "cfp": ["2026-01-15 23:59:00"] * 3,
+                "link": ["https://alpha.conf/", "https://beta.conf/", "https://gamma.conf/"],
+                "place": ["City A", "City B", "City C"],
+                "start": ["2026-06-01", "2026-07-01", "2026-08-01"],
+                "end": ["2026-06-03", "2026-07-03", "2026-08-03"],
+            },
+        )
 
         df_csv = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
@@ -265,18 +272,20 @@ class TestDataIntegrityThroughPipeline:
 
         Contract: Fields like mastodon, twitter, finaid should not be lost.
         """
-        df_yml = pd.DataFrame({
-            "conference": ["Full Field Conference"],
-            "year": [2026],
-            "cfp": ["2026-01-15 23:59:00"],
-            "link": ["https://full.conf/"],
-            "place": ["Full City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-            "mastodon": ["https://fosstodon.org/@fullconf"],
-            "twitter": ["fullconf"],
-            "finaid": ["https://full.conf/finaid/"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["Full Field Conference"],
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],
+                "link": ["https://full.conf/"],
+                "place": ["Full City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+                "mastodon": ["https://fosstodon.org/@fullconf"],
+                "twitter": ["fullconf"],
+                "finaid": ["https://full.conf/finaid/"],
+            },
+        )
 
         df_csv = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
@@ -287,8 +296,7 @@ class TestDataIntegrityThroughPipeline:
         if "mastodon" in result.columns:
             mastodon_val = result["mastodon"].iloc[0]
             if pd.notna(mastodon_val):
-                assert "fosstodon" in str(mastodon_val), \
-                    f"Mastodon should be preserved: {mastodon_val}"
+                assert "fosstodon" in str(mastodon_val), f"Mastodon should be preserved: {mastodon_val}"
 
 
 class TestPipelineEdgeCases:
@@ -296,15 +304,17 @@ class TestPipelineEdgeCases:
 
     def test_pipeline_handles_unicode(self, mock_title_mappings):
         """Pipeline should correctly handle Unicode characters."""
-        df_yml = pd.DataFrame({
-            "conference": ["PyCon México", "PyCon España"],
-            "year": [2026, 2026],
-            "cfp": ["2026-01-15 23:59:00", "2026-02-15 23:59:00"],
-            "link": ["https://pycon.mx/", "https://pycon.es/"],
-            "place": ["Ciudad de México, Mexico", "Madrid, Spain"],
-            "start": ["2026-06-01", "2026-07-01"],
-            "end": ["2026-06-03", "2026-07-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["PyCon México", "PyCon España"],
+                "year": [2026, 2026],
+                "cfp": ["2026-01-15 23:59:00", "2026-02-15 23:59:00"],
+                "link": ["https://pycon.mx/", "https://pycon.es/"],
+                "place": ["Ciudad de México, Mexico", "Madrid, Spain"],
+                "start": ["2026-06-01", "2026-07-01"],
+                "end": ["2026-06-03", "2026-07-03"],
+            },
+        )
 
         df_csv = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
@@ -313,22 +323,28 @@ class TestPipelineEdgeCases:
 
         # Unicode names should be preserved
         result_names = " ".join(result["conference"].tolist())
-        assert "xico" in result_names.lower() or "spain" in result_names.lower(), \
-            f"Unicode characters should be handled: {result_names}"
+        assert (
+            "xico" in result_names.lower() or "spain" in result_names.lower()
+        ), f"Unicode characters should be handled: {result_names}"
 
     def test_pipeline_handles_very_long_names(self, mock_title_mappings):
         """Pipeline should handle conferences with very long names."""
-        long_name = "The International Conference on Python Programming and Data Science with Machine Learning and AI Applications for Industry and Academia 2026"
+        long_name = (
+            "The International Conference on Python Programming and Data Science "
+            "with Machine Learning and AI Applications for Industry and Academia 2026"
+        )
 
-        df_yml = pd.DataFrame({
-            "conference": [long_name],
-            "year": [2026],
-            "cfp": ["2026-01-15 23:59:00"],
-            "link": ["https://long.conf/"],
-            "place": ["Long City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": [long_name],
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],
+                "link": ["https://long.conf/"],
+                "place": ["Long City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         df_csv = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
@@ -337,8 +353,7 @@ class TestPipelineEdgeCases:
 
         # Long name should be preserved (possibly without year)
         assert len(result) == 1
-        assert len(result["conference"].iloc[0]) > 50, \
-            "Long conference name should be preserved"
+        assert len(result["conference"].iloc[0]) > 50, "Long conference name should be preserved"
 
 
 class TestRoundTripConsistency:
@@ -356,7 +371,7 @@ class TestRoundTripConsistency:
                 "start": "2026-06-01",
                 "end": "2026-06-03",
                 "sub": "PY",
-            }
+            },
         ]
 
         output_file = tmp_path / "round_trip.yml"
@@ -376,16 +391,18 @@ class TestRoundTripConsistency:
 
     def test_dataframe_round_trip(self, tmp_path):
         """DataFrame → YAML → DataFrame should preserve data."""
-        df = pd.DataFrame({
-            "conference": ["Test Conf"],
-            "year": [2026],
-            "link": ["https://test.conf/"],
-            "cfp": ["2026-01-15 23:59:00"],
-            "place": ["Test City"],
-            "start": [pd.to_datetime("2026-06-01").date()],
-            "end": [pd.to_datetime("2026-06-03").date()],
-            "sub": ["PY"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["Test Conf"],
+                "year": [2026],
+                "link": ["https://test.conf/"],
+                "cfp": ["2026-01-15 23:59:00"],
+                "place": ["Test City"],
+                "start": [pd.to_datetime("2026-06-01").date()],
+                "end": [pd.to_datetime("2026-06-03").date()],
+                "sub": ["PY"],
+            },
+        )
 
         output_file = tmp_path / "df_round_trip.yml"
 
@@ -416,9 +433,11 @@ class TestGoldenFileComparison:
         with patch("tidy_conf.titles.load_title_mappings") as mock:
             mock.return_value = ([], {})
 
-            input_data = pd.DataFrame({
-                "conference": ["PyCon Germany 2026", "DjangoCon US 2025"]
-            })
+            input_data = pd.DataFrame(
+                {
+                    "conference": ["PyCon Germany 2026", "DjangoCon US 2025"],
+                },
+            )
 
             result = tidy_df_names(input_data)
 

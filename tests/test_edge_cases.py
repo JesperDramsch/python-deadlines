@@ -22,7 +22,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pandas as pd
-import pytest
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -38,37 +37,41 @@ class TestEmptyDataFrames:
         """Empty YAML DataFrame should not crash fuzzy_match."""
         df_yml = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
-        df_remote = pd.DataFrame({
-            "conference": ["Test Conference"],
-            "year": [2026],
-            "cfp": ["2026-01-15 23:59:00"],
-            "link": ["https://test.conf/"],
-            "place": ["Test City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Test Conference"],
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],
+                "link": ["https://test.conf/"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         # Should not raise exception
-        result, remote = fuzzy_match(df_yml, df_remote)
+        _result, remote, _report = fuzzy_match(df_yml, df_remote)
 
         # Remote should still have the conference
         assert not remote.empty, "Remote should preserve data when YAML is empty"
 
     def test_empty_csv_handled_gracefully(self, mock_title_mappings):
         """Empty CSV DataFrame should not crash fuzzy_match."""
-        df_yml = pd.DataFrame({
-            "conference": ["Test Conference"],
-            "year": [2026],
-            "cfp": ["2026-01-15 23:59:00"],
-            "link": ["https://test.conf/"],
-            "place": ["Test City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["Test Conference"],
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],
+                "link": ["https://test.conf/"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         df_remote = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
-        result, remote = fuzzy_match(df_yml, df_remote)
+        result, _remote, _report = fuzzy_match(df_yml, df_remote)
 
         # YAML data should be preserved
         assert not result.empty, "YAML data should be preserved when CSV is empty"
@@ -78,7 +81,7 @@ class TestEmptyDataFrames:
         df_yml = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
         df_remote = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
-        result, remote = fuzzy_match(df_yml, df_remote)
+        result, remote, _report = fuzzy_match(df_yml, df_remote)
 
         # Both should be empty but valid DataFrames
         assert isinstance(result, pd.DataFrame)
@@ -90,50 +93,55 @@ class TestTBACFP:
 
     def test_tba_cfp_preserved(self, mock_title_mappings):
         """Conference with TBA CFP should be preserved correctly."""
-        df_yml = pd.DataFrame({
-            "conference": ["Future Conference"],
-            "year": [2026],
-            "cfp": ["TBA"],
-            "link": ["https://future.conf/"],
-            "place": ["Future City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["Future Conference"],
+                "year": [2026],
+                "cfp": ["TBA"],
+                "link": ["https://future.conf/"],
+                "place": ["Future City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         df_remote = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
-        result, _ = fuzzy_match(df_yml, df_remote)
+        result, _, _report = fuzzy_match(df_yml, df_remote)
 
         # TBA should be preserved
         conf_row = result[result["conference"].str.contains("Future", na=False)]
         if len(conf_row) > 0:
-            assert conf_row["cfp"].iloc[0] == "TBA", \
-                f"TBA CFP should be preserved, got: {conf_row['cfp'].iloc[0]}"
+            assert conf_row["cfp"].iloc[0] == "TBA", f"TBA CFP should be preserved, got: {conf_row['cfp'].iloc[0]}"
 
     def test_tba_cfp_replaceable(self, mock_title_mappings):
         """TBA CFP should be replaceable when actual date is available."""
-        df_yml = pd.DataFrame({
-            "conference": ["Test Conference"],
-            "year": [2026],
-            "cfp": ["TBA"],
-            "link": ["https://test.conf/"],
-            "place": ["Test City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["Test Conference"],
+                "year": [2026],
+                "cfp": ["TBA"],
+                "link": ["https://test.conf/"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["Test Conference"],
-            "year": [2026],
-            "cfp": ["2026-01-15 23:59:00"],  # Actual date
-            "link": ["https://test.conf/"],
-            "place": ["Test City"],
-            "start": ["2026-06-01"],
-            "end": ["2026-06-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Test Conference"],
+                "year": [2026],
+                "cfp": ["2026-01-15 23:59:00"],  # Actual date
+                "link": ["https://test.conf/"],
+                "place": ["Test City"],
+                "start": ["2026-06-01"],
+                "end": ["2026-06-03"],
+            },
+        )
 
         with patch("builtins.input", return_value="y"):
-            result, _ = fuzzy_match(df_yml, df_remote)
+            result, _, _report = fuzzy_match(df_yml, df_remote)
 
         # Actual date should be available somewhere
         assert not result.empty
@@ -144,9 +152,7 @@ class TestExtraPlaces:
 
     def test_extra_places_preserved_in_dataframe(self, edge_cases_df):
         """Extra places should be preserved in DataFrame."""
-        multi_venue = edge_cases_df[
-            edge_cases_df["conference"].str.contains("Multi-Venue", na=False)
-        ]
+        multi_venue = edge_cases_df[edge_cases_df["conference"].str.contains("Multi-Venue", na=False)]
 
         if len(multi_venue) > 0:
             extra_places = multi_venue["extra_places"].iloc[0]
@@ -160,14 +166,10 @@ class TestOnlineConferences:
 
     def test_online_conference_no_location_required(self, edge_cases_df):
         """Online conferences should not require physical location."""
-        online_conf = edge_cases_df[
-            edge_cases_df["place"].str.contains("Online", na=False, case=False)
-        ]
+        online_conf = edge_cases_df[edge_cases_df["place"].str.contains("Online", na=False, case=False)]
 
         if len(online_conf) > 0:
-            # Location can be null for online conferences
-            loc = online_conf["location"].iloc[0] if "location" in online_conf.columns else None
-            # This is acceptable for online conferences
+            # Online conferences are valid - verify place is marked as online
             assert online_conf["place"].iloc[0].lower() == "online"
 
     def test_online_keyword_detection(self):
@@ -184,9 +186,7 @@ class TestSpecialCharacters:
 
     def test_accented_characters_preserved(self, edge_cases_df):
         """Accented characters (México) should be preserved."""
-        mexico_conf = edge_cases_df[
-            edge_cases_df["conference"].str.contains("xico", na=False, case=False)
-        ]
+        mexico_conf = edge_cases_df[edge_cases_df["conference"].str.contains("xico", na=False, case=False)]
 
         if len(mexico_conf) > 0:
             name = mexico_conf["conference"].iloc[0]
@@ -202,8 +202,9 @@ class TestSpecialCharacters:
             result = tidy_df_names(df)
 
             # Name should still contain México (or Mexico)
-            assert "xico" in result["conference"].iloc[0].lower(), \
-                f"Special characters corrupted: {result['conference'].iloc[0]}"
+            assert (
+                "xico" in result["conference"].iloc[0].lower()
+            ), f"Special characters corrupted: {result['conference'].iloc[0]}"
 
     def test_ampersand_preserved(self):
         """Ampersand should be preserved in conference names."""
@@ -213,8 +214,7 @@ class TestSpecialCharacters:
             df = pd.DataFrame({"conference": ["PyCon Germany & PyData Conference"]})
             result = tidy_df_names(df)
 
-            assert "&" in result["conference"].iloc[0], \
-                f"Ampersand should be preserved: {result['conference'].iloc[0]}"
+            assert "&" in result["conference"].iloc[0], f"Ampersand should be preserved: {result['conference'].iloc[0]}"
 
 
 class TestDateBoundaries:
@@ -234,9 +234,11 @@ class TestDateBoundaries:
 
     def test_conference_year_extraction(self):
         """Year should be correctly extracted from dates."""
-        df = pd.DataFrame({
-            "start": pd.to_datetime(["2026-06-01"]),
-        })
+        df = pd.DataFrame(
+            {
+                "start": pd.to_datetime(["2026-06-01"]),
+            },
+        )
         df["year"] = df["start"].dt.year
 
         assert df["year"].iloc[0] == 2026
@@ -283,12 +285,14 @@ class TestDuplicateConferences:
 
     def test_exact_duplicates_merged(self):
         """Exact duplicate conferences should be merged into one."""
-        df = pd.DataFrame({
-            "conference": ["PyCon US", "PyCon US"],
-            "year": [2026, 2026],
-            "cfp": ["2026-01-15 23:59:00", "2026-01-15 23:59:00"],
-            "link": ["https://us.pycon.org/2026/", "https://us.pycon.org/2026/"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["PyCon US", "PyCon US"],
+                "year": [2026, 2026],
+                "cfp": ["2026-01-15 23:59:00", "2026-01-15 23:59:00"],
+                "link": ["https://us.pycon.org/2026/", "https://us.pycon.org/2026/"],
+            },
+        )
         df = df.set_index("conference", drop=False)
         df.index.name = "title_match"
 
@@ -299,12 +303,14 @@ class TestDuplicateConferences:
 
     def test_near_duplicates_merged(self):
         """Near duplicates (same name, slightly different data) should be merged."""
-        df = pd.DataFrame({
-            "conference": ["PyCon US", "PyCon US"],
-            "year": [2026, 2026],
-            "cfp": ["2026-01-15 23:59:00", None],  # One has CFP, one doesn't
-            "sponsor": [None, "https://us.pycon.org/sponsors/"],  # Vice versa
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["PyCon US", "PyCon US"],
+                "year": [2026, 2026],
+                "cfp": ["2026-01-15 23:59:00", None],  # One has CFP, one doesn't
+                "sponsor": [None, "https://us.pycon.org/sponsors/"],  # Vice versa
+            },
+        )
         df = df.set_index("conference", drop=False)
         df.index.name = "title_match"
 
@@ -314,18 +320,20 @@ class TestDuplicateConferences:
         assert len(result) == 1
 
         # Both values should be preserved
-        assert result["cfp"].iloc[0] == "2026-01-15 23:59:00", \
-            f"CFP should be preserved: {result['cfp'].iloc[0]}"
-        assert result["sponsor"].iloc[0] == "https://us.pycon.org/sponsors/", \
-            f"Sponsor should be preserved: {result['sponsor'].iloc[0]}"
+        assert result["cfp"].iloc[0] == "2026-01-15 23:59:00", f"CFP should be preserved: {result['cfp'].iloc[0]}"
+        assert (
+            result["sponsor"].iloc[0] == "https://us.pycon.org/sponsors/"
+        ), f"Sponsor should be preserved: {result['sponsor'].iloc[0]}"
 
     def test_different_years_not_merged(self):
         """Same conference different years should NOT be merged."""
-        df = pd.DataFrame({
-            "conference": ["PyCon US 2026", "PyCon US 2027"],  # Different names
-            "year": [2026, 2027],
-            "cfp": ["2026-01-15 23:59:00", "2027-01-15 23:59:00"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["PyCon US 2026", "PyCon US 2027"],  # Different names
+                "year": [2026, 2027],
+                "cfp": ["2026-01-15 23:59:00", "2027-01-15 23:59:00"],
+            },
+        )
         df = df.set_index("conference", drop=False)
         df.index.name = "title_match"
 
@@ -340,27 +348,21 @@ class TestWorkshopTutorialDeadlines:
 
     def test_workshop_deadline_preserved(self, edge_cases_df):
         """Workshop deadline field should be preserved."""
-        advanced_conf = edge_cases_df[
-            edge_cases_df["conference"].str.contains("Advanced", na=False)
-        ]
+        advanced_conf = edge_cases_df[edge_cases_df["conference"].str.contains("Advanced", na=False)]
 
         if len(advanced_conf) > 0 and "workshop_deadline" in advanced_conf.columns:
             deadline = advanced_conf["workshop_deadline"].iloc[0]
             if pd.notna(deadline):
-                assert "2026" in str(deadline), \
-                    f"Workshop deadline should be a date: {deadline}"
+                assert "2026" in str(deadline), f"Workshop deadline should be a date: {deadline}"
 
     def test_tutorial_deadline_preserved(self, edge_cases_df):
         """Tutorial deadline field should be preserved."""
-        advanced_conf = edge_cases_df[
-            edge_cases_df["conference"].str.contains("Advanced", na=False)
-        ]
+        advanced_conf = edge_cases_df[edge_cases_df["conference"].str.contains("Advanced", na=False)]
 
         if len(advanced_conf) > 0 and "tutorial_deadline" in advanced_conf.columns:
             deadline = advanced_conf["tutorial_deadline"].iloc[0]
             if pd.notna(deadline):
-                assert "2026" in str(deadline), \
-                    f"Tutorial deadline should be a date: {deadline}"
+                assert "2026" in str(deadline), f"Tutorial deadline should be a date: {deadline}"
 
 
 class TestRegressions:
@@ -371,29 +373,33 @@ class TestRegressions:
 
         This was a silent data loss bug where variants weren't matched.
         """
-        df_yml = pd.DataFrame({
-            "conference": ["PyCon Germany & PyData Conference"],
-            "year": [2026],
-            "cfp": ["2025-12-21 23:59:59"],
-            "link": ["https://2026.pycon.de/"],
-            "place": ["Darmstadt, Germany"],
-            "start": ["2026-04-14"],
-            "end": ["2026-04-17"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["PyCon Germany & PyData Conference"],
+                "year": [2026],
+                "cfp": ["2025-12-21 23:59:59"],
+                "link": ["https://2026.pycon.de/"],
+                "place": ["Darmstadt, Germany"],
+                "start": ["2026-04-14"],
+                "end": ["2026-04-17"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["PyCon DE & PyData"],
-            "year": [2026],
-            "cfp": ["2025-12-21 23:59:59"],
-            "link": ["https://pycon.de/"],
-            "place": ["Darmstadt, Germany"],
-            "start": ["2026-04-14"],
-            "end": ["2026-04-17"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["PyCon DE & PyData"],
+                "year": [2026],
+                "cfp": ["2025-12-21 23:59:59"],
+                "link": ["https://pycon.de/"],
+                "place": ["Darmstadt, Germany"],
+                "start": ["2026-04-14"],
+                "end": ["2026-04-17"],
+            },
+        )
 
         # With proper mappings or user acceptance, should match
         with patch("builtins.input", return_value="y"):
-            result, _ = fuzzy_match(df_yml, df_remote)
+            result, _, _report = fuzzy_match(df_yml, df_remote)
 
         # Should be treated as one conference
         assert len(result) >= 1, "PyCon DE should match PyCon Germany"
@@ -403,37 +409,36 @@ class TestRegressions:
 
         This verifies that all input conferences appear in output.
         """
-        df_yml = pd.DataFrame({
-            "conference": ["Important Conference A", "Important Conference B"],
-            "year": [2026, 2026],
-            "cfp": ["2026-01-15 23:59:00", "2026-02-15 23:59:00"],
-            "link": ["https://a.conf/", "https://b.conf/"],
-            "place": ["City A", "City B"],
-            "start": ["2026-06-01", "2026-07-01"],
-            "end": ["2026-06-03", "2026-07-03"],
-        })
+        df_yml = pd.DataFrame(
+            {
+                "conference": ["Important Conference A", "Important Conference B"],
+                "year": [2026, 2026],
+                "cfp": ["2026-01-15 23:59:00", "2026-02-15 23:59:00"],
+                "link": ["https://a.conf/", "https://b.conf/"],
+                "place": ["City A", "City B"],
+                "start": ["2026-06-01", "2026-07-01"],
+                "end": ["2026-06-03", "2026-07-03"],
+            },
+        )
 
-        df_remote = pd.DataFrame({
-            "conference": ["Important Conference C"],
-            "year": [2026],
-            "cfp": ["2026-03-15 23:59:00"],
-            "link": ["https://c.conf/"],
-            "place": ["City C"],
-            "start": ["2026-08-01"],
-            "end": ["2026-08-03"],
-        })
+        df_remote = pd.DataFrame(
+            {
+                "conference": ["Important Conference C"],
+                "year": [2026],
+                "cfp": ["2026-03-15 23:59:00"],
+                "link": ["https://c.conf/"],
+                "place": ["City C"],
+                "start": ["2026-08-01"],
+                "end": ["2026-08-03"],
+            },
+        )
 
         # Reject any fuzzy matches to keep conferences separate
         with patch("builtins.input", return_value="n"):
-            result, remote = fuzzy_match(df_yml, df_remote)
+            result, _remote, _report = fuzzy_match(df_yml, df_remote)
 
-        # All conferences should be accounted for
-        total_input = len(df_yml) + len(df_remote)
-        total_output = len(result) + len(remote) - len(result[result.index.isin(remote.index)])
-
-        # This is a soft check - result + remote should contain all conferences
-        assert len(result) >= len(df_yml), \
-            f"All YAML conferences should be in result, got {len(result)}"
+        # All conferences should be accounted for - result should contain all YAML data
+        assert len(result) >= len(df_yml), f"All YAML conferences should be in result, got {len(result)}"
 
     def test_regression_missing_field_triggers_warning_not_skip(self, mock_title_mappings):
         """REGRESSION: Missing required fields should trigger warning, not silent skip.
@@ -441,11 +446,13 @@ class TestRegressions:
         Conferences with missing fields should still be processed with warnings.
         """
         # This test documents that missing fields should be logged, not silently ignored
-        df = pd.DataFrame({
-            "conference": ["Incomplete Conference"],
-            "year": [2026],
-            # Missing cfp, link, place, etc.
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["Incomplete Conference"],
+                "year": [2026],
+                # Missing cfp, link, place, etc.
+            },
+        )
 
         with patch("tidy_conf.titles.load_title_mappings") as mock:
             mock.return_value = ([], {})

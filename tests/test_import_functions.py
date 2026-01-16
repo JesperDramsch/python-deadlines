@@ -185,7 +185,15 @@ END:VCALENDAR"""
         )
 
         test_yml_df = pd.DataFrame(
-            {"conference": [], "year": [], "cfp": [], "start": [], "end": [], "link": [], "place": []},
+            {
+                "conference": [],
+                "year": [],
+                "cfp": [],
+                "start": [],
+                "end": [],
+                "link": [],
+                "place": [],
+            },
         )
 
         mock_load.return_value = test_yml_df

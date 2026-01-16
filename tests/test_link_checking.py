@@ -21,7 +21,12 @@ class TestLinkCheckingWithResponses:
     def test_successful_link_check_clean(self):
         """Test successful link checking with responses library."""
         test_url = "https://example.com/"  # Include trailing slash for normalized URL
-        responses.add(responses.GET, test_url, status=200, headers={"Content-Type": "text/html"})
+        responses.add(
+            responses.GET,
+            test_url,
+            status=200,
+            headers={"Content-Type": "text/html"},
+        )
 
         test_start = date(2025, 6, 1)
         result = links.check_link_availability(test_url, test_start)
@@ -36,8 +41,18 @@ class TestLinkCheckingWithResponses:
         original_url = "https://example.com"
         redirected_url = "https://example.com/new-page"
 
-        responses.add(responses.GET, original_url, status=301, headers={"Location": redirected_url})
-        responses.add(responses.GET, redirected_url, status=200, headers={"Content-Type": "text/html"})
+        responses.add(
+            responses.GET,
+            original_url,
+            status=301,
+            headers={"Location": redirected_url},
+        )
+        responses.add(
+            responses.GET,
+            redirected_url,
+            status=200,
+            headers={"Content-Type": "text/html"},
+        )
 
         test_start = date(2025, 6, 1)
 
@@ -105,7 +120,14 @@ class TestLinkCheckingWithResponses:
         responses.add(
             responses.GET,
             archive_api_url,
-            json={"archived_snapshots": {"closest": {"available": True, "url": archive_url}}},
+            json={
+                "archived_snapshots": {
+                    "closest": {
+                        "available": True,
+                        "url": archive_url,
+                    },
+                },
+            },
             status=200,
         )
 
@@ -160,7 +182,11 @@ class TestLinkCheckingWithResponses:
     def test_multiple_links_batch(self):
         """Test checking multiple links."""
         # Use trailing slashes for normalized URLs
-        urls = ["https://pycon.us/", "https://djangocon.us/", "https://europython.eu/"]
+        urls = [
+            "https://pycon.us/",
+            "https://djangocon.us/",
+            "https://europython.eu/",
+        ]
 
         for url in urls:
             responses.add(

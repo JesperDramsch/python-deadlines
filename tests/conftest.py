@@ -20,7 +20,8 @@ import yaml
 # ---------------------------------------------------------------------------
 
 try:
-    from hypothesis import Phase, settings
+    from hypothesis import Phase
+    from hypothesis import settings
 
     # CI profile: More thorough testing, no time limit
     settings.register_profile("ci", max_examples=200, deadline=None)
@@ -198,7 +199,7 @@ def mock_title_mappings_with_data():
 
 
 @pytest.fixture()
-def mock_user_accepts_all():
+def _mock_user_accepts_all():
     """Mock user input to accept all fuzzy match prompts.
 
     Use this when testing the happy path where user confirms matches.
@@ -208,7 +209,7 @@ def mock_user_accepts_all():
 
 
 @pytest.fixture()
-def mock_user_rejects_all():
+def _mock_user_rejects_all():
     """Mock user input to reject all fuzzy match prompts.
 
     Use this when testing that rejections are handled correctly.

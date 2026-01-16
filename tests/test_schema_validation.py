@@ -8,8 +8,12 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+sys.path.insert(0, str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
+from hypothesis_strategies import HYPOTHESIS_AVAILABLE
+from hypothesis_strategies import valid_latitude
+from hypothesis_strategies import valid_longitude
 from tidy_conf.schema import Conference
 from tidy_conf.schema import Location
 
@@ -209,8 +213,7 @@ class TestSchemaEdgeCases:
             Conference(**sample_conference)
 
         errors = exc_info.value.errors()
-        assert any("link" in str(e["loc"]) for e in errors), \
-            "Link field should be reported as missing"
+        assert any("link" in str(e["loc"]) for e in errors), "Link field should be reported as missing"
 
     def test_invalid_date_format_fails(self, sample_conference):
         """Invalid date format should fail validation.
@@ -224,7 +227,7 @@ class TestSchemaEdgeCases:
             Conference(**sample_conference)
 
     def test_invalid_cfp_datetime_format(self, sample_conference):
-        """CFP with wrong datetime format should fail.
+        r"""CFP with wrong datetime format should fail.
 
         The schema uses a regex pattern: ^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$
         """
@@ -243,7 +246,7 @@ class TestSchemaEdgeCases:
     def test_invalid_latitude_out_of_bounds(self, sample_conference):
         """Latitude outside -90 to 90 should fail."""
         sample_conference["location"] = [
-            {"title": "Test", "latitude": 999, "longitude": 10}  # 999 > 90
+            {"title": "Test", "latitude": 999, "longitude": 10},  # 999 > 90
         ]
 
         with pytest.raises(ValidationError):
@@ -252,7 +255,7 @@ class TestSchemaEdgeCases:
     def test_invalid_longitude_out_of_bounds(self, sample_conference):
         """Longitude outside -180 to 180 should fail."""
         sample_conference["location"] = [
-            {"title": "Test", "latitude": 10, "longitude": 999}  # 999 > 180
+            {"title": "Test", "latitude": 10, "longitude": 999},  # 999 > 180
         ]
 
         with pytest.raises(ValidationError):
@@ -283,16 +286,14 @@ class TestSchemaEdgeCases:
         sample_conference["twitter"] = "@testconf"
 
         conf = Conference(**sample_conference)
-        assert conf.twitter == "testconf", \
-            f"@ should be stripped from Twitter handle, got: {conf.twitter}"
+        assert conf.twitter == "testconf", f"@ should be stripped from Twitter handle, got: {conf.twitter}"
 
     def test_conference_name_year_stripped(self, sample_conference):
         """Year in conference name should be stripped."""
         sample_conference["conference"] = "PyCon Test 2025"
 
         conf = Conference(**sample_conference)
-        assert "2025" not in conf.conference, \
-            f"Year should be stripped from name, got: {conf.conference}"
+        assert "2025" not in conf.conference, f"Year should be stripped from name, got: {conf.conference}"
 
     def test_location_required_for_non_online(self, sample_conference):
         """In-person conferences should require location."""
@@ -410,12 +411,10 @@ class TestSchemaRegressions:
 # Property-based tests using Hypothesis
 # ---------------------------------------------------------------------------
 
-# Import shared strategies from hypothesis_strategies module
-sys.path.insert(0, str(Path(__file__).parent))
-from hypothesis_strategies import HYPOTHESIS_AVAILABLE, valid_latitude, valid_longitude
-
 if HYPOTHESIS_AVAILABLE:
-    from hypothesis import HealthCheck, assume, given, settings
+    from hypothesis import assume
+    from hypothesis import given
+    from hypothesis import settings
     from hypothesis import strategies as st
 
 

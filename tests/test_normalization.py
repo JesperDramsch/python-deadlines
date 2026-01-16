@@ -18,8 +18,11 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
+sys.path.insert(0, str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
+from hypothesis_strategies import HYPOTHESIS_AVAILABLE
+from hypothesis_strategies import valid_year
 from tidy_conf.titles import tidy_df_names
 
 
@@ -42,12 +45,11 @@ class TestYearRemoval:
         df = pd.DataFrame({"conference": ["PyCon Germany 2026"]})
         result = tidy_df_names(df)
 
-        assert "2026" not in result["conference"].iloc[0], \
-            f"Year '2026' should be removed, got: {result['conference'].iloc[0]}"
-        assert "PyCon" in result["conference"].iloc[0], \
-            "Conference name 'PyCon' should be preserved"
-        assert "Germany" in result["conference"].iloc[0], \
-            "Conference location 'Germany' should be preserved"
+        assert (
+            "2026" not in result["conference"].iloc[0]
+        ), f"Year '2026' should be removed, got: {result['conference'].iloc[0]}"
+        assert "PyCon" in result["conference"].iloc[0], "Conference name 'PyCon' should be preserved"
+        assert "Germany" in result["conference"].iloc[0], "Conference location 'Germany' should be preserved"
 
     def test_removes_four_digit_year_2025(self):
         """Year removal should work for different years (2025)."""
@@ -97,18 +99,17 @@ class TestWhitespaceNormalization:
         result = tidy_df_names(df)
 
         # Should not have double spaces
-        assert "  " not in result["conference"].iloc[0], \
-            f"Double spaces should be removed, got: '{result['conference'].iloc[0]}'"
+        assert (
+            "  " not in result["conference"].iloc[0]
+        ), f"Double spaces should be removed, got: '{result['conference'].iloc[0]}'"
 
     def test_strips_leading_trailing_whitespace(self):
         """Leading and trailing whitespace should be removed."""
         df = pd.DataFrame({"conference": ["  PyCon Germany  "]})
         result = tidy_df_names(df)
 
-        assert not result["conference"].iloc[0].startswith(" "), \
-            "Leading whitespace should be stripped"
-        assert not result["conference"].iloc[0].endswith(" "), \
-            "Trailing whitespace should be stripped"
+        assert not result["conference"].iloc[0].startswith(" "), "Leading whitespace should be stripped"
+        assert not result["conference"].iloc[0].endswith(" "), "Trailing whitespace should be stripped"
 
     def test_handles_tabs_and_newlines(self):
         """Tabs and other whitespace should be normalized."""
@@ -161,8 +162,9 @@ class TestKnownMappings:
             result = tidy_df_names(df)
 
             # Should be mapped to canonical name
-            assert result["conference"].iloc[0] == "PyCon Germany & PyData Conference", \
-                f"Expected canonical name, got: {result['conference'].iloc[0]}"
+            assert (
+                result["conference"].iloc[0] == "PyCon Germany & PyData Conference"
+            ), f"Expected canonical name, got: {result['conference'].iloc[0]}"
 
     def test_preserves_unmapped_names(self):
         """Conferences without mappings should be preserved."""
@@ -191,8 +193,7 @@ class TestIdempotency:
         result1 = tidy_df_names(df.copy())
         result2 = tidy_df_names(result1.copy())
 
-        assert result1["conference"].iloc[0] == result2["conference"].iloc[0], \
-            "tidy_df_names should be idempotent"
+        assert result1["conference"].iloc[0] == result2["conference"].iloc[0], "tidy_df_names should be idempotent"
 
     def test_idempotent_on_already_clean_name(self):
         """Already normalized names should stay the same."""
@@ -220,16 +221,16 @@ class TestSpecialCharacters:
         result = tidy_df_names(df)
 
         # The accented character should be preserved
-        assert "xico" in result["conference"].iloc[0].lower(), \
-            f"Conference name should preserve México, got: {result['conference'].iloc[0]}"
+        assert (
+            "xico" in result["conference"].iloc[0].lower()
+        ), f"Conference name should preserve México, got: {result['conference'].iloc[0]}"
 
     def test_handles_ampersand(self):
         """Ampersand in conference names should be preserved."""
         df = pd.DataFrame({"conference": ["PyCon Germany & PyData Conference"]})
         result = tidy_df_names(df)
 
-        assert "&" in result["conference"].iloc[0], \
-            "Ampersand should be preserved in conference name"
+        assert "&" in result["conference"].iloc[0], "Ampersand should be preserved in conference name"
 
     def test_handles_plus_sign(self):
         """Plus signs should be replaced with spaces (based on code)."""
@@ -237,8 +238,7 @@ class TestSpecialCharacters:
         result = tidy_df_names(df)
 
         # The regex replaces + with space
-        assert "+" not in result["conference"].iloc[0], \
-            "Plus sign should be replaced"
+        assert "+" not in result["conference"].iloc[0], "Plus sign should be replaced"
 
 
 class TestMultipleConferences:
@@ -253,41 +253,45 @@ class TestMultipleConferences:
 
     def test_normalizes_all_conferences(self):
         """All conferences in DataFrame should be normalized."""
-        df = pd.DataFrame({
-            "conference": [
-                "PyCon Germany 2026",
-                "DjangoCon US 2025",
-                "EuroPython 2026",
-            ]
-        })
+        df = pd.DataFrame(
+            {
+                "conference": [
+                    "PyCon Germany 2026",
+                    "DjangoCon US 2025",
+                    "EuroPython 2026",
+                ],
+            },
+        )
         result = tidy_df_names(df)
 
         # No year should remain in any name
         for name in result["conference"]:
-            assert "2025" not in name and "2026" not in name, \
-                f"Year should be removed from '{name}'"
+            assert "2025" not in name and "2026" not in name, f"Year should be removed from '{name}'"
 
     def test_preserves_dataframe_length(self):
         """Normalization should not add or remove rows."""
-        df = pd.DataFrame({
-            "conference": [
-                "PyCon Germany 2026",
-                "DjangoCon US 2025",
-                "EuroPython 2026",
-            ]
-        })
+        df = pd.DataFrame(
+            {
+                "conference": [
+                    "PyCon Germany 2026",
+                    "DjangoCon US 2025",
+                    "EuroPython 2026",
+                ],
+            },
+        )
         result = tidy_df_names(df)
 
-        assert len(result) == len(df), \
-            "DataFrame length should be preserved"
+        assert len(result) == len(df), "DataFrame length should be preserved"
 
     def test_preserves_other_columns(self):
         """Other columns should be preserved through normalization."""
-        df = pd.DataFrame({
-            "conference": ["PyCon Germany 2026"],
-            "year": [2026],
-            "link": ["https://pycon.de/"],
-        })
+        df = pd.DataFrame(
+            {
+                "conference": ["PyCon Germany 2026"],
+                "year": [2026],
+                "link": ["https://pycon.de/"],
+            },
+        )
         result = tidy_df_names(df)
 
         assert "year" in result.columns
@@ -354,8 +358,7 @@ class TestRegressionCases:
         result = tidy_df_names(df)
 
         # Name should still be recognizable
-        assert "PyCon" in result["conference"].iloc[0], \
-            "PyCon should be preserved in the name"
+        assert "PyCon" in result["conference"].iloc[0], "PyCon should be preserved in the name"
 
     def test_regression_extra_spaces_dont_accumulate(self):
         """REGRESSION: Repeated normalization shouldn't add extra spaces.
@@ -525,8 +528,9 @@ class TestCJKUnicodeHandling:
 
     def test_fullwidth_characters(self):
         """Test fullwidth ASCII characters (common in CJK contexts)."""
-        # Fullwidth "PyCon" = Ｐｙｃｏｎ
-        df = pd.DataFrame({"conference": ["Ｐｙｃｏｎ Conference 2026"]})
+        # Fullwidth "PyCon" using Unicode escapes (U+FF30, U+FF59, U+FF43, U+FF4F, U+FF4E)
+        fullwidth_pycon = "\uff30\uff59\uff43\uff4f\uff4e"
+        df = pd.DataFrame({"conference": [f"{fullwidth_pycon} Conference 2026"]})
 
         with patch("tidy_conf.titles.load_title_mappings") as mock:
             mock.return_value = ([], {})
@@ -539,21 +543,17 @@ class TestCJKUnicodeHandling:
 # Property-based tests using Hypothesis
 # ---------------------------------------------------------------------------
 
-# Import shared strategies from hypothesis_strategies module
-sys.path.insert(0, str(Path(__file__).parent))
-from hypothesis_strategies import (
-    HYPOTHESIS_AVAILABLE,
-    valid_year,
-)
-
 if HYPOTHESIS_AVAILABLE:
-    from hypothesis import HealthCheck, assume, given, settings
+    from hypothesis import HealthCheck
+    from hypothesis import assume
+    from hypothesis import given
+    from hypothesis import settings
     from hypothesis import strategies as st
 
 
 pytestmark_hypothesis = pytest.mark.skipif(
     not HYPOTHESIS_AVAILABLE,
-    reason="hypothesis not installed - run: pip install hypothesis"
+    reason="hypothesis not installed - run: pip install hypothesis",
 )
 
 
@@ -581,7 +581,7 @@ class TestNormalizationProperties:
                 if "empty" not in str(e).lower():
                     raise
 
-    @given(st.text(alphabet=st.characters(whitelist_categories=('L', 'N', 'P', 'S')), min_size=5, max_size=50))
+    @given(st.text(alphabet=st.characters(whitelist_categories=("L", "N", "P", "S")), min_size=5, max_size=50))
     @settings(max_examples=100)
     def test_normalization_preserves_non_whitespace(self, text):
         """Normalization should preserve meaningful characters."""
@@ -611,8 +611,9 @@ class TestNormalizationProperties:
             result1 = tidy_df_names(df.copy())
             result2 = tidy_df_names(result1.copy())
 
-            assert result1["conference"].iloc[0] == result2["conference"].iloc[0], \
-                f"Idempotency failed: '{result1['conference'].iloc[0]}' != '{result2['conference'].iloc[0]}'"
+            assert (
+                result1["conference"].iloc[0] == result2["conference"].iloc[0]
+            ), f"Idempotency failed: '{result1['conference'].iloc[0]}' != '{result2['conference'].iloc[0]}'"
 
     @given(valid_year)
     @settings(max_examples=50)
@@ -626,21 +627,25 @@ class TestNormalizationProperties:
             df = pd.DataFrame({"conference": [name]})
             result = tidy_df_names(df)
 
-            assert str(year) not in result["conference"].iloc[0], \
-                f"Year {year} should be removed from '{result['conference'].iloc[0]}'"
+            assert (
+                str(year) not in result["conference"].iloc[0]
+            ), f"Year {year} should be removed from '{result['conference'].iloc[0]}'"
 
 
 @pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
 class TestUnicodeHandlingProperties:
     """Property-based tests for Unicode handling."""
 
-    @given(st.text(
-        alphabet=st.characters(
-            whitelist_categories=('L',),  # Letters only
-            whitelist_characters='áéíóúñüöäÄÖÜßàèìòùâêîôûçÇ'
+    @given(
+        st.text(
+            alphabet=st.characters(
+                whitelist_categories=("L",),  # Letters only
+                whitelist_characters="áéíóúñüöäÄÖÜßàèìòùâêîôûçÇ",
+            ),
+            min_size=5,
+            max_size=30,
         ),
-        min_size=5, max_size=30
-    ))
+    )
     @settings(max_examples=50)
     def test_unicode_letters_preserved(self, text):
         """Unicode letters should be preserved through normalization."""
@@ -656,16 +661,20 @@ class TestUnicodeHandlingProperties:
             result_text = result["conference"].iloc[0]
             assert len(result_text) > 0, "Result should not be empty"
 
-    @given(st.sampled_from([
-        "PyCon México",
-        "PyCon España",
-        "PyCon Österreich",
-        "PyCon Česko",
-        "PyCon Türkiye",
-        "PyCon Ελλάδα",
-        "PyCon 日本",
-        "PyCon 한국",
-    ]))
+    @given(
+        st.sampled_from(
+            [
+                "PyCon México",
+                "PyCon España",
+                "PyCon Österreich",
+                "PyCon Česko",
+                "PyCon Türkiye",
+                "PyCon Ελλάδα",
+                "PyCon 日本",
+                "PyCon 한국",
+            ],
+        ),
+    )
     def test_specific_unicode_names_handled(self, name):
         """Specific international conference names should be handled."""
         with patch("tidy_conf.titles.load_title_mappings") as mock:

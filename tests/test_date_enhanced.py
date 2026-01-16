@@ -8,8 +8,10 @@ from pathlib import Path
 
 import pytest
 
+sys.path.insert(0, str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
+from hypothesis_strategies import HYPOTHESIS_AVAILABLE
 from tidy_conf.date import clean_dates
 from tidy_conf.date import create_nice_date
 from tidy_conf.date import suffix
@@ -805,7 +807,7 @@ class TestDSTTransitions:
         """Test conference that spans DST transition."""
         data = {
             "start": "2025-03-08",  # Day before DST
-            "end": "2025-03-10",    # Day after DST
+            "end": "2025-03-10",  # Day after DST
             "cfp": "2025-01-15",
         }
 
@@ -953,7 +955,7 @@ class TestLeapYearEdgeCases:
         }
 
         result = create_nice_date(data)
-        assert "February 29 - March 1, 2028" == result["date"]
+        assert result["date"] == "February 29 - March 1, 2028"
 
     def test_leap_year_cfp_feb_29(self):
         """Test CFP deadline on Feb 29 of leap year."""
@@ -971,13 +973,12 @@ class TestLeapYearEdgeCases:
 # Property-based tests using Hypothesis
 # ---------------------------------------------------------------------------
 
-# Import shared strategies from hypothesis_strategies module
-sys.path.insert(0, str(Path(__file__).parent))
-from hypothesis_strategies import HYPOTHESIS_AVAILABLE
-
 if HYPOTHESIS_AVAILABLE:
     from datetime import timedelta
-    from hypothesis import HealthCheck, assume, given, settings
+
+    from hypothesis import assume
+    from hypothesis import given
+    from hypothesis import settings
     from hypothesis import strategies as st
     from pydantic import ValidationError
     from tidy_conf.schema import Conference
@@ -1050,8 +1051,8 @@ class TestCFPDatetimeProperties:
         # Create CFP string in expected format
         cfp_str = f"{d.isoformat()} 23:59:00"
 
-        # Parse and verify
-        parsed = datetime.strptime(cfp_str, "%Y-%m-%d %H:%M:%S")
+        # Parse and verify (add UTC timezone for lint compliance)
+        parsed = datetime.strptime(cfp_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
         assert parsed.date() == d, f"Date mismatch: {parsed.date()} != {d}"
         assert parsed.hour == 23
         assert parsed.minute == 59
@@ -1061,7 +1062,7 @@ class TestCFPDatetimeProperties:
         st.dates(min_value=date(2024, 1, 1), max_value=date(2030, 12, 31)),
         st.integers(min_value=0, max_value=23),
         st.integers(min_value=0, max_value=59),
-        st.integers(min_value=0, max_value=59)
+        st.integers(min_value=0, max_value=59),
     )
     @settings(max_examples=100)
     def test_any_valid_cfp_time_accepted(self, d, hour, minute, second):
