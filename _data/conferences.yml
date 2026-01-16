@@ -47,6 +47,22 @@
     latitude: 47.8454821
     longitude: 16.5249288
 
+- conference: EuroPython
+  year: 2026
+  link: https://ep2026.europython.eu/
+  cfp_link: https://ep2026.europython.eu/cfp
+  cfp: '2026-02-15 23:55:00'
+  place: Kraków, Poland
+  start: 2026-07-13
+  end: 2026-07-19
+  twitter: EuroPython
+  mastodon: https://fosstodon.org/@europython
+  sub: PY
+  location:
+  - title: EuroPython 2026
+    latitude: 50.0478
+    longitude: 19.9314
+
 - conference: PyCon Poland
   alt_name: PyCon PL
   year: 2026
@@ -210,22 +226,6 @@
     latitude: 42.3554334
     longitude: -71.060511
 
-- conference: PyData Eindhoven
-  year: 2025
-  link: https://pydata.org/eindhoven2025
-  cfp_link: https://pydata.org/eindhoven2025/call-for-proposals
-  cfp: '2025-10-12 16:54:00'
-  timezone: UTC
-  place: Eindhoven, Netherlands
-  start: 2025-12-09
-  end: 2025-12-09
-  sponsor: https://pydata.org/eindhoven2025/sponsorship-opportunities
-  sub: DATA
-  location:
-  - title: PyData Eindhoven 2025
-    latitude: 51.4383999131
-    longitude: 5.46712979814
-
 - conference: PyCon Indonesia
   alt_name: PyCon ID
   year: 2025
@@ -243,18 +243,6 @@
   - title: PyCon Indonesia 2025
     latitude: -6.175247
     longitude: 106.8270488
-
-- conference: PyLadiesCon
-  year: 2025
-  link: https://2025.conference.pyladies.com/en/
-  cfp_link: https://pretalx.com/pyladiescon-2025/cfp
-  cfp: '2025-08-23 12:59:00'
-  timezone: UTC
-  place: Online
-  start: 2025-12-05
-  end: 2025-12-07
-  sponsor: https://2025.conference.pyladies.com/en/sponsors/
-  sub: PY
 
 - conference: PyData Global
   year: 2025
@@ -339,22 +327,6 @@
   - title: PyOhio 2026
     latitude: 41.4996574
     longitude: -81.6936772
-
-- conference: EuroPython
-  year: 2026
-  link: https://ep2026.europython.eu/
-  cfp_link: https://ep2026.europython.eu/cfp
-  cfp: '2026-02-15 23:55:00'
-  place: Kraków, Poland
-  start: 2026-07-13
-  end: 2026-07-19
-  twitter: EuroPython
-  mastodon: https://fosstodon.org/@europython
-  sub: PY
-  location:
-  - title: EuroPython 2026
-    latitude: 50.0478
-    longitude: 19.9314
 
 - conference: Python BarCamp Karlsruhe
   year: 2026
