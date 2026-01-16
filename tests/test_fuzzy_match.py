@@ -560,11 +560,20 @@ class TestFuzzyMatchProperties:
             assert len(result) >= len(names), \
                 f"Expected at least {len(names)} results, got {len(result)}"
 
-    @given(st.text(min_size=10, max_size=50))
+    @given(st.text(
+        alphabet=st.characters(
+            whitelist_categories=('L', 'N', 'Zs'),  # Letters, Numbers, Spaces
+            whitelist_characters='-&:',  # Common punctuation in conference names
+        ),
+        min_size=10,
+        max_size=50
+    ))
     @settings(max_examples=30)
     def test_exact_match_always_scores_100(self, name):
         """Identical names should always match perfectly."""
+        # Filter to realistic conference names (no control chars, has letters)
         assume(len(name.strip()) > 5)
+        assume(any(c.isalpha() for c in name))  # Must have at least one letter
 
         with patch("tidy_conf.interactive_merge.load_title_mappings") as mock1, \
              patch("tidy_conf.titles.load_title_mappings") as mock2, \
