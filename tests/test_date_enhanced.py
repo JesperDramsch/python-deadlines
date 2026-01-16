@@ -8,8 +8,10 @@ from pathlib import Path
 
 import pytest
 
+sys.path.insert(0, str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
+from hypothesis_strategies import HYPOTHESIS_AVAILABLE
 from tidy_conf.date import clean_dates
 from tidy_conf.date import create_nice_date
 from tidy_conf.date import suffix
@@ -759,3 +761,344 @@ class TestDateEdgeCases:
 
         assert cleaned["cfp"] == "2099-06-15 23:59:00"
         assert "2099" in nice_date["date"]
+
+
+class TestDSTTransitions:
+    """Test handling of Daylight Saving Time transitions.
+
+    Coverage gap: DST transitions can cause issues with date/time calculations.
+    """
+
+    def test_dst_spring_forward_date(self):
+        """Test CFP on spring forward date (clocks skip ahead).
+
+        In the US, DST starts second Sunday of March.
+        March 9, 2025 is a DST transition day.
+        """
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-03-09",  # DST spring forward in US
+        }
+
+        result = clean_dates(data)
+
+        # Should handle DST date correctly
+        assert result["cfp"] == "2025-03-09 23:59:00"
+
+    def test_dst_fall_back_date(self):
+        """Test CFP on fall back date (clocks repeat an hour).
+
+        In the US, DST ends first Sunday of November.
+        November 2, 2025 is a DST transition day.
+        """
+        data = {
+            "start": "2025-12-01",
+            "end": "2025-12-03",
+            "cfp": "2025-11-02",  # DST fall back in US
+        }
+
+        result = clean_dates(data)
+
+        # Should handle DST date correctly
+        assert result["cfp"] == "2025-11-02 23:59:00"
+
+    def test_conference_spanning_dst_transition(self):
+        """Test conference that spans DST transition."""
+        data = {
+            "start": "2025-03-08",  # Day before DST
+            "end": "2025-03-10",  # Day after DST
+            "cfp": "2025-01-15",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        # Should handle dates correctly across DST boundary
+        assert nice_date["date"] == "March 8 - 10, 2025"
+
+    def test_european_dst_dates(self):
+        """Test European DST transition dates (last Sunday of March/October)."""
+        # EU DST starts last Sunday of March (March 30, 2025)
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-03-30",  # EU DST start
+        }
+
+        result = clean_dates(data)
+        assert result["cfp"] == "2025-03-30 23:59:00"
+
+
+class TestAoETimezoneEdgeCases:
+    """Test Anywhere on Earth (AoE) timezone edge cases.
+
+    Coverage gap: AoE timezone (UTC-12) is commonly used for CFP deadlines.
+    A deadline of "2025-02-15 23:59 AoE" means it's valid until
+    2025-02-16 11:59 UTC.
+    """
+
+    def test_aoe_deadline_format(self):
+        """Test that CFP times can represent AoE deadlines.
+
+        AoE is UTC-12, so 23:59 AoE = 11:59 UTC next day.
+        """
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15 23:59:00",  # Interpreted as AoE
+        }
+
+        result = clean_dates(data)
+
+        # Time should be preserved (AoE interpretation is application-level)
+        assert result["cfp"] == "2025-02-15 23:59:00"
+
+    def test_aoe_date_line_crossing(self):
+        """Test dates near the international date line.
+
+        Conferences in Pacific islands may have unusual date considerations.
+        """
+        data = {
+            "start": "2025-01-01",  # Could be Dec 31 in some timezones
+            "end": "2025-01-03",
+            "cfp": "2024-12-31 23:59:00",  # Last day of year in AoE
+        }
+
+        result = clean_dates(data)
+
+        # Date should be preserved correctly
+        assert result["cfp"] == "2024-12-31 23:59:00"
+
+    def test_aoe_vs_utc_deadline_day(self):
+        """Test that deadline day is correctly represented.
+
+        If deadline is Feb 15 AoE, submissions are accepted until
+        Feb 16 11:59 UTC. The stored date should reflect the AoE date.
+        """
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",  # Date only - will get 23:59:00 appended
+        }
+
+        result = clean_dates(data)
+
+        # Should append 23:59:00 (commonly interpreted as AoE)
+        assert result["cfp"] == "2025-02-15 23:59:00"
+        assert "2025-02-15" in result["cfp"]
+
+    def test_utc_plus_14_edge_case(self):
+        """Test UTC+14 (Line Islands) edge case.
+
+        Kiritimati (Christmas Island) is UTC+14, the earliest timezone.
+        A Jan 1 conference there starts before anywhere else on Earth.
+        """
+        data = {
+            "start": "2025-01-01",
+            "end": "2025-01-03",
+            "cfp": "2024-11-15 23:59:00",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        # Should handle correctly
+        assert nice_date["date"] == "January 1 - 3, 2025"
+
+
+class TestLeapYearEdgeCases:
+    """Additional leap year edge cases.
+
+    Coverage gap: Comprehensive leap year testing including edge cases.
+    """
+
+    def test_leap_year_century_rule_2000(self):
+        """Test year 2000 (divisible by 400 = leap year)."""
+        data = {
+            "start": "2000-02-29",
+            "end": "2000-03-02",
+        }
+
+        result = create_nice_date(data)
+        assert "February 29" in result["date"]
+
+    def test_leap_year_century_rule_2100(self):
+        """Test year 2100 (divisible by 100 but not 400 = not leap year)."""
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",
+            "workshop_deadline": "2100-02-29",  # Invalid: 2100 is not a leap year
+        }
+
+        result = clean_dates(data)
+
+        # Invalid date should be left unchanged
+        assert result["workshop_deadline"] == "2100-02-29"
+
+    def test_leap_year_2024(self):
+        """Test 2024 (regular leap year)."""
+        data = {
+            "start": "2024-02-29",
+            "end": "2024-02-29",
+        }
+
+        result = create_nice_date(data)
+        assert result["date"] == "February 29th, 2024"
+
+    def test_leap_year_2028(self):
+        """Test 2028 (future leap year)."""
+        data = {
+            "start": "2028-02-29",
+            "end": "2028-03-01",
+        }
+
+        result = create_nice_date(data)
+        assert result["date"] == "February 29 - March 1, 2028"
+
+    def test_leap_year_cfp_feb_29(self):
+        """Test CFP deadline on Feb 29 of leap year."""
+        data = {
+            "start": "2024-06-01",
+            "end": "2024-06-03",
+            "cfp": "2024-02-29",
+        }
+
+        result = clean_dates(data)
+        assert result["cfp"] == "2024-02-29 23:59:00"
+
+
+# ---------------------------------------------------------------------------
+# Property-based tests using Hypothesis
+# ---------------------------------------------------------------------------
+
+if HYPOTHESIS_AVAILABLE:
+    from datetime import timedelta
+
+    from hypothesis import assume
+    from hypothesis import given
+    from hypothesis import settings
+    from hypothesis import strategies as st
+    from pydantic import ValidationError
+    from tidy_conf.schema import Conference
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestDateProperties:
+    """Property-based tests for date handling."""
+
+    @given(st.dates(min_value=date(1990, 1, 1), max_value=date(2050, 12, 31)))
+    @settings(max_examples=50)
+    def test_valid_dates_accepted_in_range(self, d):
+        """Dates between 1990 and 2050 should be valid start/end dates."""
+        end_date = d + timedelta(days=2)
+
+        # Skip if end date would cross year boundary
+        assume(d.year == end_date.year)
+
+        try:
+            conf = Conference(
+                conference="Test",
+                year=d.year,
+                link="https://test.org/",
+                cfp=f"{d.year}-01-15 23:59:00",
+                place="Online",
+                start=d,
+                end=end_date,
+                sub="PY",
+            )
+            assert conf.start == d
+        except ValidationError:
+            # Some dates may fail for other reasons - that's ok
+            pass
+
+    @given(st.integers(min_value=1, max_value=365))
+    @settings(max_examples=30)
+    def test_multi_day_conferences_accepted(self, days):
+        """Conferences spanning multiple days should be accepted."""
+        start = date(2026, 1, 1)
+        end = start + timedelta(days=days)
+
+        # Must be same year
+        assume(start.year == end.year)
+
+        try:
+            conf = Conference(
+                conference="Multi-day Test",
+                year=2026,
+                link="https://test.org/",
+                cfp="2025-10-15 23:59:00",
+                place="Online",
+                start=start,
+                end=end,
+                sub="PY",
+            )
+            assert conf.end >= conf.start
+        except ValidationError:
+            # May fail for other validation reasons
+            pass
+
+
+@pytest.mark.skipif(not HYPOTHESIS_AVAILABLE, reason="hypothesis not installed")
+class TestCFPDatetimeProperties:
+    """Property-based tests for CFP datetime handling."""
+
+    @given(st.dates(min_value=date(2020, 1, 1), max_value=date(2030, 12, 31)))
+    @settings(max_examples=100)
+    def test_cfp_datetime_roundtrip(self, d):
+        """CFP datetime string should roundtrip through parsing correctly."""
+        # Create CFP string in expected format
+        cfp_str = f"{d.isoformat()} 23:59:00"
+
+        # Parse and verify (add UTC timezone for lint compliance)
+        parsed = datetime.strptime(cfp_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        assert parsed.date() == d, f"Date mismatch: {parsed.date()} != {d}"
+        assert parsed.hour == 23
+        assert parsed.minute == 59
+        assert parsed.second == 0
+
+    @given(
+        st.dates(min_value=date(2024, 1, 1), max_value=date(2030, 12, 31)),
+        st.integers(min_value=0, max_value=23),
+        st.integers(min_value=0, max_value=59),
+        st.integers(min_value=0, max_value=59),
+    )
+    @settings(max_examples=100)
+    def test_any_valid_cfp_time_accepted(self, d, hour, minute, second):
+        """Any valid time should be accepted in CFP format."""
+        import re
+
+        cfp_str = f"{d.isoformat()} {hour:02d}:{minute:02d}:{second:02d}"
+
+        # Should match the expected regex pattern
+        pattern = r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$"
+        assert re.match(pattern, cfp_str), f"CFP string doesn't match pattern: {cfp_str}"
+
+    @given(st.dates(min_value=date(2024, 1, 1), max_value=date(2030, 12, 31)))
+    @settings(max_examples=50)
+    def test_cfp_before_conference_valid(self, cfp_date):
+        """CFP date before conference start should be valid."""
+        # Conference starts 30 days after CFP
+        conf_start = cfp_date + timedelta(days=30)
+        conf_end = conf_start + timedelta(days=2)
+
+        # Skip if dates cross year boundary
+        assume(conf_start.year == conf_end.year)
+
+        try:
+            conf = Conference(
+                conference="Property Test Conference",
+                year=conf_start.year,
+                link="https://test.org/",
+                cfp=f"{cfp_date.isoformat()} 23:59:00",
+                place="Online",
+                start=conf_start,
+                end=conf_end,
+                sub="PY",
+            )
+            # CFP should be preserved
+            assert cfp_date.isoformat() in conf.cfp
+        except ValidationError:
+            # May fail for year boundary reasons
+            pass

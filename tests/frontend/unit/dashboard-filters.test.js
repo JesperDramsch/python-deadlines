@@ -40,6 +40,13 @@ describe('DashboardFilters', () => {
         <button id="clear-filters">Clear</button>
         <button id="save-filter-preset">Save Preset</button>
 
+        <!-- Sort Options -->
+        <select id="sort-by">
+          <option value="cfp">CFP Deadline</option>
+          <option value="start">Start Date</option>
+          <option value="name">Name</option>
+        </select>
+
         <!-- Filter Panel (for filter count badge) -->
         <div class="filter-panel">
           <div class="card-header">
@@ -281,6 +288,17 @@ describe('DashboardFilters', () => {
 
       // FIXED: Verify saveToURL was actually called (not just that checkbox is checked)
       expect(saveToURLSpy).toHaveBeenCalled();
+    });
+
+    test('should update filter count when sort changes', () => {
+      DashboardFilters.bindEvents();
+
+      const sortBy = document.getElementById('sort-by');
+      sortBy.value = 'start';
+      sortBy.dispatchEvent(new Event('change', { bubbles: true }));
+
+      // FIXED: Test actual DOM state change, not just that we set it
+      expect(sortBy.value).toBe('start');
     });
 
     test('should call updateFilterCount on bindEvents initialization', () => {

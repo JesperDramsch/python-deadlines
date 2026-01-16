@@ -1,0 +1,82 @@
+---
+
+- conference: PyCon Germany & PyData Conference
+  alt_name: PyCon DE
+  year: 2026
+  link: https://2026.pycon.de/
+  cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
+  cfp: '2025-12-21 23:59:59'
+  cfp_ext: '2026-01-18 23:59:59'
+  timezone: Europe/Berlin
+  place: Darmstadt, Germany
+  start: 2026-04-14
+  end: 2026-04-17
+  finaid: https://2026.pycon.de/
+  mastodon: https://social.python.de/@pycon
+  sub: PY,DATA
+  location:
+  - title: PyCon Germany & PyData Conference 2026
+    latitude: 49.872775
+    longitude: 8.651177
+
+- conference: DjangoCon US
+  year: 2026
+  link: https://2026.djangocon.us/
+  cfp: '2026-03-16 11:00:00'
+  timezone: America/Chicago
+  place: Chicago, USA
+  start: 2026-09-14
+  end: 2026-09-18
+  sponsor: https://2026.djangocon.us/sponsors/
+  sub: WEB
+  location:
+  - title: DjangoCon US 2026
+    latitude: 41.8781136
+    longitude: -87.6297982
+
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2026
+  link: https://2026.pycon.it/en
+  cfp_link: https://pycon.it/cfp
+  cfp: '2026-01-06 23:59:59'
+  place: Bologna, Italy
+  start: 2026-05-27
+  end: 2026-05-30
+  finaid: https://2026.pycon.it/en
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+  - title: PyCon Italy 2026
+    latitude: 44.4938203
+    longitude: 11.3426327
+
+- conference: EuroPython
+  year: 2026
+  link: https://ep2026.europython.eu/
+  cfp: '2026-02-15 23:59:00'
+  place: Prague, Czechia
+  start: 2026-07-14
+  end: 2026-07-20
+  sponsor: https://ep2026.europython.eu/sponsors/
+  twitter: europython
+  sub: PY
+  location:
+  - title: EuroPython 2026
+    latitude: 50.0755381
+    longitude: 14.4378005
+
+- conference: PyCon US
+  year: 2026
+  link: https://us.pycon.org/2026/
+  cfp: '2025-12-18 23:59:59'
+  place: Pittsburgh, USA
+  start: 2026-05-06
+  end: 2026-05-11
+  sponsor: https://us.pycon.org/2026/sponsors/
+  twitter: pycon
+  sub: PY
+  location:
+  - title: PyCon US 2026
+    latitude: 40.4406248
+    longitude: -79.9958864

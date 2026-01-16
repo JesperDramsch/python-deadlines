@@ -638,7 +638,7 @@ class TestSemanticCorrectness:
         with conf_file.open(encoding="utf-8") as f:
             conferences = yaml.safe_load(f)
 
-        current_year = datetime.now(timezone.utc).year
+        current_year = datetime.now(tz=timezone.utc).year
         max_year = current_year + 3
 
         errors = []
@@ -669,8 +669,8 @@ class TestSemanticCorrectness:
             name = f"{conf.get('conference')} {conf.get('year')}"
             place = conf.get("place", "")
 
+            # Should contain a comma separating city and country
             if place and place not in ["TBA", "Online", "Virtual", "Remote"] and "," not in place:
-                # Should contain a comma separating city and country
                 errors.append(f"{name}: place '{place}' missing country (no comma)")
 
         assert len(errors) == 0, "Place format issues:\n" + "\n".join(errors[:10])
@@ -702,9 +702,11 @@ class TestSemanticCorrectness:
                 if location:
                     lat, lon = location.get("lat"), location.get("lon")
                     # If location is set, it should be null/default, not specific coordinates
+                    # Allow 0,0 as a placeholder/default
                     if lat is not None and lon is not None and (abs(lat) > 0.1 or abs(lon) > 0.1):
-                        # Allow 0,0 as a placeholder/default
-                        errors.append(f"{name}: online event has specific coordinates ({lat}, {lon})")
+                        errors.append(
+                            f"{name}: online event has specific coordinates ({lat}, {lon})",
+                        )
 
         # Verify no contradictory data found
         assert len(errors) == 0, "Online conference data issues:\n" + "\n".join(errors[:10])

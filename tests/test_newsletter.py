@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+from freezegun import freeze_time
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -20,6 +21,7 @@ import newsletter
 class TestFilterConferences:
     """Test conference filtering functionality."""
 
+    @freeze_time("2026-06-01")
     def test_filter_conferences_basic(self):
         """Test basic conference filtering within time range."""
         now = datetime.now(tz=timezone(timedelta(hours=2))).date()
@@ -45,6 +47,7 @@ class TestFilterConferences:
         assert len(result) == 1
         assert result.iloc[0]["conference"] == "Conference A"
 
+    @freeze_time("2026-06-01")
     def test_filter_conferences_with_cfp_ext(self):
         """Test filtering with extended CFP deadlines (cfp_ext)."""
         now = datetime.now(tz=timezone(timedelta(hours=2))).date()
@@ -74,6 +77,7 @@ class TestFilterConferences:
         conf_a = result[result["conference"] == "Conference A"].iloc[0]
         assert conf_a["cfp"] == now + timedelta(days=3)
 
+    @freeze_time("2026-06-01")
     def test_filter_conferences_tba_handling(self):
         """Test handling of 'TBA' deadlines."""
         now = datetime.now(tz=timezone(timedelta(hours=2))).date()
@@ -94,6 +98,7 @@ class TestFilterConferences:
         assert len(result) == 1
         assert result.iloc[0]["conference"] == "Conference B"
 
+    @freeze_time("2026-06-01")
     def test_filter_conferences_custom_days(self):
         """Test filtering with custom day range."""
         now = datetime.now(tz=timezone(timedelta(hours=2))).date()
@@ -135,6 +140,7 @@ class TestFilterConferences:
         assert len(result) == 0
         assert isinstance(result, pd.DataFrame)
 
+    @freeze_time("2026-06-01")
     def test_filter_conferences_all_past_deadlines(self):
         """Test filtering when all deadlines are in the past."""
         now = datetime.now(tz=timezone(timedelta(hours=2))).date()
@@ -156,6 +162,7 @@ class TestFilterConferences:
 
         assert len(result) == 0
 
+    @freeze_time("2026-06-01")
     def test_filter_conferences_timezone_handling(self):
         """Test that timezone handling works correctly."""
         # This test ensures the timezone offset is properly handled
@@ -251,6 +258,7 @@ class TestCreateMarkdownLinks:
 class TestMainFunction:
     """Test main function integration."""
 
+    @freeze_time("2026-06-01")
     @patch("newsletter.load_conferences")
     @patch("builtins.print")
     def test_main_function_basic(self, mock_print, mock_load_conferences):
@@ -280,6 +288,7 @@ class TestMainFunction:
         print_calls = [call[0] for call in mock_print.call_args_list]
         assert any("Upcoming Conference" in str(call) for call in print_calls)
 
+    @freeze_time("2026-06-01")
     @patch("newsletter.load_conferences")
     @patch("builtins.print")
     def test_main_function_no_conferences(self, mock_print, mock_load_conferences):
@@ -296,6 +305,7 @@ class TestMainFunction:
         # Should still call print, but with empty results
         assert mock_print.called
 
+    @freeze_time("2026-06-01")
     @patch("newsletter.load_conferences")
     @patch("builtins.print")
     def test_main_function_custom_days(self, mock_print, mock_load_conferences):
@@ -326,6 +336,7 @@ class TestMainFunction:
         # Conference B should not be mentioned (outside 5-day range)
         assert not conference_b_mentioned
 
+    @freeze_time("2026-06-01")
     @patch("newsletter.load_conferences")
     @patch("builtins.print")
     def test_main_function_markdown_output(self, mock_print, mock_load_conferences):
@@ -396,6 +407,7 @@ class TestCommandLineInterface:
 class TestIntegrationWorkflows:
     """Integration tests for complete newsletter workflows."""
 
+    @freeze_time("2026-06-01")
     @patch("newsletter.load_conferences")
     @patch("builtins.print")
     def test_full_newsletter_workflow(self, mock_print, mock_load_conferences):
@@ -441,6 +453,7 @@ class TestIntegrationWorkflows:
         markdown_found = any("https://pythondeadlin.es/conference/" in call for call in print_calls)
         assert markdown_found
 
+    @freeze_time("2026-06-01")
     @patch("newsletter.load_conferences")
     @patch("builtins.print")
     def test_edge_case_handling(self, mock_print, mock_load_conferences):
@@ -468,6 +481,7 @@ class TestIntegrationWorkflows:
         # Function should complete successfully
         assert mock_print.called
 
+    @freeze_time("2026-06-01")
     def test_date_boundary_conditions(self):
         """Test boundary conditions around date filtering."""
         # Test exactly at boundary
