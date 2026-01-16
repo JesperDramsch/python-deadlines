@@ -761,6 +761,212 @@ class TestDateEdgeCases:
         assert "2099" in nice_date["date"]
 
 
+class TestDSTTransitions:
+    """Test handling of Daylight Saving Time transitions.
+
+    Coverage gap: DST transitions can cause issues with date/time calculations.
+    """
+
+    def test_dst_spring_forward_date(self):
+        """Test CFP on spring forward date (clocks skip ahead).
+
+        In the US, DST starts second Sunday of March.
+        March 9, 2025 is a DST transition day.
+        """
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-03-09",  # DST spring forward in US
+        }
+
+        result = clean_dates(data)
+
+        # Should handle DST date correctly
+        assert result["cfp"] == "2025-03-09 23:59:00"
+
+    def test_dst_fall_back_date(self):
+        """Test CFP on fall back date (clocks repeat an hour).
+
+        In the US, DST ends first Sunday of November.
+        November 2, 2025 is a DST transition day.
+        """
+        data = {
+            "start": "2025-12-01",
+            "end": "2025-12-03",
+            "cfp": "2025-11-02",  # DST fall back in US
+        }
+
+        result = clean_dates(data)
+
+        # Should handle DST date correctly
+        assert result["cfp"] == "2025-11-02 23:59:00"
+
+    def test_conference_spanning_dst_transition(self):
+        """Test conference that spans DST transition."""
+        data = {
+            "start": "2025-03-08",  # Day before DST
+            "end": "2025-03-10",    # Day after DST
+            "cfp": "2025-01-15",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        # Should handle dates correctly across DST boundary
+        assert nice_date["date"] == "March 8 - 10, 2025"
+
+    def test_european_dst_dates(self):
+        """Test European DST transition dates (last Sunday of March/October)."""
+        # EU DST starts last Sunday of March (March 30, 2025)
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-03-30",  # EU DST start
+        }
+
+        result = clean_dates(data)
+        assert result["cfp"] == "2025-03-30 23:59:00"
+
+
+class TestAoETimezoneEdgeCases:
+    """Test Anywhere on Earth (AoE) timezone edge cases.
+
+    Coverage gap: AoE timezone (UTC-12) is commonly used for CFP deadlines.
+    A deadline of "2025-02-15 23:59 AoE" means it's valid until
+    2025-02-16 11:59 UTC.
+    """
+
+    def test_aoe_deadline_format(self):
+        """Test that CFP times can represent AoE deadlines.
+
+        AoE is UTC-12, so 23:59 AoE = 11:59 UTC next day.
+        """
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15 23:59:00",  # Interpreted as AoE
+        }
+
+        result = clean_dates(data)
+
+        # Time should be preserved (AoE interpretation is application-level)
+        assert result["cfp"] == "2025-02-15 23:59:00"
+
+    def test_aoe_date_line_crossing(self):
+        """Test dates near the international date line.
+
+        Conferences in Pacific islands may have unusual date considerations.
+        """
+        data = {
+            "start": "2025-01-01",  # Could be Dec 31 in some timezones
+            "end": "2025-01-03",
+            "cfp": "2024-12-31 23:59:00",  # Last day of year in AoE
+        }
+
+        result = clean_dates(data)
+
+        # Date should be preserved correctly
+        assert result["cfp"] == "2024-12-31 23:59:00"
+
+    def test_aoe_vs_utc_deadline_day(self):
+        """Test that deadline day is correctly represented.
+
+        If deadline is Feb 15 AoE, submissions are accepted until
+        Feb 16 11:59 UTC. The stored date should reflect the AoE date.
+        """
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",  # Date only - will get 23:59:00 appended
+        }
+
+        result = clean_dates(data)
+
+        # Should append 23:59:00 (commonly interpreted as AoE)
+        assert result["cfp"] == "2025-02-15 23:59:00"
+        assert "2025-02-15" in result["cfp"]
+
+    def test_utc_plus_14_edge_case(self):
+        """Test UTC+14 (Line Islands) edge case.
+
+        Kiritimati (Christmas Island) is UTC+14, the earliest timezone.
+        A Jan 1 conference there starts before anywhere else on Earth.
+        """
+        data = {
+            "start": "2025-01-01",
+            "end": "2025-01-03",
+            "cfp": "2024-11-15 23:59:00",
+        }
+
+        cleaned = clean_dates(data)
+        nice_date = create_nice_date(cleaned)
+
+        # Should handle correctly
+        assert nice_date["date"] == "January 1 - 3, 2025"
+
+
+class TestLeapYearEdgeCases:
+    """Additional leap year edge cases.
+
+    Coverage gap: Comprehensive leap year testing including edge cases.
+    """
+
+    def test_leap_year_century_rule_2000(self):
+        """Test year 2000 (divisible by 400 = leap year)."""
+        data = {
+            "start": "2000-02-29",
+            "end": "2000-03-02",
+        }
+
+        result = create_nice_date(data)
+        assert "February 29" in result["date"]
+
+    def test_leap_year_century_rule_2100(self):
+        """Test year 2100 (divisible by 100 but not 400 = not leap year)."""
+        data = {
+            "start": "2025-06-01",
+            "end": "2025-06-03",
+            "cfp": "2025-02-15",
+            "workshop_deadline": "2100-02-29",  # Invalid: 2100 is not a leap year
+        }
+
+        result = clean_dates(data)
+
+        # Invalid date should be left unchanged
+        assert result["workshop_deadline"] == "2100-02-29"
+
+    def test_leap_year_2024(self):
+        """Test 2024 (regular leap year)."""
+        data = {
+            "start": "2024-02-29",
+            "end": "2024-02-29",
+        }
+
+        result = create_nice_date(data)
+        assert result["date"] == "February 29th, 2024"
+
+    def test_leap_year_2028(self):
+        """Test 2028 (future leap year)."""
+        data = {
+            "start": "2028-02-29",
+            "end": "2028-03-01",
+        }
+
+        result = create_nice_date(data)
+        assert "February 29 - March 1, 2028" == result["date"]
+
+    def test_leap_year_cfp_feb_29(self):
+        """Test CFP deadline on Feb 29 of leap year."""
+        data = {
+            "start": "2024-06-01",
+            "end": "2024-06-03",
+            "cfp": "2024-02-29",
+        }
+
+        result = clean_dates(data)
+        assert result["cfp"] == "2024-02-29 23:59:00"
+
+
 # ---------------------------------------------------------------------------
 # Property-based tests using Hypothesis
 # ---------------------------------------------------------------------------

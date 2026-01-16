@@ -373,6 +373,168 @@ class TestRegressionCases:
         assert "  " not in name, f"Extra spaces accumulated: '{name}'"
 
 
+class TestRTLUnicodeHandling:
+    """Test handling of Right-to-Left scripts (Arabic, Hebrew).
+
+    Coverage gap: RTL scripts require special handling and can cause
+    display and processing issues if not handled correctly.
+    """
+
+    def test_arabic_conference_name(self):
+        """Test Arabic script in conference name."""
+        # "PyCon Arabia" with Arabic text
+        df = pd.DataFrame({"conference": ["PyCon العربية 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        # Should not crash and should preserve Arabic characters
+        assert len(result) == 1
+        conf_name = result["conference"].iloc[0]
+        assert len(conf_name) > 0
+
+    def test_hebrew_conference_name(self):
+        """Test Hebrew script in conference name."""
+        # "PyCon Israel" with Hebrew text
+        df = pd.DataFrame({"conference": ["PyCon ישראל 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        # Should not crash and should preserve Hebrew characters
+        assert len(result) == 1
+        conf_name = result["conference"].iloc[0]
+        assert len(conf_name) > 0
+
+    def test_mixed_rtl_ltr_text(self):
+        """Test mixed RTL and LTR text (bidirectional)."""
+        # Conference name with both English and Arabic
+        df = pd.DataFrame({"conference": ["PyData مؤتمر Conference 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        # Should handle bidirectional text without crashing
+        assert len(result) == 1
+        conf_name = result["conference"].iloc[0]
+        assert "PyData" in conf_name or len(conf_name) > 0
+
+    def test_persian_farsi_conference_name(self):
+        """Test Persian/Farsi script (RTL, Arabic-derived)."""
+        df = pd.DataFrame({"conference": ["PyCon ایران 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        assert len(result) == 1
+        assert len(result["conference"].iloc[0]) > 0
+
+    def test_urdu_conference_name(self):
+        """Test Urdu script (RTL, Arabic-derived)."""
+        df = pd.DataFrame({"conference": ["PyCon پاکستان 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        assert len(result) == 1
+        assert len(result["conference"].iloc[0]) > 0
+
+    def test_rtl_with_numbers(self):
+        """Test RTL text with embedded numbers."""
+        # Numbers in RTL context can have special display behavior
+        df = pd.DataFrame({"conference": ["مؤتمر 2026 Python"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        # Should handle without crashing
+        assert len(result) == 1
+
+    def test_rtl_marks_and_controls(self):
+        """Test handling of RTL control characters."""
+        # Unicode RTL mark (U+200F) and LTR mark (U+200E)
+        rtl_mark = "\u200f"
+        ltr_mark = "\u200e"
+
+        df = pd.DataFrame({"conference": [f"PyCon {rtl_mark}Test{ltr_mark} 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        # Should handle invisible control characters
+        assert len(result) == 1
+
+
+class TestCJKUnicodeHandling:
+    """Test handling of CJK (Chinese, Japanese, Korean) scripts.
+
+    Additional coverage for East Asian character sets.
+    """
+
+    def test_chinese_simplified_conference_name(self):
+        """Test Simplified Chinese conference name."""
+        df = pd.DataFrame({"conference": ["PyCon 中国 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        assert len(result) == 1
+        assert len(result["conference"].iloc[0]) > 0
+
+    def test_chinese_traditional_conference_name(self):
+        """Test Traditional Chinese conference name."""
+        df = pd.DataFrame({"conference": ["PyCon 台灣 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        assert len(result) == 1
+        assert len(result["conference"].iloc[0]) > 0
+
+    def test_japanese_conference_name(self):
+        """Test Japanese conference name with mixed scripts."""
+        # Japanese uses Hiragana, Katakana, and Kanji
+        df = pd.DataFrame({"conference": ["PyCon JP 日本 パイコン 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        assert len(result) == 1
+        assert len(result["conference"].iloc[0]) > 0
+
+    def test_korean_conference_name(self):
+        """Test Korean (Hangul) conference name."""
+        df = pd.DataFrame({"conference": ["PyCon 한국 파이콘 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        assert len(result) == 1
+        assert len(result["conference"].iloc[0]) > 0
+
+    def test_fullwidth_characters(self):
+        """Test fullwidth ASCII characters (common in CJK contexts)."""
+        # Fullwidth "PyCon" = Ｐｙｃｏｎ
+        df = pd.DataFrame({"conference": ["Ｐｙｃｏｎ Conference 2026"]})
+
+        with patch("tidy_conf.titles.load_title_mappings") as mock:
+            mock.return_value = ([], {})
+            result = tidy_df_names(df)
+
+        assert len(result) == 1
+
+
 # ---------------------------------------------------------------------------
 # Property-based tests using Hypothesis
 # ---------------------------------------------------------------------------

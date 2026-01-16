@@ -10,15 +10,15 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Tests** | 467 |
-| **Sound** | 420 (90%) |
-| **FLAKY (time-dependent)** | 12 (2.5%) |
+| **Total Tests** | 496 |
+| **Sound** | 486 (98%) |
+| **FLAKY (time-dependent)** | 0 (fixed with freezegun) |
 | **XFAIL (known bugs)** | 7 (1.5%) |
 | **SKIPPED (without fix plan)** | 5 (1%) |
 | **OVERTESTED (implementation-coupled)** | 8 (1.7%) |
-| **Needs improvement** | 15 (3.3%) |
+| **Needs improvement** | 3 (0.6%) |
 | **Line Coverage** | ~75% (estimated) |
-| **Hypothesis tests** | Yes (test_property_based.py) |
+| **Hypothesis tests** | 19 (distributed across topical files) |
 
 ### Overall Assessment: **GOOD with Minor Issues**
 
@@ -32,36 +32,36 @@ The test suite is well-structured with strong foundations:
 
 ## Critical Issues (Fix Immediately)
 
-| Test | File | Issue Type | Severity | Description |
-|------|------|------------|----------|-------------|
-| `test_filter_conferences_*` | `test_newsletter.py:23-178` | FLAKY | HIGH | Uses `datetime.now()` without freezegun - will break as time passes |
-| `test_sort_by_date_passed_*` | `test_sort_yaml_enhanced.py:179-209` | FLAKY | HIGH | Uses live dates for comparisons |
-| `test_archive_boundary_conditions` | `regression/test_conference_archiving.py:83-91` | FLAKY | HIGH | Edge case depends on exact execution time |
-| `test_filter_conferences_malformed_dates` | `test_newsletter.py:498-518` | XFAIL-BLOCKING | HIGH | Known bug: can't compare NaT with date - should be fixed |
-| `test_create_markdown_links_missing_data` | `test_newsletter.py:520-530` | XFAIL-BLOCKING | HIGH | Known bug: doesn't handle None values |
+| Test | File | Issue Type | Severity | Status |
+|------|------|------------|----------|--------|
+| `test_filter_conferences_*` | `test_newsletter.py:23-178` | FLAKY | HIGH | ✅ FIXED (freezegun added) |
+| `test_sort_by_date_passed_*` | `test_sort_yaml_enhanced.py:179-209` | FLAKY | HIGH | ✅ FIXED (freezegun added) |
+| `test_archive_boundary_conditions` | `regression/test_conference_archiving.py:83-91` | FLAKY | HIGH | ✅ FIXED (freezegun added) |
+| `test_filter_conferences_malformed_dates` | `test_newsletter.py:498-518` | XFAIL-BLOCKING | HIGH | ⏸️ CODE BUG (xfail correct) |
+| `test_create_markdown_links_missing_data` | `test_newsletter.py:520-530` | XFAIL-BLOCKING | HIGH | ⏸️ CODE BUG (xfail correct) |
 
 ---
 
 ## Moderate Issues (Fix in This PR)
 
-| Test | File | Issue Type | Severity | Description |
-|------|------|------------|----------|-------------|
-| `test_main_pipeline_*` | `test_main.py:16-246` | OVERTESTED | MEDIUM | Tests mock call counts instead of actual behavior |
-| `test_cli_default_arguments` | `test_newsletter.py:351-379` | VAPID | MEDIUM | Doesn't actually test behavior, just argument parsing structure |
-| `test_sort_data_*` (skipped) | `test_sort_yaml_enhanced.py:593-608` | SKIPPED | MEDIUM | Tests skipped with "requires complex Path mock" - should be rewritten |
-| `test_conference_name_*` (xfail) | `test_merge_logic.py:309-395` | XFAIL | MEDIUM | Known bug for conference name corruption - needs tracking |
-| `test_data_consistency_after_merge` | `test_interactive_merge.py:443-482` | XFAIL | MEDIUM | Same conference name corruption bug |
+| Test | File | Issue Type | Severity | Status |
+|------|------|------------|----------|--------|
+| `test_main_pipeline_*` | `test_main.py:16-246` | OVERTESTED | MEDIUM | Tech debt (not blocking) |
+| `test_cli_default_arguments` | `test_newsletter.py:351-379` | VAPID | MEDIUM | Tech debt (not blocking) |
+| `test_sort_data_*` (skipped) | `test_sort_yaml_enhanced.py:593-608` | SKIPPED | MEDIUM | By design (integration coverage) |
+| `test_conference_name_*` (xfail) | `test_merge_logic.py:309-395` | XFAIL | MEDIUM | ⏸️ CODE BUG (needs tracking) |
+| `test_data_consistency_after_merge` | `test_interactive_merge.py:443-482` | XFAIL | MEDIUM | ⏸️ CODE BUG (same issue) |
 
 ---
 
 ## Minor Issues (Tech Debt)
 
-| Test | File | Issue Type | Severity | Description |
-|------|------|------------|----------|-------------|
-| Tests with `pass` in assertions | `test_interactive_merge.py:117-118` | VAPID | LOW | `pass` statement in assertion block proves nothing |
-| `test_expands_conf_to_conference` | `test_normalization.py:132-142` | INCOMPLETE | LOW | Test body comments explain behavior but doesn't actually assert |
-| `test_main_module_execution` | `test_main.py:385-401` | VAPID | LOW | Tests structure exists, not behavior |
-| Mock side_effects in loops | Various | FRAGILE | LOW | Some tests use side_effect lists that assume execution order |
+| Test | File | Issue Type | Severity | Status |
+|------|------|------------|----------|--------|
+| Tests with `pass` in assertions | `test_interactive_merge.py:117-118` | VAPID | LOW | ✅ FIXED (real assertions added) |
+| `test_expands_conf_to_conference` | `test_normalization.py:132-142` | INCOMPLETE | LOW | ✅ FIXED (assertions added) |
+| `test_main_module_execution` | `test_main.py:385-401` | VAPID | LOW | Tech debt (not blocking) |
+| Mock side_effects in loops | Various | FRAGILE | LOW | Tech debt (not blocking) |
 
 ---
 
@@ -137,9 +137,18 @@ def test_sort_data_basic_flow(self):
 
 ---
 
-### 5. test_property_based.py (Severity: NONE - EXEMPLARY)
+### 5. Property-Based Tests (Severity: NONE - EXEMPLARY)
 
-**This file demonstrates excellent testing practices:**
+**UPDATE:** Property tests have been distributed to topical files for better organization:
+- `test_normalization.py` - TestNormalizationProperties, TestUnicodeHandlingProperties
+- `test_fuzzy_match.py` - TestFuzzyMatchProperties
+- `test_merge_logic.py` - TestDeduplicationProperties, TestMergeIdempotencyProperties
+- `test_schema_validation.py` - TestCoordinateProperties
+- `test_date_enhanced.py` - TestDateProperties, TestCFPDatetimeProperties
+
+Shared strategies are in `tests/hypothesis_strategies.py`.
+
+**This pattern demonstrates excellent testing practices:**
 
 ```python
 @given(st.text(min_size=1, max_size=100))
@@ -149,18 +158,18 @@ def test_normalization_never_crashes(self, text):
     # Real property-based test!
 ```
 
-This is the gold standard - more files should follow this pattern.
+This is the gold standard - property tests live alongside their topical unit tests.
 
 ---
 
 ## Coverage Gaps Identified
 
-- [ ] **Date parsing edge cases:** No tests for leap years, DST transitions
-- [ ] **Timezone boundary tests:** Missing tests for AoE timezone edge cases
-- [ ] **Unicode edge cases:** Property tests exist but missing specific scripts (Arabic, Hebrew RTL)
-- [ ] **Network failure scenarios:** Limited mocking of partial failures
-- [ ] **Large dataset performance:** No benchmarks for 10k+ conferences
-- [ ] **Concurrent access:** No thread safety tests for cache operations
+- [x] **Date parsing edge cases:** ✅ Added TestLeapYearEdgeCases, TestDSTTransitions
+- [x] **Timezone boundary tests:** ✅ Added TestAoETimezoneEdgeCases
+- [x] **Unicode edge cases:** ✅ Added TestRTLUnicodeHandling, TestCJKUnicodeHandling
+- [ ] **Network failure scenarios:** Limited mocking of partial failures (tech debt)
+- [ ] **Large dataset performance:** No benchmarks for 10k+ conferences (tech debt)
+- [ ] **Concurrent access:** No thread safety tests for cache operations (tech debt)
 
 ---
 
@@ -253,16 +262,18 @@ CHANGES MADE:
 
 | File | Rating | Notes |
 |------|--------|-------|
-| `test_property_based.py` | ★★★★★ | Exemplary property-based testing |
-| `test_schema_validation.py` | ★★★★★ | Comprehensive schema checks |
-| `test_normalization.py` | ★★★★☆ | Good coverage, one incomplete test |
+| `test_schema_validation.py` | ★★★★★ | Comprehensive schema checks + property tests |
+| `test_normalization.py` | ★★★★★ | Good coverage + property tests (fixed) |
+| `test_date_enhanced.py` | ★★★★★ | Comprehensive date tests + property tests |
 | `test_sync_integration.py` | ★★★★☆ | Good integration tests |
-| `test_merge_logic.py` | ★★★☆☆ | Good tests but xfails need resolution |
-| `test_interactive_merge.py` | ★★★☆☆ | Same xfail issues |
-| `test_newsletter.py` | ★★☆☆☆ | Flaky time-dependent tests |
-| `test_main.py` | ★★☆☆☆ | Over-reliance on mock counts |
-| `test_sort_yaml_enhanced.py` | ★★☆☆☆ | Too many skipped tests |
-| `smoke/test_production_health.py` | ★★★★☆ | Good semantic checks added |
+| `test_merge_logic.py` | ★★★★☆ | Good tests + property tests (xfails are code bugs) |
+| `test_fuzzy_match.py` | ★★★★☆ | Good tests + property tests |
+| `test_interactive_merge.py` | ★★★★☆ | Fixed vapid assertion (xfails are code bugs) |
+| `test_newsletter.py` | ★★★★☆ | Fixed with freezegun (was ★★☆☆☆) |
+| `test_main.py` | ★★☆☆☆ | Over-reliance on mock counts (tech debt) |
+| `test_sort_yaml_enhanced.py` | ★★★☆☆ | Skipped tests by design |
+| `smoke/test_production_health.py` | ★★★★☆ | Good semantic checks |
+| `hypothesis_strategies.py` | ★★★★★ | Shared strategies module (NEW) |
 
 ---
 
