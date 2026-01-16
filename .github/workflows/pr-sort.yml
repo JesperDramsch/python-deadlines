@@ -80,10 +80,18 @@ jobs:
         # Run sort command
         pixi run sort
 
-        # Add contributor if specified
+        # Add contributor if specified and not already in the list
+        # This check avoids a bug in all-contributors-cli (issue #371) where
+        # adding an existing contributor can replace their existing contributions
         if [[ -n "${{ steps.vars.outputs.contributor }}" ]]; then
-          pixi run install
-          pixi run add ${{ steps.vars.outputs.contributor }} conference
+          CONTRIBUTOR="${{ steps.vars.outputs.contributor }}"
+          if ! jq -e --arg login "$CONTRIBUTOR" '.contributors[] | select(.login == $login)' .all-contributorsrc > /dev/null 2>&1; then
+            echo "Adding new contributor: $CONTRIBUTOR"
+            pixi run install
+            pixi run add "$CONTRIBUTOR" conference
+          else
+            echo "Contributor $CONTRIBUTOR already exists, skipping to avoid contribution loss (all-contributors-cli bug #371)"
+          fi
         fi
 
         # Check if there are changes
