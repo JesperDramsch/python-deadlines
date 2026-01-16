@@ -340,6 +340,22 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: EuroPython
+  year: 2026
+  link: https://ep2026.europython.eu/
+  cfp_link: https://ep2026.europython.eu/cfp
+  cfp: '2026-02-15 23:55:00'
+  place: Kraków, Poland
+  start: 2026-07-13
+  end: 2026-07-19
+  twitter: EuroPython
+  mastodon: https://fosstodon.org/@europython
+  sub: PY
+  location:
+  - title: EuroPython 2026
+    latitude: 50.0478
+    longitude: 19.9314
+
 - conference: Python BarCamp Karlsruhe
   year: 2026
   link: https://barcamps.eu/pythonbarcamp-2026/
