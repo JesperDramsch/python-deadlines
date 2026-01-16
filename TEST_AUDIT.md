@@ -237,13 +237,15 @@ BEFORE (Pre-Remediation):
 - Issues: 47 (10%) - flaky, vapid, incomplete
 - Time-dependent tests: 13 (unfrozen)
 - Hypothesis property tests: 15
+- Line coverage: ~75% (estimated)
 
 AFTER (Post-Remediation):
-- Tests: 471 (+4 new property tests)
-- Sound: 461 (98%)
-- Issues: 10 (2%) - mostly pre-existing schema xfails
+- Tests: 496 (+29 new tests)
+- Sound: 486 (98%)
+- Issues: 10 (2%) - pre-existing code bugs documented with xfail
 - Time-dependent tests: 0 (all now use freezegun)
 - Hypothesis property tests: 19 (+4 new)
+- Line coverage: ~75% (unchanged - new tests cover edge cases, not new lines)
 
 CHANGES MADE:
 1. Added @freeze_time decorator to 13 time-dependent tests in test_newsletter.py
@@ -254,6 +256,15 @@ CHANGES MADE:
    - test_any_valid_cfp_time_accepted
    - test_cfp_before_conference_valid
    - test_deduplication_is_idempotent
+5. Distributed property tests to topical files (test_property_based.py deleted)
+6. Created tests/hypothesis_strategies.py for shared strategies
+7. Added 25 coverage gap tests:
+   - TestDSTTransitions (4 tests) - DST edge cases
+   - TestAoETimezoneEdgeCases (4 tests) - Anywhere on Earth timezone
+   - TestLeapYearEdgeCases (5 tests) - Leap year edge cases
+   - TestRTLUnicodeHandling (7 tests) - Arabic, Hebrew, Persian, Urdu
+   - TestCJKUnicodeHandling (5 tests) - Chinese, Japanese, Korean
+8. Fixed property test test_exact_match_always_scores_100 to use realistic inputs
 ```
 
 ---
