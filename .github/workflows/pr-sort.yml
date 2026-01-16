@@ -80,17 +80,20 @@ jobs:
         # Run sort command
         pixi run sort
 
-        # Add contributor if specified and not already in the list
+        # Add contributor if specified and they don't already have the "conference" contribution
         # This check avoids a bug in all-contributors-cli (issue #371) where
-        # adding an existing contributor can replace their existing contributions
+        # adding an existing contribution type replaces all existing contributions
         if [[ -n "${{ steps.vars.outputs.contributor }}" ]]; then
+          pixi run install
+          pixi run add ${{ steps.vars.outputs.contributor }} conference
           CONTRIBUTOR="${{ steps.vars.outputs.contributor }}"
-          if ! jq -e --arg login "$CONTRIBUTOR" '.contributors[] | select(.login == $login)' .all-contributorsrc > /dev/null 2>&1; then
-            echo "Adding new contributor: $CONTRIBUTOR"
+          # Check if contributor already has "conference" contribution (the overlap triggers the bug)
+          if ! jq -e --arg login "$CONTRIBUTOR" '.contributors[] | select(.login == $login) | .contributions | index("conference")' .all-contributorsrc > /dev/null 2>&1; then
+            echo "Adding conference contribution for: $CONTRIBUTOR"
             pixi run install
             pixi run add "$CONTRIBUTOR" conference
           else
-            echo "Contributor $CONTRIBUTOR already exists, skipping to avoid contribution loss (all-contributors-cli bug #371)"
+            echo "Contributor $CONTRIBUTOR already has conference contribution, skipping to avoid contribution loss (all-contributors-cli bug #371)"
           fi
         fi
 
