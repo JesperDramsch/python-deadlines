@@ -15,6 +15,29 @@ import pandas as pd
 import pytest
 import yaml
 
+# ---------------------------------------------------------------------------
+# Hypothesis Configuration for CI/Dev/Debug profiles
+# ---------------------------------------------------------------------------
+
+try:
+    from hypothesis import Phase, settings
+
+    # CI profile: More thorough testing, no time limit
+    settings.register_profile("ci", max_examples=200, deadline=None)
+
+    # Dev profile: Balanced speed and coverage
+    settings.register_profile("dev", max_examples=50, deadline=200)
+
+    # Debug profile: Minimal examples for fast iteration
+    settings.register_profile("debug", max_examples=10, phases=[Phase.generate])
+
+    # Load dev profile by default (can be overridden with --hypothesis-profile)
+    settings.load_profile("dev")
+
+    HYPOTHESIS_AVAILABLE = True
+except ImportError:
+    HYPOTHESIS_AVAILABLE = False
+
 
 # ---------------------------------------------------------------------------
 # Path constants for test data
@@ -291,6 +314,33 @@ def online_conference():
         "sub": "PY",
         "timezone": "UTC",
     }
+
+
+@pytest.fixture()
+def sample_conferences(sample_conference):
+    """Multiple conferences with known merge behavior.
+
+    Includes:
+    - Original conference
+    - Different conference (EuroSciPy)
+    - Duplicate of original with different deadline (tests conflict resolution)
+    """
+    return [
+        sample_conference,
+        {
+            **sample_conference,
+            "conference": "EuroSciPy 2025",
+            "cfp": "2025-03-01 23:59:00",
+            "link": "https://euroscipy.org",
+            "place": "Basel, Switzerland",
+        },
+        {
+            **sample_conference,
+            "conference": "PyCon Test",  # Same name = duplicate!
+            "cfp": "2025-01-20 23:59:00",  # Different deadline
+            "link": "https://test.pycon.org/updated",  # Different link
+        },
+    ]
 
 
 @pytest.fixture()
