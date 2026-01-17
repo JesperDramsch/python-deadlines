@@ -270,7 +270,8 @@ def main(year=None, base="") -> bool:
         df_diff = pd.concat([df_ics_old, df_ics]).drop_duplicates(keep=False)
 
         # Deduplicate the new dataframe
-        df_ics = deduplicate(df_diff, "conference")
+        # CRITICAL: Must group by both conference AND year to avoid losing multi-year entries
+        df_ics = deduplicate(df_diff, ["conference", "year"])
 
         if df_ics.empty:
             logger.info("No new conferences found in official Python source.")

@@ -158,6 +158,9 @@ alt_name:
     variations:
     - PyLadies Conference
     - PyLadies Con
+  ExistingConf:
+    variations:
+    - New Variation
 spelling:
 - DjangoCon
 - EuroPython
