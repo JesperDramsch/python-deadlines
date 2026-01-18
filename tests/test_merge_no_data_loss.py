@@ -503,9 +503,9 @@ class TestMultiYearDeduplication:
         df_csv_for_merge = deduplicate(df_csv_standardized, ["conference", "year"])
 
         # All 4 entries should be preserved (2 conferences x 2 years)
-        assert len(df_csv_for_merge) == 4, (
-            f"Lost multi-year entries during deduplication! Expected 4, got {len(df_csv_for_merge)}"
-        )
+        assert (
+            len(df_csv_for_merge) == 4
+        ), f"Lost multi-year entries during deduplication! Expected 4, got {len(df_csv_for_merge)}"
 
         # Verify both years are present for each conference
         for conf in df_csv_for_merge["conference"].unique():
