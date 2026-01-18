@@ -4,6 +4,13 @@ alt_name:
   DjangoCongress Japan:
     variations:
     - DjangoCongress JP
+  EuroPython:
+    variations:
+    - Euro Python
+    - EuroPython Conference
+  ExistingConf:
+    variations:
+    - New Variation
   FOSDEM:
     variations:
     - Python Devroom @ FOSDEM
@@ -121,6 +128,14 @@ alt_name:
     variations:
     - PyCon+Web
     - PyConWeb
+  PyConf Hyderabad:
+    variations:
+    - PyConf HYD
+    - Python Conference Hyderabad
+  PyLadiesCon:
+    variations:
+    - PyLadies Conference
+    - PyLadies Con
   Python Brasil:
     variations:
     - Python Brazil
@@ -138,29 +153,14 @@ alt_name:
   Python Sul:
     variations:
     - Python Sul (Brazil)
-  SciPy US:
-    variations:
-    - Scipy
-    - SciPy
-  EuroPython:
-    variations:
-    - Euro Python
-    - EuroPython Conference
   PythonAsia:
     variations:
     - Python Asia
     - Python Asia Conference
-  PyConf Hyderabad:
+  SciPy US:
     variations:
-    - PyConf HYD
-    - Python Conference Hyderabad
-  PyLadiesCon:
-    variations:
-    - PyLadies Conference
-    - PyLadies Con
-  ExistingConf:
-    variations:
-    - New Variation
+    - Scipy
+    - SciPy
 spelling:
 - DjangoCon
 - EuroPython

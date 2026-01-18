@@ -47,14 +47,31 @@
     latitude: 47.8454821
     longitude: 16.5249288
 
+- conference: PyCon Estonia
+  alt_name: PyCon EE
+  year: 2026
+  link: https://pycon.ee/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSewbFKG6BEsGXR9ilgsW1wqfmzRR0Pf9XDO5WXTFhrcgrrN3g/viewform
+  cfp: '2026-02-28 23:59:00'
+  place: Tallinn, Estonia
+  start: 2026-10-08
+  end: 2026-10-09
+  sub: PY
+  location:
+  - title: PyCon Estonia 2026
+    latitude: 59.4372155
+    longitude: 24.7453688
+
 - conference: EuroPython
   year: 2026
   link: https://ep2026.europython.eu/
   cfp_link: https://ep2026.europython.eu/cfp
   cfp: '2026-02-15 23:55:00'
+  tutorial_deadline: '2026-02-15 23:59:00'
   place: Kraków, Poland
   start: 2026-07-13
   end: 2026-07-19
+  sponsor: https://ep2026.europython.eu/sponsors
   twitter: EuroPython
   mastodon: https://fosstodon.org/@europython
   sub: PY
@@ -67,7 +84,9 @@
   alt_name: PyCon PL
   year: 2026
   link: https://pl.pycon.org/2026
+  cfp_link: https://pyconpl.confreg.pl/events/67-pycon-pl-2026
   cfp: '2026-02-15 23:59:59'
+  tutorial_deadline: '2026-02-15 23:59:00'
   timezone: Europe/Warsaw
   place: Gliwice, Poland
   start: 2026-08-27
@@ -88,6 +107,7 @@
   place: Vilnius, Lithuania
   start: 2026-04-08
   end: 2026-04-10
+  sponsor: https://pycon.lt/2026/partnership
   sub: PY
   location:
   - title: PyCon Lithuania 2026
@@ -119,6 +139,7 @@
   place: Bologna, Italy
   start: 2026-05-27
   end: 2026-05-30
+  sponsor: https://2026.pycon.it/sponsor/
   finaid: https://2026.pycon.it/en
   mastodon: https://social.python.it/@pycon
   sub: PY
@@ -147,7 +168,7 @@
 
 - conference: PyCon US
   year: 2026
-  link: https://us.pycon.org/
+  link: https://us.pycon.org/2026/
   cfp_link: https://us.pycon.org/2026/speaking/talks/
   cfp: '2025-12-19 23:59:00'
   place: Long Beach, USA
@@ -210,36 +231,6 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
-- conference: PyCon Indonesia
-  alt_name: PyCon ID
-  year: 2025
-  link: https://pycon.id/
-  cfp_link: https://papercall.io/pyconid2025
-  cfp: '2025-09-14 16:59:59'
-  timezone: Asia/Jakarta
-  place: South Jakarta, Indonesia
-  start: 2025-12-13
-  end: 2025-12-14
-  sponsor: https://drive.google.com/file/d/1eBvk9M9VfZZLGejicUXc6f3lBuO9snJV/view
-  twitter: id_pycon
-  sub: PY
-  location:
-  - title: PyCon Indonesia 2025
-    latitude: -6.175247
-    longitude: 106.8270488
-
-- conference: PyData Global
-  year: 2025
-  link: https://pydata.org/global2025/
-  cfp_link: https://cfp.pydata.org/pydataglobal2025/cfp
-  cfp: '2025-08-06 23:59:00'
-  cfp_ext: '2025-08-06 23:59:00'
-  place: Online
-  start: 2025-12-09
-  end: 2025-12-11
-  sponsor: https://pydata.org/global2025/sponsor
-  sub: DATA
-
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -253,20 +244,6 @@
   - title: PyCon Greece 2026
     latitude: 37.9755648
     longitude: 23.7348324
-
-- conference: PyCon Estonia
-  alt_name: PyCon EE
-  year: 2026
-  link: https://pycon.ee/
-  cfp: TBA
-  place: Tallinn, Estonia
-  start: 2026-10-08
-  end: 2026-10-09
-  sub: PY
-  location:
-  - title: PyCon Estonia 2026
-    latitude: 59.4372155
-    longitude: 24.7453688
 
 - conference: PyCon Kenya
   year: 2026

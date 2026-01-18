@@ -1,37 +1,45 @@
+---
 alt_name:
-  PyCon Austria:
+  AfroPython Conference:
     variations:
-    - PyCon Australia
-    - PyCon AU
+    - Plone Conference
+  EuroSciPy:
+    variations:
+    - Scipy
+    - SciPy
+  Plone Conference:
+    variations:
+    - AfroPython Conference
   PyCon AT:
     variations:
     - PyCon Australia
     - PyCon AU
-  Python Austria:
+  PyCon Austria:
     variations:
     - PyCon Australia
+    - PyCon AU
   PyCon India:
     variations:
     - PyCon Indonesia
   PyCon Indonesia:
     variations:
     - PyCon India
-  Swiss Python Summit:
-    variations:
-    - Python Sul
-  Python Sul:
-    variations:
-    - Swiss Python Summit
   PyCon Latam:
     variations:
     - PyCon Latin America
   PyCon Latin America:
     variations:
     - PyCon Latam
-  Plone Conference:
+  Python Austria:
     variations:
-    - AfroPython Conference
-  AfroPython Conference:
+    - PyCon Australia
+  Python Sul:
     variations:
-    - Plone Conference
+    - Swiss Python Summit
+  SciPy:
+    variations:
+    - EuroSciPy
+  Swiss Python Summit:
+    variations:
+    - Python Sul
 spelling: []
