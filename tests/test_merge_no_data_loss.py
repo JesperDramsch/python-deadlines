@@ -6,7 +6,6 @@ These tests verify that:
 3. Missing cfp_ext_x/y columns don't cause KeyErrors (BUG 3)
 """
 
-import re
 import sys
 import tempfile
 from pathlib import Path
@@ -24,7 +23,7 @@ sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
 
 # Test fixtures
-@pytest.fixture
+@pytest.fixture()
 def sample_csv_dataframe():
     """Create a sample CSV-like dataframe with conference data."""
     return pd.DataFrame(
@@ -50,7 +49,7 @@ def sample_csv_dataframe():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_yaml_dataframe():
     """Create a sample YAML-like dataframe with existing conference data."""
     return pd.DataFrame(
@@ -182,8 +181,7 @@ class TestNoSilentDataLoss:
 
         # Normalize all entries
         normalized = [
-            normalize_conference_name(row["conference"], known_mappings)
-            for _, row in sample_csv_dataframe.iterrows()
+            normalize_conference_name(row["conference"], known_mappings) for _, row in sample_csv_dataframe.iterrows()
         ]
 
         # Check none became empty
@@ -217,8 +215,6 @@ class TestVariationsKeyHandling:
 
     def test_update_title_mappings_handles_missing_variations(self):
         """update_title_mappings should not crash when 'variations' key is missing."""
-        from tidy_conf.yaml import update_title_mappings
-
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create a titles.yml file with a key missing 'variations'
             titles_path = Path(tmpdir) / "titles.yml"
@@ -378,14 +374,12 @@ class TestMergeUnionProperty:
 
         # Get unique normalized names from CSV
         csv_names = {
-            normalize_conference_name(row["conference"], known_mappings)
-            for _, row in sample_csv_dataframe.iterrows()
+            normalize_conference_name(row["conference"], known_mappings) for _, row in sample_csv_dataframe.iterrows()
         }
 
         # Get unique normalized names from YAML
         yaml_names = {
-            normalize_conference_name(row["conference"], known_mappings)
-            for _, row in sample_yaml_dataframe.iterrows()
+            normalize_conference_name(row["conference"], known_mappings) for _, row in sample_yaml_dataframe.iterrows()
         }
 
         # Union should contain all
@@ -510,13 +504,10 @@ class TestMultiYearDeduplication:
 
         # All 4 entries should be preserved (2 conferences x 2 years)
         assert len(df_csv_for_merge) == 4, (
-            f"Lost multi-year entries during deduplication! "
-            f"Expected 4, got {len(df_csv_for_merge)}"
+            f"Lost multi-year entries during deduplication! Expected 4, got {len(df_csv_for_merge)}"
         )
 
         # Verify both years are present for each conference
         for conf in df_csv_for_merge["conference"].unique():
             conf_years = df_csv_for_merge[df_csv_for_merge["conference"] == conf]["year"].tolist()
-            assert 2025 in conf_years and 2026 in conf_years, (
-                f"Missing year for {conf}: {conf_years}"
-            )
+            assert 2025 in conf_years and 2026 in conf_years, f"Missing year for {conf}: {conf_years}"

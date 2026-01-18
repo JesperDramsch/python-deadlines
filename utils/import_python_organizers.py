@@ -1,5 +1,4 @@
 # Standard library
-import re
 from datetime import datetime
 from datetime import timezone
 from pathlib import Path
