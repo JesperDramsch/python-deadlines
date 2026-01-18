@@ -1,5 +1,4 @@
 # Standard library
-import re
 from datetime import datetime
 from datetime import timezone
 from pathlib import Path
@@ -16,6 +15,7 @@ try:
     from tidy_conf import merge_conferences
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.schema import get_schema
+    from tidy_conf.titles import normalize_conference_name
     from tidy_conf.utils import fill_missing_required
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import write_df_yaml
@@ -25,6 +25,7 @@ except ImportError:
     from .tidy_conf import merge_conferences
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.schema import get_schema
+    from .tidy_conf.titles import normalize_conference_name
     from .tidy_conf.utils import fill_missing_required
     from .tidy_conf.yaml import load_title_mappings
     from .tidy_conf.yaml import write_df_yaml
@@ -269,10 +270,11 @@ def main(year: int | None = None, base: str = "") -> None:
 
     # Load and apply the title mappings
     _, known_mappings = load_title_mappings(reverse=True)
-    df_csv_standardized["conference"] = (
-        df_csv_standardized["conference"]
-        .replace(re.compile(r"\b\s+(19|20)\d{2}\s*\b"), "", regex=True)
-        .replace(known_mappings)
+
+    # CRITICAL: Use normalize_conference_name for CONSISTENT normalization
+    # This ensures the same normalization is used here AND in mapping_dict later
+    df_csv_standardized["conference"] = df_csv_standardized["conference"].apply(
+        lambda x: normalize_conference_name(x, known_mappings),
     )
 
     # Store the new csv dataframe to cache (with original names)
@@ -282,7 +284,9 @@ def main(year: int | None = None, base: str = "") -> None:
     # _ = pd.concat([df_csv_old, df_csv_raw]).drop_duplicates(keep=False)
 
     # Deduplicate the new dataframe (with standardized names for merging)
-    df_csv_for_merge = deduplicate(df_csv_standardized, "conference")
+    # CRITICAL: Must group by both conference AND year to avoid losing multi-year entries
+    # (e.g., "PyCon USA 2025" and "PyCon USA 2026" both normalize to "PyCon USA")
+    df_csv_for_merge = deduplicate(df_csv_standardized, ["conference", "year"])
 
     if df_csv_for_merge.empty:
         print("No new conferences found in Python organiser source.")
@@ -345,23 +349,52 @@ def main(year: int | None = None, base: str = "") -> None:
     df_csv_output = df_csv_raw.copy()
 
     # Map from the standardized data back to original
+    # CRITICAL: Use the SAME normalization function as tidy_df_names to avoid data loss
     mapping_dict = {}
     for idx, row in df_csv_raw.iterrows():
-        standardized_conf = re.sub(r"\b\s+(19|20)\d{2}\s*\b", "", row["conference"])
-        if standardized_conf in known_mappings:
-            standardized_conf = known_mappings[standardized_conf]
+        # Use normalize_conference_name for consistent normalization
+        standardized_conf = normalize_conference_name(row["conference"], known_mappings)
         mapping_key = (standardized_conf, row["year"])
         mapping_dict[mapping_key] = idx
+
+    # Track entries that matched and those that didn't for debugging
+    matched_keys = set()
+    unmatched_entries = []
 
     # Update the CSV output with information from the merged data
     for _, row in df_new.iterrows():
         key = (row["conference"], row["year"])
         if key in mapping_dict:
             original_idx = mapping_dict[key]
+            matched_keys.add(key)
             # Update only fields that were potentially enriched during merge
             for col in ["start", "end", "cfp", "link", "cfp_link", "sponsor", "finaid"]:
                 if col in row and pd.notna(row[col]):
                     df_csv_output.at[original_idx, col] = row[col]
+        else:
+            # Track entries that didn't match for potential debugging
+            unmatched_entries.append(
+                {"conference": row["conference"], "year": row["year"]},
+            )
+
+    # Log any unmatched entries for debugging (these may be legitimately new)
+    if unmatched_entries:
+        logger.debug(
+            f"Found {len(unmatched_entries)} entries in df_new not in mapping_dict "
+            "(may be new conferences from YAML):",
+        )
+        for entry in unmatched_entries[:5]:  # Show first 5
+            logger.debug(f"  - {entry['conference']} ({entry['year']})")
+
+    # Verify no silent data loss: all CSV entries should be accounted for
+    csv_keys_in_mapping = set(mapping_dict.keys())
+    unmatched_csv = csv_keys_in_mapping - matched_keys
+    if unmatched_csv:
+        logger.warning(
+            f"Potential data loss: {len(unmatched_csv)} CSV entries were not updated:",
+        )
+        for key in list(unmatched_csv)[:5]:  # Show first 5
+            logger.warning(f"  - {key[0]} ({key[1]})")
 
     # Write the CSV with original names
     df_csv_output.loc[:, "Location"] = df_csv_output.place

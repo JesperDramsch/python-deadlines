@@ -119,6 +119,70 @@ def expand_country_codes(name):
     return name
 
 
+def normalize_conference_name(name: str, known_mappings: dict | None = None) -> str:
+    """Normalize a single conference name to a canonical form.
+
+    This is the single source of truth for conference name normalization.
+    Both DataFrame-level normalization (tidy_df_names) and individual lookups
+    should use this function to ensure consistency.
+
+    Parameters
+    ----------
+    name : str
+        Conference name to normalize
+    known_mappings : dict, optional
+        Mapping of known variations to canonical names. If None, will be loaded.
+
+    Returns
+    -------
+    str
+        Normalized conference name
+    """
+    if not name or not isinstance(name, str):
+        return name if isinstance(name, str) else ""
+
+    # Load known mappings if not provided
+    if known_mappings is None:
+        _, known_mappings = load_title_mappings(reverse=True)
+
+    # Define regex patterns (same as tidy_df_names)
+    regex_year = re.compile(r"\b\s*(19|20)\d{2}\s*\b")
+    regex_py = re.compile(r"\b(Python|PyCon)\b")
+
+    result = name
+
+    # Remove years from conference names (replace with space to avoid concatenation)
+    result = regex_year.sub(" ", result)
+
+    # Add a space after Python or PyCon
+    result = regex_py.sub(r" \1 ", result)
+
+    # Replace non-word characters like +
+    result = re.sub(r"[\+]", " ", result)
+
+    # Replace the word Conference
+    result = re.sub(r"\bConf\b", "Conference", result)
+
+    # Remove extra spaces
+    result = re.sub(r"\s+", " ", result)
+
+    # Remove leading and trailing whitespace
+    result = result.strip()
+
+    # Apply known mappings FIRST (mappings may contain unexpanded country codes)
+    if result in known_mappings:
+        result = known_mappings[result]
+
+    # Expand country codes to full names AFTER mappings
+    # This ensures idempotency: normalize(normalize(x)) == normalize(x)
+    result = expand_country_codes(result)
+
+    # Final cleanup
+    result = result.strip()
+
+    return result
+
+
 def tidy_df_names(df):
     """Tidy up the conference names in a consistent way.
 
@@ -127,47 +191,16 @@ def tidy_df_names(df):
     2. Expanding country codes to full names (e.g., "PyCon PL" -> "PyCon Poland")
     3. Normalizing spacing and punctuation
     4. Applying known mappings from titles.yml
+
+    Uses normalize_conference_name() internally for consistency.
     """
-    # Load known title mappings
+    # Load known title mappings once for efficiency
     _, known_mappings = load_title_mappings(reverse=True)
 
-    # Define regex patterns for matching years and conference names
-    # Match years with or without leading space
-    regex_year = re.compile(r"\b\s*(19|20)\d{2}\s*\b")
-    regex_py = re.compile(r"\b(Python|PyCon)\b")
-
-    # Harmonize conference titles using known mappings and regex
-    series = df["conference"].copy()
-
-    # Remove years from conference names
-    series = series.str.replace(regex_year, " ", regex=True)
-
-    # Add a space after Python or PyCon
-    series = series.str.replace(regex_py, r" \1 ", regex=True)
-
-    # Replace non-word characters
-    series = series.str.replace(r"[\+]", " ", regex=True)
-
-    # Replace the word Conference
-    series = series.str.replace(r"\bConf\b", "Conference", regex=True)
-
-    # Remove extra spaces
-    series = series.str.replace(r"\s+", " ", regex=True)
-
-    # Remove leading and trailing whitespace
-    series = series.str.strip()
-
-    # Expand country codes to full names BEFORE applying known mappings
-    # This ensures "PyCon PL" becomes "PyCon Poland" which can then match
-    series = series.apply(expand_country_codes)
-
-    # Replace known mappings (from titles.yml)
-    series = series.replace(known_mappings)
-
-    # Final cleanup
-    series = series.str.strip()
-
+    # Apply normalization using the shared function
     df = df.copy()
-    df.loc[:, "conference"] = series
+    df.loc[:, "conference"] = df["conference"].apply(
+        lambda x: normalize_conference_name(x, known_mappings),
+    )
 
     return df

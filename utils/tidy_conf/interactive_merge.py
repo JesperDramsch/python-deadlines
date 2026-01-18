@@ -564,20 +564,25 @@ def merge_conferences(
                         elif " " not in rx and " " in ry:
                             cfp_time_x = " " + ry.split(" ")[1]
 
+                        # Check if the cfp_ext columns exist before accessing them
+                        # These columns may not exist if one dataframe doesn't have cfp_ext
+                        cfp_ext_x = row.get("cfp_ext_x") if "cfp_ext_x" in row.index else None
+                        cfp_ext_y = row.get("cfp_ext_y") if "cfp_ext_y" in row.index else None
+
                         # Check if the cfp_ext is the same and if so update the cfp
-                        if rx + cfp_time_x == row["cfp_ext_x"]:
+                        if cfp_ext_x is not None and rx + cfp_time_x == cfp_ext_x:
                             df_new.loc[i, "cfp"] = ry + cfp_time_y
                             df_new.loc[i, "cfp_ext"] = rx + cfp_time_x
                             continue
-                        if ry + cfp_time_y == row["cfp_ext_y"]:
+                        if cfp_ext_y is not None and ry + cfp_time_y == cfp_ext_y:
                             df_new.loc[i, "cfp"] = rx + cfp_time_x
                             df_new.loc[i, "cfp_ext"] = ry + cfp_time_y
                             continue
-                        if rx + cfp_time_x == row["cfp_ext_y"]:
+                        if cfp_ext_y is not None and rx + cfp_time_x == cfp_ext_y:
                             df_new.loc[i, "cfp"] = ry + cfp_time_y
                             df_new.loc[i, "cfp_ext"] = rx + cfp_time_x
                             continue
-                        if ry + cfp_time_y == row["cfp_ext_x"]:
+                        if cfp_ext_x is not None and ry + cfp_time_y == cfp_ext_x:
                             df_new.loc[i, "cfp"] = rx + cfp_time_x
                             df_new.loc[i, "cfp_ext"] = ry + cfp_time_y
                             continue

@@ -192,6 +192,9 @@ def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
                 continue
             if key not in title_data["alt_name"]:
                 title_data["alt_name"][key] = {"variations": []}
+            # Ensure 'variations' key exists (may be missing in malformed data)
+            if "variations" not in title_data["alt_name"][key]:
+                title_data["alt_name"][key]["variations"] = []
             for value in values:
                 if value not in title_data["alt_name"][key]["variations"]:
                     title_data["alt_name"][key]["variations"].append(value)
