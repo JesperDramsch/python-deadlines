@@ -16,7 +16,7 @@
     latitude: 37.7681571
     longitude: -122.392929
 
-- conference: DjangoCon US
+- conference: DjangoCon USA
   year: 2026
   link: https://2026.djangocon.us/
   cfp_link: https://pretalx.com/djangocon-us-2026/cfp
@@ -62,7 +62,7 @@
     latitude: 59.4372155
     longitude: 24.7453688
 
-- conference: SciPy US
+- conference: SciPy USA
   alt_name: SciPy
   year: 2026
   link: https://www.scipy2026.scipy.org/
@@ -117,7 +117,7 @@
 - conference: PyCon Poland
   alt_name: PyCon PL
   year: 2026
-  link: https://pl.pycon.org/2026
+  link: https://pl.pycon.org/2026/
   cfp_link: https://pyconpl.confreg.pl/events/67-pycon-pl-2026
   cfp: '2026-02-15 23:59:59'
   tutorial_deadline: '2026-02-15 23:59:00'
@@ -216,7 +216,7 @@
     latitude: 49.872775
     longitude: 8.651177
 
-- conference: PyCon US
+- conference: PyCon USA
   year: 2026
   link: https://us.pycon.org/2026/
   cfp_link: https://us.pycon.org/2026/speaking/talks/
@@ -299,6 +299,15 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
+- conference: XtremePython
+  year: 2026
+  link: https://xtremepython.dev/
+  cfp: TBA
+  place: Online
+  start: 2026-11-17
+  end: 2026-11-17
+  sub: PY
+
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -357,6 +366,19 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: EuroSciPy
+  year: 2026
+  link: http://pycon.de/
+  cfp: TBA
+  place: Krakow, Poland
+  start: 2026-07-18
+  end: 2026-07-23
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2026
+    latitude: 50.061389
+    longitude: 19.938333
+
 - conference: Python BarCamp Karlsruhe
   year: 2026
   link: https://barcamps.eu/pythonbarcamp-2026/
@@ -369,3 +391,16 @@
   - title: Python BarCamp Karlsruhe 2026
     latitude: 49.0068705
     longitude: 8.4034195
+
+- conference: FOSDEM
+  year: 2026
+  link: https://fosdem.org/2026/
+  cfp: TBA
+  place: Brussels, Belgium
+  start: 2026-01-31
+  end: 2026-01-31
+  sub: PY
+  location:
+  - title: FOSDEM 2026
+    latitude: 50.8465573
+    longitude: 4.351697
