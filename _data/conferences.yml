@@ -164,6 +164,22 @@
     latitude: 17.426801501802966
     longitude: 78.37126527965896
 
+- conference: Python Pizza Ostrava
+  year: 2026
+  link: https://ostrava.python.pizza/
+  cfp: '2026-01-07 23:59:00'
+  timezone: Europe/Prague
+  place: Ostrava, Czechia
+  start: 2026-02-21
+  end: 2026-02-21
+  twitter: pythonpizzaconf
+  mastodon: https://fosstodon.org/@pythonpizza
+  sub: PY
+  location:
+  - title: Python Pizza Ostrava 2026
+    latitude: 49.8349139
+    longitude: 18.2820084
+
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2026
