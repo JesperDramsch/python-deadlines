@@ -98,7 +98,46 @@ def query_yes_no(question, default="no"):
         sys.stdout.write("Please respond with 'yes' or 'no' (or 'y' or 'n').\n")
 
 
+def _load_subs_keywords():
+    """Load sub keywords from subs.yml for auto-detection."""
+    from .subs import load_subs
+
+    return load_subs()
+
+
+def _auto_detect_sub(conference_name: str) -> str | None:
+    """Auto-detect sub category based on conference name.
+
+    Args:
+        conference_name: Name of the conference
+
+    Returns:
+        Sub category string if matched, None otherwise
+    """
+    keywords = _load_subs_keywords()
+    name_lower = conference_name.lower()
+    for sub_key, sub_keywords in keywords.items():
+        if any(word in name_lower for word in sub_keywords):
+            return sub_key
+    return None
+
+
+# Default sub value for conferences that don't match any keyword
+DEFAULT_SUB = "PY"
+
+
 def fill_missing_required(df):
+    """Fill missing required fields in the DataFrame.
+
+    In non-interactive environments (CI), uses auto-detection and defaults
+    instead of prompting for user input.
+
+    Args:
+        df: DataFrame with conference data
+
+    Returns:
+        DataFrame with missing required fields filled
+    """
     required = [
         "conference",
         "year",
@@ -110,9 +149,28 @@ def fill_missing_required(df):
         "sub",
     ]
 
+    is_interactive = sys.stdin.isatty()
+
     for i, row in df.copy().iterrows():
         for keyword in required:
             if pd.isna(row[keyword]):
+                # Handle sub field specially - try auto-detection first
+                if keyword == "sub":
+                    detected_sub = _auto_detect_sub(row["conference"])
+                    if detected_sub:
+                        df.loc[i, keyword] = detected_sub
+                        continue
+                    # Use default if no match and non-interactive
+                    if not is_interactive:
+                        df.loc[i, keyword] = DEFAULT_SUB
+                        continue
+
+                # In non-interactive mode, skip prompting for other fields
+                if not is_interactive:
+                    # Leave as NaN - will be caught by validation later
+                    continue
+
+                # Interactive mode - prompt user
                 user_input = input(
                     f"What's the value of '{keyword}' for conference '{row['conference']}' check {row['link']} ?: ",
                 )
