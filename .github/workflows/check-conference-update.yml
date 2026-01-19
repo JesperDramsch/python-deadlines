@@ -27,9 +27,11 @@ on:
         type: string
         default: ''
 
-# Prevent concurrent updates to the same branch
+# Bug #3 Fix: Per-conference concurrency to prevent duplicate triggers
+# Different conferences can run in parallel, but the same conference serializes
+# This prevents race conditions when changedetection.io sends multiple notifications
 concurrency:
-  group: conference-updates
+  group: conference-update-${{ github.event.client_payload.watch_uuid || inputs.url || github.run_id }}
   cancel-in-progress: false
 
 permissions:
@@ -49,7 +51,7 @@ jobs:
       triage_mode: ${{ steps.detect.outputs.triage_mode }}
       url: ${{ steps.vars.outputs.url }}
       conference: ${{ steps.vars.outputs.conference }}
-      diff: ${{ steps.vars.outputs.diff }}
+      diff_b64: ${{ steps.vars.outputs.diff_b64 }}
       watch_uuid: ${{ steps.vars.outputs.watch_uuid }}
       has_diff: ${{ steps.vars.outputs.has_diff }}
       has_pending: ${{ steps.pending.outputs.has_pending }}
@@ -57,6 +59,72 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Validate payload
+        id: validate
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PAYLOAD_URL: ${{ github.event.client_payload.url }}
+          PAYLOAD_TITLE: ${{ github.event.client_payload.title }}
+          PAYLOAD_UUID: ${{ github.event.client_payload.watch_uuid }}
+          INPUT_URL: ${{ inputs.url }}
+          INPUT_CONFERENCE: ${{ inputs.conference_name }}
+        run: |
+          # Payload validation: Fail fast with clear error messages if required fields are missing
+          # This helps diagnose issues like expired tokens or malformed webhook payloads
+
+          echo "::group::Payload Validation"
+          echo "Event: $EVENT_NAME"
+
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            MISSING_FIELDS=""
+
+            if [ -z "$PAYLOAD_URL" ]; then
+              MISSING_FIELDS="${MISSING_FIELDS}url, "
+              echo "::error title=Missing Field::client_payload.url is required for repository_dispatch"
+            fi
+
+            if [ -z "$PAYLOAD_TITLE" ]; then
+              MISSING_FIELDS="${MISSING_FIELDS}title, "
+              echo "::error title=Missing Field::client_payload.title is required for repository_dispatch"
+            fi
+
+            if [ -z "$PAYLOAD_UUID" ]; then
+              echo "::warning title=Missing Field::client_payload.watch_uuid is missing - concurrency may not work correctly"
+            fi
+
+            if [ -n "$MISSING_FIELDS" ]; then
+              echo "::endgroup::"
+              echo ""
+              echo "## ❌ Payload Validation Failed" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "Missing required fields: ${MISSING_FIELDS%, }" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "This usually indicates one of:" >> $GITHUB_STEP_SUMMARY
+              echo "- The GitHub PAT token used by changedetection.io is expired or has insufficient permissions" >> $GITHUB_STEP_SUMMARY
+              echo "- The webhook payload is malformed" >> $GITHUB_STEP_SUMMARY
+              echo "- The repository_dispatch event was triggered with incomplete data" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            fi
+
+            echo "✓ All required fields present for repository_dispatch"
+          else
+            # workflow_dispatch validation
+            if [ -z "$INPUT_URL" ]; then
+              echo "::error title=Missing Input::url input is required for manual trigger"
+              echo "::endgroup::"
+              exit 1
+            fi
+
+            if [ -z "$INPUT_CONFERENCE" ]; then
+              echo "::error title=Missing Input::conference_name input is required for manual trigger"
+              echo "::endgroup::"
+              exit 1
+            fi
+
+            echo "✓ All required inputs present for workflow_dispatch"
+          fi
+          echo "::endgroup::"
 
       - name: Set up variables
         id: vars
@@ -70,15 +138,15 @@ jobs:
           INPUT_CONFERENCE: ${{ inputs.conference_name }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
-          # Generate unique delimiter to prevent collision
-          DELIM="EOF_$(date +%s%N)_$$"
+          # Bug #2 Fix: Use base64 encoding for diff content to prevent heredoc delimiter collision
+          # The diff can contain arbitrary website content including strings that look like delimiters
 
           if [ "$EVENT_NAME" = "repository_dispatch" ]; then
             echo "url=$PAYLOAD_URL" >> $GITHUB_OUTPUT
             echo "conference=$PAYLOAD_TITLE" >> $GITHUB_OUTPUT
-            echo "diff<<$DELIM" >> $GITHUB_OUTPUT
-            echo "$PAYLOAD_DIFF" >> $GITHUB_OUTPUT
-            echo "$DELIM" >> $GITHUB_OUTPUT
+            # Base64 encode the diff to safely pass multi-line content with special characters
+            DIFF_B64=$(printf '%s' "$PAYLOAD_DIFF" | base64 -w 0)
+            echo "diff_b64=$DIFF_B64" >> $GITHUB_OUTPUT
             echo "watch_uuid=$PAYLOAD_UUID" >> $GITHUB_OUTPUT
             echo "has_diff=true" >> $GITHUB_OUTPUT
           else
@@ -86,17 +154,92 @@ jobs:
             echo "conference=$INPUT_CONFERENCE" >> $GITHUB_OUTPUT
             echo "has_diff=false" >> $GITHUB_OUTPUT
             echo "watch_uuid=" >> $GITHUB_OUTPUT
-            echo "diff=No diff available - manual trigger" >> $GITHUB_OUTPUT
+            echo "diff_b64=" >> $GITHUB_OUTPUT
           fi
 
       - name: Check for pending updates
         id: pending
         env:
           CONF_NAME: ${{ steps.vars.outputs.conference }}
+          CONF_URL: ${{ steps.vars.outputs.url }}
           UPDATE_BRANCH: auto/conference-updates
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Check if update branch exists and has pending commits for this conference
+          # Bug #1 Fix: Check for ANY open PR related to this conference
+          # This prevents duplicate work when a PR is already open for the same conference
+
+          echo "::group::Checking for open PRs related to ${CONF_NAME}"
+
+          # Search for open PRs that mention the conference name in title or body
+          # Also check branch names that might contain conference identifiers
+          MATCHING_PR=""
+          MATCHING_PR_NUM=""
+
+          # Get all open PRs and search for matches
+          OPEN_PRS=$(gh pr list --state open --json number,title,headRefName,body --limit 50 2>/dev/null || echo "[]")
+
+          if [ "$OPEN_PRS" != "[]" ]; then
+            # Use Python for safer string matching (prevents injection, handles special chars)
+            MATCHING_PR_NUM=$(python3 << 'PRSEARCH'
+          import json
+          import os
+          import sys
+          import re
+
+          conf_name = os.environ.get('CONF_NAME', '').lower()
+          conf_url = os.environ.get('CONF_URL', '').lower()
+          prs_json = os.environ.get('OPEN_PRS', '[]')
+
+          try:
+              prs = json.loads(prs_json)
+          except json.JSONDecodeError:
+              sys.exit(0)
+
+          # Create search patterns from conference name
+          # Handle names like "PyCon US 2026" -> search for "pycon us", "pycon-us", "pyconus"
+          conf_slug = re.sub(r'[^a-z0-9]+', '-', conf_name).strip('-')
+          conf_compact = re.sub(r'[^a-z0-9]+', '', conf_name)
+
+          # Extract domain from URL for matching
+          url_domain = ""
+          if conf_url:
+              import urllib.parse
+              parsed = urllib.parse.urlparse(conf_url)
+              url_domain = parsed.netloc.lower().replace('www.', '')
+
+          for pr in prs:
+              title = (pr.get('title') or '').lower()
+              body = (pr.get('body') or '').lower()
+              branch = (pr.get('headRefName') or '').lower()
+
+              # Check if conference name appears in PR
+              if (conf_name in title or
+                  conf_name in body or
+                  conf_slug in title or
+                  conf_slug in branch or
+                  conf_compact in title or
+                  conf_compact in branch or
+                  (url_domain and url_domain in body)):
+                  print(pr.get('number', ''))
+                  break
+          PRSEARCH
+          )
+          fi
+
+          if [ -n "$MATCHING_PR_NUM" ]; then
+            MATCHING_PR=$(gh pr view "$MATCHING_PR_NUM" --json title,url --jq '"\(.title) (\(.url))"' 2>/dev/null || echo "PR #$MATCHING_PR_NUM")
+            echo "has_pending=true" >> $GITHUB_OUTPUT
+            echo "pending_pr=$MATCHING_PR_NUM" >> $GITHUB_OUTPUT
+            echo "::notice title=Open PR Found::${CONF_NAME} already has an open PR: ${MATCHING_PR}"
+            echo "::endgroup::"
+            exit 0
+          fi
+
+          echo "No matching open PRs found by conference name search"
+          echo "::endgroup::"
+
+          # Also check the accumulator branch for pending commits
+          echo "::group::Checking accumulator branch for pending commits"
           if git ls-remote --heads origin "$UPDATE_BRANCH" | grep -q "$UPDATE_BRANCH"; then
             git fetch origin "$UPDATE_BRANCH" --depth=50
 
@@ -109,6 +252,7 @@ jobs:
 
               if [ -n "$OPEN_PR" ]; then
                 echo "has_pending=true" >> $GITHUB_OUTPUT
+                echo "pending_pr=$OPEN_PR" >> $GITHUB_OUTPUT
                 echo "::notice title=Pending Update::${CONF_NAME} already has pending commit: ${PENDING_COMMIT} (PR #${OPEN_PR})"
               else
                 echo "has_pending=false" >> $GITHUB_OUTPUT
@@ -120,6 +264,7 @@ jobs:
           else
             echo "has_pending=false" >> $GITHUB_OUTPUT
           fi
+          echo "::endgroup::"
 
       - name: Detect monitoring zone
         id: detect
@@ -318,9 +463,18 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CONF_URL: ${{ needs.zone-check.outputs.url }}
           CONF_NAME: ${{ needs.zone-check.outputs.conference }}
-          DIFF_CONTENT: ${{ needs.zone-check.outputs.diff }}
+          DIFF_B64: ${{ needs.zone-check.outputs.diff_b64 }}
           TRIAGE_MODE: ${{ needs.zone-check.outputs.triage_mode }}
         run: |
+          # Bug #2 Fix: Decode base64 diff content
+          # The diff is base64 encoded to safely pass multi-line content with special characters
+          if [ -n "$DIFF_B64" ]; then
+            DIFF_CONTENT=$(echo "$DIFF_B64" | base64 -d 2>/dev/null || echo "Failed to decode diff")
+          else
+            DIFF_CONTENT="No diff available"
+          fi
+          export DIFF_CONTENT
+
           # Build the appropriate prompt based on triage mode
           # Export so Python subprocess can access it
           if [ "$TRIAGE_MODE" = "slow" ]; then
@@ -688,27 +842,38 @@ jobs:
       - name: Prepare content
         id: content
         env:
-          DIFF_CONTENT: ${{ needs.zone-check.outputs.diff }}
+          DIFF_B64: ${{ needs.zone-check.outputs.diff_b64 }}
           CONF_URL: ${{ needs.zone-check.outputs.url }}
+          HAS_DIFF: ${{ needs.zone-check.outputs.has_diff }}
         run: |
-          DIFF_LENGTH=$(echo "$DIFF_CONTENT" | wc -c)
+          # Bug #2 Fix: Write content to a temp file instead of using heredoc
+          # This prevents delimiter collision when scraped content contains special characters
+          # Claude Code Action can read the file using its Read tool
 
-          if [ "$DIFF_LENGTH" -gt 100 ] && [ "$DIFF_CONTENT" != "No diff available - manual trigger" ]; then
+          CONTENT_FILE="${RUNNER_TEMP}/website_content.txt"
+
+          # Decode base64 diff if available
+          if [ "$HAS_DIFF" = "true" ] && [ -n "$DIFF_B64" ]; then
+            DIFF_CONTENT=$(echo "$DIFF_B64" | base64 -d 2>/dev/null || echo "")
+            DIFF_LENGTH=${#DIFF_CONTENT}
+          else
+            DIFF_CONTENT=""
+            DIFF_LENGTH=0
+          fi
+
+          if [ "$DIFF_LENGTH" -gt 100 ]; then
             echo "source=diff" >> $GITHUB_OUTPUT
-            DELIM="CONTENT_EOF_$(date +%s%N)_$$"
-            echo "text<<$DELIM" >> $GITHUB_OUTPUT
-            echo "$DIFF_CONTENT" >> $GITHUB_OUTPUT
-            echo "$DELIM" >> $GITHUB_OUTPUT
+            printf '%s' "$DIFF_CONTENT" > "$CONTENT_FILE"
           else
             echo "source=fetched" >> $GITHUB_OUTPUT
             # Use lynx for clean text extraction (much fewer tokens than raw HTML)
             sudo apt-get install -qq -y lynx > /dev/null 2>&1 || true
-            CONTENT=$(lynx -dump -nolist -nonumbers -width=200 "$CONF_URL" 2>/dev/null | head -c 6000)
-            DELIM="CONTENT_EOF_$(date +%s%N)_$$"
-            echo "text<<$DELIM" >> $GITHUB_OUTPUT
-            echo "$CONTENT" >> $GITHUB_OUTPUT
-            echo "$DELIM" >> $GITHUB_OUTPUT
+            lynx -dump -nolist -nonumbers -width=200 "$CONF_URL" 2>/dev/null | head -c 6000 > "$CONTENT_FILE" || echo "Failed to fetch content" > "$CONTENT_FILE"
           fi
+
+          # Store the file path as output (safe - no special characters)
+          echo "content_file=$CONTENT_FILE" >> $GITHUB_OUTPUT
+          echo "::notice title=Content::Stored $(wc -c < "$CONTENT_FILE") bytes in $CONTENT_FILE"
 
       - name: Run Claude Code Analysis
         uses: anthropics/claude-code-action@v1
@@ -722,10 +887,8 @@ jobs:
             Zone: ${{ needs.zone-check.outputs.zone }}
             Reason: ${{ needs.triage.outputs.triage_reason }}
 
-            Content:
-            ```
-            ${{ steps.content.outputs.text }}
-            ```
+            FIRST: Use the Read tool to read the website content from: ${{ steps.content.outputs.content_file }}
+            This file contains either the diff of recent changes or the fetched website content.
 
             Task: Read _data/conferences.yml, find this conference, update if needed.
             If zone is slow/extension_watch: ONLY update cfp_ext for extensions.
@@ -890,8 +1053,13 @@ jobs:
         run: |
           cp _data/conferences.yml /tmp/conferences_before.yml
 
+          # Bug #2 Fix: Write previous entry to a file instead of using heredoc
+          # This prevents delimiter collision when content contains special characters
+
+          PREV_FILE="${RUNNER_TEMP}/prev_entry.txt"
+
           # Get previous entry for reference
-          python3 << 'GETPREV' > /tmp/prev_entry.txt
+          python3 << 'GETPREV' > "$PREV_FILE"
           import yaml, os, sys
           conf_name = os.environ.get('CONF_NAME', '')
           all_confs = []
@@ -906,28 +1074,33 @@ jobs:
                   if c.get(k): print(f"{k}: {c[k]}")
           GETPREV
 
-          DELIM="PREV_EOF_$(date +%s%N)_$$"
-          echo "prev<<$DELIM" >> $GITHUB_OUTPUT
-          cat /tmp/prev_entry.txt >> $GITHUB_OUTPUT
-          echo "$DELIM" >> $GITHUB_OUTPUT
+          # Store file path as output (safe - no special characters)
+          echo "prev_file=$PREV_FILE" >> $GITHUB_OUTPUT
+          echo "::notice title=Previous Entry::Found $(wc -l < "$PREV_FILE") lines of reference data"
 
       - name: Pre-fetch conference pages
         id: fetch
         env:
           CONF_URL: ${{ needs.zone-check.outputs.url }}
         run: |
+          # Bug #2 Fix: Write content to files instead of using heredoc
+          # This prevents delimiter collision when scraped content contains special characters
+          # Claude Code Action can read the files using its Read tool
+
           # Install lynx for clean text extraction
           sudo apt-get install -qq -y lynx > /dev/null 2>&1 || true
 
+          CONTENT_FILE="${RUNNER_TEMP}/website_content.txt"
+
           # Fetch main page as text (much fewer tokens than HTML)
-          lynx -dump -nolist -nonumbers -width=200 "$CONF_URL" 2>/dev/null > /tmp/main_text.txt
+          lynx -dump -nolist -nonumbers -width=200 "$CONF_URL" 2>/dev/null > /tmp/main_text.txt || echo "Failed to fetch main page" > /tmp/main_text.txt
 
           # Also fetch raw HTML to extract subpage links
-          curl -sL --max-time 30 "$CONF_URL" > /tmp/main.html
+          curl -sL --max-time 30 "$CONF_URL" > /tmp/main.html 2>/dev/null || true
 
           # Find CFP/finaid/sponsor links
           grep -oiE 'href="[^"]*(/cfp|/submit|/call|/speak|/finaid|/financial|/grant|/sponsor|/partner)[^"]*"' /tmp/main.html | \
-            sed 's/href="//;s/"$//' | head -3 > /tmp/subpage_links.txt || true
+            sed 's/href="//;s/"$//' | head -3 > /tmp/subpage_links.txt 2>/dev/null || true
 
           # Fetch subpages with lynx
           echo "" > /tmp/subpages_text.txt
@@ -939,38 +1112,35 @@ jobs:
               link="${BASE}${link}"
             fi
             echo "Fetching: $link"
-            lynx -dump -nolist -nonumbers -width=200 "$link" 2>/dev/null | head -c 4000 >> /tmp/subpages_text.txt
+            lynx -dump -nolist -nonumbers -width=200 "$link" 2>/dev/null | head -c 4000 >> /tmp/subpages_text.txt || true
             echo -e "\n---\n" >> /tmp/subpages_text.txt
           done < /tmp/subpage_links.txt
 
-          # Combine content
-          DELIM="CONTENT_EOF_$(date +%s%N)_$$"
-          echo "content<<$DELIM" >> $GITHUB_OUTPUT
-          head -c 12000 /tmp/main_text.txt >> $GITHUB_OUTPUT
-          echo -e "\n\n--- SUBPAGES ---\n" >> $GITHUB_OUTPUT
-          head -c 8000 /tmp/subpages_text.txt >> $GITHUB_OUTPUT
-          echo "$DELIM" >> $GITHUB_OUTPUT
+          # Combine content into a single file (avoids heredoc issues)
+          {
+            head -c 12000 /tmp/main_text.txt
+            echo -e "\n\n--- SUBPAGES ---\n"
+            head -c 8000 /tmp/subpages_text.txt
+          } > "$CONTENT_FILE"
+
+          # Store file path as output (safe - no special characters)
+          echo "content_file=$CONTENT_FILE" >> $GITHUB_OUTPUT
+          echo "::notice title=Content::Stored $(wc -c < "$CONTENT_FILE") bytes in $CONTENT_FILE"
 
       - name: Run Claude Code Analysis
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            Create/update entry for NEW YEAR of Python conference. DO NOT fetch URLs - content provided.
+            Create/update entry for NEW YEAR of Python conference. DO NOT fetch URLs - content provided in files.
 
             Conference: ${{ needs.zone-check.outputs.conference }}
             URL: ${{ needs.zone-check.outputs.url }}
             Year: ${{ needs.triage.outputs.detected_year }}
 
-            Previous entry reference:
-            ```
-            ${{ steps.prep.outputs.prev }}
-            ```
-
-            Website content:
-            ```
-            ${{ steps.fetch.outputs.content }}
-            ```
+            FIRST: Read the following files using the Read tool:
+            1. Previous entry reference: ${{ steps.prep.outputs.prev_file }}
+            2. Website content (main page + subpages): ${{ steps.fetch.outputs.content_file }}
 
             Required: conference (no year), year, link, cfp (YYYY-MM-DD HH:mm:ss or TBA), place (City, Country), start, end, sub
             Optional: cfp_link, timezone, finaid, sponsor, twitter, mastodon, workshop_deadline, tutorial_deadline
