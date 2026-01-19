@@ -67,11 +67,7 @@ def fill_links_from_history(df_ics: pd.DataFrame, df_yml: pd.DataFrame) -> pd.Da
         year = row.get("year", 0)
 
         # Keep the most recent link for each conference
-        if (
-            conf_name
-            and link
-            and (conf_name not in historical_links or year > historical_links[conf_name][1])
-        ):
+        if conf_name and link and (conf_name not in historical_links or year > historical_links[conf_name][1]):
             historical_links[conf_name] = (link, year)
 
     filled_count = 0
