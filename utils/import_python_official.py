@@ -302,52 +302,52 @@ def main(year=None, base="") -> bool:
                 )
                 continue
 
-        df_merged, df_remote, merge_report = fuzzy_match(
-            df_yml[df_yml["year"] == y],
-            df_ics.loc[df_ics["year"] == y],
-        )
-        logger.info(
-            f"Merge report: {merge_report.exact_matches} exact, "
-            f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
-        )
-        df_merged["year"] = year
-        diff_idx = df_merged.index.difference(df_remote.index)
-        df_missing = df_merged.loc[diff_idx, :].sort_values("start")
-        df_merged = df_merged.drop(["conference"], axis=1)
-        df_merged = deduplicate(df_merged)
-        df_remote = deduplicate(df_remote)
-        df_merged = merge_conferences(df_merged, df_remote)
+            df_merged, df_remote, merge_report = fuzzy_match(
+                df_yml[df_yml["year"] == y],
+                df_ics.loc[df_ics["year"] == y],
+            )
+            logger.info(
+                f"Merge report: {merge_report.exact_matches} exact, "
+                f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
+            )
+            df_merged["year"] = y
+            diff_idx = df_merged.index.difference(df_remote.index)
+            df_missing = df_merged.loc[diff_idx, :].sort_values("start")
+            df_merged = df_merged.drop(["conference"], axis=1)
+            df_merged = deduplicate(df_merged)
+            df_remote = deduplicate(df_remote)
+            df_merged = merge_conferences(df_merged, df_remote)
 
-        # Concatenate the new data with the existing data
-        df_new = pd.concat([df_new, df_merged], ignore_index=True)
-        for _index, row in df_missing.iterrows():
+            # Concatenate the new data with the existing data
+            df_new = pd.concat([df_new, df_merged], ignore_index=True)
+            for _index, row in df_missing.iterrows():
 
-            reverse_title_data = reverse_titles.get(row["conference"])
-            if reverse_title_data is None:
-                reverse_title = f"{row['conference']} {row['year']}"
-            else:
-                # Get the first variation from the reverse title data
-                reverse_title_data = reverse_title_data.get("variations")
-                if reverse_title_data:
-                    reverse_title = f"{reverse_title_data[0]} {row['year']}"
-                else:
+                reverse_title_data = reverse_titles.get(row["conference"])
+                if reverse_title_data is None:
                     reverse_title = f"{row['conference']} {row['year']}"
+                else:
+                    # Get the first variation from the reverse title data
+                    reverse_title_data = reverse_title_data.get("variations")
+                    if reverse_title_data:
+                        reverse_title = f"{reverse_title_data[0]} {row['year']}"
+                    else:
+                        reverse_title = f"{row['conference']} {row['year']}"
 
-            timezone_str = row["timezone"] if isinstance(row["timezone"], str) else "UTC"
-            dates = f'{create_nice_date(row)["date"]} ({timezone_str})'
-            link = f'<a href="{row["link"]}">{row["conference"]}</a>'
-            out = f""" * name of the event: {reverse_title}
+                timezone_str = row["timezone"] if isinstance(row["timezone"], str) else "UTC"
+                dates = f'{create_nice_date(row)["date"]} ({timezone_str})'
+                link = f'<a href="{row["link"]}">{row["conference"]}</a>'
+                out = f""" * name of the event: {reverse_title}
  * type of event: conference
  * focus on Python: yes
  * approximate number of attendees: Unknown
  * location (incl. country): {row["place"]}
  * dates/times/recurrence (incl. time zone): {dates})
  * HTML link using the format <a href="http://url/">name of the event</a>: {link}"""
-            with Path("missing_conferences.txt").open("a") as f:
-                f.write(out + "\n\n")
-            Path(".tmp").mkdir(exist_ok=True, parents=True)
-            Path(".tmp", f"{reverse_title}.ics".lower().replace(" ", "-")).write_text(
-                f"""BEGIN:VCALENDAR
+                with Path("missing_conferences.txt").open("a") as f:
+                    f.write(out + "\n\n")
+                Path(".tmp").mkdir(exist_ok=True, parents=True)
+                Path(".tmp", f"{reverse_title}.ics".lower().replace(" ", "-")).write_text(
+                    f"""BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:{reverse_title}
@@ -357,7 +357,7 @@ DESCRIPTION:<a href="{row.link}">{ reverse_title }</a>
 LOCATION:{ row.place }
 END:VEVENT
 END:VCALENDAR""",
-            )
+                )
             processed_years += 1
 
         logger.info(f"Fuzzy matching complete: processed {processed_years} years")
