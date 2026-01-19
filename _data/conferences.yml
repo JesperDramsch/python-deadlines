@@ -62,6 +62,24 @@
     latitude: 59.4372155
     longitude: 24.7453688
 
+- conference: SciPy US
+  alt_name: SciPy
+  year: 2026
+  link: https://www.scipy2026.scipy.org/
+  cfp_link: https://pretalx.com/scipy-2026/cfp
+  cfp: '2026-02-25 15:20:00'
+  timezone: America/Chicago
+  place: Minneapolis, USA
+  start: 2026-06-13
+  end: 2026-06-19
+  sponsor: https://www.scipy2026.scipy.org/s/SciPy26-SponsorProspectus-wn87.pdf
+  mastodon: https://mastodon.social/@SciPyConf
+  sub: SCIPY
+  location:
+  - title: SciPy US 2026
+    latitude: 44.9772995
+    longitude: -93.2654692
+
 - conference: PyData London
   year: 2026
   link: https://pydata.org/london2026
