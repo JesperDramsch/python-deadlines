@@ -117,9 +117,8 @@ def _auto_detect_sub(conference_name: str) -> str | None:
     Args:
         conference_name: Name of the conference
 
-    Returns
-    -------
-        Sub category string if matched, None otherwise
+    Returns:
+        Sub category string if matched, None otherwise.
     """
     keywords = _load_subs_keywords()
     name_lower = conference_name.lower()
@@ -133,7 +132,7 @@ def _auto_detect_sub(conference_name: str) -> str | None:
 DEFAULT_SUB = "PY"
 
 
-def fill_missing_required(df):
+def fill_missing_required(df: pd.DataFrame) -> pd.DataFrame:
     """Fill missing required fields in the DataFrame.
 
     In non-interactive environments (CI), uses auto-detection and defaults
@@ -142,9 +141,8 @@ def fill_missing_required(df):
     Args:
         df: DataFrame with conference data
 
-    Returns
-    -------
-        DataFrame with missing required fields filled
+    Returns:
+        DataFrame with missing required fields filled.
     """
     required = [
         "conference",
