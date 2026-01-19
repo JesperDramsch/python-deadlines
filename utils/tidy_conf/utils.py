@@ -68,8 +68,18 @@ def query_yes_no(question, default="no"):
     None (meaning     an answer is required of the user).
 
     The "answer" return value is True for "yes" or False for "no".
+
+    In non-interactive environments (e.g., CI), returns the default value.
     """
     valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
+
+    # In non-interactive environments, use the default value
+    if not sys.stdin.isatty():
+        if default is not None:
+            return valid[default]
+        # If no default and non-interactive, default to "no" for safety
+        return False
+
     match default:
         case "yes":
             prompt = " [Y/n] "
