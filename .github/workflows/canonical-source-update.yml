@@ -1,0 +1,306 @@
+name: Canonical Source Update
+
+on:
+  # Triggered by IFTTT/changedetection webhooks when canonical sources update
+  repository_dispatch:
+    types: [canonical-source-update]
+
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Source to update from'
+        required: true
+        type: choice
+        options:
+          - all
+          - ics
+          - csv
+        default: all
+      dry_run:
+        description: 'Dry run (no commit/PR)'
+        required: false
+        type: boolean
+        default: false
+
+# Prevent concurrent runs to avoid merge conflicts on the accumulator branch
+concurrency:
+  group: canonical-source-update
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  UPDATE_BRANCH: auto/conference-updates
+
+jobs:
+  update-from-canonical:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+          persist-credentials: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Parse trigger source
+        id: source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PAYLOAD_SOURCE: ${{ github.event.client_payload.source }}
+          INPUT_SOURCE: ${{ inputs.source }}
+        run: |
+          if [ "$EVENT_NAME" = "repository_dispatch" ]; then
+            # Webhook trigger - get source from payload
+            SOURCE="${PAYLOAD_SOURCE:-all}"
+            echo "Triggered by webhook for source: $SOURCE"
+          else
+            # Manual trigger
+            SOURCE="${INPUT_SOURCE:-all}"
+            echo "Manual trigger for source: $SOURCE"
+          fi
+
+          # Validate source
+          case "$SOURCE" in
+            all|ics|csv)
+              echo "source=$SOURCE" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "::warning title=Unknown Source::Unknown source '$SOURCE', defaulting to 'all'"
+              echo "source=all" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+          echo "## Trigger Info" >> $GITHUB_STEP_SUMMARY
+          echo "- **Event:** $EVENT_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- **Source:** $SOURCE" >> $GITHUB_STEP_SUMMARY
+
+      - name: Setup accumulator branch
+        run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
+          if git ls-remote --heads origin $UPDATE_BRANCH | grep -q $UPDATE_BRANCH; then
+            echo "::notice title=Branch::Checking out existing accumulator branch"
+            git fetch origin $UPDATE_BRANCH
+            git checkout $UPDATE_BRANCH
+
+            # Sync with main - try rebase first, then merge
+            if ! git rebase origin/main; then
+              echo "::warning title=Rebase Failed::Attempting merge instead"
+              git rebase --abort 2>/dev/null || true
+              if ! git merge origin/main --no-edit; then
+                git merge --abort 2>/dev/null || true
+                echo "::error title=Branch Sync Failed::Could not rebase or merge with main"
+                exit 1
+              fi
+            fi
+          else
+            echo "::notice title=Branch::Creating new accumulator branch"
+            git checkout -b $UPDATE_BRANCH
+          fi
+
+      - name: Snapshot data files
+        run: |
+          cp _data/conferences.yml /tmp/conferences_before.yml
+          cp _data/archive.yml /tmp/archive_before.yml 2>/dev/null || true
+
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
+
+      - name: Run merge scripts
+        id: merge
+        env:
+          SOURCE: ${{ steps.source.outputs.source }}
+        run: |
+          echo "::group::Running merge for source: $SOURCE"
+
+          case "$SOURCE" in
+            ics)
+              echo "Importing from Python official calendar (ICS)..."
+              pixi run python ./utils/import_python_official.py
+              pixi run sort
+              ;;
+            csv)
+              echo "Importing from Python organizers (CSV)..."
+              pixi run python ./utils/import_python_organizers.py
+              pixi run sort
+              ;;
+            all)
+              echo "Running full merge pipeline..."
+              pixi run merge
+              ;;
+          esac
+
+          echo "::endgroup::"
+
+          # Capture which source was processed for commit message
+          echo "source_label=$SOURCE" >> $GITHUB_OUTPUT
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          # Check if any data files changed
+          CHANGED=false
+
+          if ! diff -q _data/conferences.yml /tmp/conferences_before.yml > /dev/null 2>&1; then
+            echo "conferences.yml has changes"
+            CHANGED=true
+          fi
+
+          if [ -f /tmp/archive_before.yml ] && ! diff -q _data/archive.yml /tmp/archive_before.yml > /dev/null 2>&1; then
+            echo "archive.yml has changes"
+            CHANGED=true
+          fi
+
+          echo "changed=$CHANGED" >> $GITHUB_OUTPUT
+
+          if [ "$CHANGED" = "true" ]; then
+            echo "::notice title=Changes Detected::Data files were updated"
+
+            # Show summary of changes
+            echo "## Changes" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`diff" >> $GITHUB_STEP_SUMMARY
+            diff -u /tmp/conferences_before.yml _data/conferences.yml | head -50 >> $GITHUB_STEP_SUMMARY || true
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "::notice title=No Changes::Data files are up to date"
+            echo "## No Changes" >> $GITHUB_STEP_SUMMARY
+            echo "Canonical sources did not have any new data." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Commit and push
+        if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
+        id: commit
+        env:
+          SOURCE: ${{ steps.source.outputs.source }}
+        run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
+          # Stage data files
+          git add _data/conferences.yml _data/archive.yml _data/legacy.yml 2>/dev/null || git add _data/conferences.yml
+
+          # Create descriptive commit message based on source
+          case "$SOURCE" in
+            ics)
+              COMMIT_MSG="conf: data merge from PSF calendar"
+              ;;
+            csv)
+              COMMIT_MSG="conf: data merge from python-organizers"
+              ;;
+            all)
+              COMMIT_MSG="conf: data merge"
+              ;;
+          esac
+
+          git commit -m "$COMMIT_MSG" -m "Source: canonical-$SOURCE" -m "Triggered: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push origin $UPDATE_BRANCH --force-with-lease
+
+          echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
+      - name: Create or update PR
+        if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
+        uses: actions/github-script@v8
+        env:
+          UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
+          SOURCE: ${{ steps.source.outputs.source }}
+          COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
+          COMMIT_MSG: ${{ steps.commit.outputs.commit_msg }}
+        with:
+          script: |
+            const branch = process.env.UPDATE_BRANCH;
+            const source = process.env.SOURCE;
+            const sha = process.env.COMMIT_SHA.substring(0, 7);
+            const date = new Date().toISOString().split('T')[0];
+
+            // Source labels for the "Conference" column (matches existing workflow format)
+            // Using 📊 emoji to distinguish canonical source updates from website scrapes
+            const sourceLabels = {
+              'ics': '📊 PSF Calendar',
+              'csv': '📊 python-organizers',
+              'all': '📊 Canonical sources'
+            };
+            const sourceLabel = sourceLabels[source] || `📊 ${source}`;
+
+            // Check for existing PR from the update branch
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${branch}`,
+              state: 'open'
+            });
+
+            // Use same table format as check-conference-update.yml (Conference | Commit | Date)
+            const entry = `| ${sourceLabel} | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
+
+            if (prs.length > 0) {
+              // Update existing PR - append to table
+              const pr = prs[0];
+              let body = pr.body || '';
+
+              // Add entry before the END_UPDATES marker
+              body = body.replace(/(<!-- END_UPDATES -->)/, `${entry}\n$1`);
+
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                body
+              });
+
+              console.log(`Updated PR #${pr.number}`);
+              core.notice(`Updated PR #${pr.number} with canonical source merge`);
+            } else {
+              // Create new PR - use EXACT same format as check-conference-update.yml
+              const { data: newPr } = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '🐍 Conference updates',
+                head: branch,
+                base: 'main',
+                body: `## 🐍 Automated Conference Updates\n\n| Conference | Commit | Date |\n|------------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
+              });
+
+              // Add labels
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: newPr.number,
+                labels: ['automated', 'conference-update']
+              });
+
+              console.log(`Created PR #${newPr.number}`);
+              core.notice(`Created PR #${newPr.number} for canonical source merge`);
+            }
+
+      - name: Summary
+        if: always()
+        env:
+          SOURCE: ${{ steps.source.outputs.source }}
+          CHANGED: ${{ steps.check_changes.outputs.changed }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Result" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$CHANGED" = "true" ]; then
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "- Status: Changes detected (dry run - not committed)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- Status: ✅ Changes committed and PR updated" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- Status: ✓ No new data from canonical sources" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "- Source: $SOURCE" >> $GITHUB_STEP_SUMMARY
