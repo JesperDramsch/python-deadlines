@@ -301,17 +301,19 @@ def sort_data(base="", prefix="", skip_links=False):
     for i, q in enumerate(data.copy()):
         data[i] = order_keywords(q)
 
-    logger.info("✅ Validating conference data with Pydantic schema")
-    new_data = []
-    validation_errors = 0
-
-    for q in data:
+    def validate_conference(q: dict) -> Conference | None:
+        """Validate a single conference entry, returning None if invalid."""
         try:
-            new_data.append(Conference(**q))
+            return Conference(**q)
         except pydantic.ValidationError as e:
-            validation_errors += 1
             logger.error(f"❌ Validation error in conference: {e}")
             logger.debug(f"Invalid data: \n{yaml.dump(q, default_flow_style=False)}")
+            return None
+
+    logger.info("✅ Validating conference data with Pydantic schema")
+    validated = [validate_conference(q) for q in data]
+    new_data = [c for c in validated if c is not None]
+    validation_errors = len(validated) - len(new_data)
 
     if validation_errors > 0:
         logger.warning(f"⚠️  {validation_errors} conferences failed validation and were skipped")
