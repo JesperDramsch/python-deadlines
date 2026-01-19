@@ -37,6 +37,67 @@ except ImportError:
 logger = get_tqdm_logger(__name__)
 
 
+def fill_links_from_history(df_ics: pd.DataFrame, df_yml: pd.DataFrame) -> pd.DataFrame:
+    """Fill missing links in ICS data from historical conference data.
+
+    For conferences without links, look up the conference name in historical data
+    and use that link, replacing any year references with the current year.
+
+    Parameters
+    ----------
+    df_ics : pd.DataFrame
+        DataFrame with ICS conference data (may have empty links)
+    df_yml : pd.DataFrame
+        DataFrame with existing conference data from YAML files
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with missing links filled where historical data exists
+    """
+    if df_yml.empty:
+        return df_ics
+
+    # Create a lookup of conference names to their most recent links
+    # Group by normalized conference name and get the most recent entry
+    historical_links = {}
+    for _, row in df_yml.iterrows():
+        conf_name = row.get("conference", "")
+        link = row.get("link", "")
+        year = row.get("year", 0)
+
+        if conf_name and link:
+            # Keep the most recent link for each conference
+            if conf_name not in historical_links or year > historical_links[conf_name][1]:
+                historical_links[conf_name] = (link, year)
+
+    filled_count = 0
+    for idx, row in df_ics.iterrows():
+        link = row.get("link", "")
+        if not link or len(str(link).strip()) == 0:
+            conf_name = row.get("conference", "")
+            target_year = row.get("year", datetime.now(tz=timezone.utc).year)
+
+            if conf_name in historical_links:
+                hist_link, hist_year = historical_links[conf_name]
+                # Replace the historical year with the target year in the link
+                new_link = re.sub(
+                    rf"\b{hist_year}\b",
+                    str(target_year),
+                    str(hist_link),
+                )
+                df_ics.at[idx, "link"] = new_link
+                filled_count += 1
+                logger.debug(
+                    f"Filled link for '{conf_name}' from historical data: {new_link}",
+                )
+
+    if filled_count > 0:
+        logger.info(f"Filled {filled_count} missing links from historical conference data")
+
+    return df_ics
+
+
 def ics_to_dataframe() -> pd.DataFrame:
     """Parse an .ics file and return a DataFrame with the event data.
 
@@ -194,13 +255,6 @@ def ics_to_dataframe() -> pd.DataFrame:
     except Exception as e:
         logger.error(f"Error cleaning DataFrame: {e}")
 
-    # Filter out entries with empty or missing links
-    initial_count = len(df)
-    df = df[df["link"].str.len() > 0]
-    filtered_count = initial_count - len(df)
-    if filtered_count > 0:
-        logger.info(f"Filtered out {filtered_count} entries without valid links")
-
     return df
 
 
@@ -246,6 +300,21 @@ def main(year=None, base="") -> bool:
 
         if df_ics.empty:
             logger.warning("No conference data retrieved from calendar")
+            return False
+
+        # Try to fill missing links from historical conference data
+        logger.info("Filling missing links from historical data")
+        df_ics = fill_links_from_history(df_ics, df_yml)
+
+        # Filter out entries with empty or missing links
+        initial_count = len(df_ics)
+        df_ics = df_ics[df_ics["link"].str.len() > 0]
+        filtered_count = initial_count - len(df_ics)
+        if filtered_count > 0:
+            logger.info(f"Filtered out {filtered_count} entries without valid links")
+
+        if df_ics.empty:
+            logger.warning("No conferences with valid links after filtering")
             return False
 
     except Exception as e:
