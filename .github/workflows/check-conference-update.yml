@@ -55,6 +55,9 @@ jobs:
       watch_uuid: ${{ steps.vars.outputs.watch_uuid }}
       has_diff: ${{ steps.vars.outputs.has_diff }}
       has_pending: ${{ steps.pending.outputs.has_pending }}
+      # Trigger context from scheduled extension checker
+      trigger_reason: ${{ steps.vars.outputs.trigger_reason }}
+      original_cfp_deadline: ${{ steps.vars.outputs.original_cfp_deadline }}
 
     steps:
       - name: Checkout repository
@@ -134,6 +137,9 @@ jobs:
           PAYLOAD_TITLE: ${{ github.event.client_payload.title }}
           PAYLOAD_DIFF: ${{ toJson(github.event.client_payload.diff) }}
           PAYLOAD_UUID: ${{ github.event.client_payload.watch_uuid }}
+          # Trigger context from scheduled extension checker
+          PAYLOAD_TRIGGER_REASON: ${{ github.event.client_payload.trigger_reason }}
+          PAYLOAD_ORIGINAL_CFP: ${{ github.event.client_payload.original_cfp_deadline }}
           INPUT_URL: ${{ inputs.url }}
           INPUT_CONFERENCE: ${{ inputs.conference_name }}
           EVENT_NAME: ${{ github.event_name }}
@@ -149,12 +155,17 @@ jobs:
             echo "diff_b64=$DIFF_B64" >> $GITHUB_OUTPUT
             echo "watch_uuid=$PAYLOAD_UUID" >> $GITHUB_OUTPUT
             echo "has_diff=true" >> $GITHUB_OUTPUT
+            # Trigger context (empty if from changedetection.io, populated if from scheduled checker)
+            echo "trigger_reason=${PAYLOAD_TRIGGER_REASON:-website_change}" >> $GITHUB_OUTPUT
+            echo "original_cfp_deadline=${PAYLOAD_ORIGINAL_CFP:-}" >> $GITHUB_OUTPUT
           else
             echo "url=$INPUT_URL" >> $GITHUB_OUTPUT
             echo "conference=$INPUT_CONFERENCE" >> $GITHUB_OUTPUT
             echo "has_diff=false" >> $GITHUB_OUTPUT
             echo "watch_uuid=" >> $GITHUB_OUTPUT
             echo "diff_b64=" >> $GITHUB_OUTPUT
+            echo "trigger_reason=manual" >> $GITHUB_OUTPUT
+            echo "original_cfp_deadline=" >> $GITHUB_OUTPUT
           fi
 
       - name: Check for pending updates
@@ -468,6 +479,9 @@ jobs:
           CONF_NAME: ${{ needs.zone-check.outputs.conference }}
           DIFF_B64: ${{ needs.zone-check.outputs.diff_b64 }}
           TRIAGE_MODE: ${{ needs.zone-check.outputs.triage_mode }}
+          # Trigger context from scheduled extension checker
+          TRIGGER_REASON: ${{ needs.zone-check.outputs.trigger_reason }}
+          ORIGINAL_CFP_DEADLINE: ${{ needs.zone-check.outputs.original_cfp_deadline }}
         run: |
           # Bug #2 Fix: Decode base64 diff content
           # The diff is base64 encoded to safely pass multi-line content with special characters
@@ -478,9 +492,14 @@ jobs:
           fi
           export DIFF_CONTENT
 
-          # Build the appropriate prompt based on triage mode
+          # Build the appropriate prompt based on trigger context and triage mode
+          # Priority: extension_check trigger > slow zone > general website change
           # Export so Python subprocess can access it
-          if [ "$TRIAGE_MODE" = "slow" ]; then
+          if [ "$TRIGGER_REASON" = "extension_check" ]; then
+            # Triggered by scheduled extension checker - CFP deadline has passed
+            export PROMPT="You are checking for a CFP EXTENSION. The CFP deadline (${ORIGINAL_CFP_DEADLINE}) has passed. Focus ONLY on: 1) Whether the CFP was extended (new deadline announced), 2) Any 'extended', 'deadline moved', 'last chance' announcements. If you find a new CFP deadline date, mark RELEVANT and include the new date in REASON. If NO extension is mentioned, mark NOISE with REASON 'No CFP extension found'. Do NOT mark relevant for general website changes, schedules, speakers, etc."
+            echo "::notice title=Trigger Context::Scheduled CFP extension check (deadline was ${ORIGINAL_CFP_DEADLINE})"
+          elif [ "$TRIAGE_MODE" = "slow" ]; then
             export PROMPT="You are a STRICT triage filter. This conference already has a CFP deadline - we ONLY care about EXTENSIONS. RELEVANT (extension indicators): extended, extension, new deadline, deadline moved, pushed back, more time, last chance. NOISE (everything else): speaker announcements, schedule, sponsors, registration, venue info. Be STRICT - if not clearly about deadline extension, mark NOISE."
           else
             export PROMPT="You are a triage filter for a Python conference tracker. NEW YEAR indicators: future year (2025/2026/2027) WITH SPECIFIC DATES (exact days like 'September 15-17', not just month or season). RELEVANT: CFP announcements with specific deadlines (exact date), specific conference dates announced (exact days). NOISE: copyright year only, timestamps, counters, typos, cookies, nav changes, sponsors, speakers, schedule. ALSO NOISE: Vague date announcements ('sometime in September', 'early 2026', 'Fall 2026', 'dates TBD', 'coming soon') - these are not actionable until specific dates are published."
@@ -593,6 +612,9 @@ jobs:
           SKIP_CHECK: ${{ steps.skip_check.outputs.skip }}
           API_SUCCESS: ${{ steps.triage_api.outputs.success }}
           TRIAGE_RESPONSE: ${{ steps.triage_api.outputs.response }}
+          TRIGGER_REASON: ${{ needs.zone-check.outputs.trigger_reason }}
+          ORIGINAL_CFP_DEADLINE: ${{ needs.zone-check.outputs.original_cfp_deadline }}
+          CONF_NAME: ${{ needs.zone-check.outputs.conference }}
         run: |
           # Default to analyzing if triage was skipped
           if [ "$SKIP_CHECK" = "true" ]; then
@@ -628,6 +650,15 @@ jobs:
               echo "::notice title=Low Confidence::Analyzing despite NOISE decision"
             else
               echo "should_analyze=false" >> $GITHUB_OUTPUT
+              # Log "no extension found" specifically for extension checks
+              if [ "$TRIGGER_REASON" = "extension_check" ]; then
+                echo "::notice title=No Extension Found::${CONF_NAME} - CFP deadline ${ORIGINAL_CFP_DEADLINE} was NOT extended"
+                echo "## ✓ No Extension Found" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "**Conference:** ${CONF_NAME}" >> $GITHUB_STEP_SUMMARY
+                echo "**Original CFP deadline:** ${ORIGINAL_CFP_DEADLINE}" >> $GITHUB_STEP_SUMMARY
+                echo "**Result:** No CFP extension announced - no PR needed" >> $GITHUB_STEP_SUMMARY
+              fi
             fi
           else
             echo "should_analyze=true" >> $GITHUB_OUTPUT

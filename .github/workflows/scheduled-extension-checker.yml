@@ -157,20 +157,29 @@ jobs:
           CONF_NAME: ${{ matrix.conference.conference }}
           CONF_URL: ${{ matrix.conference.url }}
           CONF_REASON: ${{ matrix.conference.reason }}
+          CONF_CFP_DATE: ${{ matrix.conference.cfp_date }}
+          CONF_CHECK_TYPE: ${{ matrix.conference.check_type }}
+          CONF_HAS_EXT: ${{ matrix.conference.has_extension }}
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "Triggering check for: $CONF_NAME"
           echo "URL: $CONF_URL"
           echo "Reason: $CONF_REASON"
+          echo "CFP Date: $CONF_CFP_DATE"
+          echo "Check Type: $CONF_CHECK_TYPE"
 
           # Use gh CLI for safe API call
+          # Pass trigger context so triage workflow can adjust prompt accordingly
           gh api repos/${{ github.repository }}/dispatches \
             -f event_type=conference-change \
             -f "client_payload[url]=$CONF_URL" \
             -f "client_payload[title]=$CONF_NAME" \
             -f "client_payload[watch_uuid]=" \
             -f "client_payload[diff]=Scheduled extension check: $CONF_REASON" \
-            -f "client_payload[source]=scheduled-checker"
+            -f "client_payload[source]=scheduled-checker" \
+            -f "client_payload[trigger_reason]=$CONF_CHECK_TYPE" \
+            -f "client_payload[original_cfp_deadline]=$CONF_CFP_DATE" \
+            -f "client_payload[has_extension]=$CONF_HAS_EXT"
 
           echo "✓ Triggered"
 
