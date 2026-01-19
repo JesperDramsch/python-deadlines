@@ -248,6 +248,24 @@
     latitude: 30.2711286
     longitude: -97.7436995
 
+- conference: PyCon Namibia
+  alt_name: PyCon NA
+  year: 2026
+  link: https://na.pycon.org/
+  cfp_link: https://pretalx.com/pycon-namibia-2026/cfp
+  cfp: '2025-12-01 23:59:00'
+  timezone: Africa/Windhoek
+  place: Windhoek, Namibia
+  start: 2026-02-20
+  end: 2026-02-26
+  sponsor: https://na.pycon.org/sponsor/
+  twitter: PyConNA
+  sub: PY
+  location:
+  - title: PyCon Namibia 2026
+    latitude: -22.611456150000002
+    longitude: 17.05860104184979
+
 - conference: PythonAsia
   year: 2026
   link: https://2026.pythonasia.org/
