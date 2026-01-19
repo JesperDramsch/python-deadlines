@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "python-deadlines"
 version = "0.1.0"
 description = "Python deadlines is a Python package to parse and manage deadlines from various sources."
