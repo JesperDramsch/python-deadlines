@@ -482,12 +482,7 @@ def main(year: int | None = None, base: str = "") -> None:
     df_csv_output.loc[:, "Location"] = df_csv_output.place
     # Extract country from place (format: "City, Country") and convert to alpha3 code
     # Uses get_country_alpha3 which preserves original country name if lookup fails
-    df_csv_output.loc[:, "Country"] = (
-        df_csv_output.place.str.split(",")
-        .str[-1]
-        .str.strip()
-        .apply(get_country_alpha3)
-    )
+    df_csv_output.loc[:, "Country"] = df_csv_output.place.str.split(",").str[-1].str.strip().apply(get_country_alpha3)
 
     write_csv(df_csv_output, year, csv_location)
 

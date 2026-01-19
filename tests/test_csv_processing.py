@@ -410,18 +410,17 @@ class TestCountryCodePreservation:
         """
         # Create test data with place values (as they would come from the merge)
         places = [
-            "New York, USA",           # Common alias
-            "London, United Kingdom",   # Standard name
-            "Prague, Czechia",          # Known alias
-            "Atlantis, Narnia",         # Unknown - should be preserved
-            "Tokyo, Japan",             # Standard name
+            "New York, USA",  # Common alias
+            "London, United Kingdom",  # Standard name
+            "Prague, Czechia",  # Known alias
+            "Atlantis, Narnia",  # Unknown - should be preserved
+            "Tokyo, Japan",  # Standard name
         ]
 
         # Simulate the country extraction that happens in main() before write_csv
         # This is the code at lines 480-490 in import_python_organizers.py
         countries_from_places = [
-            import_python_organizers.get_country_alpha3(place.split(",")[-1].strip())
-            for place in places
+            import_python_organizers.get_country_alpha3(place.split(",")[-1].strip()) for place in places
         ]
 
         test_data = pd.DataFrame(
