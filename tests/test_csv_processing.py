@@ -325,3 +325,152 @@ class TestIntegrationWithLogging:
             log_calls = [call.args[0] for call in mock_logger_instance.info.call_args_list]
             assert any("Starting write_csv" in msg for msg in log_calls)
             assert any("Successfully wrote" in msg for msg in log_calls)
+
+
+class TestCountryCodePreservation:
+    """Test that country codes are never silently lost during CSV processing."""
+
+    def test_get_country_alpha3_standard_names(self):
+        """Test that standard country names are converted to alpha3 codes."""
+        test_cases = [
+            ("United States", "USA"),
+            ("Germany", "DEU"),
+            ("France", "FRA"),
+            ("Japan", "JPN"),
+            ("Australia", "AUS"),
+            ("Canada", "CAN"),
+            ("United Kingdom", "GBR"),
+            ("Italy", "ITA"),
+            ("Spain", "ESP"),
+            ("Netherlands", "NLD"),
+        ]
+        for country_name, expected_code in test_cases:
+            result = import_python_organizers.get_country_alpha3(country_name)
+            assert result == expected_code, f"Expected {expected_code} for {country_name}, got {result}"
+
+    def test_get_country_alpha3_common_aliases(self):
+        """Test that common country aliases are converted to alpha3 codes."""
+        test_cases = [
+            ("USA", "USA"),
+            ("US", "USA"),
+            ("UK", "GBR"),
+            ("England", "GBR"),
+            ("Scotland", "GBR"),
+            ("Czechia", "CZE"),
+            ("South Korea", "KOR"),
+            ("Russia", "RUS"),
+            ("Vietnam", "VNM"),
+            ("Taiwan", "TWN"),
+            ("Holland", "NLD"),
+            ("The Netherlands", "NLD"),
+        ]
+        for country_name, expected_code in test_cases:
+            result = import_python_organizers.get_country_alpha3(country_name)
+            assert result == expected_code, f"Expected {expected_code} for {country_name}, got {result}"
+
+    def test_get_country_alpha3_preserves_unknown_countries(self):
+        """Test that unknown country names are preserved, not silently lost."""
+        unknown_countries = [
+            "Atlantis",
+            "Narnia",
+            "Wakanda",
+            "Unknown Country",
+            "Some Place",
+        ]
+        for country_name in unknown_countries:
+            result = import_python_organizers.get_country_alpha3(country_name)
+            # Should return the original name, not an empty string
+            assert result == country_name, f"Expected '{country_name}' to be preserved, got '{result}'"
+            assert result != "", f"Country '{country_name}' was silently lost (returned empty string)"
+
+    def test_get_country_alpha3_handles_empty_input(self):
+        """Test that empty inputs are handled gracefully."""
+        assert import_python_organizers.get_country_alpha3("") == ""
+        assert import_python_organizers.get_country_alpha3(None) == ""
+        assert import_python_organizers.get_country_alpha3("   ") == ""
+
+    def test_get_country_alpha3_case_insensitive(self):
+        """Test that country lookup is case insensitive."""
+        test_cases = [
+            ("germany", "DEU"),
+            ("GERMANY", "DEU"),
+            ("Germany", "DEU"),
+            ("GeRmAnY", "DEU"),
+            ("usa", "USA"),
+            ("Usa", "USA"),
+        ]
+        for country_name, expected_code in test_cases:
+            result = import_python_organizers.get_country_alpha3(country_name)
+            assert result == expected_code, f"Expected {expected_code} for {country_name}, got {result}"
+
+    def test_country_code_not_lost_in_csv_output(self):
+        """Integration test: verify country codes are not lost when writing CSV.
+
+        This tests the same flow as main(): place -> extract country -> write CSV.
+        """
+        # Create test data with place values (as they would come from the merge)
+        places = [
+            "New York, USA",           # Common alias
+            "London, United Kingdom",   # Standard name
+            "Prague, Czechia",          # Known alias
+            "Atlantis, Narnia",         # Unknown - should be preserved
+            "Tokyo, Japan",             # Standard name
+        ]
+
+        # Simulate the country extraction that happens in main() before write_csv
+        # This is the code at lines 480-490 in import_python_organizers.py
+        countries_from_places = [
+            import_python_organizers.get_country_alpha3(place.split(",")[-1].strip())
+            for place in places
+        ]
+
+        test_data = pd.DataFrame(
+            {
+                "conference": ["Conf A", "Conf B", "Conf C", "Conf D", "Conf E"],
+                "year": [2025, 2025, 2025, 2025, 2025],
+                "start": ["2025-06-01", "2025-06-02", "2025-06-03", "2025-06-04", "2025-06-05"],
+                "end": ["2025-06-03", "2025-06-04", "2025-06-05", "2025-06-06", "2025-06-07"],
+                "Location": places,
+                "Country": countries_from_places,
+                "Venue": ["", "", "", "", ""],
+                "tutorial_deadline": ["", "", "", "", ""],
+                "cfp": ["", "", "", "", ""],
+                "link": ["", "", "", "", ""],
+                "cfp_link": ["", "", "", "", ""],
+                "sponsor": ["", "", "", "", ""],
+            },
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+
+            import_python_organizers.write_csv(test_data, 2025, temp_path)
+
+            csv_file = temp_path / "2025.csv"
+            result_df = pd.read_csv(csv_file, keep_default_na=False, na_values=[])
+
+            # Verify country codes
+            countries = result_df["Country"].tolist()
+
+            # Check that no country is an empty string (data loss)
+            for i, country in enumerate(countries):
+                assert country != "", f"Country was lost for row {i}: expected non-empty value"
+
+            # Check specific expected values
+            assert "USA" in countries, "USA should be resolved from 'USA' alias"
+            assert "GBR" in countries, "GBR should be resolved from 'United Kingdom'"
+            assert "CZE" in countries, "CZE should be resolved from 'Czechia'"
+            assert "JPN" in countries, "JPN should be resolved from 'Japan'"
+            # Unknown country "Narnia" should be preserved, not lost
+            assert "Narnia" in countries, "Unknown country 'Narnia' should be preserved"
+
+    def test_country_code_whitespace_handling(self):
+        """Test that whitespace in country names is handled correctly."""
+        test_cases = [
+            ("  Germany  ", "DEU"),
+            ("\tUSA\n", "USA"),
+            ("  United Kingdom  ", "GBR"),
+        ]
+        for country_name, expected_code in test_cases:
+            result = import_python_organizers.get_country_alpha3(country_name)
+            assert result == expected_code, f"Expected {expected_code} for '{country_name}', got {result}"
