@@ -20,6 +20,11 @@ def auto_add_sub(data):
 
 
 def load_subs():
-    with Path("utils", "tidy_conf", "data", "subs.yml").open(encoding="utf-8") as file:
+    """Load sub keywords from subs.yml.
+
+    Uses module-relative path for robustness regardless of working directory.
+    """
+    subs_path = Path(__file__).parent / "data" / "subs.yml"
+    with subs_path.open(encoding="utf-8") as file:
         data = yaml.safe_load(file)
     return data

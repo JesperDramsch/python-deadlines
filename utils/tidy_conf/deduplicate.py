@@ -3,7 +3,7 @@ import pandas as pd
 
 def merge_near_duplicates(group):
     # Fill missing values with the next value then take the first row
-    with pd.option_context('future.no_silent_downcasting', True):
+    with pd.option_context("future.no_silent_downcasting", True):
         group = group.bfill().ffill().infer_objects(copy=False)
     return group.iloc[0]
 
