@@ -114,11 +114,14 @@ def _load_subs_keywords():
 def _auto_detect_sub(conference_name: str) -> str | None:
     """Auto-detect sub category based on conference name.
 
-    Args:
-        conference_name: Name of the conference
+    Parameters
+    ----------
+    conference_name : str
+        Name of the conference
 
     Returns
     -------
+    str | None
         Sub category string if matched, None otherwise.
     """
     keywords = _load_subs_keywords()
@@ -139,11 +142,14 @@ def fill_missing_required(df: pd.DataFrame) -> pd.DataFrame:
     In non-interactive environments (CI), uses auto-detection and defaults
     instead of prompting for user input.
 
-    Args:
-        df: DataFrame with conference data
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DataFrame with conference data
 
     Returns
     -------
+    pd.DataFrame
         DataFrame with missing required fields filled.
     """
     required = [
