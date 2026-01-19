@@ -99,10 +99,16 @@ def query_yes_no(question, default="no"):
 
 
 def _load_subs_keywords():
-    """Load sub keywords from subs.yml for auto-detection."""
-    from .subs import load_subs
+    """Load sub keywords from subs.yml for auto-detection.
 
-    return load_subs()
+    Returns empty dict if loading fails, allowing fallback to DEFAULT_SUB.
+    """
+    try:
+        from .subs import load_subs
+
+        return load_subs()
+    except (FileNotFoundError, ImportError):
+        return {}
 
 
 def _auto_detect_sub(conference_name: str) -> str | None:
