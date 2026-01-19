@@ -194,6 +194,13 @@ def ics_to_dataframe() -> pd.DataFrame:
     except Exception as e:
         logger.error(f"Error cleaning DataFrame: {e}")
 
+    # Filter out entries with empty or missing links
+    initial_count = len(df)
+    df = df[df["link"].str.len() > 0]
+    filtered_count = initial_count - len(df)
+    if filtered_count > 0:
+        logger.info(f"Filtered out {filtered_count} entries without valid links")
+
     return df
 
 
