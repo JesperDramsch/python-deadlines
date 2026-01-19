@@ -165,65 +165,69 @@ jobs:
           UPDATE_BRANCH: auto/conference-updates
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Bug #1 Fix: Check for ANY open PR related to this conference
-          # This prevents duplicate work when a PR is already open for the same conference
+          # Bug #1 Fix (Revised): Check if any open PR modifies the same conference FILE
+          # This is more precise than fuzzy title/branch matching
+          # Logic: Find PRs that modify _data/conferences.yml, then check if their diff includes this conference
 
-          echo "::group::Checking for open PRs related to ${CONF_NAME}"
+          echo "::group::Checking for open PRs modifying ${CONF_NAME}"
 
-          # Search for open PRs that mention the conference name in title or body
-          # Also check branch names that might contain conference identifiers
-          MATCHING_PR=""
           MATCHING_PR_NUM=""
+          TARGET_FILE="_data/conferences.yml"
 
-          # Get all open PRs and search for matches
-          OPEN_PRS=$(gh pr list --state open --json number,title,headRefName,body --limit 50 2>/dev/null || echo "[]")
+          # Get all open PRs
+          OPEN_PRS=$(gh pr list --state open --json number,title --jq '.[].number' --limit 50 2>/dev/null || echo "")
 
-          if [ "$OPEN_PRS" != "[]" ]; then
-            # Use Python for safer string matching (prevents injection, handles special chars)
-            MATCHING_PR_NUM=$(python3 << 'PRSEARCH'
-          import json
+          if [ -n "$OPEN_PRS" ]; then
+            echo "Found $(echo "$OPEN_PRS" | wc -w) open PRs, checking which ones modify $TARGET_FILE..."
+
+            for PR_NUM in $OPEN_PRS; do
+              # Get files changed by this PR
+              CHANGED_FILES=$(gh pr view "$PR_NUM" --json files --jq '.files[].path' 2>/dev/null || echo "")
+
+              # Check if this PR modifies the conferences file
+              if echo "$CHANGED_FILES" | grep -q "^${TARGET_FILE}$"; then
+                echo "PR #$PR_NUM modifies $TARGET_FILE, checking if it affects ${CONF_NAME}..."
+
+                # Get the PR diff and search for this conference
+                # Use Python for safe string matching
+                PR_DIFF=$(gh pr diff "$PR_NUM" -- "$TARGET_FILE" 2>/dev/null || echo "")
+
+                if [ -n "$PR_DIFF" ]; then
+                  export PR_DIFF
+                  FOUND=$(python3 << 'DIFFSEARCH'
           import os
-          import sys
           import re
 
           conf_name = os.environ.get('CONF_NAME', '').lower()
-          conf_url = os.environ.get('CONF_URL', '').lower()
-          prs_json = os.environ.get('OPEN_PRS', '[]')
+          diff_content = os.environ.get('PR_DIFF', '').lower()
 
-          try:
-              prs = json.loads(prs_json)
-          except json.JSONDecodeError:
-              sys.exit(0)
-
-          # Create search patterns from conference name
-          # Handle names like "PyCon US 2026" -> search for "pycon us", "pycon-us", "pyconus"
+          # Normalize conference name for matching
+          # "PyCon US" -> also match "pycon us", "pycon-us", etc.
           conf_slug = re.sub(r'[^a-z0-9]+', '-', conf_name).strip('-')
           conf_compact = re.sub(r'[^a-z0-9]+', '', conf_name)
 
-          # Extract domain from URL for matching
-          url_domain = ""
-          if conf_url:
-              import urllib.parse
-              parsed = urllib.parse.urlparse(conf_url)
-              url_domain = parsed.netloc.lower().replace('www.', '')
-
-          for pr in prs:
-              title = (pr.get('title') or '').lower()
-              body = (pr.get('body') or '').lower()
-              branch = (pr.get('headRefName') or '').lower()
-
-              # Check if conference name appears in PR
-              if (conf_name in title or
-                  conf_name in body or
-                  conf_slug in title or
-                  conf_slug in branch or
-                  conf_compact in title or
-                  conf_compact in branch or
-                  (url_domain and url_domain in body)):
-                  print(pr.get('number', ''))
-                  break
-          PRSEARCH
+          # Check if this conference appears in the diff
+          if (conf_name in diff_content or
+              conf_slug in diff_content or
+              conf_compact in diff_content):
+              print("FOUND")
+          DIFFSEARCH
           )
+
+                  if [ "$FOUND" = "FOUND" ]; then
+                    MATCHING_PR_NUM="$PR_NUM"
+                    echo "PR #$PR_NUM modifies ${CONF_NAME}"
+                    break
+                  fi
+                fi
+              fi
+            done
+
+            if [ -z "$MATCHING_PR_NUM" ]; then
+              echo "Checked all PRs - none modify ${CONF_NAME} in $TARGET_FILE"
+            fi
+          else
+            echo "No open PRs found"
           fi
 
           if [ -n "$MATCHING_PR_NUM" ]; then
@@ -235,7 +239,6 @@ jobs:
             exit 0
           fi
 
-          echo "No matching open PRs found by conference name search"
           echo "::endgroup::"
 
           # Also check the accumulator branch for pending commits
