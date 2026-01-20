@@ -217,7 +217,12 @@ def build_enrichment_prompt(
         fields_to_extract = ["cfp"]
         field_instructions = """
 Extract ONLY the CFP (Call for Proposals) deadline date.
-Format: 'YYYY-MM-DD HH:mm:ss' (use 23:59:00 if no time specified)
+Convert to format: 'YYYY-MM-DD HH:mm:ss' (use 23:59:00 if no time specified)
+
+Date formats you may encounter:
+- "February 8, 2026" → "2026-02-08 23:59:00"
+- "8th of February 2026 at 23:59 CET" → "2026-02-08 23:59:00"
+- "2026-02-08" → "2026-02-08 23:59:00"
 """
     else:
         fields_to_extract = [
@@ -231,13 +236,18 @@ Format: 'YYYY-MM-DD HH:mm:ss' (use 23:59:00 if no time specified)
         ]
         field_instructions = """
 Extract the following fields if found:
-- cfp: CFP deadline date (format: 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
+- cfp: CFP deadline date (convert to 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
 - workshop_deadline: Workshop submission deadline (same format)
 - tutorial_deadline: Tutorial submission deadline (same format)
 - finaid: Financial aid application URL
 - sponsor: Sponsorship information URL
 - mastodon: Mastodon profile URL (full URL, e.g., https://fosstodon.org/@pycon)
 - bluesky: Bluesky profile URL (full URL, e.g., https://bsky.app/profile/pycon.bsky.social)
+
+Date formats you may encounter (convert all to YYYY-MM-DD HH:mm:ss):
+- "February 8, 2026" → "2026-02-08 23:59:00"
+- "8th of February 2026 at 23:59 CET" → "2026-02-08 23:59:00"
+- "Feb 8" (current year context) → "2026-02-08 23:59:00"
 """
 
     conference_sections = []
@@ -267,11 +277,16 @@ Analyze the following Python conference websites and extract CFP (Call for Propo
 
 IMPORTANT RULES:
 1. Only extract dates that are EXPLICITLY stated on the website
-2. Do NOT guess or approximate dates
+2. Do NOT guess or approximate dates - if unsure, set status to "not_announced"
 3. If a deadline says "TBA", "coming soon", or is not found, set status to "not_announced"
-4. If you find partial information, set status to "partial"
-5. Assign confidence scores (0.0-1.0) based on how clearly the information is stated
-6. For URLs, only include if they appear to be valid absolute URLs
+4. Use status "found" when you have extracted all requested date fields with clear values
+5. Use status "partial" ONLY when some fields are found but others are missing
+6. CONFIDENCE SCORING:
+   - 0.9-1.0: Date is clearly and unambiguously stated (even if in human-readable format)
+   - 0.7-0.9: Date is stated but requires interpretation (e.g., relative dates)
+   - 0.5-0.7: Date is implied or uncertain
+   - Below 0.5: Do not include - set status to "not_announced" instead
+7. For URLs, only include if they appear to be valid absolute URLs
 
 Fields to extract: {', '.join(fields_to_extract)}
 
