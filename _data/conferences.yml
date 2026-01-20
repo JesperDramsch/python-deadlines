@@ -357,11 +357,13 @@
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
+  cfp_link: https://pycon-kenya-2025.sessionize.com/
   cfp: TBA
   timezone: Africa/Nairobi
   place: Nairobi, Kenya
   start: 2026-08-28
   end: 2026-08-29
+  sponsor: https://www.pycon.ke/sponsors
   sub: PY
   location:
   - title: PyCon Kenya 2026
@@ -403,6 +405,7 @@
   place: Brussels, Belgium
   start: 2026-01-31
   end: 2026-01-31
+  sponsor: https://fosdem.org/2026/about/sponsors/
   sub: PY
   location:
   - title: FOSDEM 2026
