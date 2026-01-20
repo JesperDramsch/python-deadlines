@@ -349,9 +349,8 @@ def extract_links_from_url(url: str) -> dict[str, str]:
             # Skip Twitter/X domains (exact host or subdomains only)
             if (
                 domain == "twitter.com"
-                or domain.endswith(".twitter.com")
+                or domain.endswith((".x.com", ".twitter.com"))
                 or domain == "x.com"
-                or domain.endswith(".x.com")
             ):
                 pass
             elif domain in MASTODON_INSTANCES or "mastodon" in domain or "toot" in domain:
