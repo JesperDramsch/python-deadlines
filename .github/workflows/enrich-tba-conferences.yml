@@ -103,13 +103,10 @@ jobs:
           # Count TBA conferences
           TBA_COUNT=$(python3 << 'PYCOUNT'
           import yaml
-          import sys
-          sys.path.insert(0, 'utils')
-          from tidy_conf.utils import Loader
 
           tba_words = ["tba", "tbd", "cancelled", "none", "na", "n/a", "nan", "n.a."]
           with open("_data/conferences.yml") as f:
-              conferences = yaml.load(f, Loader=Loader) or []
+              conferences = yaml.safe_load(f) or []
 
           count = sum(1 for c in conferences if str(c.get("cfp", "")).lower().strip() in tba_words)
           print(count)
