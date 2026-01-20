@@ -16,7 +16,7 @@
     latitude: 37.7681571
     longitude: -122.392929
 
-- conference: DjangoCon USA
+- conference: DjangoCon US
   year: 2026
   link: https://2026.djangocon.us/
   cfp_link: https://pretalx.com/djangocon-us-2026/cfp
@@ -62,7 +62,7 @@
     latitude: 59.4372155
     longitude: 24.7453688
 
-- conference: SciPy USA
+- conference: SciPy US
   alt_name: SciPy
   year: 2026
   link: https://www.scipy2026.scipy.org/
@@ -216,7 +216,7 @@
     latitude: 49.872775
     longitude: 8.651177
 
-- conference: PyCon USA
+- conference: PyCon US
   year: 2026
   link: https://us.pycon.org/2026/
   cfp_link: https://us.pycon.org/2026/speaking/talks/
