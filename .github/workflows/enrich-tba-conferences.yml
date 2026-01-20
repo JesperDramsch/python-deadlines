@@ -1,0 +1,288 @@
+name: Enrich TBA Conferences
+
+on:
+  # Manual trigger or called by canonical-source-update
+  workflow_dispatch:
+    inputs:
+      enrichment_level:
+        description: 'Enrichment level'
+        type: choice
+        options: ['full', 'quick']
+        default: 'full'
+      dry_run:
+        description: 'Dry run (no commit/PR)'
+        required: false
+        type: boolean
+        default: false
+
+  # Weekly TBA checker (quick mode)
+  schedule:
+    - cron: '0 6 * * 0'  # Sunday 6 AM UTC
+
+# Prevent concurrent runs to avoid merge conflicts on the accumulator branch
+concurrency:
+  group: enrich-tba-conferences
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  UPDATE_BRANCH: auto/conference-updates
+
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Determine enrichment level
+        id: config
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_LEVEL: ${{ inputs.enrichment_level }}
+        run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            echo "level=quick" >> $GITHUB_OUTPUT
+            echo "::notice title=Scheduled Run::Using quick enrichment mode"
+          else
+            echo "level=${INPUT_LEVEL:-full}" >> $GITHUB_OUTPUT
+            echo "::notice title=Manual Run::Using ${INPUT_LEVEL:-full} enrichment mode"
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+          persist-credentials: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup accumulator branch
+        run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
+          if git ls-remote --heads origin $UPDATE_BRANCH | grep -q $UPDATE_BRANCH; then
+            echo "::notice title=Branch::Checking out existing accumulator branch"
+            git fetch origin $UPDATE_BRANCH
+            git checkout $UPDATE_BRANCH
+
+            # Sync with main - try rebase first, then merge
+            if ! git rebase origin/main; then
+              echo "::warning title=Rebase Failed::Attempting merge instead"
+              git rebase --abort 2>/dev/null || true
+              if ! git merge origin/main --no-edit; then
+                git merge --abort 2>/dev/null || true
+                echo "::error title=Branch Sync Failed::Could not rebase or merge with main"
+                exit 1
+              fi
+            fi
+          else
+            echo "::notice title=Branch::Creating new accumulator branch"
+            git checkout -b $UPDATE_BRANCH
+          fi
+
+      - name: Snapshot data files
+        run: |
+          cp _data/conferences.yml /tmp/conferences_before.yml
+
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.9.3
+
+      - name: Install lynx for text extraction
+        run: sudo apt-get install -qq -y lynx > /dev/null 2>&1 || true
+
+      - name: Find TBA conferences
+        id: find-tba
+        run: |
+          # Count TBA conferences
+          TBA_COUNT=$(python3 << 'PYCOUNT'
+          import yaml
+          import sys
+          sys.path.insert(0, 'utils')
+          from tidy_conf.utils import Loader
+
+          tba_words = ["tba", "tbd", "cancelled", "none", "na", "n/a", "nan", "n.a."]
+          with open("_data/conferences.yml") as f:
+              conferences = yaml.load(f, Loader=Loader) or []
+
+          count = sum(1 for c in conferences if str(c.get("cfp", "")).lower().strip() in tba_words)
+          print(count)
+          PYCOUNT
+          )
+
+          echo "tba_count=$TBA_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$TBA_COUNT" = "0" ]; then
+            echo "::notice title=No TBA::No conferences with TBA CFP found"
+          else
+            echo "::notice title=TBA Found::Found $TBA_COUNT conferences with TBA CFP"
+          fi
+
+          echo "## TBA Conferences" >> $GITHUB_STEP_SUMMARY
+          echo "Found **$TBA_COUNT** conferences with TBA CFP deadlines" >> $GITHUB_STEP_SUMMARY
+
+      - name: Enrich TBA conferences
+        id: enrich
+        if: steps.find-tba.outputs.tba_count != '0'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ENRICHMENT_LEVEL: ${{ steps.config.outputs.level }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          echo "::group::Running enrichment"
+
+          # Build command
+          CMD="pixi run python utils/enrich_tba.py --level $ENRICHMENT_LEVEL"
+          if [ "$DRY_RUN" = "true" ]; then
+            CMD="$CMD --dry-run"
+          fi
+
+          # Run enrichment
+          if $CMD; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "::error title=Enrichment Failed::TBA enrichment script failed"
+          fi
+
+          echo "::endgroup::"
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if ! diff -q _data/conferences.yml /tmp/conferences_before.yml > /dev/null 2>&1; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "::notice title=Changes Detected::Conference data was updated"
+
+            # Show summary of changes
+            echo "## Changes" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`diff" >> $GITHUB_STEP_SUMMARY
+            diff -u /tmp/conferences_before.yml _data/conferences.yml | head -100 >> $GITHUB_STEP_SUMMARY || true
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "::notice title=No Changes::No updates from TBA enrichment"
+            echo "## No Changes" >> $GITHUB_STEP_SUMMARY
+            echo "TBA enrichment did not find any new CFP data to update." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Validate and sort
+        if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
+        run: pixi run sort
+
+      - name: Commit and push
+        if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
+        id: commit
+        env:
+          ENRICHMENT_LEVEL: ${{ steps.config.outputs.level }}
+        run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
+          # Stage data files
+          git add _data/conferences.yml _data/archive.yml _data/legacy.yml 2>/dev/null || git add _data/conferences.yml
+
+          # Create descriptive commit message
+          COMMIT_MSG="chore: enrich TBA conferences with CFP data"
+
+          git commit -m "$COMMIT_MSG" -m "Enrichment level: $ENRICHMENT_LEVEL" -m "Triggered: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push origin $UPDATE_BRANCH --force-with-lease
+
+          echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+
+      - name: Create or update PR
+        if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
+        uses: actions/github-script@v8
+        env:
+          UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
+          COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
+          ENRICHMENT_LEVEL: ${{ steps.config.outputs.level }}
+        with:
+          script: |
+            const branch = process.env.UPDATE_BRANCH;
+            const sha = process.env.COMMIT_SHA.substring(0, 7);
+            const level = process.env.ENRICHMENT_LEVEL;
+            const date = new Date().toISOString().split('T')[0];
+
+            // Check for existing PR from the update branch
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head: `${context.repo.owner}:${branch}`,
+              state: 'open'
+            });
+
+            // Use same table format as other workflows
+            const entry = `| TBA Enrichment (${level}) | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
+
+            if (prs.length > 0) {
+              // Update existing PR - append to table
+              const pr = prs[0];
+              let body = pr.body || '';
+
+              // Add entry before the END_UPDATES marker
+              body = body.replace(/(<!-- END_UPDATES -->)/, `${entry}\n$1`);
+
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                body
+              });
+
+              console.log(`Updated PR #${pr.number}`);
+              core.notice(`Updated PR #${pr.number} with TBA enrichment`);
+            } else {
+              // Create new PR
+              const { data: newPr } = await github.rest.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Conference updates',
+                head: branch,
+                base: 'main',
+                body: `## Automated Conference Updates\n\n| Conference | Commit | Date |\n|------------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
+              });
+
+              // Add labels
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: newPr.number,
+                labels: ['automated', 'conference-update']
+              });
+
+              console.log(`Created PR #${newPr.number}`);
+              core.notice(`Created PR #${newPr.number} for TBA enrichment`);
+            }
+
+      - name: Summary
+        if: always()
+        env:
+          TBA_COUNT: ${{ steps.find-tba.outputs.tba_count }}
+          CHANGED: ${{ steps.check_changes.outputs.changed }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          LEVEL: ${{ steps.config.outputs.level }}
+        run: |
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Result" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$TBA_COUNT" = "0" ]; then
+            echo "- Status: No TBA conferences to process" >> $GITHUB_STEP_SUMMARY
+          elif [ "$CHANGED" = "true" ]; then
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "- Status: Changes detected (dry run - not committed)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "- Status: Changes committed and PR updated" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- Status: No new CFP data found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "- Enrichment level: $LEVEL" >> $GITHUB_STEP_SUMMARY
+          echo "- TBA conferences scanned: $TBA_COUNT" >> $GITHUB_STEP_SUMMARY

@@ -56,6 +56,9 @@ ignore = [
 
 ]
 
+[lint.per-file-ignores]
+# S603: subprocess with validated URL input for lynx text extraction
+"utils/enrich_tba.py" = ["S603"]
 
 [lint.pydocstyle]
 convention = "numpy"

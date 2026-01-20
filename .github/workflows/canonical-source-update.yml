@@ -283,6 +283,16 @@ jobs:
               core.notice(`Created PR #${newPr.number} for canonical source merge`);
             }
 
+      - name: Trigger TBA enrichment
+        if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "::notice title=Triggering TBA Enrichment::Starting TBA conference enrichment workflow"
+          gh workflow run enrich-tba-conferences.yml -f enrichment_level=full || {
+            echo "::warning title=Trigger Failed::Could not trigger TBA enrichment workflow"
+          }
+
       - name: Summary
         if: always()
         env:
@@ -298,6 +308,7 @@ jobs:
               echo "- Status: Changes detected (dry run - not committed)" >> $GITHUB_STEP_SUMMARY
             else
               echo "- Status: ✅ Changes committed and PR updated" >> $GITHUB_STEP_SUMMARY
+              echo "- TBA Enrichment: Triggered" >> $GITHUB_STEP_SUMMARY
             fi
           else
             echo "- Status: ✓ No new data from canonical sources" >> $GITHUB_STEP_SUMMARY
