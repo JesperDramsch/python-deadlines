@@ -467,10 +467,12 @@ def apply_updates(
         if update.status not in ("found", "partial"):
             continue
 
-        # Find matching conference
+        # Find matching conference (strip year suffix if Claude included it)
         matching = None
+        update_name = update.conference.lower().replace(str(update.year), "").strip()
         for i, conf in enumerate(conferences):
-            if conf.get("conference", "").lower() == update.conference.lower() and conf.get("year") == update.year:
+            conf_name = conf.get("conference", "").lower()
+            if (conf_name == update_name or conf_name == update.conference.lower()) and conf.get("year") == update.year:
                 matching = i
                 break
 
