@@ -193,6 +193,19 @@ jobs:
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
 
+      - name: Read review items
+        id: review
+        run: |
+          if [ -f ".github/enrichment_review.md" ]; then
+            echo "has_review=true" >> $GITHUB_OUTPUT
+            # Use delimiter for multiline output
+            echo "review_content<<EOF" >> $GITHUB_OUTPUT
+            cat .github/enrichment_review.md >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "has_review=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
         uses: actions/github-script@v8
@@ -200,12 +213,16 @@ jobs:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
           ENRICHMENT_LEVEL: ${{ steps.config.outputs.level }}
+          HAS_REVIEW: ${{ steps.review.outputs.has_review }}
+          REVIEW_CONTENT: ${{ steps.review.outputs.review_content }}
         with:
           script: |
             const branch = process.env.UPDATE_BRANCH;
             const sha = process.env.COMMIT_SHA.substring(0, 7);
             const level = process.env.ENRICHMENT_LEVEL;
             const date = new Date().toISOString().split('T')[0];
+            const hasReview = process.env.HAS_REVIEW === 'true';
+            const reviewContent = process.env.REVIEW_CONTENT || '';
 
             // Check for existing PR from the update branch
             const { data: prs } = await github.rest.pulls.list({
@@ -226,6 +243,24 @@ jobs:
               // Add entry before the END_UPDATES marker
               body = body.replace(/(<!-- END_UPDATES -->)/, `${entry}\n$1`);
 
+              // Update or add review section
+              if (hasReview && reviewContent) {
+                const reviewMarker = '<!-- REVIEW_ITEMS -->';
+                const reviewEndMarker = '<!-- END_REVIEW_ITEMS -->';
+                const reviewSection = `${reviewMarker}\n${reviewContent}\n${reviewEndMarker}`;
+
+                if (body.includes(reviewMarker)) {
+                  // Replace existing review section
+                  body = body.replace(
+                    new RegExp(`${reviewMarker}[\\s\\S]*?${reviewEndMarker}`),
+                    reviewSection
+                  );
+                } else {
+                  // Add review section before END_UPDATES
+                  body = body.replace(/(<!-- END_UPDATES -->)/, `\n${reviewSection}\n\n$1`);
+                }
+              }
+
               await github.rest.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -236,14 +271,20 @@ jobs:
               console.log(`Updated PR #${pr.number}`);
               core.notice(`Updated PR #${pr.number} with TBA enrichment`);
             } else {
-              // Create new PR
+              // Create new PR with review items if present
+              let prBody = `## Automated Conference Updates\n\n| Source | Commit | Date |\n|--------|--------|------|\n${entry}\n<!-- END_UPDATES -->`;
+
+              if (hasReview && reviewContent) {
+                prBody = `## Automated Conference Updates\n\n| Source | Commit | Date |\n|--------|--------|------|\n${entry}\n<!-- END_UPDATES -->\n\n<!-- REVIEW_ITEMS -->\n${reviewContent}\n<!-- END_REVIEW_ITEMS -->`;
+              }
+
               const { data: newPr } = await github.rest.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: 'Conference updates',
                 head: branch,
                 base: 'main',
-                body: `## Automated Conference Updates\n\n| Conference | Commit | Date |\n|------------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
+                body: prBody
               });
 
               // Add labels

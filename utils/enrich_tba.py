@@ -12,9 +12,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import shutil
 import subprocess  # noqa: S404 - subprocess is required for lynx text extraction
 import sys
+import zoneinfo
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
@@ -36,6 +38,11 @@ CONFIDENCE_THRESHOLD_AUTO = 0.8
 CONFIDENCE_THRESHOLD_REVIEW = 0.5
 ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 MAX_CONTENT_LENGTH = 15000  # Max characters per conference website
+
+# Field type categorization for validation
+URL_FIELDS = {"sponsor", "finaid", "mastodon", "bluesky", "cfp_link"}
+DATE_FIELDS = {"cfp", "workshop_deadline", "tutorial_deadline"}
+TIMEZONE_FIELD = "timezone"
 
 
 @dataclass
@@ -66,6 +73,50 @@ class EnrichmentResult:
     summary: dict[str, int] = field(default_factory=dict)
 
 
+def validate_field_value(field_name: str, value: str) -> tuple[bool, str]:
+    """Validate that a field value matches expected format.
+
+    Parameters
+    ----------
+    field_name : str
+        Name of the field being validated
+    value : str
+        Value to validate
+
+    Returns
+    -------
+    tuple[bool, str]
+        (is_valid, reason) - True if valid, False with reason if not
+    """
+    if not value or not value.strip():
+        return False, "Empty value"
+
+    value = value.strip()
+
+    if field_name in URL_FIELDS:
+        if not value.startswith(("https://", "http://")):
+            return False, f"URL must start with https:// or http://, got: {value[:50]}"
+        return True, ""
+
+    if field_name in DATE_FIELDS:
+        if not re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", value):
+            return False, f"Date must be YYYY-MM-DD HH:mm:ss format, got: {value}"
+        return True, ""
+
+    if field_name == TIMEZONE_FIELD:
+        # Must be valid IANA timezone with slash (reject abbreviations)
+        if "/" not in value:
+            return False, f"Timezone must be IANA format with slash (e.g., America/Chicago), got: {value}"
+        try:
+            zoneinfo.ZoneInfo(value)
+            return True, ""
+        except zoneinfo.ZoneInfoNotFoundError:
+            return False, f"Invalid IANA timezone: {value}"
+
+    # Unknown field type - allow it
+    return True, ""
+
+
 def find_tba_conferences(data_path: Path | None = None) -> list[dict[str, Any]]:
     """Find all conferences with TBA CFP deadlines.
 
@@ -79,7 +130,7 @@ def find_tba_conferences(data_path: Path | None = None) -> list[dict[str, Any]]:
     list[dict[str, Any]]
         List of conference dicts with TBA CFP deadlines
     """
-    logger = get_logger(__name__)
+    logger = get_logger()
 
     if data_path is None:
         data_path = Path("_data/conferences.yml")
@@ -117,7 +168,7 @@ def prefetch_website(url: str, timeout: int = 30) -> str:
     str
         Cleaned text content from the website
     """
-    logger = get_logger(__name__)
+    logger = get_logger()
 
     # Validate URL before processing
     parsed = urlparse(url)
@@ -159,8 +210,152 @@ def prefetch_website(url: str, timeout: int = 30) -> str:
         return f"Error fetching website: {e}"
 
 
+def find_cfp_links(html: str, base_url: str) -> list[str]:
+    """Find CFP-related links in HTML content.
+
+    Parameters
+    ----------
+    html : str
+        Raw HTML content
+    base_url : str
+        Base URL for resolving relative links
+
+    Returns
+    -------
+    list[str]
+        List of absolute URLs to CFP-related pages
+    """
+    from urllib.parse import urljoin
+
+    # Keywords that suggest a CFP/speaker page (multilingual)
+    cfp_keywords = [
+        # English - core
+        "cfp",
+        "call-for",
+        "callfor",
+        "call_for",
+        "speaker",
+        "proposal",
+        "submit",
+        "submission",
+        "contribute",
+        "talk",
+        "present",
+        # English - academic/extended
+        "abstract",
+        "paper",
+        "papers",
+        "apply",
+        "application",
+        "participate",
+        "deadline",
+        "deadlines",
+        "important-dates",
+        "dates",
+        "lightning",
+        "poster",
+        "tutorial",
+        "workshop",
+        "session",
+        # Spanish (convocatoria=call, ponente=speaker, propuesta=proposal, enviar=submit,
+        #          fechas=dates, participar=participate)
+        "convocatoria",
+        "ponente",
+        "propuesta",
+        "enviar",
+        "fechas",
+        "participar",
+        # German (einreichung=submission, vortrag=talk, sprecher=speaker, beitrag=contribution,
+        #         aufruf=call, teilnehmen=participate, termine=dates, wichtige-termine=important-dates)
+        "einreichung",
+        "vortrag",
+        "sprecher",
+        "beitrag",
+        "aufruf",
+        "teilnehmen",
+        "termine",
+        "wichtige-termine",
+        # Portuguese (chamada=call, palestrante=speaker, proposta=proposal,
+        #             submissão=submission, participar=participate, datas=dates)
+        "chamada",
+        "palestrante",
+        "proposta",
+        "submissao",
+        "submissão",
+        "participar",
+        "datas",
+        # French (appel=call, orateur=speaker, soumission=submission, conférencier=lecturer,
+        #         participer=participate, dates-importantes=important-dates)
+        "appel",
+        "orateur",
+        "soumission",
+        "conferencier",
+        "conférencier",
+        "participer",
+        "dates-importantes",
+        # Japanese romanized (happyo=発表=presentation, oubo=応募=application,
+        #                     teishutsu=提出=submission, kouen=講演=lecture, boshu=募集=recruitment)
+        "happyo",
+        "oubo",
+        "teishutsu",
+        "kouen",
+        "boshu",
+        # Chinese romanized (zhenggao=征稿=call-for-papers, yanjiang=演讲=speech,
+        #                    tijiao=提交=submit, tougao=投稿=contribute)
+        "zhenggao",
+        "yanjiang",
+        "tijiao",
+        "tougao",
+        # Dutch (inzending=submission, spreker=speaker, voorstel=proposal, deelnemen=participate)
+        "inzending",
+        "spreker",
+        "voorstel",
+        "deelnemen",
+        # Italian (proposta=proposal, relatore=speaker, invio=submission, partecipare=participate)
+        "proposta",
+        "relatore",
+        "invio",
+        "partecipare",
+        # Polish (zgłoszenie=submission, prelegent=speaker, referat=paper, wystąpienie=presentation)
+        "zgloszenie",
+        "prelegent",
+        "referat",
+        "wystapienie",
+        # Russian romanized (doklad=доклад=report/talk, zayavka=заявка=application,
+        #                    vystuplenie=выступление=presentation, uchastie=участие=participation)
+        "doklad",
+        "zayavka",
+        "vystuplenie",
+        "uchastie",
+    ]
+
+    # Find all href links
+    link_pattern = re.compile(r'href=["\']([^"\']+)["\']', re.IGNORECASE)
+    links = link_pattern.findall(html)
+
+    cfp_links = []
+    seen = set()
+
+    for link in links:
+        link_lower = link.lower()
+
+        # Check if link contains CFP-related keywords
+        if any(kw in link_lower for kw in cfp_keywords):
+            # Resolve relative URLs
+            absolute_url = urljoin(base_url, link)
+
+            # Skip fragments, mailto, javascript, etc.
+            if absolute_url.startswith(("http://", "https://")) and absolute_url not in seen:
+                seen.add(absolute_url)
+                cfp_links.append(absolute_url)
+
+    return cfp_links[:3]  # Limit to 3 CFP pages max
+
+
 def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
     """Pre-fetch website content for multiple conferences.
+
+    Also fetches CFP-related subpages if found on the main page.
 
     Parameters
     ----------
@@ -172,13 +367,14 @@ def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
     dict[str, str]
         Dict mapping conference key (name_year) to website content
     """
-    logger = get_logger(__name__)
+    logger = get_logger()
     content_map: dict[str, str] = {}
 
     for conf in conferences:
         name = conf.get("conference", "Unknown")
         year = conf.get("year", 0)
         url = conf.get("link", "")
+        cfp_link = conf.get("cfp_link", "")  # Use explicit cfp_link if available
         key = f"{name}_{year}"
 
         if not url:
@@ -187,7 +383,48 @@ def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
             continue
 
         logger.info(f"Fetching: {url}")
-        content_map[key] = prefetch_website(url)
+
+        # First, get raw HTML to find CFP links
+        try:
+            response = requests.get(
+                url,
+                timeout=30,
+                headers={"User-Agent": "python-deadlines-bot/1.0"},
+            )
+            response.raise_for_status()
+            raw_html = response.text
+        except requests.RequestException as e:
+            logger.warning(f"Failed to fetch HTML from {url}: {e}")
+            raw_html = ""
+
+        # Get main page content
+        main_content = prefetch_website(url)
+
+        # Find and fetch CFP-related subpages
+        additional_content = []
+
+        # If cfp_link is explicitly set, prioritize it
+        cfp_links_to_fetch = []
+        if cfp_link:
+            cfp_links_to_fetch.append(cfp_link)
+
+        # Also look for CFP links in the HTML
+        if raw_html:
+            found_links = find_cfp_links(raw_html, url)
+            for link in found_links:
+                if link not in cfp_links_to_fetch and link != url:
+                    cfp_links_to_fetch.append(link)
+
+        # Fetch CFP subpages (limit to 2 to avoid too much content)
+        for cfp_url in cfp_links_to_fetch[:2]:
+            logger.debug(f"  Also fetching CFP page: {cfp_url}")
+            cfp_content = prefetch_website(cfp_url)
+            if cfp_content and not cfp_content.startswith("Error"):
+                additional_content.append(f"\n\n--- CFP Page ({cfp_url}) ---\n{cfp_content}")
+
+        # Combine all content
+        combined = main_content + "".join(additional_content)
+        content_map[key] = combined[:MAX_CONTENT_LENGTH]
 
     return content_map
 
@@ -229,6 +466,7 @@ Date formats you may encounter:
             "cfp",
             "workshop_deadline",
             "tutorial_deadline",
+            "timezone",
             "finaid",
             "sponsor",
             "mastodon",
@@ -236,15 +474,25 @@ Date formats you may encounter:
         ]
         field_instructions = """
 Extract the following fields if found:
-- cfp: CFP deadline date (convert to 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
-- workshop_deadline: Workshop submission deadline (same format)
-- tutorial_deadline: Tutorial submission deadline (same format)
-- finaid: Financial aid application URL
-- sponsor: Sponsorship information URL
-- mastodon: Mastodon profile URL (full URL, e.g., https://fosstodon.org/@pycon)
-- bluesky: Bluesky profile URL (full URL, e.g., https://bsky.app/profile/pycon.bsky.social)
+- cfp: CFP deadline date (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
+- workshop_deadline: Workshop submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
+- tutorial_deadline: Tutorial submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
+- timezone: Conference timezone (MUST be IANA format with slash, e.g., 'America/Chicago', 'Europe/Berlin')
+  - NEVER use abbreviations like EST, CEST, PST, UTC - ONLY full IANA names with slash
+- finaid: Financial aid application URL (MUST start with https://)
+- sponsor: Sponsorship information URL (MUST start with https://)
+- mastodon: Mastodon profile URL (MUST be full https:// URL like https://fosstodon.org/@pycon)
+- bluesky: Bluesky profile URL (MUST be full https:// URL like https://bsky.app/profile/pycon.bsky.social)
 
-Date formats you may encounter (convert all to YYYY-MM-DD HH:mm:ss):
+CRITICAL RULES FOR VALUES:
+- URL fields (finaid, sponsor, mastodon, bluesky): ONLY include if you find an actual URL starting with https://
+  - If you only find descriptive text like "Sponsorship available", DO NOT include it
+  - The value MUST be a valid URL, not a description
+- Date fields (cfp, workshop_deadline, tutorial_deadline): MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
+- Timezone: MUST be IANA format with slash (America/New_York), NEVER abbreviations (EST, CEST)
+- Leave field EMPTY (do not include it) if you only find descriptive text, not the actual value
+
+Date conversion examples:
 - "February 8, 2026" → "2026-02-08 23:59:00"
 - "8th of February 2026 at 23:59 CET" → "2026-02-08 23:59:00"
 - "Feb 8" (current year context) → "2026-02-08 23:59:00"
@@ -344,7 +592,7 @@ def call_claude_api(
     dict[str, Any] | None
         Parsed JSON response or None on error
     """
-    logger = get_logger(__name__)
+    logger = get_logger()
 
     headers = {
         "x-api-key": api_key,
@@ -371,6 +619,13 @@ def call_claude_api(
                 result = response.json()
                 content = result.get("content", [{}])[0].get("text", "")
 
+                # Debug: Log the raw API response
+                logger.debug("=" * 80)
+                logger.debug("RAW CLAUDE API RESPONSE:")
+                logger.debug("=" * 80)
+                logger.debug(content)
+                logger.debug("=" * 80)
+
                 # Log token usage
                 usage = result.get("usage", {})
                 logger.info(
@@ -383,7 +638,9 @@ def call_claude_api(
                     json_start = content.find("{")
                     json_end = content.rfind("}") + 1
                     if json_start >= 0 and json_end > json_start:
-                        return json.loads(content[json_start:json_end])
+                        parsed_json = json.loads(content[json_start:json_end])
+                        logger.debug("Successfully parsed JSON from response")
+                        return parsed_json
                     logger.error("No valid JSON found in response")
                     return None
                 except json.JSONDecodeError as e:
@@ -420,32 +677,47 @@ def parse_response(response: dict[str, Any]) -> EnrichmentResult:
     EnrichmentResult
         EnrichmentResult with parsed updates
     """
+    logger = get_logger()
     result = EnrichmentResult()
 
     if not response:
+        logger.debug("Empty response received")
         return result
 
     result.summary = response.get("summary", {})
+    logger.debug(f"Response summary: {result.summary}")
 
     for conf_data in response.get("conferences", []):
+        conf_name = conf_data.get("conference", "")
+        conf_year = conf_data.get("year", 0)
+        conf_status = conf_data.get("status", "error")
+
+        logger.debug(f"Parsing conference: {conf_name} {conf_year} (status: {conf_status})")
+
         fields = {}
         for field_name, field_data in conf_data.get("fields", {}).items():
             if isinstance(field_data, dict):
+                field_value = field_data.get("value", "")
+                field_confidence = field_data.get("confidence", 0.0)
                 fields[field_name] = FieldUpdate(
-                    value=field_data.get("value", ""),
-                    confidence=field_data.get("confidence", 0.0),
+                    value=field_value,
+                    confidence=field_confidence,
+                )
+                logger.debug(
+                    f"  Parsed field: {field_name} = '{field_value}' (confidence: {field_confidence:.2f})",
                 )
 
         update = ConferenceUpdate(
-            conference=conf_data.get("conference", ""),
-            year=conf_data.get("year", 0),
-            status=conf_data.get("status", "error"),
+            conference=conf_name,
+            year=conf_year,
+            status=conf_status,
             confidence=conf_data.get("confidence", 0.0),
             fields=fields,
             notes=conf_data.get("notes", ""),
         )
         result.conferences.append(update)
 
+    logger.debug(f"Parsed {len(result.conferences)} conferences from response")
     return result
 
 
@@ -470,7 +742,7 @@ def apply_updates(
     tuple[int, list[str]]
         Tuple of (count of updates applied, list of review items)
     """
-    logger = get_logger(__name__)
+    logger = get_logger()
 
     with data_path.open(encoding="utf-8") as f:
         conferences = yaml.safe_load(f) or []
@@ -498,27 +770,71 @@ def apply_updates(
         conf = conferences[matching]
         changes_made = []
 
+        logger.debug(f"Processing updates for: {update.conference} {update.year}")
+
         for field_name, field_update in update.fields.items():
             if not field_update.value:
+                logger.debug(f"  Skipping {field_name}: empty value")
                 continue
 
+            # Validate field value before applying
+            is_valid, validation_reason = validate_field_value(field_name, field_update.value)
+            if not is_valid:
+                logger.warning(
+                    f"  REJECTED {field_name} for {update.conference} {update.year}: "
+                    f"validation failed - {validation_reason}",
+                )
+                continue
+
+            logger.debug(
+                f"  Field {field_name}: value='{field_update.value}', "
+                f"confidence={field_update.confidence:.2f}, valid={is_valid}",
+            )
+
             if field_update.confidence >= CONFIDENCE_THRESHOLD_AUTO:
-                # Auto-apply high confidence updates
+                # Auto-apply high confidence updates - but ONLY if field is empty/TBA
                 old_value = conf.get(field_name)
+                old_value_str = str(old_value).lower().strip() if old_value else ""
+
+                # Skip if field already has a valid (non-TBA) value
+                if old_value and old_value_str not in TBA_WORDS and old_value_str != "":
+                    # Add to review if the values differ - might be worth checking
+                    if old_value != field_update.value:
+                        review_items.append(
+                            f"⚠️ {update.conference} {update.year}: {field_name} - "
+                            f"existing='{old_value}' vs found='{field_update.value}' "
+                            f"(kept existing, confidence: {field_update.confidence:.2f})",
+                        )
+                        logger.info(
+                            f"  REVIEW {field_name} for {update.conference} {update.year}: "
+                            f"kept '{old_value}', found '{field_update.value}'",
+                        )
+                    else:
+                        logger.debug(
+                            f"  Skipping {field_name}: already has matching value '{old_value}'",
+                        )
+                    continue
+
                 if old_value != field_update.value:
                     conf[field_name] = field_update.value
                     changes_made.append(f"{field_name}: {old_value} -> {field_update.value}")
                     logger.info(
-                        f"Applied {field_name} for {update.conference} {update.year} "
+                        f"APPLIED {field_name} for {update.conference} {update.year}: "
+                        f"'{old_value}' -> '{field_update.value}' "
                         f"(confidence: {field_update.confidence:.2f})",
                     )
+                else:
+                    logger.debug(f"  Skipping {field_name}: value unchanged")
             elif field_update.confidence >= CONFIDENCE_THRESHOLD_REVIEW:
                 # Add to review list
+                logger.debug(f"  Adding {field_name} to review list (confidence below auto threshold)")
                 review_items.append(
                     f"{update.conference} {update.year}: "
                     f"{field_name}={field_update.value} "
                     f"(confidence: {field_update.confidence:.2f})",
                 )
+            else:
+                logger.debug(f"  Skipping {field_name}: confidence {field_update.confidence:.2f} too low")
 
         if changes_made:
             conferences[matching] = conf
@@ -560,7 +876,7 @@ def enrich_tba_conferences(
     """
     import os
 
-    logger = get_logger(__name__)
+    logger = get_logger()
 
     if api_key is None:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
@@ -586,6 +902,14 @@ def enrich_tba_conferences(
     # Step 3: Build and send prompt
     logger.info(f"Calling Claude API with {enrichment_level} enrichment...")
     prompt = build_enrichment_prompt(tba_conferences, content_map, enrichment_level)
+
+    # Debug: Log the full prompt for debugging
+    logger.debug("=" * 80)
+    logger.debug("FULL PROMPT SENT TO CLAUDE API:")
+    logger.debug("=" * 80)
+    logger.debug(prompt)
+    logger.debug("=" * 80)
+
     response = call_claude_api(prompt, api_key)
 
     if not response:
@@ -616,11 +940,34 @@ def enrich_tba_conferences(
         for item in review_items:
             logger.info(f"  - {item}")
 
+        # Build markdown content for PR description
+        review_md = "## 👀 Items for Manual Review\n\n"
+        review_md += "The following items had moderate confidence and need verification:\n\n"
+        for item in review_items:
+            review_md += f"- [ ] {item}\n"
+        review_md += "\nPlease verify these values before merging.\n"
+
+        # Write to a file that can be included in PR descriptions
+        review_file = Path(".github/enrichment_review.md")
+        review_file.parent.mkdir(parents=True, exist_ok=True)
+        review_file.write_text(review_md, encoding="utf-8")
+        logger.info(f"Review items written to {review_file}")
+
         # Write review items to GitHub Actions output if available
         github_output = os.environ.get("GITHUB_OUTPUT")
         if github_output:
             with Path(github_output).open("a") as f:
                 f.write(f"review_items={json.dumps(review_items)}\n")
+                # Also output as multiline for PR body
+                f.write("review_markdown<<EOF\n")
+                f.write(review_md)
+                f.write("EOF\n")
+
+        # Write to GitHub step summary if available
+        github_summary = os.environ.get("GITHUB_STEP_SUMMARY")
+        if github_summary:
+            with Path(github_summary).open("a") as f:
+                f.write(review_md)
 
     return True
 
