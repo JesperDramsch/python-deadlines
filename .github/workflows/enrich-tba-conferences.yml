@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       enrichment_level:
-        description: 'Enrichment level'
+        description: 'quick=deterministic links only (no API), full=links + dates via Claude'
         type: choice
         options: ['full', 'quick']
         default: 'full'
@@ -15,9 +15,9 @@ on:
         type: boolean
         default: false
 
-  # Weekly TBA checker (quick mode)
+  # Daily run - quick mode, except Tuesday which does full (with Claude API)
   schedule:
-    - cron: '0 6 * * 0'  # Sunday 6 AM UTC
+    - cron: '0 6 * * *'  # Daily 6 AM UTC
 
 # Prevent concurrent runs to avoid merge conflicts on the accumulator branch
 concurrency:
@@ -44,8 +44,17 @@ jobs:
           INPUT_LEVEL: ${{ inputs.enrichment_level }}
         run: |
           if [ "$EVENT_NAME" = "schedule" ]; then
-            echo "level=quick" >> $GITHUB_OUTPUT
-            echo "::notice title=Scheduled Run::Using quick enrichment mode"
+            DAY_OF_WEEK=$(date -u +%u)  # 1=Monday, 2=Tuesday, ...
+
+            if [ "$DAY_OF_WEEK" = "2" ]; then
+              # Tuesday = weekly full run with Claude API
+              echo "level=full" >> $GITHUB_OUTPUT
+              echo "::notice title=Tuesday Full Run::Using full enrichment mode (with Claude API)"
+            else
+              # Other days = quick deterministic run
+              echo "level=quick" >> $GITHUB_OUTPUT
+              echo "::notice title=Daily Quick Run::Using quick enrichment mode (deterministic only)"
+            fi
           else
             echo "level=${INPUT_LEVEL:-full}" >> $GITHUB_OUTPUT
             echo "::notice title=Manual Run::Using ${INPUT_LEVEL:-full} enrichment mode"

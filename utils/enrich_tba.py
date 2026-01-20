@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
-"""Enrich TBA conferences by crawling websites and extracting CFP data using Claude API.
+"""Enrich TBA conferences with CFP data from their websites.
 
-This module provides functions to:
-1. Find conferences with TBA CFP deadlines
-2. Pre-fetch conference websites
-3. Call Claude API to extract CFP information
-4. Apply high-confidence updates to conferences.yml
+This module provides two enrichment modes:
+- Quick: Deterministic extraction only (no API) - finds social links, sponsor/finaid URLs
+- Full: Deterministic + Claude API - also extracts CFP dates, deadlines, and timezones
+
+The deterministic extraction handles:
+- Bluesky profiles (bsky.app/profile/...)
+- Mastodon profiles (/@username patterns)
+- Sponsor pages (URLs with sponsor keywords)
+- Financial aid pages (URLs with finaid/scholarship keywords)
+- CFP links (URLs with cfp/submit/proposal keywords)
+
+The Claude API extraction handles:
+- CFP deadlines (date parsing from various formats)
+- Workshop/tutorial deadlines
+- Conference timezones (IANA format)
 """
 
 from __future__ import annotations
@@ -210,23 +220,359 @@ def prefetch_website(url: str, timeout: int = 30) -> str:
         return f"Error fetching website: {e}"
 
 
-def find_cfp_links(html: str, base_url: str) -> list[str]:
-    """Find CFP-related links in HTML content.
+def get_all_links(url: str) -> list[str]:
+    """Get all links from a page using lynx.
 
     Parameters
     ----------
-    html : str
-        Raw HTML content
-    base_url : str
-        Base URL for resolving relative links
+    url : str
+        URL to extract links from
+
+    Returns
+    -------
+    list[str]
+        List of all absolute URLs found on the page
+    """
+    logger = get_logger()
+
+    lynx_path = shutil.which("lynx")
+    if not lynx_path:
+        logger.debug("lynx not available for link extraction")
+        return []
+
+    try:
+        result = subprocess.run(
+            [lynx_path, "-dump", "-listonly", "-nonumbers", url],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+        if result.returncode != 0:
+            logger.debug(f"lynx -listonly failed for {url}: {result.stderr[:100]}")
+            return []
+
+        links = []
+        for line in result.stdout.strip().split("\n"):
+            link = line.strip()
+            if link and link.startswith(("http://", "https://")):
+                links.append(link)
+        return links
+
+    except subprocess.TimeoutExpired:
+        logger.debug(f"lynx -listonly timed out for {url}")
+        return []
+    except Exception as e:
+        logger.debug(f"lynx -listonly error for {url}: {e}")
+        return []
+
+
+# Known Mastodon instances (common ones in tech/Python community)
+MASTODON_INSTANCES = {
+    "mastodon.social",
+    "mastodon.online",
+    "fosstodon.org",
+    "hachyderm.io",
+    "techhub.social",
+    "mstdn.social",
+    "infosec.exchange",
+    "mas.to",
+    "toot.community",
+    "social.coop",
+    "mathstodon.xyz",
+    "scholar.social",
+}
+
+
+def extract_links_from_url(url: str) -> dict[str, str]:
+    """Extract known field values from page links deterministically.
+
+    This function finds social media links, sponsor pages, financial aid pages,
+    and CFP links without using any AI - purely pattern matching.
+
+    Parameters
+    ----------
+    url : str
+        URL to extract links from
+
+    Returns
+    -------
+    dict[str, str]
+        Dict mapping field names to found URLs
+    """
+    logger = get_logger()
+    links = get_all_links(url)
+
+    if not links:
+        return {}
+
+    found: dict[str, str] = {}
+    seen_types: set[str] = set()  # Track which types we've found
+
+    # Pre-parse the base URL for same-domain checks
+    base_domain = urlparse(url).netloc.lower()
+
+    # Sponsor keywords
+    sponsor_keywords = ["sponsor", "sponsorship", "partner", "become-a-sponsor", "sponsoring"]
+
+    # Financial aid keywords
+    finaid_keywords = [
+        "financial-aid",
+        "finaid",
+        "scholarship",
+        "grant",
+        "travel-grant",
+        "travel-funding",
+        "diversity",
+        "assistance",
+        "opportunity-grant",
+        "opportunity-program",
+        "aid-program",
+        "funding",
+    ]
+
+    for link in links:
+        link_lower = link.lower()
+        parsed_link = urlparse(link)
+
+        # Bluesky - always bsky.app/profile/
+        if "bluesky" not in seen_types and "bsky.app/profile/" in link_lower:
+            found["bluesky"] = link
+            seen_types.add("bluesky")
+            logger.debug(f"  Found bluesky: {link}")
+
+        # Mastodon - /@username pattern on known instances or any instance
+        # Exclude Twitter/X which don't use /@, but guard against edge cases
+        elif "mastodon" not in seen_types and "/@" in link:
+            domain = parsed_link.netloc.lower()
+
+            # Skip Twitter/X domains
+            if "twitter.com" in domain or "x.com" in domain:
+                pass
+            elif domain in MASTODON_INSTANCES or "mastodon" in domain or "toot" in domain:
+                found["mastodon"] = link
+                seen_types.add("mastodon")
+                logger.debug(f"  Found mastodon: {link}")
+            elif "/@" in parsed_link.path:
+                # Generic /@username pattern - likely Mastodon-compatible
+                found["mastodon"] = link
+                seen_types.add("mastodon")
+                logger.debug(f"  Found mastodon (generic): {link}")
+
+        # Sponsor page (must be same domain)
+        if (
+            "sponsor" not in seen_types
+            and any(kw in link_lower for kw in sponsor_keywords)
+            and parsed_link.netloc.lower() == base_domain
+        ):
+            found["sponsor"] = link
+            seen_types.add("sponsor")
+            logger.debug(f"  Found sponsor: {link}")
+
+        # Financial aid page (must be same domain)
+        if (
+            "finaid" not in seen_types
+            and any(kw in link_lower for kw in finaid_keywords)
+            and parsed_link.netloc.lower() == base_domain
+        ):
+            found["finaid"] = link
+            seen_types.add("finaid")
+            logger.debug(f"  Found finaid: {link}")
+
+    return found
+
+
+def content_contains_cfp_info(content: str) -> bool:
+    """Check if content contains date-like CFP information.
+
+    This helps validate that a potential CFP link actually leads to a page
+    with submission deadline information, avoiding false positives.
+
+    Parameters
+    ----------
+    content : str
+        Page content to check
+
+    Returns
+    -------
+    bool
+        True if content appears to contain CFP date information
+    """
+    content_lower = content.lower()
+
+    # Must contain deadline-related keywords
+    deadline_keywords = [
+        "deadline",
+        "submit",
+        "submission",
+        "due",
+        "closes",
+        "close",
+        "call for",
+        "cfp",
+        "proposal",
+        "abstract",
+    ]
+
+    has_deadline_keyword = any(kw in content_lower for kw in deadline_keywords)
+    if not has_deadline_keyword:
+        return False
+
+    # Must contain date-like patterns
+    date_patterns = [
+        # Month names (English)
+        r"\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\b",
+        # Month abbreviations
+        r"\b(?:jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)[.\s]",
+        # ISO-like dates: YYYY-MM-DD or DD-MM-YYYY
+        r"\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b",
+        r"\b\d{1,2}[-/]\d{1,2}[-/]\d{4}\b",
+        # Day Month Year: "15 January 2026" or "January 15, 2026"
+        r"\b\d{1,2}\s+(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}\b",
+        r"\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2},?\s+\d{4}\b",
+        # Year patterns near deadline words (e.g., "2026" near "deadline")
+        r"\b202[4-9]\b",
+    ]
+
+    return any(re.search(pattern, content_lower) for pattern in date_patterns)
+
+
+def run_deterministic_extraction(conferences: list[dict[str, Any]]) -> EnrichmentResult:
+    """Run deterministic link extraction on all conferences.
+
+    This extracts social media links, sponsor/finaid pages, and validated CFP links
+    without using AI - purely pattern matching and content validation.
+
+    Parameters
+    ----------
+    conferences : list[dict[str, Any]]
+        List of conference dicts
+
+    Returns
+    -------
+    EnrichmentResult
+        Result with deterministically-found fields (confidence 1.0)
+    """
+    logger = get_logger()
+    result = EnrichmentResult()
+
+    for conf in conferences:
+        name = conf.get("conference", "Unknown")
+        year = conf.get("year", 0)
+        url = conf.get("link", "")
+
+        if not url:
+            continue
+
+        logger.debug(f"Deterministic extraction for {name} {year}")
+        extracted = extract_links_from_url(url)
+
+        # Also try to find and validate CFP link
+        # (can be external domain like Pretalx, SessionizeApp, etc.)
+        if "cfp_link" not in extracted:
+            cfp_links = find_cfp_links(url)
+            for cfp_url in cfp_links:
+                # Skip if same as main URL
+                if cfp_url == url:
+                    continue
+
+                logger.debug(f"  Validating CFP link: {cfp_url}")
+                cfp_content = prefetch_website(cfp_url)
+
+                if cfp_content and not cfp_content.startswith("Error"):
+                    if content_contains_cfp_info(cfp_content):
+                        extracted["cfp_link"] = cfp_url
+                        logger.debug(f"  Validated cfp_link: {cfp_url}")
+                        break
+                    logger.debug(f"  Skipped (no CFP info): {cfp_url}")
+
+        if extracted:
+            # Create ConferenceUpdate with deterministic fields
+            fields = {field_name: FieldUpdate(value=value, confidence=1.0) for field_name, value in extracted.items()}
+
+            update = ConferenceUpdate(
+                conference=name,
+                year=year,
+                status="found" if fields else "not_announced",
+                confidence=1.0,
+                fields=fields,
+                notes="Deterministic extraction (no AI)",
+            )
+            result.conferences.append(update)
+            logger.info(f"  {name} {year}: found {list(extracted.keys())}")
+
+    return result
+
+
+def merge_enrichment_results(deterministic: EnrichmentResult, ai_result: EnrichmentResult) -> EnrichmentResult:
+    """Merge deterministic results with AI results.
+
+    Deterministic results take precedence since they're more reliable.
+
+    Parameters
+    ----------
+    deterministic : EnrichmentResult
+        Results from deterministic extraction
+    ai_result : EnrichmentResult
+        Results from Claude API
+
+    Returns
+    -------
+    EnrichmentResult
+        Merged results
+    """
+    # Create lookup for deterministic results
+    det_lookup: dict[str, ConferenceUpdate] = {}
+    for conf in deterministic.conferences:
+        key = f"{conf.conference}_{conf.year}"
+        det_lookup[key] = conf
+
+    # Merge AI results with deterministic
+    merged_conferences = []
+
+    for ai_conf in ai_result.conferences:
+        key = f"{ai_conf.conference}_{ai_conf.year}"
+        det_conf = det_lookup.pop(key, None)
+
+        if det_conf:
+            # Merge fields - deterministic takes precedence for same field
+            merged_fields = dict(ai_conf.fields)
+            for field_name, field_update in det_conf.fields.items():
+                # Only add deterministic if AI didn't find it or has lower confidence
+                if field_name not in merged_fields or merged_fields[field_name].confidence < 1.0:
+                    merged_fields[field_name] = field_update
+
+            merged_conf = ConferenceUpdate(
+                conference=ai_conf.conference,
+                year=ai_conf.year,
+                status=ai_conf.status,
+                confidence=ai_conf.confidence,
+                fields=merged_fields,
+                notes=ai_conf.notes,
+            )
+            merged_conferences.append(merged_conf)
+        else:
+            merged_conferences.append(ai_conf)
+
+    # Add any remaining deterministic-only results
+    merged_conferences.extend(det_lookup.values())
+
+    return EnrichmentResult(conferences=merged_conferences, summary=ai_result.summary)
+
+
+def find_cfp_links(url: str) -> list[str]:
+    """Find CFP-related links on a page using lynx.
+
+    Parameters
+    ----------
+    url : str
+        URL to extract links from
 
     Returns
     -------
     list[str]
         List of absolute URLs to CFP-related pages
     """
-    from urllib.parse import urljoin
-
     # Keywords that suggest a CFP/speaker page (multilingual)
     cfp_keywords = [
         # English - core
@@ -329,9 +675,9 @@ def find_cfp_links(html: str, base_url: str) -> list[str]:
         "uchastie",
     ]
 
-    # Find all href links
-    link_pattern = re.compile(r'href=["\']([^"\']+)["\']', re.IGNORECASE)
-    links = link_pattern.findall(html)
+    links = get_all_links(url)
+    if not links:
+        return []
 
     cfp_links = []
     seen = set()
@@ -339,15 +685,10 @@ def find_cfp_links(html: str, base_url: str) -> list[str]:
     for link in links:
         link_lower = link.lower()
 
-        # Check if link contains CFP-related keywords
-        if any(kw in link_lower for kw in cfp_keywords):
-            # Resolve relative URLs
-            absolute_url = urljoin(base_url, link)
-
-            # Skip fragments, mailto, javascript, etc.
-            if absolute_url.startswith(("http://", "https://")) and absolute_url not in seen:
-                seen.add(absolute_url)
-                cfp_links.append(absolute_url)
+        # Check if link contains CFP-related keywords and not already seen
+        if any(kw in link_lower for kw in cfp_keywords) and link not in seen:
+            seen.add(link)
+            cfp_links.append(link)
 
     return cfp_links[:3]  # Limit to 3 CFP pages max
 
@@ -384,20 +725,7 @@ def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
 
         logger.info(f"Fetching: {url}")
 
-        # First, get raw HTML to find CFP links
-        try:
-            response = requests.get(
-                url,
-                timeout=30,
-                headers={"User-Agent": "python-deadlines-bot/1.0"},
-            )
-            response.raise_for_status()
-            raw_html = response.text
-        except requests.RequestException as e:
-            logger.warning(f"Failed to fetch HTML from {url}: {e}")
-            raw_html = ""
-
-        # Get main page content
+        # Get main page content (uses lynx)
         main_content = prefetch_website(url)
 
         # Find and fetch CFP-related subpages
@@ -408,12 +736,11 @@ def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
         if cfp_link:
             cfp_links_to_fetch.append(cfp_link)
 
-        # Also look for CFP links in the HTML
-        if raw_html:
-            found_links = find_cfp_links(raw_html, url)
-            for link in found_links:
-                if link not in cfp_links_to_fetch and link != url:
-                    cfp_links_to_fetch.append(link)
+        # Also look for CFP links using lynx -listonly
+        found_links = find_cfp_links(url)
+        for link in found_links:
+            if link not in cfp_links_to_fetch and link != url:
+                cfp_links_to_fetch.append(link)
 
         # Fetch CFP subpages (limit to 2 to avoid too much content)
         for cfp_url in cfp_links_to_fetch[:2]:
@@ -432,9 +759,11 @@ def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
 def build_enrichment_prompt(
     conferences: list[dict[str, Any]],
     content_map: dict[str, str],
-    enrichment_level: str = "full",
 ) -> str:
-    """Build the Claude API prompt for batch enrichment.
+    """Build the Claude API prompt for date/timezone extraction.
+
+    Note: URL fields (bluesky, mastodon, sponsor, finaid, cfp_link) are handled
+    deterministically and don't need AI extraction.
 
     Parameters
     ----------
@@ -442,55 +771,30 @@ def build_enrichment_prompt(
         List of conference dicts with TBA CFP
     content_map : dict[str, str]
         Dict mapping conference key to website content
-    enrichment_level : str
-        Enrichment level: 'quick' (CFP only) or 'full' (all fields)
 
     Returns
     -------
     str
         Formatted prompt string for Claude API
     """
-    if enrichment_level == "quick":
-        fields_to_extract = ["cfp"]
-        field_instructions = """
-Extract ONLY the CFP (Call for Proposals) deadline date.
-Convert to format: 'YYYY-MM-DD HH:mm:ss' (use 23:59:00 if no time specified)
-
-Date formats you may encounter:
-- "February 8, 2026" → "2026-02-08 23:59:00"
-- "8th of February 2026 at 23:59 CET" → "2026-02-08 23:59:00"
-- "2026-02-08" → "2026-02-08 23:59:00"
-"""
-    else:
-        fields_to_extract = [
-            "cfp",
-            "workshop_deadline",
-            "tutorial_deadline",
-            "timezone",
-            "finaid",
-            "sponsor",
-            "mastodon",
-            "bluesky",
-        ]
-        field_instructions = """
+    fields_to_extract = [
+        "cfp",
+        "workshop_deadline",
+        "tutorial_deadline",
+        "timezone",
+    ]
+    field_instructions = """
 Extract the following fields if found:
 - cfp: CFP deadline date (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
 - workshop_deadline: Workshop submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - tutorial_deadline: Tutorial submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - timezone: Conference timezone (MUST be IANA format with slash, e.g., 'America/Chicago', 'Europe/Berlin')
   - NEVER use abbreviations like EST, CEST, PST, UTC - ONLY full IANA names with slash
-- finaid: Financial aid application URL (MUST start with https://)
-- sponsor: Sponsorship information URL (MUST start with https://)
-- mastodon: Mastodon profile URL (MUST be full https:// URL like https://fosstodon.org/@pycon)
-- bluesky: Bluesky profile URL (MUST be full https:// URL like https://bsky.app/profile/pycon.bsky.social)
 
-CRITICAL RULES FOR VALUES:
-- URL fields (finaid, sponsor, mastodon, bluesky): ONLY include if you find an actual URL starting with https://
-  - If you only find descriptive text like "Sponsorship available", DO NOT include it
-  - The value MUST be a valid URL, not a description
-- Date fields (cfp, workshop_deadline, tutorial_deadline): MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
+CRITICAL RULES:
+- Date fields: MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
 - Timezone: MUST be IANA format with slash (America/New_York), NEVER abbreviations (EST, CEST)
-- Leave field EMPTY (do not include it) if you only find descriptive text, not the actual value
+- Leave field EMPTY if not found on the page
 
 Date conversion examples:
 - "February 8, 2026" → "2026-02-08 23:59:00"
@@ -861,9 +1165,14 @@ def enrich_tba_conferences(
     Parameters
     ----------
     enrichment_level : str
-        Enrichment level: 'quick' (CFP only) or 'full' (all fields)
+        Enrichment level:
+        - 'quick': Deterministic only (no API call) - extracts social links,
+          sponsor/finaid URLs via pattern matching. Fast and free.
+        - 'full': Deterministic + Claude API - also extracts CFP dates,
+          workshop/tutorial deadlines, and timezones from page content.
     api_key : str | None
-        Anthropic API key (defaults to ANTHROPIC_API_KEY env var)
+        Anthropic API key (defaults to ANTHROPIC_API_KEY env var).
+        Only required for 'full' enrichment level.
     dry_run : bool
         If True, don't write changes
     data_path : Path | None
@@ -878,12 +1187,6 @@ def enrich_tba_conferences(
 
     logger = get_logger()
 
-    if api_key is None:
-        api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if not api_key:
-            logger.error("ANTHROPIC_API_KEY not set")
-            return False
-
     if data_path is None:
         data_path = Path("_data/conferences.yml")
 
@@ -895,38 +1198,60 @@ def enrich_tba_conferences(
         logger.info("No TBA conferences found")
         return True
 
-    # Step 2: Pre-fetch websites
-    logger.info("Pre-fetching conference websites...")
-    content_map = prefetch_websites(tba_conferences)
+    # Step 2: Run deterministic extraction (no AI needed - always runs)
+    logger.info("Running deterministic link extraction...")
+    deterministic_result = run_deterministic_extraction(tba_conferences)
+    det_count = len([c for c in deterministic_result.conferences if c.fields])
+    logger.info(f"Deterministic: found links for {det_count} conferences")
 
-    # Step 3: Build and send prompt
-    logger.info(f"Calling Claude API with {enrichment_level} enrichment...")
-    prompt = build_enrichment_prompt(tba_conferences, content_map, enrichment_level)
+    # Step 3: If quick mode, skip AI and just use deterministic results
+    if enrichment_level == "quick":
+        logger.info("Quick mode - skipping Claude API, using deterministic results only")
+        result = deterministic_result
+    else:
+        # Full mode: also call Claude for dates/timezone
+        if api_key is None:
+            api_key = os.environ.get("ANTHROPIC_API_KEY")
+            if not api_key:
+                logger.error("ANTHROPIC_API_KEY not set (required for full enrichment)")
+                return False
 
-    # Debug: Log the full prompt for debugging
-    logger.debug("=" * 80)
-    logger.debug("FULL PROMPT SENT TO CLAUDE API:")
-    logger.debug("=" * 80)
-    logger.debug(prompt)
-    logger.debug("=" * 80)
+        # Pre-fetch websites for AI processing
+        logger.info("Pre-fetching conference websites...")
+        content_map = prefetch_websites(tba_conferences)
 
-    response = call_claude_api(prompt, api_key)
+        # Build and send prompt to Claude for date/timezone extraction
+        logger.info("Calling Claude API for date/timezone extraction...")
+        prompt = build_enrichment_prompt(tba_conferences, content_map)
 
-    if not response:
-        logger.error("Failed to get response from Claude API")
-        return False
+        # Debug: Log the full prompt for debugging
+        logger.debug("=" * 80)
+        logger.debug("FULL PROMPT SENT TO CLAUDE API:")
+        logger.debug("=" * 80)
+        logger.debug(prompt)
+        logger.debug("=" * 80)
 
-    # Step 4: Parse response
-    logger.info("Parsing response...")
-    result = parse_response(response)
+        response = call_claude_api(prompt, api_key)
 
-    logger.info(
-        f"Results: {result.summary.get('found', 0)} found, "
-        f"{result.summary.get('partial', 0)} partial, "
-        f"{result.summary.get('not_announced', 0)} not announced",
-    )
+        if not response:
+            logger.error("Failed to get response from Claude API")
+            return False
 
-    # Step 5: Apply updates
+        # Parse response
+        logger.info("Parsing response...")
+        ai_result = parse_response(response)
+
+        logger.info(
+            f"AI Results: {ai_result.summary.get('found', 0)} found, "
+            f"{ai_result.summary.get('partial', 0)} partial, "
+            f"{ai_result.summary.get('not_announced', 0)} not announced",
+        )
+
+        # Merge deterministic and AI results
+        logger.info("Merging deterministic and AI results...")
+        result = merge_enrichment_results(deterministic_result, ai_result)
+
+    # Step 4: Apply updates
     if dry_run:
         logger.info("Dry run - not applying changes")
 
@@ -979,7 +1304,7 @@ def main() -> None:
         "--level",
         choices=["quick", "full"],
         default="full",
-        help="Enrichment level: quick (CFP only) or full (all fields)",
+        help="quick=deterministic links only (no API), full=links + dates via Claude API",
     )
     parser.add_argument(
         "--dry-run",
