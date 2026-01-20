@@ -11,9 +11,9 @@ COUNTRY_NAME_TO_CODE = {}
 
 # Custom mappings for common variations used in conference names
 CUSTOM_COUNTRY_MAPPINGS = {
-    "US": "USA",
-    "United States": "USA",
-    "United States of America": "USA",
+    "United States": "US",
+    "United States of America": "US",
+    "USA": "US",
     "UK": "United Kingdom",
     "GB": "United Kingdom",
     "CZ": "Czechia",
