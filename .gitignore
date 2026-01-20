@@ -12,6 +12,9 @@ vendor
 .claude/
 CLAUDE.md
 
+# Temporary workflow files
+.github/enrichment_review.md
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

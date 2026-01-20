@@ -117,7 +117,7 @@
 - conference: PyCon Poland
   alt_name: PyCon PL
   year: 2026
-  link: https://pl.pycon.org/2026
+  link: https://pl.pycon.org/2026/
   cfp_link: https://pyconpl.confreg.pl/events/67-pycon-pl-2026
   cfp: '2026-02-15 23:59:59'
   tutorial_deadline: '2026-02-15 23:59:00'
@@ -130,6 +130,20 @@
   - title: PyCon Poland 2026
     latitude: 50.294113
     longitude: 18.6657306
+
+- conference: EuroSciPy
+  year: 2026
+  link: https://euroscipy.org/
+  cfp: '2026-02-08 23:59:00'
+  timezone: Europe/Berlin
+  place: Krakow, Poland
+  start: 2026-07-18
+  end: 2026-07-23
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2026
+    latitude: 50.061389
+    longitude: 19.938333
 
 - conference: PyCon Lithuania
   alt_name: PyCon LT
@@ -299,6 +313,15 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
+- conference: XtremePython
+  year: 2026
+  link: https://xtremepython.dev/
+  cfp: TBA
+  place: Online
+  start: 2026-11-17
+  end: 2026-11-17
+  sub: PY
+
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -316,11 +339,13 @@
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
+  cfp_link: https://pycon-kenya-2025.sessionize.com/
   cfp: TBA
   timezone: Africa/Nairobi
   place: Nairobi, Kenya
   start: 2026-08-28
   end: 2026-08-29
+  sponsor: https://www.pycon.ke/sponsors
   sub: PY
   location:
   - title: PyCon Kenya 2026
@@ -332,9 +357,11 @@
   year: 2026
   link: https://2026.pycon.org.au/
   cfp: TBA
+  timezone: Australia/Brisbane
   place: Brisbane, Australia
   start: 2026-08-26
   end: 2026-08-30
+  sponsor: https://2026.pycon.org.au/sponsor
   mastodon: https://mastodon.pycon.org.au/@pyconau
   bluesky: https://bsky.app/profile/pyconau.bsky.social
   sub: PY
@@ -351,6 +378,7 @@
   start: 2026-07-25
   end: 2026-07-26
   sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
+  mastodon: https://fosstodon.org/@pyohio
   sub: PY
   location:
   - title: PyOhio 2026
@@ -369,3 +397,17 @@
   - title: Python BarCamp Karlsruhe 2026
     latitude: 49.0068705
     longitude: 8.4034195
+
+- conference: FOSDEM
+  year: 2026
+  link: https://fosdem.org/2026/
+  cfp: TBA
+  place: Brussels, Belgium
+  start: 2026-01-31
+  end: 2026-01-31
+  sponsor: https://fosdem.org/2026/about/sponsors/
+  sub: PY
+  location:
+  - title: FOSDEM 2026
+    latitude: 50.8465573
+    longitude: 4.351697
