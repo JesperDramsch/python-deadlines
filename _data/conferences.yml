@@ -131,6 +131,20 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: EuroSciPy
+  year: 2026
+  link: https://euroscipy.org/
+  cfp: '2026-02-08 23:59:00'
+  timezone: Europe/Berlin
+  place: Krakow, Poland
+  start: 2026-07-18
+  end: 2026-07-23
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2026
+    latitude: 50.061389
+    longitude: 19.938333
+
 - conference: PyCon Lithuania
   alt_name: PyCon LT
   year: 2026
@@ -341,6 +355,8 @@
   year: 2026
   link: https://2026.pycon.org.au/
   cfp: TBA
+  workshop_deadline: '2026-01-23 23:59:00'
+  timezone: Australia/Brisbane
   place: Brisbane, Australia
   start: 2026-08-26
   end: 2026-08-30
@@ -366,19 +382,6 @@
   - title: PyOhio 2026
     latitude: 41.4996574
     longitude: -81.6936772
-
-- conference: EuroSciPy
-  year: 2026
-  link: https://euroscipy.org/
-  cfp: TBA
-  place: Krakow, Poland
-  start: 2026-07-18
-  end: 2026-07-23
-  sub: SCIPY
-  location:
-  - title: EuroSciPy 2026
-    latitude: 50.061389
-    longitude: 19.938333
 
 - conference: Python BarCamp Karlsruhe
   year: 2026
