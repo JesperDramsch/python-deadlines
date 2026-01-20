@@ -145,6 +145,24 @@
     latitude: 50.061389
     longitude: 19.938333
 
+- conference: PyCon Australia
+  alt_name: PyCon AU
+  year: 2026
+  link: https://2026.pycon.org.au/
+  cfp: '2026-01-23 23:59:00'
+  workshop_deadline: '2026-01-23 23:59:00'
+  timezone: Australia/Brisbane
+  place: Brisbane, Australia
+  start: 2026-08-26
+  end: 2026-08-30
+  mastodon: https://mastodon.pycon.org.au/@pyconau
+  bluesky: https://bsky.app/profile/pyconau.bsky.social
+  sub: PY
+  location:
+  - title: PyCon Australia 2026
+    latitude: -27.4689682
+    longitude: 153.0234991
+
 - conference: PyCon Lithuania
   alt_name: PyCon LT
   year: 2026
@@ -349,24 +367,6 @@
   - title: PyCon Kenya 2026
     latitude: -1.2136405
     longitude: 36.87930533266044
-
-- conference: PyCon Australia
-  alt_name: PyCon AU
-  year: 2026
-  link: https://2026.pycon.org.au/
-  cfp: TBA
-  workshop_deadline: '2026-01-23 23:59:00'
-  timezone: Australia/Brisbane
-  place: Brisbane, Australia
-  start: 2026-08-26
-  end: 2026-08-30
-  mastodon: https://mastodon.pycon.org.au/@pyconau
-  bluesky: https://bsky.app/profile/pyconau.bsky.social
-  sub: PY
-  location:
-  - title: PyCon Australia 2026
-    latitude: -27.4689682
-    longitude: 153.0234991
 
 - conference: PyOhio
   year: 2026
