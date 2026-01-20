@@ -1,3 +1,5 @@
+import re
+import time
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
@@ -139,3 +141,112 @@ def attempt_archive_url(url, cache=None):
             tqdm.write(f"Successfully archived {url}.")
     except requests.RequestException as e:
         tqdm.write(f"An error occurred while attempting to archive: {e}")
+
+
+def parse_mastodon_url(url: str) -> tuple[str, str] | None:
+    """Parse a Mastodon URL into (instance, username).
+
+    Args:
+        url: Full Mastodon profile URL (e.g., https://fosstodon.org/@pycon)
+
+    Returns
+    -------
+    tuple[str, str] | None
+        Tuple of (instance, username) or None if URL format is invalid.
+    """
+    try:
+        parsed = urlparse(url)
+        if not parsed.netloc:
+            return None
+        # Match /@username or @username patterns
+        match = re.match(r"^/?@(\w+)$", parsed.path)
+        if match:
+            return (parsed.netloc, match.group(1))
+        return None
+    except Exception:
+        return None
+
+
+def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | None:
+    """Check if a Mastodon account has migrated and return the new URL.
+
+    Follows migration chains (A→B→C) until finding the final destination.
+
+    Args:
+        mastodon_url: Full Mastodon profile URL (e.g., https://fosstodon.org/@pycon)
+        max_depth: Maximum number of migration hops to follow (default: 5)
+
+    Returns
+    -------
+    str | None
+        New URL if migrated, None if no migration detected or on error.
+    """
+    parsed = parse_mastodon_url(mastodon_url)
+    if not parsed:
+        tqdm.write(f"Warning: Could not parse Mastodon URL: {mastodon_url}")
+        return None
+
+    visited = set()
+    current_url = mastodon_url
+    current_instance, current_username = parsed
+
+    for _ in range(max_depth):
+        # Detect circular migrations
+        account_key = f"{current_username}@{current_instance}"
+        if account_key in visited:
+            tqdm.write(f"Warning: Circular migration detected for {mastodon_url}")
+            break
+        visited.add(account_key)
+
+        # Query the Mastodon API
+        api_url = f"https://{current_instance}/api/v1/accounts/lookup?acct={current_username}"
+        headers = {"User-Agent": "Pythondeadlin.es Link Checker/0.1 (https://pythondeadlin.es)"}
+
+        try:
+            response = requests.get(api_url, headers=headers, timeout=10)
+
+            if response.status_code == 404:
+                tqdm.write(f"Warning: Mastodon account not found: {current_url}")
+                return None
+
+            if response.status_code == 429:
+                tqdm.write(f"Warning: Rate limited by {current_instance}, skipping migration check")
+                return None
+
+            if response.status_code != 200:
+                tqdm.write(f"Warning: Mastodon API error ({response.status_code}) for {current_url}")
+                return None
+
+            data = response.json()
+
+            # Check if account has moved
+            if data.get("moved"):
+                moved_to = data["moved"]
+                new_url = moved_to.get("url")
+                if not new_url:
+                    break
+
+                tqdm.write(f"Mastodon migration detected: {current_url} → {new_url}")
+                current_url = new_url
+
+                # Parse the new URL for the next iteration
+                new_parsed = parse_mastodon_url(new_url)
+                if not new_parsed:
+                    # If we can't parse the new URL, return it anyway
+                    return new_url
+                current_instance, current_username = new_parsed
+
+                # Rate limit: wait 1 second between API calls
+                time.sleep(1)
+            else:
+                # No migration, we've reached the final destination
+                break
+
+        except requests.RequestException as e:
+            tqdm.write(f"Warning: Error checking Mastodon migration for {current_url}: {e}")
+            return None
+
+    # Return new URL only if it changed from the original
+    if current_url != mastodon_url:
+        return current_url
+    return None

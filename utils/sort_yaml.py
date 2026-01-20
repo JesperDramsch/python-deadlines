@@ -21,6 +21,7 @@ try:
     from tidy_conf.date import clean_dates
     from tidy_conf.latlon import add_latlon
     from tidy_conf.links import check_link_availability
+    from tidy_conf.links import check_mastodon_migration
     from tidy_conf.links import get_cache
     from tidy_conf.schema import Conference
     from tidy_conf.schema import get_schema
@@ -33,6 +34,7 @@ except ImportError:
     from .tidy_conf.date import clean_dates
     from .tidy_conf.latlon import add_latlon
     from .tidy_conf.links import check_link_availability
+    from .tidy_conf.links import check_mastodon_migration
     from .tidy_conf.links import get_cache
     from .tidy_conf.schema import Conference
     from .tidy_conf.schema import get_schema
@@ -233,6 +235,14 @@ def check_links(data):
                     time.sleep(0.5)
                 q[key] = new_link
                 data[i] = q
+
+        # Check Mastodon account migrations
+        if q.get("mastodon"):
+            new_mastodon = check_mastodon_migration(q["mastodon"])
+            if new_mastodon:
+                q["mastodon"] = new_mastodon
+                data[i] = q
+
     return data
 
 
