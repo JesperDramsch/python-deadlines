@@ -1,0 +1,32 @@
+# Lychee link checker configuration
+# https://lychee.cli.rs/
+
+# Exclude patterns - URLs that often rate-limit or are unreliable
+exclude = [
+    "^https://twitter.com",      # Often rate-limited
+    "^https://x.com",            # Twitter rebrand, same issues
+    "archive.org",               # Skip archive links (handled by archive-new-urls.yml)
+    "^https://crowdin.com",      # Translation service, may require auth
+]
+
+# Cache results to speed up repeated checks
+cache = true
+max_cache_age = "1d"
+
+# Request settings
+timeout = 20
+max_retries = 2
+
+# Accept these HTTP status codes as valid
+# 200: OK, 204: No Content, 301/302: Redirects, 429: Rate limited
+accept = ["200", "204", "301", "302", "429"]
+
+# User agent to avoid bot detection
+user_agent = "Mozilla/5.0 (compatible; lychee/0.15; +https://github.com/lycheeverse/lychee)"
+
+# Skip mail addresses
+exclude_mail = true
+
+# Output format
+output = "lychee/out.md"
+format = "markdown"
