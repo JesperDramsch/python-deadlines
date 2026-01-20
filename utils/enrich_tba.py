@@ -383,10 +383,11 @@ def extract_links_from_url(url: str) -> dict[str, str]:
 
 
 def content_contains_cfp_info(content: str) -> bool:
-    """Check if content contains date-like CFP information.
+    """Check if content contains main CFP (Call for Papers/Proposals) information.
 
-    This helps validate that a potential CFP link actually leads to a page
-    with submission deadline information, avoiding false positives.
+    This validates that a potential CFP link leads to a page about submitting
+    talks/papers/proposals, NOT other "Call for X" pages like sponsors, volunteers,
+    specialist tracks, etc.
 
     Parameters
     ----------
@@ -396,7 +397,7 @@ def content_contains_cfp_info(content: str) -> bool:
     Returns
     -------
     bool
-        True if content appears to contain CFP date information
+        True if content appears to be about main CFP submissions
     """
     content_lower = content.lower()
 
@@ -785,13 +786,16 @@ def build_enrichment_prompt(
     ]
     field_instructions = """
 Extract the following fields if found:
-- cfp: CFP deadline date (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
+- cfp: MAIN CFP deadline for talks/papers/proposals (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
 - workshop_deadline: Workshop submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - tutorial_deadline: Tutorial submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - timezone: Conference timezone (MUST be IANA format with slash, e.g., 'America/Chicago', 'Europe/Berlin')
   - NEVER use abbreviations like EST, CEST, PST, UTC - ONLY full IANA names with slash
 
 CRITICAL RULES:
+- cfp MUST be the MAIN Call for Papers/Proposals deadline (talks, papers, presentations)
+- cfp MUST NOT be: sponsors, volunteers, specialist tracks, financial aid, grants, reviewers
+- If only "Call for Sponsors/Volunteers/Tracks" found, set status to "not_announced"
 - Date fields: MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
 - Timezone: MUST be IANA format with slash (America/New_York), NEVER abbreviations (EST, CEST)
 - Leave field EMPTY if not found on the page
