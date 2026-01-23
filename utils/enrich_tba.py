@@ -382,135 +382,11 @@ def extract_links_from_url(url: str) -> dict[str, str]:
     return found
 
 
-def content_contains_cfp_info(content: str) -> bool:
-    """Check if content contains main CFP (Call for Papers/Proposals) information.
-
-    This validates that a potential CFP link leads to a page about submitting
-    talks/papers/proposals, NOT other "Call for X" pages like sponsors, volunteers,
-    specialist tracks, etc.
-
-    Parameters
-    ----------
-    content : str
-        Page content to check
-
-    Returns
-    -------
-    bool
-        True if content appears to be about main CFP submissions
-    """
-    content_lower = content.lower()
-
-    # Negative indicators - if these dominate the page, it's NOT a main CFP
-    # These are "Call for X" pages that aren't about talk/paper submissions
-    non_cfp_indicators = [
-        "call for sponsors",
-        "call for volunteers",
-        "call for reviewers",
-        "call for mentors",
-        "call for organizers",
-        "call for committee",
-        "become a sponsor",
-        "sponsorship opportunities",
-        "sponsorship package",
-        "volunteer sign",
-        "volunteer registration",
-        "reviewer application",
-        "program committee",
-        "organizing committee",
-        "specialist track",  # Sub-track CFPs, not main CFP
-        "special interest",
-        "birds of a feather",
-        "bof session",
-    ]
-
-    # Count non-CFP indicators
-    non_cfp_count = sum(1 for indicator in non_cfp_indicators if indicator in content_lower)
-
-    # Positive indicators - these suggest it's about main talk/paper submissions
-    main_cfp_indicators = [
-        "call for papers",
-        "call for proposals",
-        "call for presentations",
-        "call for talks",
-        "call for speakers",
-        "submit a talk",
-        "submit a paper",
-        "submit a proposal",
-        "submit your talk",
-        "submit your paper",
-        "submit your proposal",
-        "submission deadline",
-        "proposal deadline",
-        "paper deadline",
-        "talk deadline",
-        "abstract deadline",
-        "cfp deadline",
-        "speaker submission",
-        "talk submission",
-        "paper submission",
-        "proposal submission",
-    ]
-
-    # Count main CFP indicators
-    main_cfp_count = sum(1 for indicator in main_cfp_indicators if indicator in content_lower)
-
-    # If non-CFP indicators dominate and no strong main CFP indicators, reject
-    if non_cfp_count > 0 and main_cfp_count == 0:
-        return False
-
-    # If strong main CFP indicators are present, accept even if some non-CFP indicators exist
-    if main_cfp_count >= 2:
-        return True
-
-    # For borderline cases, require deadline-related keywords
-    deadline_keywords = [
-        "deadline",
-        "submit",
-        "submission",
-        "due",
-        "closes",
-        "close",
-        "call for",
-        "cfp",
-        "proposal",
-        "abstract",
-    ]
-
-    has_deadline_keyword = any(kw in content_lower for kw in deadline_keywords)
-    if not has_deadline_keyword:
-        return False
-
-    # Must contain date-like patterns
-    date_patterns = [
-        # Month names (English)
-        r"\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\b",
-        # Month abbreviations
-        r"\b(?:jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)[.\s]",
-        # ISO-like dates: YYYY-MM-DD or DD-MM-YYYY
-        r"\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b",
-        r"\b\d{1,2}[-/]\d{1,2}[-/]\d{4}\b",
-        # Day Month Year: "15 January 2026" or "January 15, 2026"
-        r"\b\d{1,2}\s+(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}\b",
-        r"\b(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2},?\s+\d{4}\b",
-        # Year patterns near deadline words (e.g., "2026" near "deadline")
-        r"\b202[4-9]\b",
-    ]
-
-    has_date = any(re.search(pattern, content_lower) for pattern in date_patterns)
-    if not has_date:
-        return False
-
-    # Final check: if we have at least one main CFP indicator, accept
-    # Otherwise, only accept if no non-CFP indicators were found
-    return main_cfp_count >= 1 or non_cfp_count == 0
-
-
 def run_deterministic_extraction(conferences: list[dict[str, Any]]) -> EnrichmentResult:
     """Run deterministic link extraction on all conferences.
 
-    This extracts social media links, sponsor/finaid pages, and validated CFP links
-    without using AI - purely pattern matching and content validation.
+    This extracts social media links and sponsor/finaid pages without using AI -
+    purely pattern matching. CFP links are validated by Claude in full mode.
 
     Parameters
     ----------
@@ -536,24 +412,7 @@ def run_deterministic_extraction(conferences: list[dict[str, Any]]) -> Enrichmen
         logger.debug(f"Deterministic extraction for {name} {year}")
         extracted = extract_links_from_url(url)
 
-        # Also try to find and validate CFP link
-        # (can be external domain like Pretalx, SessionizeApp, etc.)
-        if "cfp_link" not in extracted:
-            cfp_links = find_cfp_links(url)
-            for cfp_url in cfp_links:
-                # Skip if same as main URL
-                if cfp_url == url:
-                    continue
-
-                logger.debug(f"  Validating CFP link: {cfp_url}")
-                cfp_content = prefetch_website(cfp_url)
-
-                if cfp_content and not cfp_content.startswith("Error"):
-                    if content_contains_cfp_info(cfp_content):
-                        extracted["cfp_link"] = cfp_url
-                        logger.debug(f"  Validated cfp_link: {cfp_url}")
-                        break
-                    logger.debug(f"  Skipped (no CFP info): {cfp_url}")
+        # Note: cfp_link is validated by Claude in full mode, not here
 
         if extracted:
             # Create ConferenceUpdate with deterministic fields
@@ -829,10 +688,11 @@ def build_enrichment_prompt(
     conferences: list[dict[str, Any]],
     content_map: dict[str, str],
 ) -> str:
-    """Build the Claude API prompt for date/timezone extraction.
+    """Build the Claude API prompt for CFP data extraction.
 
-    Note: URL fields (bluesky, mastodon, sponsor, finaid, cfp_link) are handled
-    deterministically and don't need AI extraction.
+    Note: URL fields (bluesky, mastodon, sponsor, finaid) are handled
+    deterministically. cfp_link requires AI validation to ensure it's
+    the main CFP page and not sponsors/volunteers/etc.
 
     Parameters
     ----------
@@ -848,6 +708,7 @@ def build_enrichment_prompt(
     """
     fields_to_extract = [
         "cfp",
+        "cfp_link",
         "workshop_deadline",
         "tutorial_deadline",
         "timezone",
@@ -855,6 +716,10 @@ def build_enrichment_prompt(
     field_instructions = """
 Extract the following fields if found:
 - cfp: MAIN CFP deadline for talks/papers/proposals (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
+- cfp_link: URL to the MAIN CFP submission page (where speakers submit talks/papers/proposals)
+  - MUST be the main CFP page, NOT: sponsors, volunteers, specialist tracks, reviewers, financial aid
+  - Can be external (Pretalx, Sessionize, etc.) or on the conference website
+  - Only include if you're confident it's the main speaker/paper submission page
 - workshop_deadline: Workshop submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - tutorial_deadline: Tutorial submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - timezone: Conference timezone (MUST be IANA format with slash, e.g., 'America/Chicago', 'Europe/Berlin')
@@ -862,9 +727,10 @@ Extract the following fields if found:
 
 CRITICAL RULES:
 - cfp MUST be the MAIN Call for Papers/Proposals deadline (talks, papers, presentations)
-- cfp MUST NOT be: sponsors, volunteers, specialist tracks, financial aid, grants, reviewers
+- cfp and cfp_link MUST NOT be: sponsors, volunteers, specialist tracks, financial aid, grants, reviewers
 - If only "Call for Sponsors/Volunteers/Tracks" found, set status to "not_announced"
 - Date fields: MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
+- URL fields: MUST be absolute URLs starting with https:// or http://
 - Timezone: MUST be IANA format with slash (America/New_York), NEVER abbreviations (EST, CEST)
 - Leave field EMPTY if not found on the page
 
