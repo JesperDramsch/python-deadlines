@@ -621,10 +621,13 @@ def find_cfp_links(url: str) -> list[str]:
     return cfp_links[:3]  # Limit to 3 CFP pages max
 
 
-def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
+def prefetch_websites(
+    conferences: list[dict[str, Any]],
+) -> tuple[dict[str, str], dict[str, str]]:
     """Pre-fetch website content for multiple conferences.
 
-    Also fetches CFP-related subpages if found on the main page.
+    Also fetches CFP-related subpages if found on the main page, and tracks
+    which cfp_link was used for each conference (for validation).
 
     Parameters
     ----------
@@ -633,11 +636,14 @@ def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
 
     Returns
     -------
-    dict[str, str]
-        Dict mapping conference key (name_year) to website content
+    tuple[dict[str, str], dict[str, str]]
+        Tuple of (content_map, cfp_link_map):
+        - content_map: Dict mapping conference key (name_year) to website content
+        - cfp_link_map: Dict mapping conference key to the cfp_link URL that was fetched
     """
     logger = get_logger()
     content_map: dict[str, str] = {}
+    cfp_link_map: dict[str, str] = {}
 
     for conf in conferences:
         name = conf.get("conference", "Unknown")
@@ -670,18 +676,28 @@ def prefetch_websites(conferences: list[dict[str, Any]]) -> dict[str, str]:
             if link not in cfp_links_to_fetch and link != url:
                 cfp_links_to_fetch.append(link)
 
+        # Track the first valid cfp_link we fetch (for later validation)
+        fetched_cfp_link = None
+
         # Fetch CFP subpages (limit to 2 to avoid too much content)
         for cfp_url in cfp_links_to_fetch[:2]:
             logger.debug(f"  Also fetching CFP page: {cfp_url}")
             cfp_content = prefetch_website(cfp_url)
             if cfp_content and not cfp_content.startswith("Error"):
                 additional_content.append(f"\n\n--- CFP Page ({cfp_url}) ---\n{cfp_content}")
+                # Track the first successfully fetched cfp_link
+                if fetched_cfp_link is None:
+                    fetched_cfp_link = cfp_url
+
+        # Store the cfp_link that was fetched (if any)
+        if fetched_cfp_link:
+            cfp_link_map[key] = fetched_cfp_link
 
         # Combine all content
         combined = main_content + "".join(additional_content)
         content_map[key] = combined[:MAX_CONTENT_LENGTH]
 
-    return content_map
+    return content_map, cfp_link_map
 
 
 def build_enrichment_prompt(
@@ -691,8 +707,8 @@ def build_enrichment_prompt(
     """Build the Claude API prompt for CFP data extraction.
 
     Note: URL fields (bluesky, mastodon, sponsor, finaid) are handled
-    deterministically. cfp_link requires AI validation to ensure it's
-    the main CFP page and not sponsors/volunteers/etc.
+    deterministically. cfp_link is validated implicitly - if Claude finds
+    a CFP deadline in content that includes cfp_link content, that link is valid.
 
     Parameters
     ----------
@@ -708,7 +724,6 @@ def build_enrichment_prompt(
     """
     fields_to_extract = [
         "cfp",
-        "cfp_link",
         "workshop_deadline",
         "tutorial_deadline",
         "timezone",
@@ -716,10 +731,6 @@ def build_enrichment_prompt(
     field_instructions = """
 Extract the following fields if found:
 - cfp: MAIN CFP deadline for talks/papers/proposals (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
-- cfp_link: URL to the MAIN CFP submission page (where speakers submit talks/papers/proposals)
-  - MUST be the main CFP page, NOT: sponsors, volunteers, specialist tracks, reviewers, financial aid
-  - Can be external (Pretalx, Sessionize, etc.) or on the conference website
-  - Only include if you're confident it's the main speaker/paper submission page
 - workshop_deadline: Workshop submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - tutorial_deadline: Tutorial submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - timezone: Conference timezone (MUST be IANA format with slash, e.g., 'America/Chicago', 'Europe/Berlin')
@@ -727,10 +738,9 @@ Extract the following fields if found:
 
 CRITICAL RULES:
 - cfp MUST be the MAIN Call for Papers/Proposals deadline (talks, papers, presentations)
-- cfp and cfp_link MUST NOT be: sponsors, volunteers, specialist tracks, financial aid, grants, reviewers
+- cfp MUST NOT be: sponsors, volunteers, specialist tracks, financial aid, grants, reviewers
 - If only "Call for Sponsors/Volunteers/Tracks" found, set status to "not_announced"
 - Date fields: MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
-- URL fields: MUST be absolute URLs starting with https:// or http://
 - Timezone: MUST be IANA format with slash (America/New_York), NEVER abbreviations (EST, CEST)
 - Leave field EMPTY if not found on the page
 
@@ -1156,7 +1166,7 @@ def enrich_tba_conferences(
 
         # Pre-fetch websites for AI processing
         logger.info("Pre-fetching conference websites...")
-        content_map = prefetch_websites(tba_conferences)
+        content_map, cfp_link_map = prefetch_websites(tba_conferences)
 
         # Build and send prompt to Claude for date/timezone extraction
         logger.info("Calling Claude API for date/timezone extraction...")
@@ -1184,6 +1194,16 @@ def enrich_tba_conferences(
             f"{ai_result.summary.get('partial', 0)} partial, "
             f"{ai_result.summary.get('not_announced', 0)} not announced",
         )
+
+        # Add cfp_link to conferences where Claude found a CFP deadline
+        # This validates the cfp_link - if Claude found CFP info in the content
+        # that includes the cfp_link page, that link is valid
+        for conf_update in ai_result.conferences:
+            key = f"{conf_update.conference}_{conf_update.year}"
+            if "cfp" in conf_update.fields and key in cfp_link_map:
+                cfp_link_url = cfp_link_map[key]
+                conf_update.fields["cfp_link"] = FieldUpdate(value=cfp_link_url, confidence=1.0)
+                logger.info(f"  {key}: validated cfp_link {cfp_link_url}")
 
         # Merge deterministic and AI results
         logger.info("Merging deterministic and AI results...")
