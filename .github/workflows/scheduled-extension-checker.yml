@@ -189,14 +189,13 @@ jobs:
             CFP_CONTENT=$(lynx -dump -nolist "$CONF_CFP_LINK" 2>/dev/null | head -500 || echo "Failed to fetch CFP page")
           fi
 
-          # Combine content for analysis
-          COMBINED_CONTENT="=== EXTENSION CHECK: $CONF_REASON ===
-
-=== MAIN WEBSITE ($CONF_URL) ===
-$MAIN_CONTENT
-
-=== CFP PAGE ($CONF_CFP_LINK) ===
-$CFP_CONTENT"
+          # Combine content for analysis (use printf to avoid YAML parsing issues)
+          COMBINED_CONTENT=$(printf '%s\n\n%s\n%s\n\n%s\n%s' \
+            "=== EXTENSION CHECK: $CONF_REASON ===" \
+            "=== MAIN WEBSITE ($CONF_URL) ===" \
+            "$MAIN_CONTENT" \
+            "=== CFP PAGE ($CONF_CFP_LINK) ===" \
+            "$CFP_CONTENT")
 
           # Truncate if too long (GitHub has payload limits)
           COMBINED_CONTENT=$(echo "$COMBINED_CONTENT" | head -c 60000)
