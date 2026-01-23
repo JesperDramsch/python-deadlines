@@ -16,7 +16,7 @@
     latitude: 37.7681571
     longitude: -122.392929
 
-- conference: DjangoCon US
+- conference: DjangoCon United States of America
   year: 2026
   link: https://2026.djangocon.us/
   cfp_link: https://pretalx.com/djangocon-us-2026/cfp
@@ -62,7 +62,7 @@
     latitude: 59.4372155
     longitude: 24.7453688
 
-- conference: SciPy US
+- conference: SciPy United States of America
   alt_name: SciPy
   year: 2026
   link: https://www.scipy2026.scipy.org/
@@ -231,7 +231,7 @@
     latitude: 49.872775
     longitude: 8.651177
 
-- conference: PyCon US
+- conference: PyCon United States of America
   year: 2026
   link: https://us.pycon.org/2026/
   cfp_link: https://us.pycon.org/2026/speaking/talks/
@@ -385,6 +385,19 @@
   - title: PyOhio 2026
     latitude: 41.4996574
     longitude: -81.6936772
+
+- conference: GeoPython
+  year: 2026
+  link: https://2026.geopython.net/
+  cfp: TBA
+  place: Basel, Switzerland
+  start: 2026-06-08
+  end: 2026-06-10
+  sub: GEO
+  location:
+  - title: GeoPython 2026
+    latitude: 47.3615882
+    longitude: 7.354445
 
 - conference: Python BarCamp Karlsruhe
   year: 2026
