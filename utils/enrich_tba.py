@@ -210,8 +210,8 @@ def prefetch_website(url: str, timeout: int = 30) -> str:
         import re
 
         text = response.text
-        text = re.sub(r"<script[^>]*>.*?</script>", "", text, flags=re.DOTALL | re.IGNORECASE)
-        text = re.sub(r"<style[^>]*>.*?</style>", "", text, flags=re.DOTALL | re.IGNORECASE)
+        text = re.sub(r"<script\b[^>]*>.*?</\s*script[^>]*>", "", text, flags=re.DOTALL | re.IGNORECASE)
+        text = re.sub(r"<style\b[^>]*>.*?</\s*style[^>]*>", "", text, flags=re.DOTALL | re.IGNORECASE)
         text = re.sub(r"<[^>]+>", " ", text)
         text = re.sub(r"\s+", " ", text)
         return text.strip()[:MAX_CONTENT_LENGTH]
