@@ -262,6 +262,7 @@ If you'd like to add support for a new language, please open an issue.
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/raviselker"><img src="https://avatars.githubusercontent.com/u/4669197?v=4?s=100" width="100px;" alt="Ravi Selker"/><br /><sub><b>Ravi Selker</b></sub></a><br /><a href="#conference-raviselker" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://bardiharborow.com/"><img src="https://avatars.githubusercontent.com/u/1073681?v=4?s=100" width="100px;" alt="Bardi Harborow"/><br /><sub><b>Bardi Harborow</b></sub></a><br /><a href="#conference-bardiharborow" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/coolandsmartrr"><img src="https://avatars.githubusercontent.com/u/905436?v=4?s=100" width="100px;" alt="Ricky"/><br /><sub><b>Ricky</b></sub></a><br /><a href="#conference-coolandsmartrr" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://bruhin.software/"><img src="https://avatars.githubusercontent.com/u/625793?v=4?s=100" width="100px;" alt="Florian Bruhin"/><br /><sub><b>Florian Bruhin</b></sub></a><br /><a href="#conference-The-Compiler" title="Python conference (Added or updated)">📆</a></td>
     </tr>
   </tbody>
 </table>
