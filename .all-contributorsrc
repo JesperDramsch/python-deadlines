@@ -215,6 +215,15 @@
       "contributions": [
         "conference"
       ]
+    },
+    {
+      "login": "The-Compiler",
+      "name": "Florian Bruhin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/625793?v=4",
+      "profile": "https://bruhin.software/",
+      "contributions": [
+        "conference"
+      ]
     }
   ],
   "repoType": "github"
