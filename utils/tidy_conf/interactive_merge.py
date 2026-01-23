@@ -16,6 +16,7 @@ from thefuzz import fuzz
 from thefuzz import process
 
 try:
+    from tidy_conf.countries import COUNTRY_NORMALIZATION
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
@@ -27,6 +28,7 @@ try:
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
+    from .countries import COUNTRY_NORMALIZATION
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
@@ -449,11 +451,9 @@ def merge_conferences(
         logger.debug("Dropping 'conference' column from df_remote")
         df_remote = df_remote.drop(["conference"], axis=1)
 
-    replacements = {
-        "United States of America": "USA",
-        "United Kingdom": "UK",
-        "Czech Republic": "Czechia",
-    }
+    # Use centralized country normalization mappings
+    # This ensures consistency with the rest of the codebase
+    replacements = COUNTRY_NORMALIZATION
 
     logger.info("Performing pandas merge on 'title_match'")
     df_merge = pd.merge(

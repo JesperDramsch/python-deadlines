@@ -1,48 +1,9 @@
 import re
 
-from iso3166 import countries
+# Import centralized country mappings - this is the SINGLE SOURCE OF TRUTH
+from tidy_conf.countries import COUNTRY_CODE_TO_NAME
 from tidy_conf.yaml import load_title_mappings
 from tqdm import tqdm
-
-# Build country code mappings (both directions)
-# e.g., "PL" -> "Poland", "Poland" -> "PL"
-COUNTRY_CODE_TO_NAME = {}
-COUNTRY_NAME_TO_CODE = {}
-
-# Custom mappings for common variations used in conference names
-CUSTOM_COUNTRY_MAPPINGS = {
-    "United States": "US",
-    "United States of America": "US",
-    "USA": "US",
-    "UK": "United Kingdom",
-    "GB": "United Kingdom",
-    "CZ": "Czechia",
-    "Czech Republic": "Czechia",
-    "NZ": "New Zealand",
-    "KR": "South Korea",
-    "Korea": "South Korea",
-    "ZA": "South Africa",
-}
-
-# Load ISO 3166 country codes
-for country in countries:
-    code = country.alpha2
-    name = country.name
-    # Handle common name variations
-    if "," in name:
-        # e.g., "Korea, Republic of" -> "Korea"
-        short_name = name.split(",")[0]
-        COUNTRY_CODE_TO_NAME[code] = short_name
-        COUNTRY_NAME_TO_CODE[short_name] = code
-    else:
-        COUNTRY_CODE_TO_NAME[code] = name
-        COUNTRY_NAME_TO_CODE[name] = code
-
-# Apply custom overrides
-for code, name in CUSTOM_COUNTRY_MAPPINGS.items():
-    COUNTRY_CODE_TO_NAME[code] = name
-    if name not in COUNTRY_NAME_TO_CODE:
-        COUNTRY_NAME_TO_CODE[name] = code
 
 
 def tidy_titles(data):

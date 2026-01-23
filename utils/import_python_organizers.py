@@ -5,7 +5,6 @@ from pathlib import Path
 from urllib import error as urllib_error
 
 # Third-party
-import iso3166
 import pandas as pd
 
 # Local imports
@@ -13,6 +12,7 @@ try:
     from tidy_conf import fuzzy_match
     from tidy_conf import load_conferences
     from tidy_conf import merge_conferences
+    from tidy_conf.countries import get_country_alpha3
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import normalize_conference_name
@@ -23,94 +23,13 @@ except ImportError:
     from .tidy_conf import fuzzy_match
     from .tidy_conf import load_conferences
     from .tidy_conf import merge_conferences
+    from .tidy_conf.countries import get_country_alpha3
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.schema import get_schema
     from .tidy_conf.titles import normalize_conference_name
     from .tidy_conf.utils import fill_missing_required
     from .tidy_conf.yaml import load_title_mappings
     from .tidy_conf.yaml import write_df_yaml
-
-
-# Common country name variations that map to iso3166 official names
-# The iso3166 library uses full official names as keys (e.g., "UNITED STATES OF AMERICA")
-# This mapping handles common short names and variations
-COUNTRY_NAME_ALIASES = {
-    # United States variations
-    "USA": "UNITED STATES OF AMERICA",
-    "US": "UNITED STATES OF AMERICA",
-    "UNITED STATES": "UNITED STATES OF AMERICA",
-    # United Kingdom variations
-    "UK": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    "UNITED KINGDOM": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    "GREAT BRITAIN": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    "BRITAIN": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    "ENGLAND": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    "SCOTLAND": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    "WALES": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    "NORTHERN IRELAND": "UNITED KINGDOM OF GREAT BRITAIN AND NORTHERN IRELAND",
-    # Other common variations
-    "CZECHIA": "CZECHIA",  # iso3166 now uses CZECHIA
-    "CZECH REPUBLIC": "CZECHIA",
-    "KOREA": "KOREA, REPUBLIC OF",
-    "SOUTH KOREA": "KOREA, REPUBLIC OF",
-    "RUSSIA": "RUSSIAN FEDERATION",
-    "VIETNAM": "VIET NAM",
-    "TAIWAN": "TAIWAN, PROVINCE OF CHINA",
-    "IRAN": "IRAN, ISLAMIC REPUBLIC OF",
-    "SYRIA": "SYRIAN ARAB REPUBLIC",
-    "BOLIVIA": "BOLIVIA, PLURINATIONAL STATE OF",
-    "VENEZUELA": "VENEZUELA, BOLIVARIAN REPUBLIC OF",
-    "TANZANIA": "TANZANIA, UNITED REPUBLIC OF",
-    "MOLDOVA": "MOLDOVA, REPUBLIC OF",
-    "LAOS": "LAO PEOPLE'S DEMOCRATIC REPUBLIC",
-    "PALESTINE": "PALESTINE, STATE OF",
-    "THE NETHERLANDS": "NETHERLANDS",
-    "HOLLAND": "NETHERLANDS",
-}
-
-
-def get_country_alpha3(country_name: str) -> str:
-    """Get ISO 3166-1 alpha-3 country code from a country name.
-
-    This function performs robust country code lookup with fallbacks:
-    1. Direct lookup in iso3166.countries_by_name
-    2. Lookup using common country name aliases
-    3. If all lookups fail, returns the original country name to preserve data
-
-    Parameters
-    ----------
-    country_name : str
-        The country name to look up (e.g., "United States", "USA", "Germany")
-
-    Returns
-    -------
-    str
-        ISO 3166-1 alpha-3 code if found (e.g., "USA", "DEU"),
-        otherwise returns the original country name to preserve data
-    """
-    if not country_name or not isinstance(country_name, str):
-        return ""
-
-    name_upper = country_name.strip().upper()
-
-    if not name_upper:
-        return ""
-
-    # Try direct lookup first
-    country = iso3166.countries_by_name.get(name_upper)
-    if country:
-        return country.alpha3
-
-    # Try lookup using common aliases
-    if name_upper in COUNTRY_NAME_ALIASES:
-        aliased_name = COUNTRY_NAME_ALIASES[name_upper]
-        country = iso3166.countries_by_name.get(aliased_name)
-        if country:
-            return country.alpha3
-
-    # Fallback: return original country name to preserve data
-    # This ensures we don't silently lose country information
-    return country_name.strip()
 
 
 def load_remote(year: int) -> pd.DataFrame:
