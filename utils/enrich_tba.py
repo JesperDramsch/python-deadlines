@@ -401,7 +401,69 @@ def content_contains_cfp_info(content: str) -> bool:
     """
     content_lower = content.lower()
 
-    # Must contain deadline-related keywords
+    # Negative indicators - if these dominate the page, it's NOT a main CFP
+    # These are "Call for X" pages that aren't about talk/paper submissions
+    non_cfp_indicators = [
+        "call for sponsors",
+        "call for volunteers",
+        "call for reviewers",
+        "call for mentors",
+        "call for organizers",
+        "call for committee",
+        "become a sponsor",
+        "sponsorship opportunities",
+        "sponsorship package",
+        "volunteer sign",
+        "volunteer registration",
+        "reviewer application",
+        "program committee",
+        "organizing committee",
+        "specialist track",  # Sub-track CFPs, not main CFP
+        "special interest",
+        "birds of a feather",
+        "bof session",
+    ]
+
+    # Count non-CFP indicators
+    non_cfp_count = sum(1 for indicator in non_cfp_indicators if indicator in content_lower)
+
+    # Positive indicators - these suggest it's about main talk/paper submissions
+    main_cfp_indicators = [
+        "call for papers",
+        "call for proposals",
+        "call for presentations",
+        "call for talks",
+        "call for speakers",
+        "submit a talk",
+        "submit a paper",
+        "submit a proposal",
+        "submit your talk",
+        "submit your paper",
+        "submit your proposal",
+        "submission deadline",
+        "proposal deadline",
+        "paper deadline",
+        "talk deadline",
+        "abstract deadline",
+        "cfp deadline",
+        "speaker submission",
+        "talk submission",
+        "paper submission",
+        "proposal submission",
+    ]
+
+    # Count main CFP indicators
+    main_cfp_count = sum(1 for indicator in main_cfp_indicators if indicator in content_lower)
+
+    # If non-CFP indicators dominate and no strong main CFP indicators, reject
+    if non_cfp_count > 0 and main_cfp_count == 0:
+        return False
+
+    # If strong main CFP indicators are present, accept even if some non-CFP indicators exist
+    if main_cfp_count >= 2:
+        return True
+
+    # For borderline cases, require deadline-related keywords
     deadline_keywords = [
         "deadline",
         "submit",
@@ -435,7 +497,13 @@ def content_contains_cfp_info(content: str) -> bool:
         r"\b202[4-9]\b",
     ]
 
-    return any(re.search(pattern, content_lower) for pattern in date_patterns)
+    has_date = any(re.search(pattern, content_lower) for pattern in date_patterns)
+    if not has_date:
+        return False
+
+    # Final check: if we have at least one main CFP indicator, accept
+    # Otherwise, only accept if no non-CFP indicators were found
+    return main_cfp_count >= 1 or non_cfp_count == 0
 
 
 def run_deterministic_extraction(conferences: list[dict[str, Any]]) -> EnrichmentResult:
