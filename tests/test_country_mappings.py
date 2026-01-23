@@ -4,8 +4,6 @@ This module tests that all country mapping functionality is consistent
 and that the single source of truth (countries.py) works correctly.
 """
 
-import pytest
-
 
 class TestCountryDisplayNames:
     """Test that country codes map to correct display names."""

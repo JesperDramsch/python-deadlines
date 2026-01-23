@@ -1,13 +1,9 @@
 import re
 
+# Import centralized country mappings - this is the SINGLE SOURCE OF TRUTH
+from tidy_conf.countries import COUNTRY_CODE_TO_NAME
 from tidy_conf.yaml import load_title_mappings
 from tqdm import tqdm
-
-# Import centralized country mappings - this is the SINGLE SOURCE OF TRUTH
-from tidy_conf.countries import (
-    COUNTRY_CODE_TO_NAME,
-    COUNTRY_NAME_TO_CODE,
-)
 
 
 def tidy_titles(data):
