@@ -100,9 +100,11 @@ jobs:
                       print(f"Skip: {name} - already extended, past deadline", file=sys.stderr)
                       continue
 
+                  cfp_link = str(conf.get("cfp_link", ""))
                   closing_soon.append({
                       "conference": name,
                       "url": url,
+                      "cfp_link": cfp_link,
                       "cfp_date": str(cfp_date),
                       "has_extension": has_extension,
                       "check_type": check_type,
@@ -151,11 +153,15 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Trigger extension check
+      - name: Install lynx
+        run: sudo apt-get update && sudo apt-get install -y lynx
+
+      - name: Fetch website content and trigger check
         env:
           # Pass matrix values via env for safety
           CONF_NAME: ${{ matrix.conference.conference }}
           CONF_URL: ${{ matrix.conference.url }}
+          CONF_CFP_LINK: ${{ matrix.conference.cfp_link }}
           CONF_REASON: ${{ matrix.conference.reason }}
           CONF_CFP_DATE: ${{ matrix.conference.cfp_date }}
           CONF_CHECK_TYPE: ${{ matrix.conference.check_type }}
@@ -163,10 +169,37 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "Triggering check for: $CONF_NAME"
-          echo "URL: $CONF_URL"
+          echo "Main URL: $CONF_URL"
+          echo "CFP Link: $CONF_CFP_LINK"
           echo "Reason: $CONF_REASON"
           echo "CFP Date: $CONF_CFP_DATE"
           echo "Check Type: $CONF_CHECK_TYPE"
+
+          # Fetch main website content
+          echo "Fetching main website content..."
+          MAIN_CONTENT=""
+          if [ -n "$CONF_URL" ]; then
+            MAIN_CONTENT=$(lynx -dump -nolist "$CONF_URL" 2>/dev/null | head -500 || echo "Failed to fetch main website")
+          fi
+
+          # Fetch CFP link content
+          echo "Fetching CFP link content..."
+          CFP_CONTENT=""
+          if [ -n "$CONF_CFP_LINK" ] && [ "$CONF_CFP_LINK" != "$CONF_URL" ]; then
+            CFP_CONTENT=$(lynx -dump -nolist "$CONF_CFP_LINK" 2>/dev/null | head -500 || echo "Failed to fetch CFP page")
+          fi
+
+          # Combine content for analysis
+          COMBINED_CONTENT="=== EXTENSION CHECK: $CONF_REASON ===
+
+=== MAIN WEBSITE ($CONF_URL) ===
+$MAIN_CONTENT
+
+=== CFP PAGE ($CONF_CFP_LINK) ===
+$CFP_CONTENT"
+
+          # Truncate if too long (GitHub has payload limits)
+          COMBINED_CONTENT=$(echo "$COMBINED_CONTENT" | head -c 60000)
 
           # Use gh CLI for safe API call
           # Pass trigger context so triage workflow can adjust prompt accordingly
@@ -175,13 +208,13 @@ jobs:
             -f "client_payload[url]=$CONF_URL" \
             -f "client_payload[title]=$CONF_NAME" \
             -f "client_payload[watch_uuid]=" \
-            -f "client_payload[diff]=Scheduled extension check: $CONF_REASON" \
+            -f "client_payload[diff]=$COMBINED_CONTENT" \
             -f "client_payload[source]=scheduled-checker" \
             -f "client_payload[trigger_reason]=$CONF_CHECK_TYPE" \
             -f "client_payload[original_cfp_deadline]=$CONF_CFP_DATE" \
             -f "client_payload[has_extension]=$CONF_HAS_EXT"
 
-          echo "✓ Triggered"
+          echo "✓ Triggered with website content"
 
       - name: Rate limit pause
         run: sleep 10  # Generous pause between triggers
