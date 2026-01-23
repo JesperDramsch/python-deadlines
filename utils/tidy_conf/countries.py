@@ -26,14 +26,16 @@ CANONICAL_COUNTRY_NAMES = {
 # =============================================================================
 # DISPLAY NAME MAPPINGS (for conference names)
 # =============================================================================
-# Maps country codes and variations to full display names for conference titles
-# e.g., "PyCon US" -> "PyCon United States"
+# Maps country codes and variations to display names for conference titles
+# Some codes stay as-is (US, UK), others expand to full names (DE -> Germany)
 
 COUNTRY_DISPLAY_NAMES = {
-    "US": "United States",
-    "USA": "United States",
-    "UK": "United Kingdom",
-    "GB": "United Kingdom",
+    # These stay as short codes in conference names (e.g., "PyCon US" stays "PyCon US")
+    "US": "US",
+    "USA": "US",
+    "UK": "UK",
+    "GB": "UK",
+    # These expand to full names (e.g., "PyCon DE" -> "PyCon Germany")
     "CZ": "Czechia",
     "NZ": "New Zealand",
     "KR": "South Korea",
@@ -260,10 +262,9 @@ def _build_country_mappings():
 
     # Also add entries for common variations pointing to canonical codes
     for variation, canonical in COUNTRY_NORMALIZATION.items():
-        if variation not in COUNTRY_CODE_TO_NAME:
+        if variation not in COUNTRY_CODE_TO_NAME and canonical in COUNTRY_CODE_TO_NAME:
             # Map variations to their display names via canonical form
-            if canonical in COUNTRY_CODE_TO_NAME:
-                COUNTRY_CODE_TO_NAME[variation] = COUNTRY_CODE_TO_NAME[canonical]
+            COUNTRY_CODE_TO_NAME[variation] = COUNTRY_CODE_TO_NAME[canonical]
 
 
 # Build mappings on module import

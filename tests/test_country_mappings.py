@@ -8,31 +8,31 @@ import pytest
 
 
 class TestCountryDisplayNames:
-    """Test that country codes expand to correct display names."""
+    """Test that country codes map to correct display names."""
 
-    def test_us_expands_to_united_states(self):
-        """US should expand to 'United States', NOT 'United States of America'."""
+    def test_us_stays_as_us(self):
+        """US should stay as 'US' in conference names."""
         from tidy_conf.countries import get_country_display_name
 
-        assert get_country_display_name("US") == "United States"
+        assert get_country_display_name("US") == "US"
 
-    def test_usa_expands_to_united_states(self):
-        """USA should expand to 'United States'."""
+    def test_usa_becomes_us(self):
+        """USA should become 'US' in conference names."""
         from tidy_conf.countries import get_country_display_name
 
-        assert get_country_display_name("USA") == "United States"
+        assert get_country_display_name("USA") == "US"
 
-    def test_uk_expands_to_united_kingdom(self):
-        """UK should expand to 'United Kingdom'."""
+    def test_uk_stays_as_uk(self):
+        """UK should stay as 'UK' in conference names."""
         from tidy_conf.countries import get_country_display_name
 
-        assert get_country_display_name("UK") == "United Kingdom"
+        assert get_country_display_name("UK") == "UK"
 
-    def test_gb_expands_to_united_kingdom(self):
-        """GB should expand to 'United Kingdom'."""
+    def test_gb_becomes_uk(self):
+        """GB should become 'UK' in conference names."""
         from tidy_conf.countries import get_country_display_name
 
-        assert get_country_display_name("GB") == "United Kingdom"
+        assert get_country_display_name("GB") == "UK"
 
     def test_cz_expands_to_czechia(self):
         """CZ should expand to 'Czechia'."""
@@ -135,21 +135,19 @@ class TestAlpha3Lookup:
 class TestConferenceNameExpansion:
     """Test that conference names with country codes expand correctly."""
 
-    def test_pycon_us_expands_correctly(self):
-        """PyCon US should expand to 'PyCon United States'."""
+    def test_pycon_us_stays_as_us(self):
+        """PyCon US should stay as 'PyCon US'."""
         from tidy_conf.titles import expand_country_codes
 
         result = expand_country_codes("PyCon US")
-        assert result == "PyCon United States"
-        # Most importantly, it should NOT contain "of America"
-        assert "of America" not in result
+        assert result == "PyCon US"
 
-    def test_pycon_uk_expands_correctly(self):
-        """PyCon UK should expand to 'PyCon United Kingdom'."""
+    def test_pycon_uk_stays_as_uk(self):
+        """PyCon UK should stay as 'PyCon UK'."""
         from tidy_conf.titles import expand_country_codes
 
         result = expand_country_codes("PyCon UK")
-        assert result == "PyCon United Kingdom"
+        assert result == "PyCon UK"
 
     def test_pycon_pl_expands_correctly(self):
         """PyCon PL should expand to 'PyCon Poland'."""
@@ -177,25 +175,29 @@ class TestConferenceNameExpansion:
 class TestCountryCodeToNameMapping:
     """Test the COUNTRY_CODE_TO_NAME mapping is correctly built."""
 
-    def test_us_maps_to_united_states(self):
-        """COUNTRY_CODE_TO_NAME['US'] should be 'United States'."""
+    def test_us_maps_to_us(self):
+        """COUNTRY_CODE_TO_NAME['US'] should be 'US'."""
         from tidy_conf.countries import COUNTRY_CODE_TO_NAME
 
-        assert COUNTRY_CODE_TO_NAME["US"] == "United States"
-        # NOT "United States of America"
-        assert "of America" not in COUNTRY_CODE_TO_NAME["US"]
+        assert COUNTRY_CODE_TO_NAME["US"] == "US"
 
-    def test_uk_maps_to_united_kingdom(self):
-        """COUNTRY_CODE_TO_NAME['UK'] should be 'United Kingdom'."""
+    def test_uk_maps_to_uk(self):
+        """COUNTRY_CODE_TO_NAME['UK'] should be 'UK'."""
         from tidy_conf.countries import COUNTRY_CODE_TO_NAME
 
-        assert COUNTRY_CODE_TO_NAME["UK"] == "United Kingdom"
+        assert COUNTRY_CODE_TO_NAME["UK"] == "UK"
 
-    def test_usa_maps_to_united_states(self):
-        """COUNTRY_CODE_TO_NAME['USA'] should be 'United States'."""
+    def test_usa_maps_to_us(self):
+        """COUNTRY_CODE_TO_NAME['USA'] should be 'US'."""
         from tidy_conf.countries import COUNTRY_CODE_TO_NAME
 
-        assert COUNTRY_CODE_TO_NAME["USA"] == "United States"
+        assert COUNTRY_CODE_TO_NAME["USA"] == "US"
+
+    def test_de_maps_to_germany(self):
+        """COUNTRY_CODE_TO_NAME['DE'] should be 'Germany'."""
+        from tidy_conf.countries import COUNTRY_CODE_TO_NAME
+
+        assert COUNTRY_CODE_TO_NAME["DE"] == "Germany"
 
 
 class TestMergeReplacementsConsistency:
@@ -219,12 +221,20 @@ class TestMergeReplacementsConsistency:
 class TestRegressionUSExpansion:
     """Regression tests to prevent US -> United States of America bug."""
 
-    def test_normalize_conference_name_us_not_expanded_to_full(self):
-        """normalize_conference_name should not expand US to 'United States of America'."""
+    def test_normalize_conference_name_us_stays_as_us(self):
+        """normalize_conference_name should keep US as 'US'."""
         from tidy_conf.titles import normalize_conference_name
 
         result = normalize_conference_name("PyCon US")
-        assert "of America" not in result
+        assert result == "PyCon US"
+        assert "United States" not in result
+
+    def test_pycon_de_expands_to_germany(self):
+        """PyCon DE should expand to 'PyCon Germany'."""
+        from tidy_conf.titles import normalize_conference_name
+
+        result = normalize_conference_name("PyCon DE")
+        assert result == "PyCon Germany"
 
     def test_place_with_us_not_expanded(self):
         """A place ending with 'US' or 'USA' should normalize correctly."""
@@ -236,4 +246,3 @@ class TestRegressionUSExpansion:
         # After normalization, it should stay as "US"
         result = normalize_country_name("US")
         assert result == "US"
-        assert "of America" not in result
