@@ -96,6 +96,22 @@
     latitude: 51.5074456
     longitude: -0.1277653
 
+- conference: GeoPython
+  year: 2026
+  link: https://2026.geopython.net/
+  cfp_link: https://submit.geopython.net/geopython-2026/cfp
+  cfp: '2026-02-15 23:59:00'
+  place: Basel, Switzerland
+  start: 2026-06-08
+  end: 2026-06-10
+  sponsor: https://2026.geopython.net/app/sponsors
+  finaid: https://2026.geopython.net/app/dates
+  sub: GEO
+  location:
+  - title: GeoPython 2026
+    latitude: 47.3615882
+    longitude: 7.354445
+
 - conference: EuroPython
   year: 2026
   link: https://ep2026.europython.eu/
@@ -385,22 +401,6 @@
   - title: PyOhio 2026
     latitude: 41.4996574
     longitude: -81.6936772
-
-- conference: GeoPython
-  year: 2026
-  link: https://2026.geopython.net/
-  cfp_link: https://submit.geopython.net/geopython-2026/cfp
-  cfp: "2026-02-15 23:59:00"
-  place: Basel, Switzerland
-  start: 2026-06-08
-  end: 2026-06-10
-  finaid: https://2026.geopython.net/app/dates
-  sponsor: https://2026.geopython.net/app/sponsors
-  sub: GEO
-  location:
-  - title: GeoPython 2026
-    latitude: 47.3615882
-    longitude: 7.354445
 
 - conference: Python BarCamp Karlsruhe
   year: 2026
