@@ -56,60 +56,80 @@ jobs:
       - name: Check changedetection.io configuration
         id: check_cd
         run: |
-          if [ -n "${{ vars.CHANGEDETECTION_URL }}" ] && [ -n "${{ secrets.CHANGEDETECTION_KEY }}" ]; then
-            echo "configured=true" >> $GITHUB_OUTPUT
-          else
-            echo "configured=false" >> $GITHUB_OUTPUT
-            echo "::warning::changedetection.io not configured. Set CHANGEDETECTION_URL variable and CHANGEDETECTION_KEY secret."
+          if [ -z "${{ vars.CHANGEDETECTION_URL }}" ]; then
+            echo "::error::CHANGEDETECTION_URL variable not set"
+            exit 1
           fi
+          if [ -z "${{ secrets.CHANGEDETECTION_KEY }}" ]; then
+            echo "::error::CHANGEDETECTION_KEY secret not set"
+            exit 1
+          fi
+          echo "configured=true" >> $GITHUB_OUTPUT
 
-      - name: Sync URLs to changedetection.io
-        if: steps.check_cd.outputs.configured == 'true'
-        env:
-          LAST_SHA: ${{ steps.last-run.outputs.sha }}
-          DRY_RUN: ${{ inputs.dry_run }}
+      - name: Fetch existing watches from changedetection.io
+        id: fetch-watches
+        if: inputs.dry_run != true
         run: |
-          # Build auth headers (same pattern as archive-new-urls.yml)
+          # Build auth headers
           AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
           if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
             AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
             AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
           fi
 
-          API_BASE="${{ vars.CHANGEDETECTION_URL }}/api/v1"
+          API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/watch"
 
-          # Fetch existing watches (unless dry run)
-          if [ "$DRY_RUN" != "true" ]; then
-            echo "Fetching existing watches..."
-            EXISTING_WATCHES=$(eval "curl -sf $AUTH_HEADERS '$API_BASE/watch'") || {
-              echo "::error::Failed to fetch existing watches from changedetection.io"
-              exit 1
-            }
+          echo "Fetching existing watches from $API_URL..."
 
-            # Validate we got JSON, not Cloudflare HTML
-            if ! echo "$EXISTING_WATCHES" | jq empty 2>/dev/null; then
-              echo "::error::API returned invalid response (check CF Access credentials)"
-              exit 1
-            fi
+          # Get response with HTTP status code
+          HTTP_RESPONSE=$(eval "curl -s -w 'HTTP_STATUS:%{http_code}' $AUTH_HEADERS '$API_URL'")
+          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tr -d '\n' | sed -e 's/.*HTTP_STATUS://')
+          RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTP_STATUS:[0-9]*$//')
 
-            echo "$EXISTING_WATCHES" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > /tmp/existing_urls.txt
-            echo "Fetched $(wc -l < /tmp/existing_urls.txt) existing watch URLs"
-          else
-            touch /tmp/existing_urls.txt
+          echo "HTTP Status: $HTTP_STATUS"
+
+          # Validate HTTP status is 200
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::error::API returned HTTP $HTTP_STATUS (expected 200)"
+            echo "Response body (first 500 chars):"
+            echo "$RESPONSE_BODY" | head -c 500
+            exit 1
           fi
 
-          # Process conferences with Python
+          # Validate response is valid JSON
+          if ! echo "$RESPONSE_BODY" | jq empty 2>/dev/null; then
+            echo "::error::API returned invalid JSON"
+            echo "Response body (first 500 chars):"
+            echo "$RESPONSE_BODY" | head -c 500
+            exit 1
+          fi
+
+          # Extract and save URLs
+          echo "$RESPONSE_BODY" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > existing_urls.txt
+          URL_COUNT=$(wc -l < existing_urls.txt)
+          echo "Fetched $URL_COUNT existing watch URLs"
+          echo "count=$URL_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Create empty existing URLs file (dry run)
+        if: inputs.dry_run == true
+        run: touch existing_urls.txt
+
+      - name: Process conference URLs
+        id: process
+        env:
+          LAST_SHA: ${{ steps.last-run.outputs.sha }}
+        run: |
           python3 << 'PYTHON_SCRIPT'
           import os
           import re
           import json
           import subprocess
+          import sys
           import yaml
           from urllib.parse import urlparse
           from typing import Optional
 
           LAST_SHA = os.environ.get('LAST_SHA', '')
-          DRY_RUN = os.environ.get('DRY_RUN', 'false').lower() == 'true'
 
           # Tag UUIDs
           BASE_TAGS = [
@@ -133,11 +153,7 @@ jobs:
 
           CFP_TAG = "5799f798-2b44-452e-aefa-43874f6c3e1e"
 
-          URL_FIELDS = {
-              'link': 'Main',
-              'cfp_link': 'CFP',
-          }
-
+          URL_FIELDS = {'link': 'Main', 'cfp_link': 'CFP'}
           YEAR_PATTERN = re.compile(r'/(20(?:2[4-9]|3[0-5]))/')
 
           def get_continent(lat: float, lon: float) -> Optional[str]:
@@ -197,9 +213,7 @@ jobs:
               return tags
 
           def normalize_url(url: str) -> str:
-              if not url:
-                  return ''
-              return url.rstrip('/').lower()
+              return url.rstrip('/').lower() if url else ''
 
           def get_base_url(url: str) -> str:
               if not url:
@@ -213,17 +227,22 @@ jobs:
                   return None
               return url[:match.start() + 1]
 
-          # Load existing URLs from file (created by shell above)
+          # Load existing URLs
           existing_urls = set()
-          with open('/tmp/existing_urls.txt', 'r') as f:
-              for line in f:
-                  url = line.strip()
-                  if url:
-                      existing_urls.add(url)
-                      base = get_base_url(url)
-                      if base:
-                          existing_urls.add(base.lower())
-          print(f"Loaded {len(existing_urls)} existing URLs")
+          try:
+              with open('existing_urls.txt', 'r') as f:
+                  for line in f:
+                      url = line.strip()
+                      if url:
+                          existing_urls.add(url)
+                          base = get_base_url(url)
+                          if base:
+                              existing_urls.add(base.lower())
+          except FileNotFoundError:
+              print("::error::existing_urls.txt not found")
+              sys.exit(1)
+
+          print(f"Loaded {len(existing_urls)} existing URLs from changedetection.io")
 
           def url_exists(url: str, use_base_url: bool = True) -> tuple[bool, str]:
               if url.lower() in existing_urls:
@@ -240,50 +259,41 @@ jobs:
                           return True, "templated version exists"
               return False, ""
 
-          def get_old_conferences():
-              try:
-                  result = subprocess.run(
-                      ['git', 'show', f'{LAST_SHA}:_data/conferences.yml'],
-                      capture_output=True, text=True
-                  )
-                  if result.returncode == 0:
-                      return yaml.safe_load(result.stdout) or []
-              except Exception as e:
-                  print(f"Warning: Could not load old conferences: {e}")
-              return []
+          # Load old conferences from git
+          try:
+              result = subprocess.run(
+                  ['git', 'show', f'{LAST_SHA}:_data/conferences.yml'],
+                  capture_output=True, text=True, check=True
+              )
+              old_conferences = yaml.safe_load(result.stdout) or []
+          except subprocess.CalledProcessError:
+              print(f"Warning: Could not load conferences from {LAST_SHA[:8]}")
+              old_conferences = []
+          except Exception as e:
+              print(f"::error::Failed to load old conferences: {e}")
+              sys.exit(1)
 
-          def get_current_conferences():
-              try:
-                  with open('_data/conferences.yml', 'r') as f:
-                      return yaml.safe_load(f) or []
-              except Exception as e:
-                  print(f"Error loading conferences: {e}")
-              return []
-
-          print("=" * 60)
-          print("Processing Conference URLs")
-          print("=" * 60)
-
-          if DRY_RUN:
-              print("*** DRY RUN MODE ***")
-
-          print(f"Comparing against commit: {LAST_SHA[:8]}...")
-
-          old_conferences = get_old_conferences()
-          new_conferences = get_current_conferences()
+          # Load current conferences
+          try:
+              with open('_data/conferences.yml', 'r') as f:
+                  new_conferences = yaml.safe_load(f) or []
+          except Exception as e:
+              print(f"::error::Failed to load current conferences: {e}")
+              sys.exit(1)
 
           print(f"Old conferences: {len(old_conferences)}")
           print(f"Current conferences: {len(new_conferences)}")
 
+          # Build set of old URLs
           old_urls = set()
           for conf in old_conferences:
               for field in URL_FIELDS.keys():
                   url = conf.get(field)
                   if url:
                       old_urls.add(normalize_url(url))
-
           print(f"URLs in previous version: {len(old_urls)}")
 
+          # Find new URLs
           watches_to_add = []
           skipped = []
 
@@ -309,23 +319,25 @@ jobs:
                       continue
 
                   final_url = template_url(url, start_month)
-                  tags = build_tags(conf, field)
-
                   watches_to_add.append({
                       'url': final_url,
                       'original_url': url if final_url != url else None,
                       'title': title,
-                      'tags': tags,
+                      'tags': build_tags(conf, field),
                   })
 
           print(f"\nTo add: {len(watches_to_add)}")
           print(f"Skipped: {len(skipped)}")
 
-          with open('/tmp/watches_to_add.json', 'w') as f:
+          # Write outputs
+          with open('watches_to_add.json', 'w') as f:
               json.dump(watches_to_add, f)
-
-          with open('/tmp/skipped.json', 'w') as f:
+          with open('skipped.json', 'w') as f:
               json.dump(skipped, f)
+
+          # Write to GITHUB_OUTPUT
+          with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+              f.write(f"count={len(watches_to_add)}\n")
 
           for watch in watches_to_add:
               print(f"  ADD: {watch['title']}")
@@ -333,82 +345,116 @@ jobs:
                   print(f"       Templated: {watch['url']}")
           PYTHON_SCRIPT
 
-          # Now add watches using curl (same shell, /tmp persists)
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Changedetection.io Sync Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ "$DRY_RUN" == "true" ]; then
-            echo "### Dry Run Mode" >> $GITHUB_STEP_SUMMARY
-            echo "The following watches would be added:" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            jq -r '.[] | "- **\(.title)** - \(.url)"' /tmp/watches_to_add.json >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "**Total:** $(jq length /tmp/watches_to_add.json) watches (dry run)" >> $GITHUB_STEP_SUMMARY
-            exit 0
+      - name: Add watches to changedetection.io
+        id: add-watches
+        if: inputs.dry_run != true && steps.process.outputs.count != '0'
+        run: |
+          # Build auth headers
+          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
           fi
 
-          WATCH_COUNT=$(jq length /tmp/watches_to_add.json)
-          if [ "$WATCH_COUNT" -eq 0 ]; then
-            echo "No new watches to add"
-            echo "No new watches to add." >> $GITHUB_STEP_SUMMARY
-            exit 0
-          fi
+          API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/watch"
 
           ADDED=0
           FAILED=0
+          TOTAL=$(jq length watches_to_add.json)
+
+          echo "Adding $TOTAL watches to changedetection.io..."
 
           while read -r watch; do
             URL=$(echo "$watch" | jq -r '.url')
             TITLE=$(echo "$watch" | jq -r '.title')
             TAGS=$(echo "$watch" | jq -c '.tags')
 
-            # Build payload with jq (handles escaping properly)
             PAYLOAD=$(jq -n --arg url "$URL" --arg title "$TITLE" --argjson tags "$TAGS" \
               '{url: $url, title: $title, tags: $tags}')
 
+            echo "$PAYLOAD" > payload.json
+
             echo "Adding: $TITLE"
-            echo "  URL: $URL"
 
-            # Write payload to temp file to avoid quoting issues with eval
-            echo "$PAYLOAD" > /tmp/payload.json
+            # Get response with HTTP status
+            HTTP_RESPONSE=$(eval "curl -s -w 'HTTP_STATUS:%{http_code}' -X POST $AUTH_HEADERS -H 'Content-Type: application/json' -d @payload.json '$API_URL'")
+            HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tr -d '\n' | sed -e 's/.*HTTP_STATUS://')
+            RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTP_STATUS:[0-9]*$//')
 
-            # Use eval with file input, exactly like archive-new-urls.yml pattern
-            RESPONSE=$(eval "curl -sf -X POST $AUTH_HEADERS -H 'Content-Type: application/json' -d @/tmp/payload.json '$API_BASE/watch'") && {
-              if echo "$RESPONSE" | jq -e '.uuid' >/dev/null 2>&1; then
-                echo "  ✅ Added successfully"
-                echo "- ✅ **$TITLE** - $URL" >> $GITHUB_STEP_SUMMARY
+            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "201" ]; then
+              if echo "$RESPONSE_BODY" | jq -e '.uuid' >/dev/null 2>&1; then
+                echo "  ✅ Added (HTTP $HTTP_STATUS)"
                 ADDED=$((ADDED + 1))
               else
-                echo "  ❌ Unexpected response: $RESPONSE"
-                echo "- ❌ **$TITLE** - $URL (unexpected response)" >> $GITHUB_STEP_SUMMARY
+                echo "  ❌ HTTP $HTTP_STATUS but no UUID in response"
+                echo "  Response: $RESPONSE_BODY"
                 FAILED=$((FAILED + 1))
               fi
-            } || {
-              echo "  ❌ Failed to add"
-              echo "- ❌ **$TITLE** - $URL (failed)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "  ❌ HTTP $HTTP_STATUS"
+              echo "  Response: $(echo "$RESPONSE_BODY" | head -c 200)"
               FAILED=$((FAILED + 1))
-            }
+            fi
 
             sleep 1
-          done < <(jq -c '.[]' /tmp/watches_to_add.json)
+          done < <(jq -c '.[]' watches_to_add.json)
+
+          echo ""
+          echo "Results: $ADDED added, $FAILED failed out of $TOTAL"
+
+          # Output results
+          echo "added=$ADDED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+
+          # Fail the step if any additions failed
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::error::$FAILED out of $TOTAL watches failed to add"
+            exit 1
+          fi
+
+      - name: Generate summary
+        if: always()
+        run: |
+          echo "## Changedetection.io Sync Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "### 🔍 Dry Run Mode" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            if [ -f watches_to_add.json ]; then
+              COUNT=$(jq length watches_to_add.json)
+              echo "Would add **$COUNT** watches:" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              jq -r '.[] | "- \(.title): \(.url)"' watches_to_add.json >> $GITHUB_STEP_SUMMARY
+            fi
+          elif [ -f watches_to_add.json ]; then
+            TOTAL=$(jq length watches_to_add.json)
+            ADDED="${{ steps.add-watches.outputs.added }}"
+            FAILED="${{ steps.add-watches.outputs.failed }}"
+
+            if [ "$TOTAL" = "0" ]; then
+              echo "No new watches to add." >> $GITHUB_STEP_SUMMARY
+            elif [ -n "$ADDED" ]; then
+              echo "### Results" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "- ✅ Added: **$ADDED**" >> $GITHUB_STEP_SUMMARY
+              echo "- ❌ Failed: **$FAILED**" >> $GITHUB_STEP_SUMMARY
+              echo "- Total: **$TOTAL**" >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
 
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [ -f /tmp/skipped.json ] && [ "$(jq length /tmp/skipped.json)" -gt 0 ]; then
+          if [ -f skipped.json ] && [ "$(jq length skipped.json)" -gt 0 ]; then
             echo "<details>" >> $GITHUB_STEP_SUMMARY
-            echo "<summary>Skipped ($(jq length /tmp/skipped.json) URLs)</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "<summary>Skipped ($(jq length skipped.json) URLs)</summary>" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            jq -r '.[]' /tmp/skipped.json | while read -r item; do
+            jq -r '.[]' skipped.json | while read -r item; do
               echo "- $item" >> $GITHUB_STEP_SUMMARY
             done
-            echo "" >> $GITHUB_STEP_SUMMARY
             echo "</details>" >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Summary
-        if: always()
-        run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit range:** ${{ steps.last-run.outputs.sha }}..HEAD" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit range:** \`${{ steps.last-run.outputs.sha }}\`..HEAD" >> $GITHUB_STEP_SUMMARY
