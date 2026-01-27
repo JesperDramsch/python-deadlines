@@ -215,20 +215,26 @@ jobs:
               parsed = urlparse(url)
               return f"{parsed.scheme}://{parsed.netloc}"
 
-          def url_exists(url: str) -> bool:
+          def get_url_prefix_before_year(url: str) -> Optional[str]:
               """
-              Check if URL already exists in changedetection.io.
+              Extract URL prefix up to (but not including) the year.
+              Returns None if no year found in URL.
 
-              Uses the base URL (domain) for partial matching to avoid
-              adding multiple watches for the same site.
+              Example: 'https://us.pycon.org/2026/speaking/' -> 'https://us.pycon.org/'
+              Example: 'https://pretalx.com/djangocon-2026/cfp' -> 'https://pretalx.com/djangocon-'
               """
+              match = YEAR_PATTERN.search(url)
+              if not match:
+                  return None
+              return url[:match.start() + 1]  # Include the '/' before the year
+
+          def search_url(search_term: str) -> bool:
+              """Search changedetection.io for a URL pattern."""
               if DRY_RUN:
                   return False
 
               try:
-                  # Search using base URL for broader matching
-                  base_url = get_base_url(url)
-                  encoded_url = quote(base_url, safe='')
+                  encoded_url = quote(search_term, safe='')
                   response = requests.get(
                       f"{BASE_URL}/search?q={encoded_url}&partial=true",
                       headers={'x-api-key': API_KEY},
@@ -236,13 +242,36 @@ jobs:
                   )
                   response.raise_for_status()
                   data = response.json()
-
-                  # Returns {"watches": {}} if no matches
                   watches = data.get('watches', {})
                   return len(watches) > 0
               except requests.RequestException as e:
                   print(f"  Warning: Search API error: {e}")
                   return False
+
+          def url_exists(url: str, use_base_url: bool = True) -> tuple[bool, str]:
+              """
+              Check if URL already exists in changedetection.io.
+
+              Args:
+                  url: The URL to check
+                  use_base_url: If True, search by domain only (for main pages).
+                               If False, search by exact URL (for CFP pages on shared platforms).
+
+              Returns:
+                  Tuple of (exists: bool, reason: str)
+              """
+              # Strategy 1: Check base URL (for main pages) or exact URL (for CFP)
+              search_term = get_base_url(url) if use_base_url else url
+              if search_url(search_term):
+                  match_type = "base URL" if use_base_url else "exact URL"
+                  return True, f"{match_type} match"
+
+              # Strategy 2: Check if a templated version exists (for URLs with years)
+              url_prefix = get_url_prefix_before_year(url)
+              if url_prefix and search_url(url_prefix):
+                  return True, "templated version exists"
+
+              return False, ""
 
           def add_watch(url: str, title: str, tags: list[str]) -> bool:
               """Add a new watch to changedetection.io."""
@@ -323,9 +352,14 @@ jobs:
                       results['skipped'].append(f"{title}: URL existed in previous version")
                       continue
 
-                  # Check if base URL already exists in changedetection.io
-                  if url_exists(url):
-                      results['skipped'].append(f"{title}: Already tracked in changedetection.io (base URL match)")
+                  # Check if URL already exists in changedetection.io
+                  # Main pages: use base URL matching (one watch per domain)
+                  # CFP pages: use exact URL matching (shared platforms like pretalx)
+                  # Both: also check for templated versions
+                  use_base_url = (field == 'link')
+                  exists, reason = url_exists(url, use_base_url=use_base_url)
+                  if exists:
+                      results['skipped'].append(f"{title}: Already tracked ({reason})")
                       continue
 
                   # Apply year templating if applicable
