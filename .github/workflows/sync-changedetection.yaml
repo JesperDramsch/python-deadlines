@@ -64,7 +64,7 @@ jobs:
           import subprocess
           import yaml
           import requests
-          from urllib.parse import quote
+          from urllib.parse import quote, urlparse
           from typing import Optional
 
           # Configuration
@@ -93,12 +93,13 @@ jobs:
               "DATA": "8e55732c-4d04-4457-bff8-2c0c851590db",    # PyData
           }
 
-          # URL fields to process
+          # CFP-specific tag (added to all CFP pages)
+          CFP_TAG = "5799f798-2b44-452e-aefa-43874f6c3e1e"
+
+          # URL fields to process (only main page and CFP)
           URL_FIELDS = {
               'link': 'Main',
               'cfp_link': 'CFP',
-              'sponsor': 'Sponsor',
-              'finaid': 'Financial Aid',
           }
 
           # Year detection regex (2024-2035 range)
@@ -180,7 +181,7 @@ jobs:
               template = f"{{% now 'utc' + 'months={start_month}', '%Y' %}}"
               return YEAR_PATTERN.sub(f'/{template}/', url)
 
-          def build_tags(conf: dict) -> list[str]:
+          def build_tags(conf: dict, field: str = 'link') -> list[str]:
               """Build list of tag UUIDs for a conference."""
               tags = list(BASE_TAGS)
 
@@ -195,6 +196,10 @@ jobs:
               if sub in SUB_TO_TAG:
                   tags.append(SUB_TO_TAG[sub])
 
+              # Add CFP tag for CFP pages
+              if field == 'cfp_link':
+                  tags.append(CFP_TAG)
+
               return tags
 
           def normalize_url(url: str) -> str:
@@ -203,14 +208,27 @@ jobs:
                   return ''
               return url.rstrip('/').lower()
 
+          def get_base_url(url: str) -> str:
+              """Extract base URL (scheme + domain) for duplicate checking."""
+              if not url:
+                  return ''
+              parsed = urlparse(url)
+              return f"{parsed.scheme}://{parsed.netloc}"
+
           def url_exists(url: str) -> bool:
-              """Check if URL already exists in changedetection.io."""
+              """
+              Check if URL already exists in changedetection.io.
+
+              Uses the base URL (domain) for partial matching to avoid
+              adding multiple watches for the same site.
+              """
               if DRY_RUN:
                   return False
 
               try:
-                  # Search for the URL (partial match)
-                  encoded_url = quote(url, safe='')
+                  # Search using base URL for broader matching
+                  base_url = get_base_url(url)
+                  encoded_url = quote(base_url, safe='')
                   response = requests.get(
                       f"{BASE_URL}/search?q={encoded_url}&partial=true",
                       headers={'x-api-key': API_KEY},
@@ -296,9 +314,6 @@ jobs:
               # Get start month for year templating
               start_month = get_start_month(conf)
 
-              # Build tags for this conference
-              tags = build_tags(conf)
-
               for field, url in urls.items():
                   field_label = URL_FIELDS[field]
                   title = f"{conf_name} - {field_label}"
@@ -308,22 +323,19 @@ jobs:
                       results['skipped'].append(f"{title}: URL existed in previous version")
                       continue
 
-                  # Check if URL already exists in changedetection.io
-                  # Check both the original URL and potential templated version
+                  # Check if base URL already exists in changedetection.io
                   if url_exists(url):
-                      results['skipped'].append(f"{title}: Already tracked in changedetection.io")
+                      results['skipped'].append(f"{title}: Already tracked in changedetection.io (base URL match)")
                       continue
 
                   # Apply year templating if applicable
                   templated_url = template_url(url, start_month)
 
-                  # If we templated the URL, also check if the template exists
-                  if templated_url != url and url_exists(templated_url):
-                      results['skipped'].append(f"{title}: Templated URL already tracked")
-                      continue
-
                   # Determine which URL to use (templated if applicable)
                   final_url = templated_url if templated_url != url else url
+
+                  # Build tags for this URL (CFP pages get extra tag)
+                  tags = build_tags(conf, field)
 
                   print(f"Adding: {title}")
                   if templated_url != url:
