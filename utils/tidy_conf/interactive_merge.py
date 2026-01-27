@@ -17,7 +17,6 @@ from thefuzz import process
 
 try:
     from tidy_conf.countries import COUNTRY_NORMALIZATION
-    from tidy_conf.countries import PLACE_COUNTRY_NORMALIZATION
     from tidy_conf.countries import normalize_place
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
