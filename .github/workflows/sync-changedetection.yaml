@@ -231,64 +231,83 @@ jobs:
                   return None
               return url[:match.start() + 1]  # Include the '/' before the year
 
-          def search_url(search_term: str) -> bool:
-              """Search changedetection.io for a URL pattern."""
+          # Cache for existing watches (populated once at startup)
+          existing_watches_cache = None
+
+          def fetch_existing_watches() -> set[str]:
+              """Fetch all existing watch URLs from changedetection.io."""
+              global existing_watches_cache
+              if existing_watches_cache is not None:
+                  return existing_watches_cache
+
+              existing_watches_cache = set()
+
               if DRY_RUN:
-                  return False
+                  return existing_watches_cache
 
               try:
-                  encoded_url = quote(search_term, safe='')
                   response = requests.get(
-                      f"{BASE_URL}/search?q={encoded_url}&partial=true",
+                      f"{BASE_URL}/watch",
                       headers={'x-api-key': API_KEY},
-                      timeout=30
+                      timeout=60
                   )
 
-                  # Handle non-2xx responses
                   if not response.ok:
-                      print(f"  Warning: Search API returned {response.status_code}: {response.text[:100]}")
-                      return False
+                      print(f"Warning: Could not fetch existing watches: HTTP {response.status_code}")
+                      return existing_watches_cache
 
-                  # Handle empty response
-                  if not response.text.strip():
-                      print(f"  Warning: Search API returned empty response")
-                      return False
+                  data = json.loads(response.text)
 
-                  # Parse JSON manually to get better error messages
-                  try:
-                      data = json.loads(response.text)
-                  except json.JSONDecodeError as e:
-                      print(f"  Warning: Search API returned invalid JSON: {response.text[:100]}")
-                      return False
+                  # Extract all URLs from existing watches
+                  for watch_id, watch_data in data.items():
+                      url = watch_data.get('url', '')
+                      if url:
+                          existing_watches_cache.add(url.lower())
+                          # Also add base URL for matching
+                          base = get_base_url(url)
+                          if base:
+                              existing_watches_cache.add(base.lower())
 
-                  watches = data.get('watches', {})
-                  return len(watches) > 0
+                  print(f"Loaded {len(data)} existing watches from changedetection.io")
+
               except requests.RequestException as e:
-                  print(f"  Warning: Search API request error: {e}")
-                  return False
+                  print(f"Warning: Could not fetch existing watches: {e}")
+              except json.JSONDecodeError as e:
+                  print(f"Warning: Invalid JSON from watches API: {e}")
 
-          def url_exists(url: str, use_base_url: bool = True) -> tuple[bool, str]:
+              return existing_watches_cache
+
+          def url_exists_in_cache(url: str, use_base_url: bool = True) -> tuple[bool, str]:
               """
-              Check if URL already exists in changedetection.io.
+              Check if URL already exists in changedetection.io cache.
 
               Args:
                   url: The URL to check
-                  use_base_url: If True, search by domain only (for main pages).
-                               If False, search by exact URL (for CFP pages on shared platforms).
+                  use_base_url: If True, also check by domain only (for main pages).
 
               Returns:
                   Tuple of (exists: bool, reason: str)
               """
-              # Strategy 1: Check base URL (for main pages) or exact URL (for CFP)
-              search_term = get_base_url(url) if use_base_url else url
-              if search_url(search_term):
-                  match_type = "base URL" if use_base_url else "exact URL"
-                  return True, f"{match_type} match"
+              cache = fetch_existing_watches()
 
-              # Strategy 2: Check if a templated version exists (for URLs with years)
+              # Check exact URL
+              if url.lower() in cache:
+                  return True, "exact URL match"
+
+              # For main pages, also check base URL
+              if use_base_url:
+                  base = get_base_url(url)
+                  if base and base.lower() in cache:
+                      return True, "base URL match"
+
+              # Check if a templated version exists (URL prefix before year)
               url_prefix = get_url_prefix_before_year(url)
-              if url_prefix and search_url(url_prefix):
-                  return True, "templated version exists"
+              if url_prefix:
+                  # Check if any cached URL starts with this prefix
+                  prefix_lower = url_prefix.lower()
+                  for cached_url in cache:
+                      if cached_url.startswith(prefix_lower):
+                          return True, "templated version exists"
 
               return False, ""
 
@@ -382,7 +401,7 @@ jobs:
                   # CFP pages: use exact URL matching (shared platforms like pretalx)
                   # Both: also check for templated versions
                   use_base_url = (field == 'link')
-                  exists, reason = url_exists(url, use_base_url=use_base_url)
+                  exists, reason = url_exists_in_cache(url, use_base_url=use_base_url)
                   if exists:
                       results['skipped'].append(f"{title}: Already tracked ({reason})")
                       continue
