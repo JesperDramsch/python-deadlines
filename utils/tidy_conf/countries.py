@@ -14,11 +14,13 @@ import iso3166
 # =============================================================================
 # CANONICAL SHORT NAMES
 # =============================================================================
-# These are the preferred short names used in the 'place' field
-# e.g., "San Francisco, US" or "London, UK"
+# These are the preferred short names used in different contexts:
+# - Place field: "USA" (e.g., "San Francisco, USA")
+# - Title field: "US" (e.g., "PyCon US")
 
 CANONICAL_COUNTRY_NAMES = {
-    "US": "US",  # United States - always use "US"
+    "US": "US",  # United States - for titles
+    "USA": "USA",  # United States - for places
     "UK": "UK",  # United Kingdom - always use "UK"
     "Czechia": "Czechia",  # Not "Czech Republic"
 }
@@ -43,16 +45,44 @@ COUNTRY_DISPLAY_NAMES = {
 }
 
 # =============================================================================
-# NORMALIZATION MAPPINGS
+# NORMALIZATION MAPPINGS (for titles)
 # =============================================================================
-# Maps various country name formats to canonical short form
-# Used when normalizing place fields during merge operations
+# Maps various country name formats to canonical short form for TITLES
+# Used when normalizing conference names (e.g., "PyCon US" stays "PyCon US")
 
 COUNTRY_NORMALIZATION = {
-    # US variations -> US
+    # US variations -> US (for titles)
     "United States": "US",
     "United States of America": "US",
     "USA": "US",
+    # UK variations -> UK
+    "United Kingdom": "UK",
+    "United Kingdom of Great Britain and Northern Ireland": "UK",
+    "Great Britain": "UK",
+    "Britain": "UK",
+    "England": "UK",
+    "Scotland": "UK",
+    "Wales": "UK",
+    "GB": "UK",
+    # Czechia variations
+    "Czech Republic": "Czechia",
+    # Korea variations
+    "Korea": "South Korea",
+    "Korea, Republic of": "South Korea",
+}
+
+# =============================================================================
+# PLACE COUNTRY NORMALIZATION MAPPINGS
+# =============================================================================
+# Maps various country name formats to canonical form for PLACES
+# Used when normalizing place fields (e.g., "San Francisco, USA")
+# Key difference: US variations map to "USA" (not "US")
+
+PLACE_COUNTRY_NORMALIZATION = {
+    # US variations -> USA (for places)
+    "United States": "USA",
+    "United States of America": "USA",
+    "US": "USA",
     # UK variations -> UK
     "United Kingdom": "UK",
     "United Kingdom of Great Britain and Northern Ireland": "UK",
@@ -116,7 +146,10 @@ ISO_COUNTRY_ALIASES = {
 
 
 def normalize_country_name(country: str) -> str:
-    """Normalize a country name to its canonical short form.
+    """Normalize a country name to its canonical short form for TITLES.
+
+    Use this for conference titles (e.g., "PyCon US" stays "PyCon US").
+    For place fields, use normalize_place_country() instead.
 
     Parameters
     ----------
@@ -133,9 +166,9 @@ def normalize_country_name(country: str) -> str:
 
     country = country.strip()
 
-    # Check if it's already canonical
-    if country in CANONICAL_COUNTRY_NAMES:
-        return country
+    # Check if it's already canonical (US for titles)
+    if country == "US":
+        return "US"
 
     # Try normalization mapping
     if country in COUNTRY_NORMALIZATION:
@@ -148,6 +181,84 @@ def normalize_country_name(country: str) -> str:
             return value
 
     return country
+
+
+def normalize_place_country(country: str) -> str:
+    """Normalize a country name to its canonical form for PLACES.
+
+    Use this for place fields (e.g., "San Francisco, USA").
+    For conference titles, use normalize_country_name() instead.
+
+    Parameters
+    ----------
+    country : str
+        Country name to normalize (e.g., "United States of America", "USA", "US")
+
+    Returns
+    -------
+    str
+        Canonical form for places (e.g., "USA", "UK", "Czechia")
+    """
+    if not country or not isinstance(country, str):
+        return country if isinstance(country, str) else ""
+
+    country = country.strip()
+
+    # Check if it's already canonical (USA for places)
+    if country == "USA":
+        return "USA"
+    if country == "UK":
+        return "UK"
+    if country == "Czechia":
+        return "Czechia"
+
+    # Try normalization mapping for places
+    if country in PLACE_COUNTRY_NORMALIZATION:
+        return PLACE_COUNTRY_NORMALIZATION[country]
+
+    # Try case-insensitive normalization
+    country_upper = country.upper()
+    for key, value in PLACE_COUNTRY_NORMALIZATION.items():
+        if key.upper() == country_upper:
+            return value
+
+    return country
+
+
+def normalize_place(place: str) -> str:
+    """Normalize a place string to use canonical country format.
+
+    Handles places like "City, Country" and normalizes the country part.
+    For US places, uses "USA" (not "US" or "United States of America").
+
+    Parameters
+    ----------
+    place : str
+        Place string to normalize (e.g., "San Francisco, United States of America")
+
+    Returns
+    -------
+    str
+        Normalized place (e.g., "San Francisco, USA")
+    """
+    if not place or not isinstance(place, str):
+        return place if isinstance(place, str) else ""
+
+    place = place.strip()
+
+    if "," not in place:
+        # No comma, might be just a country or single location
+        return normalize_place_country(place)
+
+    # Split by comma and normalize the country (last part)
+    parts = [p.strip() for p in place.split(",")]
+    if len(parts) >= 2:
+        country = parts[-1]
+        normalized_country = normalize_place_country(country)
+        parts[-1] = normalized_country
+        return ", ".join(parts)
+
+    return place
 
 
 def get_country_display_name(code: str) -> str:
