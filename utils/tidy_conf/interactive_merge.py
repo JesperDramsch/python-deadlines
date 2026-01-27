@@ -31,7 +31,6 @@ try:
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
     from .countries import COUNTRY_NORMALIZATION
-    from .countries import PLACE_COUNTRY_NORMALIZATION
     from .countries import normalize_place
     from .schema import get_schema
     from .titles import tidy_df_names
