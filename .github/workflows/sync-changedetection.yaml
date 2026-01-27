@@ -246,7 +246,7 @@ jobs:
 
                   # Handle non-2xx responses
                   if not response.ok:
-                      print(f"  Warning: Search API returned {response.status_code}")
+                      print(f"  Warning: Search API returned {response.status_code}: {response.text[:100]}")
                       return False
 
                   # Handle empty response
@@ -254,14 +254,17 @@ jobs:
                       print(f"  Warning: Search API returned empty response")
                       return False
 
-                  data = response.json()
+                  # Parse JSON manually to get better error messages
+                  try:
+                      data = json.loads(response.text)
+                  except json.JSONDecodeError as e:
+                      print(f"  Warning: Search API returned invalid JSON: {response.text[:100]}")
+                      return False
+
                   watches = data.get('watches', {})
                   return len(watches) > 0
               except requests.RequestException as e:
                   print(f"  Warning: Search API request error: {e}")
-                  return False
-              except json.JSONDecodeError as e:
-                  print(f"  Warning: Search API returned invalid JSON: {e}")
                   return False
 
           def url_exists(url: str, use_base_url: bool = True) -> tuple[bool, str]:
