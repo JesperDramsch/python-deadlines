@@ -16,6 +16,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+
 concurrency:
   group: sync-changedetection
   cancel-in-progress: false
@@ -52,7 +55,7 @@ jobs:
 
       - name: Sync URLs to changedetection.io
         env:
-          CHANGEDETECTION_API_KEY: ${{ secrets.CHANGEDETECTION_API_KEY }}
+          CHANGEDETECTION_API_KEY: ${{ secrets.CHANGEDETECTION_KEY }}
           CHANGEDETECTION_BASE_URL: https://changedetect.amplt.de/api/v1
           DRY_RUN: ${{ inputs.dry_run }}
           LAST_SHA: ${{ steps.last-run.outputs.sha }}
