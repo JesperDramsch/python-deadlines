@@ -1,0 +1,422 @@
+name: Sync New URLs to Changedetection.io
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - '_data/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (log actions without making API calls)'
+        type: boolean
+        default: false
+      force_recheck:
+        description: 'Check all URLs, not just new ones'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-changedetection
+  cancel-in-progress: false
+
+jobs:
+  sync-urls:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml requests
+
+      - name: Find last successful run commit
+        id: last-run
+        run: |
+          last_sha=$(gh run list --workflow="Sync New URLs to Changedetection.io" --json conclusion,headSha --jq '.[] | select(.conclusion=="success") | .headSha' | head -n1)
+          if [ -n "$last_sha" ] && [ "${{ inputs.force_recheck }}" != "true" ]; then
+            echo "sha=$last_sha" >> $GITHUB_OUTPUT
+            echo "Found last successful run at $last_sha"
+          else
+            echo "sha=$(git rev-list --max-parents=0 HEAD)" >> $GITHUB_OUTPUT
+            echo "Using initial commit (full scan mode)"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync URLs to changedetection.io
+        env:
+          CHANGEDETECTION_API_KEY: ${{ secrets.CHANGEDETECTION_API_KEY }}
+          CHANGEDETECTION_BASE_URL: https://changedetect.amplt.de/api/v1
+          DRY_RUN: ${{ inputs.dry_run }}
+          LAST_SHA: ${{ steps.last-run.outputs.sha }}
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import os
+          import re
+          import json
+          import subprocess
+          import yaml
+          import requests
+          from urllib.parse import quote
+          from typing import Optional
+
+          # Configuration
+          API_KEY = os.environ.get('CHANGEDETECTION_API_KEY', '')
+          BASE_URL = os.environ.get('CHANGEDETECTION_BASE_URL', 'https://changedetect.amplt.de/api/v1')
+          DRY_RUN = os.environ.get('DRY_RUN', 'false').lower() == 'true'
+          LAST_SHA = os.environ.get('LAST_SHA', '')
+
+          # Tag UUIDs
+          BASE_TAGS = [
+              "1ad0fbdf-482a-4296-b983-45311ccf2352",
+              "aa19ce68-9d8f-4e86-8df2-342faccbccc8",
+          ]
+
+          CONTINENT_TAGS = {
+              "africa": "70a6a80d-c13d-450f-b36e-cfa6cbd3fbd4",
+              "europe": "23a96495-26fc-4fa6-bdda-78c3051748e5",
+              "america": "b44ef3c3-7280-49bc-b71f-4d7c0ca62fb7",
+              "asia": "b488faec-899a-4578-9560-7154999b8c9e",
+              "oceania": "11742b59-eb4e-42b3-8069-64dfc1bced4e",
+          }
+
+          SUB_TO_TAG = {
+              "WEB": "7054a0fb-69db-47fd-9c2e-3ee6c638bac7",     # Django
+              "SCIPY": "571f57a6-258d-4101-9136-cd1643365e55",   # SciPy
+              "DATA": "8e55732c-4d04-4457-bff8-2c0c851590db",    # PyData
+          }
+
+          # URL fields to process
+          URL_FIELDS = {
+              'link': 'Main',
+              'cfp_link': 'CFP',
+              'sponsor': 'Sponsor',
+              'finaid': 'Financial Aid',
+          }
+
+          # Year detection regex (2024-2035 range)
+          YEAR_PATTERN = re.compile(r'/(20(?:2[4-9]|3[0-5]))/')
+
+          # Results tracking
+          results = {
+              'added': [],
+              'skipped': [],
+              'errors': [],
+          }
+
+          def get_continent(lat: float, lon: float) -> Optional[str]:
+              """Determine continent from latitude/longitude."""
+              if lat is None or lon is None:
+                  return None
+
+              # Americas (Western Hemisphere)
+              if lon < -30:
+                  return "america"
+
+              # Oceania (Southern Hemisphere, Eastern)
+              if lat < 0 and lon > 100:
+                  return "oceania"
+
+              # Africa (below ~35°N, Eastern Hemisphere west of Middle East)
+              if lat < 35 and lon < 55:
+                  return "africa"
+
+              # Asia (east of ~40°E)
+              if lon > 40:
+                  return "asia"
+
+              # Europe (remaining Western Eurasia)
+              return "europe"
+
+          def get_location_coords(conf: dict) -> tuple[Optional[float], Optional[float]]:
+              """Extract latitude/longitude from conference entry."""
+              location = conf.get('location', [])
+              if location and isinstance(location, list) and len(location) > 0:
+                  loc = location[0]
+                  return loc.get('latitude'), loc.get('longitude')
+              return None, None
+
+          def get_start_month(conf: dict) -> Optional[int]:
+              """Extract month from conference start date."""
+              start = conf.get('start')
+              if not start:
+                  return None
+
+              # Handle both string and date objects
+              if hasattr(start, 'month'):
+                  return start.month
+
+              # Parse string date (YYYY-MM-DD)
+              try:
+                  parts = str(start).split('-')
+                  if len(parts) >= 2:
+                      return int(parts[1])
+              except (ValueError, IndexError):
+                  pass
+              return None
+
+          def template_url(url: str, start_month: Optional[int]) -> str:
+              """
+              Replace year in URL with Jinja2 template for changedetection.io.
+
+              Uses the conference start month as the offset to ensure we're
+              checking for the next edition after the current one concludes.
+              """
+              if not start_month:
+                  return url
+
+              match = YEAR_PATTERN.search(url)
+              if not match:
+                  return url
+
+              # Create Jinja2 template: {% now 'utc' + 'months=N', '%Y' %}
+              template = f"{{% now 'utc' + 'months={start_month}', '%Y' %}}"
+              return YEAR_PATTERN.sub(f'/{template}/', url)
+
+          def build_tags(conf: dict) -> list[str]:
+              """Build list of tag UUIDs for a conference."""
+              tags = list(BASE_TAGS)
+
+              # Add continent tag
+              lat, lon = get_location_coords(conf)
+              continent = get_continent(lat, lon)
+              if continent and continent in CONTINENT_TAGS:
+                  tags.append(CONTINENT_TAGS[continent])
+
+              # Add type tag based on sub field
+              sub = conf.get('sub', '').upper()
+              if sub in SUB_TO_TAG:
+                  tags.append(SUB_TO_TAG[sub])
+
+              return tags
+
+          def normalize_url(url: str) -> str:
+              """Normalize URL for comparison."""
+              if not url:
+                  return ''
+              return url.rstrip('/').lower()
+
+          def url_exists(url: str) -> bool:
+              """Check if URL already exists in changedetection.io."""
+              if DRY_RUN:
+                  return False
+
+              try:
+                  # Search for the URL (partial match)
+                  encoded_url = quote(url, safe='')
+                  response = requests.get(
+                      f"{BASE_URL}/search?q={encoded_url}&partial=true",
+                      headers={'x-api-key': API_KEY},
+                      timeout=30
+                  )
+                  response.raise_for_status()
+                  data = response.json()
+
+                  # Returns {"watches": {}} if no matches
+                  watches = data.get('watches', {})
+                  return len(watches) > 0
+              except requests.RequestException as e:
+                  print(f"  Warning: Search API error: {e}")
+                  return False
+
+          def add_watch(url: str, title: str, tags: list[str]) -> bool:
+              """Add a new watch to changedetection.io."""
+              if DRY_RUN:
+                  print(f"  [DRY RUN] Would add: {title}")
+                  return True
+
+              try:
+                  payload = {
+                      'url': url,
+                      'title': title,
+                      'tags': tags,
+                  }
+
+                  response = requests.post(
+                      f"{BASE_URL}/watch",
+                      headers={
+                          'x-api-key': API_KEY,
+                          'Content-Type': 'application/json',
+                      },
+                      json=payload,
+                      timeout=30
+                  )
+                  response.raise_for_status()
+                  return True
+              except requests.RequestException as e:
+                  print(f"  Error adding watch: {e}")
+                  return False
+
+          def get_old_conferences() -> list[dict]:
+              """Get conferences from the previous commit."""
+              try:
+                  result = subprocess.run(
+                      ['git', 'show', f'{LAST_SHA}:_data/conferences.yml'],
+                      capture_output=True, text=True
+                  )
+                  if result.returncode == 0:
+                      return yaml.safe_load(result.stdout) or []
+              except Exception as e:
+                  print(f"Warning: Could not load old conferences: {e}")
+              return []
+
+          def get_current_conferences() -> list[dict]:
+              """Get conferences from the current version."""
+              try:
+                  with open('_data/conferences.yml', 'r') as f:
+                      return yaml.safe_load(f) or []
+              except Exception as e:
+                  print(f"Error loading conferences: {e}")
+              return []
+
+          def extract_all_urls(conf: dict) -> dict[str, str]:
+              """Extract all URL fields from a conference entry."""
+              urls = {}
+              for field, label in URL_FIELDS.items():
+                  url = conf.get(field)
+                  if url:
+                      urls[field] = url
+              return urls
+
+          def process_conference(conf: dict, old_urls: set[str]):
+              """Process a single conference entry."""
+              conf_name = f"{conf.get('conference', 'Unknown')} {conf.get('year', '')}".strip()
+              urls = extract_all_urls(conf)
+
+              if not urls:
+                  return
+
+              # Get start month for year templating
+              start_month = get_start_month(conf)
+
+              # Build tags for this conference
+              tags = build_tags(conf)
+
+              for field, url in urls.items():
+                  field_label = URL_FIELDS[field]
+                  title = f"{conf_name} - {field_label}"
+
+                  # Check if this URL is new (wasn't in old data)
+                  if normalize_url(url) in old_urls:
+                      results['skipped'].append(f"{title}: URL existed in previous version")
+                      continue
+
+                  # Check if URL already exists in changedetection.io
+                  # Check both the original URL and potential templated version
+                  if url_exists(url):
+                      results['skipped'].append(f"{title}: Already tracked in changedetection.io")
+                      continue
+
+                  # Apply year templating if applicable
+                  templated_url = template_url(url, start_month)
+
+                  # If we templated the URL, also check if the template exists
+                  if templated_url != url and url_exists(templated_url):
+                      results['skipped'].append(f"{title}: Templated URL already tracked")
+                      continue
+
+                  # Determine which URL to use (templated if applicable)
+                  final_url = templated_url if templated_url != url else url
+
+                  print(f"Adding: {title}")
+                  if templated_url != url:
+                      print(f"  Original: {url}")
+                      print(f"  Templated: {templated_url}")
+                  print(f"  Tags: {len(tags)} tags")
+
+                  # Add the watch
+                  if add_watch(final_url, title, tags):
+                      results['added'].append(f"{title}: {final_url}")
+                  else:
+                      results['errors'].append(f"{title}: Failed to add watch")
+
+          def main():
+              print("=" * 60)
+              print("Sync New URLs to Changedetection.io")
+              print("=" * 60)
+
+              if not API_KEY:
+                  print("Error: CHANGEDETECTION_API_KEY not set")
+                  exit(1)
+
+              if DRY_RUN:
+                  print("*** DRY RUN MODE - No changes will be made ***")
+
+              print(f"\nComparing against commit: {LAST_SHA[:8]}...")
+
+              # Load old and new conference data
+              old_conferences = get_old_conferences()
+              new_conferences = get_current_conferences()
+
+              print(f"Old conferences: {len(old_conferences)}")
+              print(f"Current conferences: {len(new_conferences)}")
+
+              # Build set of all old URLs (normalized)
+              old_urls = set()
+              for conf in old_conferences:
+                  for field in URL_FIELDS.keys():
+                      url = conf.get(field)
+                      if url:
+                          old_urls.add(normalize_url(url))
+
+              print(f"URLs in previous version: {len(old_urls)}")
+              print()
+
+              # Process each current conference
+              for conf in new_conferences:
+                  process_conference(conf, old_urls)
+
+              # Print summary
+              print()
+              print("=" * 60)
+              print("Summary")
+              print("=" * 60)
+              print(f"Added: {len(results['added'])}")
+              print(f"Skipped: {len(results['skipped'])}")
+              print(f"Errors: {len(results['errors'])}")
+
+              # Write to GitHub Step Summary
+              summary_file = os.environ.get('GITHUB_STEP_SUMMARY')
+              if summary_file:
+                  with open(summary_file, 'a') as f:
+                      f.write("## Changedetection.io Sync Results\n\n")
+
+                      if results['added']:
+                          f.write("### ✅ Added\n")
+                          for item in results['added']:
+                              f.write(f"- {item}\n")
+                          f.write("\n")
+
+                      if results['errors']:
+                          f.write("### ❌ Errors\n")
+                          for item in results['errors']:
+                              f.write(f"- {item}\n")
+                          f.write("\n")
+
+                      if results['skipped']:
+                          f.write("<details>\n<summary>Skipped ({} URLs)</summary>\n\n".format(len(results['skipped'])))
+                          for item in results['skipped']:
+                              f.write(f"- {item}\n")
+                          f.write("\n</details>\n")
+
+                      f.write(f"\n**Total:** {len(results['added'])} added, {len(results['skipped'])} skipped, {len(results['errors'])} errors\n")
+
+              # Exit with error if any failures
+              if results['errors']:
+                  print("\nSome URLs failed to add. Check the errors above.")
+                  # Don't fail the workflow - individual failures shouldn't stop everything
+                  # exit(1)
+
+          if __name__ == '__main__':
+              main()
+          PYTHON_SCRIPT
