@@ -234,13 +234,91 @@ class TestRegressionUSExpansion:
         result = normalize_conference_name("PyCon DE")
         assert result == "PyCon Germany"
 
-    def test_place_with_us_not_expanded(self):
-        """A place ending with 'US' or 'USA' should normalize correctly."""
-        from tidy_conf.countries import normalize_country_name
+    def test_place_with_us_normalizes_to_usa(self):
+        """Place fields should use 'USA' not 'US'."""
+        from tidy_conf.countries import normalize_place_country
 
-        # Direct normalization
-        assert normalize_country_name("USA") == "US"
+        # All US variations should normalize to "USA" in places
+        assert normalize_place_country("USA") == "USA"
+        assert normalize_place_country("US") == "USA"
+        assert normalize_place_country("United States") == "USA"
+        assert normalize_place_country("United States of America") == "USA"
 
-        # After normalization, it should stay as "US"
-        result = normalize_country_name("US")
-        assert result == "US"
+
+class TestRegressionUSOfAmerica:
+    """Regression tests for the 'US of America' bug (PR #222).
+
+    The bug occurred when normalizing places like 'San Francisco, United States of America'
+    using substring replacement. Replacing 'United States' before 'United States of America'
+    resulted in 'San Francisco, US of America' instead of 'San Francisco, USA'.
+    """
+
+    def test_place_normalization_no_us_of_america(self):
+        """Place normalization should never produce 'US of America'."""
+        from tidy_conf.countries import normalize_place
+
+        # These were the problematic cases from PR #222
+        test_cases = [
+            ("San Francisco, United States of America", "San Francisco, USA"),
+            ("Chicago, United States of America", "Chicago, USA"),
+            ("Austin, United States", "Austin, USA"),
+            ("Long Beach, USA", "Long Beach, USA"),
+            ("Minneapolis, US", "Minneapolis, USA"),
+        ]
+
+        for input_place, expected in test_cases:
+            result = normalize_place(input_place)
+            assert result == expected, f"Expected '{expected}', got '{result}'"
+            assert "US of America" not in result, f"Found 'US of America' in '{result}'"
+            assert "United States" not in result, f"Found 'United States' in '{result}'"
+
+    def test_place_normalization_preserves_city(self):
+        """Place normalization should preserve the city name."""
+        from tidy_conf.countries import normalize_place
+
+        assert normalize_place("San Francisco, USA") == "San Francisco, USA"
+        assert normalize_place("New York, US") == "New York, USA"
+        assert normalize_place("Austin, United States") == "Austin, USA"
+
+    def test_place_normalization_uk_uses_uk(self):
+        """UK places should use 'UK' not 'United Kingdom'."""
+        from tidy_conf.countries import normalize_place
+
+        assert normalize_place("London, United Kingdom") == "London, UK"
+        assert normalize_place("Edinburgh, Great Britain") == "Edinburgh, UK"
+        assert normalize_place("London, UK") == "London, UK"
+
+    def test_place_normalization_non_us_uk_unchanged(self):
+        """Non-US/UK places should be unchanged (except standard normalization)."""
+        from tidy_conf.countries import normalize_place
+
+        assert normalize_place("Berlin, Germany") == "Berlin, Germany"
+        assert normalize_place("Tokyo, Japan") == "Tokyo, Japan"
+        assert normalize_place("Paris, France") == "Paris, France"
+
+    def test_place_normalization_idempotent(self):
+        """Normalizing a place twice should give the same result."""
+        from tidy_conf.countries import normalize_place
+
+        places = [
+            "San Francisco, USA",
+            "London, UK",
+            "Berlin, Germany",
+            "Austin, United States of America",
+        ]
+        for place in places:
+            once = normalize_place(place)
+            twice = normalize_place(once)
+            assert once == twice, f"Not idempotent: '{place}' -> '{once}' -> '{twice}'"
+
+    def test_title_still_uses_us(self):
+        """Conference titles should still use 'US' not 'USA'."""
+        from tidy_conf.titles import normalize_conference_name
+
+        # Titles should use "US"
+        assert normalize_conference_name("PyCon US") == "PyCon US"
+        assert normalize_conference_name("DjangoCon US") == "DjangoCon US"
+
+        # The title normalization should NOT produce "USA"
+        result = normalize_conference_name("PyCon US")
+        assert "USA" not in result
