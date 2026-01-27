@@ -513,7 +513,7 @@ jobs:
             "messages": [
               {
                 "role": "user",
-                "content": "PROMPT_PLACEHOLDER\n\nConference: CONF_PLACEHOLDER\nURL: URL_PLACEHOLDER\n\nDIFF:\n```\nDIFF_PLACEHOLDER\n```\n\nRespond with EXACTLY this format:\nDECISION: RELEVANT or NOISE\nNEW_YEAR: YES or NO\nDETECTED_YEAR: [year or none]\nREASON: [one sentence]\nCONFIDENCE: HIGH, MEDIUM, or LOW\nSUGGESTED_FILTERS: [css selectors/patterns or none]"
+                "content": "PROMPT_PLACEHOLDER\n\nConference: CONF_PLACEHOLDER\nURL: URL_PLACEHOLDER\n\nDIFF:\n```\nDIFF_PLACEHOLDER\n```\n\nRespond with EXACTLY this format:\nDECISION: RELEVANT or NOISE\nNEW_YEAR: YES or NO\nDETECTED_YEAR: [year or none]\nREASON: [one sentence]\nCONFIDENCE: HIGH, MEDIUM, or LOW\nSUGGESTED_FILTERS: [CSS selectors like '.footer, #nav, .countdown' and/or text patterns like 'text:Copyright, text:Last updated' - or 'none' if no filters needed. Do NOT use natural language descriptions.]"
               }
             ]
           }
@@ -719,6 +719,19 @@ jobs:
             exit 0
           fi
 
+          # Validate filter format: must contain CSS selectors (starting with . # or tag names)
+          # or text: patterns. Reject natural language descriptions.
+          # Valid examples: ".footer, #nav, text:Copyright"
+          # Invalid: "Filter out pages discussing..."
+          if ! echo "$FILTERS" | grep -qE '^\s*([.#]|text:|[a-z]+\[|[a-z]+\s*,|[a-z]+\s*$)' ; then
+            # Check if it looks like natural language (contains common words)
+            if echo "$FILTERS" | grep -qiE '\b(filter|out|pages|discussing|announcements|containing|patterns|deadline)\b'; then
+              echo "::warning::Filters appear to be natural language, not CSS selectors. Skipping."
+              echo "success=skipped" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+
           # Parse CSS selectors and text patterns
           CSS_FILTERS=$(echo "$FILTERS" | tr ',' '\n' | grep -v 'text:' | sed 's/^ *//' | tr '\n' ',' | sed 's/,$//')
           TEXT_PATTERNS=$(echo "$FILTERS" | tr ',' '\n' | grep 'text:' | sed 's/text://' | sed 's/^ *//' | jq -R -s -c 'split("\n") | map(select(length > 0))')
@@ -749,11 +762,26 @@ jobs:
             MERGED_CSS="$EXISTING_CSS"
           fi
 
-          EXISTING_TEXT=$(echo "$CURRENT" | jq -c '.ignore_text // []')
-          if [ "$TEXT_PATTERNS" != "[]" ] && [ "$TEXT_PATTERNS" != "null" ]; then
-            MERGED_TEXT=$(echo "$EXISTING_TEXT $TEXT_PATTERNS" | jq -s 'add | unique')
+          EXISTING_TEXT=$(echo "$CURRENT" | jq -c '.ignore_text // []' 2>/dev/null) || EXISTING_TEXT="[]"
+          # Ensure EXISTING_TEXT is valid JSON array
+          if ! echo "$EXISTING_TEXT" | jq -e 'type == "array"' > /dev/null 2>&1; then
+            EXISTING_TEXT="[]"
+          fi
+
+          # Ensure TEXT_PATTERNS is valid JSON array
+          if [ -z "$TEXT_PATTERNS" ] || ! echo "$TEXT_PATTERNS" | jq -e 'type == "array"' > /dev/null 2>&1; then
+            TEXT_PATTERNS="[]"
+          fi
+
+          if [ "$TEXT_PATTERNS" != "[]" ]; then
+            MERGED_TEXT=$(echo "$EXISTING_TEXT $TEXT_PATTERNS" | jq -s 'add | unique' 2>/dev/null) || MERGED_TEXT="$EXISTING_TEXT"
           else
             MERGED_TEXT="$EXISTING_TEXT"
+          fi
+
+          # Final validation: ensure MERGED_TEXT is valid JSON array
+          if ! echo "$MERGED_TEXT" | jq -e 'type == "array"' > /dev/null 2>&1; then
+            MERGED_TEXT="[]"
           fi
 
           # Apply update
