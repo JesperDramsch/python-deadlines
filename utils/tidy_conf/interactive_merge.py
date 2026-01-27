@@ -17,6 +17,7 @@ from thefuzz import process
 
 try:
     from tidy_conf.countries import COUNTRY_NORMALIZATION
+    from tidy_conf.countries import normalize_place
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import query_yes_no
@@ -29,6 +30,7 @@ try:
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
     from .countries import COUNTRY_NORMALIZATION
+    from .countries import normalize_place
     from .schema import get_schema
     from .titles import tidy_df_names
     from .utils import query_yes_no
@@ -453,6 +455,8 @@ def merge_conferences(
 
     # Use centralized country normalization mappings
     # This ensures consistency with the rest of the codebase
+    # Note: For place fields, we use normalize_place() which uses PLACE_COUNTRY_NORMALIZATION
+    # For other fields, we use COUNTRY_NORMALIZATION (substring replacement)
     replacements = COUNTRY_NORMALIZATION
 
     logger.info("Performing pandas merge on 'title_match'")
@@ -494,11 +498,20 @@ def merge_conferences(
             # print(i,cx,cy,cx in df_merge.columns and cy in df_merge.columns,column in df_merge.columns,)
             if cx in df_merge.columns and cy in df_merge.columns:
                 rx, ry = row[cx], row[cy]
-                for orig, replacement in replacements.items():
+                # For place fields, use the dedicated normalize_place function
+                # This prevents the "US of America" bug (substring replacement issues)
+                if column == "place":
                     if isinstance(rx, str):
-                        rx = rx.replace(orig, replacement)
+                        rx = normalize_place(rx)
                     if isinstance(ry, str):
-                        ry = ry.replace(orig, replacement)
+                        ry = normalize_place(ry)
+                else:
+                    # For other columns, use substring replacement
+                    for orig, replacement in replacements.items():
+                        if isinstance(rx, str):
+                            rx = rx.replace(orig, replacement)
+                        if isinstance(ry, str):
+                            ry = ry.replace(orig, replacement)
                 # Prefer my sponsor info if exists
                 if column == "sponsor" and not pd.isnull(rx):
                     ry = rx
