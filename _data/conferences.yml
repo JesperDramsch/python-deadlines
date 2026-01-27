@@ -6,7 +6,7 @@
   cfp_link: https://pybay.org/speaking/
   cfp: '2026-07-31 23:59:00'
   timezone: America/Los_Angeles
-  place: San Francisco, US of America
+  place: San Francisco, USA
   start: 2026-10-03
   end: 2026-10-03
   sponsor: https://pybay.org/sponsors/sponsor-us/
@@ -22,7 +22,7 @@
   cfp_link: https://pretalx.com/djangocon-us-2026/cfp
   cfp: '2026-03-16 11:00:00'
   timezone: America/Chicago
-  place: Chicago, US of America
+  place: Chicago, USA
   start: 2026-09-14
   end: 2026-09-18
   mastodon: https://fosstodon.org/@djangocon
@@ -256,7 +256,7 @@
   link: https://us.pycon.org/2026/
   cfp_link: https://us.pycon.org/2026/speaking/talks/
   cfp: '2025-12-19 23:59:00'
-  place: Long Beach, US of America
+  place: Long Beach, USA
   start: 2026-05-13
   end: 2026-05-19
   sponsor: https://us.pycon.org/2026/sponsorship/why-sponsor/
@@ -395,7 +395,7 @@
   year: 2026
   link: https://pyohio.org/2026/
   cfp: TBA
-  place: Cleveland, US of America
+  place: Cleveland, USA
   start: 2026-07-25
   end: 2026-07-26
   sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
