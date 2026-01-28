@@ -1,5 +1,8 @@
 name: Archive New Conference URLs
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [ main, master]
