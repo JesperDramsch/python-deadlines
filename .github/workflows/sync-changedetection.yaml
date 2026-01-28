@@ -84,28 +84,62 @@ jobs:
 
           echo "Testing API connectivity..."
 
-          # Test with systeminfo endpoint (doesn't require parsing watch data)
+          # Debug: Verify secrets are being read (show length, first 4 chars)
           if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            RESPONSE=$(curl -sf \
+            CLIENT_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
+            CLIENT_SECRET="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
+            echo "Debug: CF Access Client ID length: ${#CLIENT_ID} chars, starts with: ${CLIENT_ID:0:4}..."
+            echo "Debug: CF Access Client Secret length: ${#CLIENT_SECRET} chars, starts with: ${CLIENT_SECRET:0:4}..."
+          fi
+
+          CURL_OUTPUT=$(mktemp)
+          CURL_HEADERS=$(mktemp)
+
+          # Test with systeminfo endpoint
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            HTTP_CODE=$(curl -w '%{http_code}' -s -D "$CURL_HEADERS" \
               -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
               -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
               -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
-              "$API_URL")
+              "$API_URL" -o "$CURL_OUTPUT")
           else
-            RESPONSE=$(curl -sf \
+            HTTP_CODE=$(curl -w '%{http_code}' -s -D "$CURL_HEADERS" \
               -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
-              "$API_URL")
+              "$API_URL" -o "$CURL_OUTPUT")
           fi
 
-          if [ $? -eq 0 ]; then
-            echo "✅ API connectivity test passed"
-            echo "API version: $(echo "$RESPONSE" | jq -r '.version // "unknown"')"
-          else
-            echo "::error::❌ API connectivity test failed"
-            echo "::error::Cannot connect to changedetection.io API"
-            echo "::error::This will cause the workflow to fail"
+          echo "HTTP status code: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" = "302" ] || [ "$HTTP_CODE" = "301" ]; then
+            echo "::error::❌ API connectivity test failed - HTTP $HTTP_CODE redirect"
+            echo "::error::Redirect location:"
+            grep -i "location:" "$CURL_HEADERS" || echo "No Location header found"
+            echo "::error::This means CF Access credentials are not working"
+            rm -f "$CURL_OUTPUT" "$CURL_HEADERS"
             exit 1
           fi
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::❌ API connectivity test failed - HTTP $HTTP_CODE"
+            echo "::error::Response body:"
+            cat "$CURL_OUTPUT" | head -c 500
+            rm -f "$CURL_OUTPUT" "$CURL_HEADERS"
+            exit 1
+          fi
+
+          RESPONSE=$(cat "$CURL_OUTPUT")
+          rm -f "$CURL_OUTPUT" "$CURL_HEADERS"
+
+          # Validate response is valid JSON
+          if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
+            echo "::error::❌ API returned invalid JSON (HTML login page)"
+            echo "::error::Response preview:"
+            echo "$RESPONSE" | head -c 500
+            exit 1
+          fi
+
+          echo "✅ API connectivity test passed"
+          echo "API version: $(echo "$RESPONSE" | jq -r '.version // "unknown"')"
 
       - name: Fetch existing watches from changedetection.io
         id: fetch-watches
@@ -126,22 +160,31 @@ jobs:
           # Test curl with verbose output to see what's happening
           echo "Debug: Testing curl with verbose output..."
           CURL_OUTPUT=$(mktemp)
+          CURL_HEADERS=$(mktemp)
 
           # Build curl command with proper headers (no eval needed)
           if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            HTTP_CODE=$(curl -w '%{http_code}' -s \
+            HTTP_CODE=$(curl -w '%{http_code}' -s -D "$CURL_HEADERS" \
               -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
               -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
               -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
               "$API_URL" -o "$CURL_OUTPUT")
           else
-            HTTP_CODE=$(curl -w '%{http_code}' -s \
+            HTTP_CODE=$(curl -w '%{http_code}' -s -D "$CURL_HEADERS" \
               -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
               "$API_URL" -o "$CURL_OUTPUT")
           fi
 
           echo "Debug: HTTP status code: $HTTP_CODE"
           echo "Debug: Response size: $(wc -c < "$CURL_OUTPUT") bytes"
+
+          # Show redirect location if present
+          if [ "$HTTP_CODE" = "302" ] || [ "$HTTP_CODE" = "301" ]; then
+            echo "Debug: Redirect detected - response headers:"
+            grep -i "location:" "$CURL_HEADERS" || echo "No Location header found"
+            echo "Debug: All response headers:"
+            cat "$CURL_HEADERS"
+          fi
 
           if [ "$HTTP_CODE" != "200" ]; then
             echo "::error::Failed to fetch existing watches from changedetection.io"
@@ -154,12 +197,12 @@ jobs:
             echo "::error::  1. Cloudflare Access credentials are missing or incorrect (HTTP 302)"
             echo "::error::  2. CHANGEDETECTION_KEY is invalid (HTTP 401/403)"
             echo "::error::  3. CHANGEDETECTION_URL is incorrect (HTTP 404)"
-            rm -f "$CURL_OUTPUT"
+            rm -f "$CURL_OUTPUT" "$CURL_HEADERS"
             exit 1
           fi
 
           RESPONSE=$(cat "$CURL_OUTPUT")
-          rm -f "$CURL_OUTPUT"
+          rm -f "$CURL_OUTPUT" "$CURL_HEADERS"
 
           # Validate response is valid JSON (not a CF Access login page)
           if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
