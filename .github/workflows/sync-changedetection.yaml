@@ -116,26 +116,33 @@ jobs:
           API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/watch"
 
           echo "Fetching existing watches from changedetection.io..."
+          echo "Debug: API URL: $API_URL"
 
-          # Use same pattern as archive-new-urls.yml (working version)
-          RESPONSE=$(eval "curl -sf $AUTH_HEADERS '$API_URL'") || {
+          # Test curl with verbose output to see what's happening
+          echo "Debug: Testing curl with verbose output..."
+          CURL_OUTPUT=$(mktemp)
+          HTTP_CODE=$(eval "curl -w '%{http_code}' -s $AUTH_HEADERS '$API_URL' -o '$CURL_OUTPUT'")
+
+          echo "Debug: HTTP status code: $HTTP_CODE"
+          echo "Debug: Response size: $(wc -c < "$CURL_OUTPUT") bytes"
+
+          if [ "$HTTP_CODE" != "200" ]; then
             echo "::error::Failed to fetch existing watches from changedetection.io"
-            echo "::error::This usually indicates:"
-            echo "::error::  1. Cloudflare Access credentials are missing or incorrect"
-            echo "::error::  2. CHANGEDETECTION_KEY is invalid"
-            echo "::error::  3. CHANGEDETECTION_URL is incorrect"
+            echo "::error::HTTP status code: $HTTP_CODE"
+            echo "::error::Response body:"
+            cat "$CURL_OUTPUT" | head -c 500
+            echo ""
             echo "::error::"
-            echo "::error::Please verify:"
-            echo "::error::  - CHANGEDETECTION_URL variable is set correctly"
-            echo "::error::  - CHANGEDETECTION_KEY secret is valid"
-            if [ -z "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-              echo "::error::  - CF_ACCESS_CLIENT_ID secret is set (if your instance uses Cloudflare Access)"
-              echo "::error::  - CF_ACCESS_CLIENT_SECRET secret is set (if your instance uses Cloudflare Access)"
-            else
-              echo "::error::  - CF Access credentials are correct and not expired"
-            fi
+            echo "::error::This usually indicates:"
+            echo "::error::  1. Cloudflare Access credentials are missing or incorrect (HTTP 302)"
+            echo "::error::  2. CHANGEDETECTION_KEY is invalid (HTTP 401/403)"
+            echo "::error::  3. CHANGEDETECTION_URL is incorrect (HTTP 404)"
+            rm -f "$CURL_OUTPUT"
             exit 1
-          }
+          fi
+
+          RESPONSE=$(cat "$CURL_OUTPUT")
+          rm -f "$CURL_OUTPUT"
 
           # Validate response is valid JSON (not a CF Access login page)
           if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
