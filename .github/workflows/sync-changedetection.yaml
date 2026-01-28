@@ -216,44 +216,40 @@ jobs:
           fi
 
           # Debug: Show response structure
-          echo "Debug: Response preview (first 500 chars):"
-          echo "$RESPONSE" | head -c 500
-          echo ""
-
-          # Check if response is an array
           RESPONSE_TYPE=$(echo "$RESPONSE" | jq -r 'type')
           echo "Response type: $RESPONSE_TYPE"
 
-          if [ "$RESPONSE_TYPE" = "array" ]; then
+          if [ "$RESPONSE_TYPE" = "object" ]; then
+            # API returns object format: {"uuid": {watch_data}, ...}
             WATCH_COUNT=$(echo "$RESPONSE" | jq 'length')
-            echo "API returned $WATCH_COUNT watches"
+            echo "API returned $WATCH_COUNT watches (object format)"
+
+            if [ "$WATCH_COUNT" -gt 0 ]; then
+              echo "First watch structure:"
+              echo "$RESPONSE" | jq 'to_entries | .[0]'
+            else
+              echo "::warning::API returned empty object - no existing watches found"
+            fi
+
+            # Extract URLs from object format: convert to array of values, then get URLs
+            echo "$RESPONSE" | jq -r 'to_entries[] | .value.url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > existing_urls.txt
+          elif [ "$RESPONSE_TYPE" = "array" ]; then
+            # Legacy: handle array format
+            WATCH_COUNT=$(echo "$RESPONSE" | jq 'length')
+            echo "API returned $WATCH_COUNT watches (array format)"
 
             if [ "$WATCH_COUNT" -gt 0 ]; then
               echo "First watch structure:"
               echo "$RESPONSE" | jq '.[0]'
-            else
-              echo "::warning::API returned empty array - no existing watches found"
-              echo "::warning::This means either:"
-              echo "::warning::  1. No watches exist in the system yet (first run)"
-              echo "::warning::  2. API requires query parameters we're not sending"
-              echo "::warning::  3. Wrong API endpoint or version"
             fi
-          elif [ "$RESPONSE_TYPE" = "object" ]; then
-            echo "::error::API returned an object instead of an array"
-            echo "::error::Object keys: $(echo "$RESPONSE" | jq -r 'keys | join(", ")')"
-            echo "::error::This suggests the API endpoint or version might be different"
-            echo "::error::Full response:"
-            echo "$RESPONSE" | jq '.'
-            exit 1
+
+            echo "$RESPONSE" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > existing_urls.txt
           else
             echo "::error::Unexpected response type: $RESPONSE_TYPE"
-            echo "::error::Full response:"
-            echo "$RESPONSE"
+            echo "::error::Response preview:"
+            echo "$RESPONSE" | head -c 500
             exit 1
           fi
-
-          # Extract and save URLs
-          echo "$RESPONSE" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > existing_urls.txt
           URL_COUNT=$(wc -l < existing_urls.txt)
           echo "Successfully fetched $URL_COUNT existing watch URLs"
           echo "count=$URL_COUNT" >> $GITHUB_OUTPUT
