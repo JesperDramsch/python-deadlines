@@ -148,6 +148,43 @@ jobs:
             exit 1
           fi
 
+          # Debug: Show response structure
+          echo "Debug: Response preview (first 500 chars):"
+          echo "$RESPONSE" | head -c 500
+          echo ""
+
+          # Check if response is an array
+          RESPONSE_TYPE=$(echo "$RESPONSE" | jq -r 'type')
+          echo "Response type: $RESPONSE_TYPE"
+
+          if [ "$RESPONSE_TYPE" = "array" ]; then
+            WATCH_COUNT=$(echo "$RESPONSE" | jq 'length')
+            echo "API returned $WATCH_COUNT watches"
+
+            if [ "$WATCH_COUNT" -gt 0 ]; then
+              echo "First watch structure:"
+              echo "$RESPONSE" | jq '.[0]'
+            else
+              echo "::warning::API returned empty array - no existing watches found"
+              echo "::warning::This means either:"
+              echo "::warning::  1. No watches exist in the system yet (first run)"
+              echo "::warning::  2. API requires query parameters we're not sending"
+              echo "::warning::  3. Wrong API endpoint or version"
+            fi
+          elif [ "$RESPONSE_TYPE" = "object" ]; then
+            echo "::error::API returned an object instead of an array"
+            echo "::error::Object keys: $(echo "$RESPONSE" | jq -r 'keys | join(", ")')"
+            echo "::error::This suggests the API endpoint or version might be different"
+            echo "::error::Full response:"
+            echo "$RESPONSE" | jq '.'
+            exit 1
+          else
+            echo "::error::Unexpected response type: $RESPONSE_TYPE"
+            echo "::error::Full response:"
+            echo "$RESPONSE"
+            exit 1
+          fi
+
           # Extract and save URLs
           echo "$RESPONSE" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > existing_urls.txt
           URL_COUNT=$(wc -l < existing_urls.txt)
@@ -368,6 +405,7 @@ jobs:
                       'original_url': url if final_url != url else None,
                       'title': title,
                       'tags': build_tags(conf, field),
+                      'fetch_backend': 'html_requests',  # CRITICAL: Required by changedetection.io API
                   })
 
           print(f"\nTo add: {len(watches_to_add)}")
@@ -409,12 +447,10 @@ jobs:
           echo "Adding $TOTAL watches to changedetection.io..."
 
           while read -r watch; do
-            URL=$(echo "$watch" | jq -r '.url')
             TITLE=$(echo "$watch" | jq -r '.title')
-            TAGS=$(echo "$watch" | jq -c '.tags')
 
-            PAYLOAD=$(jq -n --arg url "$URL" --arg title "$TITLE" --argjson tags "$TAGS" \
-              '{url: $url, title: $title, tags: $tags}')
+            # Use complete payload from Python (includes fetch_backend)
+            PAYLOAD=$(echo "$watch" | jq '{url, title, tags, fetch_backend}')
 
             echo "Adding: $TITLE"
 
@@ -431,7 +467,11 @@ jobs:
                 ADDED=$((ADDED + 1))
               else
                 echo "  ❌ No UUID in response"
+                echo "  Response length: ${#RESPONSE}"
                 echo "  Response: $RESPONSE"
+                if [ -z "$RESPONSE" ]; then
+                  echo "  Likely cause: Missing fetch_backend field in payload"
+                fi
                 FAILED=$((FAILED + 1))
               fi
             } || {
