@@ -365,6 +365,39 @@ jobs:
               parsed = urlparse(url)
               return f"{parsed.scheme}://{parsed.netloc}"
 
+          def get_root_domain(url: str) -> str:
+              """Extract root domain, stripping year-based subdomains and 'www'.
+
+              Year subdomains (2024-2035) and 'www' are stripped, meaningful subdomains are kept.
+
+              Examples:
+                https://2026.pycon.de/cfp -> https://pycon.de (year subdomain stripped)
+                https://www.pycon.de -> https://pycon.de (www stripped)
+                https://www.2026.pycon.de -> https://pycon.de (both stripped)
+                https://us.pycon.org -> https://us.pycon.org (meaningful subdomain kept)
+                https://ng.pycon.org -> https://ng.pycon.org (meaningful subdomain kept)
+                https://pycon.de -> https://pycon.de (no change)
+              """
+              if not url:
+                  return ''
+              parsed = urlparse(url)
+              netloc = parsed.netloc.lower()
+
+              # Split by dots
+              parts = netloc.split('.')
+
+              # Strip 'www' if present
+              if len(parts) >= 3 and parts[0] == 'www':
+                  parts = parts[1:]
+
+              # Strip year subdomain if present (2024-2035)
+              if len(parts) >= 3 and re.match(r'^20(?:2[4-9]|3[0-5])$', parts[0]):
+                  parts = parts[1:]
+
+              # Reconstruct domain
+              root = '.'.join(parts)
+              return f"{parsed.scheme}://{root}"
+
           def get_url_prefix_before_year(url: str) -> Optional[str]:
               match = YEAR_PATTERN.search(url)
               if not match:
@@ -373,6 +406,7 @@ jobs:
 
           # Load existing URLs
           existing_urls = set()
+          existing_root_domains = set()
           try:
               with open('existing_urls.txt', 'r') as f:
                   for line in f:
@@ -382,11 +416,16 @@ jobs:
                           base = get_base_url(url)
                           if base:
                               existing_urls.add(base.lower())
+                          # Also track root domains for subdomain matching
+                          root = get_root_domain(url)
+                          if root:
+                              existing_root_domains.add(root.lower())
           except FileNotFoundError:
               print("::error::existing_urls.txt not found")
               sys.exit(1)
 
           print(f"Loaded {len(existing_urls)} existing URLs from changedetection.io")
+          print(f"Tracking {len(existing_root_domains)} unique root domains")
 
           def url_exists(url: str, use_base_url: bool = True) -> tuple[bool, str]:
               if url.lower() in existing_urls:
@@ -395,6 +434,10 @@ jobs:
                   base = get_base_url(url)
                   if base and base.lower() in existing_urls:
                       return True, "base URL match"
+                  # Check root domain to catch subdomain variations (2026.pycon.de vs pycon.de)
+                  root = get_root_domain(url)
+                  if root and root.lower() in existing_root_domains:
+                      return True, "root domain match (subdomain variation)"
               url_prefix = get_url_prefix_before_year(url)
               if url_prefix:
                   prefix_lower = url_prefix.lower()
