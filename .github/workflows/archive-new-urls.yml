@@ -153,29 +153,53 @@ jobs:
           echo "## Changedetection.io Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          # Build auth headers
-          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
-          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
-          fi
-
           # Fetch existing watches to avoid duplicates
           echo "Fetching existing watches..."
-          EXISTING_WATCHES=$(eval "curl -sf $AUTH_HEADERS '${{ vars.CHANGEDETECTION_URL }}/api/v1/watch'") || {
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            EXISTING_WATCHES=$(curl -sf \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+              -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+              "${{ vars.CHANGEDETECTION_URL }}/api/v1/watch")
+          else
+            EXISTING_WATCHES=$(curl -sf \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              "${{ vars.CHANGEDETECTION_URL }}/api/v1/watch")
+          fi
+
+          if [ $? -ne 0 ]; then
             echo "::error::Failed to fetch existing watches"
             exit 1
-          }
+          fi
 
-          # Extract existing URLs (normalize for comparison)
-          echo "$EXISTING_WATCHES" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > /tmp/existing_urls.txt
+          # Extract existing URLs (handle object format from API)
+          RESPONSE_TYPE=$(echo "$EXISTING_WATCHES" | jq -r 'type')
+          if [ "$RESPONSE_TYPE" = "object" ]; then
+            # API returns object format: {"uuid": {watch_data}, ...}
+            echo "$EXISTING_WATCHES" | jq -r 'to_entries[] | .value.url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > /tmp/existing_urls.txt
+          else
+            # Legacy array format
+            echo "$EXISTING_WATCHES" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > /tmp/existing_urls.txt
+          fi
 
           # Fetch tag list to get tag UUIDs
           echo "Fetching tags..."
-          TAGS_RESPONSE=$(eval "curl -sf $AUTH_HEADERS '${{ vars.CHANGEDETECTION_URL }}/api/v1/tag'") || {
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            TAGS_RESPONSE=$(curl -sf \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+              -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+              "${{ vars.CHANGEDETECTION_URL }}/api/v1/tag")
+          else
+            TAGS_RESPONSE=$(curl -sf \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              "${{ vars.CHANGEDETECTION_URL }}/api/v1/tag")
+          fi
+
+          if [ $? -ne 0 ]; then
             echo "::warning::Failed to fetch tags, will create watches without tags"
             TAGS_RESPONSE="{}"
-          }
+          fi
           echo "$TAGS_RESPONSE" > /tmp/tags.json
 
           # Process each new conference
@@ -366,13 +390,6 @@ jobs:
           steps.check_cd.outputs.configured == 'true' &&
           inputs.skip_changedetection != true
         run: |
-          # Build auth headers
-          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
-          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
-          fi
-
           # Read watches to add
           if [ ! -s /tmp/watches_to_add.json ]; then
             echo "No new watches to add"
@@ -387,10 +404,24 @@ jobs:
 
             echo "Adding watch: $NAME ($URL)"
 
-            RESPONSE=$(eval "curl -sf -X POST $AUTH_HEADERS \
-              -H 'Content-Type: application/json' \
-              -d '$PAYLOAD' \
-              '${{ vars.CHANGEDETECTION_URL }}/api/v1/watch'") && {
+            # Build curl command with proper headers (no eval needed)
+            if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+              RESPONSE=$(curl -sf -X POST \
+                -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+                -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+                -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+                -H "Content-Type: application/json" \
+                -d "$PAYLOAD" \
+                "${{ vars.CHANGEDETECTION_URL }}/api/v1/watch")
+            else
+              RESPONSE=$(curl -sf -X POST \
+                -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+                -H "Content-Type: application/json" \
+                -d "$PAYLOAD" \
+                "${{ vars.CHANGEDETECTION_URL }}/api/v1/watch")
+            fi
+
+            if [ $? -eq 0 ]; then
               echo "  ✅ Successfully added"
               echo "- ✅ **$NAME** - $URL" >> $GITHUB_STEP_SUMMARY
 
@@ -399,10 +430,10 @@ jobs:
               if [ -n "$UUID" ]; then
                 echo "  Watch UUID: $UUID"
               fi
-            } || {
+            else
               echo "  ⚠️ Failed to add"
               echo "- ⚠️ **$NAME** - $URL (failed)" >> $GITHUB_STEP_SUMMARY
-            }
+            fi
 
             # Rate limit
             sleep 1
