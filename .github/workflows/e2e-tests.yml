@@ -1,5 +1,8 @@
 name: E2E Tests
 
+permissions:
+  contents: read
+
 # E2E tests are expensive - only run when manually triggered or on schedule
 on:
   workflow_dispatch:
