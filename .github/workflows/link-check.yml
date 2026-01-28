@@ -9,6 +9,10 @@ on:
     paths:
       - '_data/conferences.yml'
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   check-links:
     runs-on: ubuntu-latest
