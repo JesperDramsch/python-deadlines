@@ -338,8 +338,14 @@ jobs:
               """Template years in URL (subdomain or path) with Jinja expressions.
 
               Examples:
-                https://2026.pycon.de/cfp -> https://{% now ... %}.pycon.de/cfp
-                https://pycon.de/2026/cfp -> https://pycon.de/{% now ... %}/cfp
+                Subdomains:
+                  https://2026.pycon.de -> https://{% now ... %}.pycon.de
+                  https://ep2026.europython.eu -> https://ep{% now ... %}.europython.eu
+                  https://scipy2026.scipy.org -> https://scipy{% now ... %}.scipy.org
+                Paths:
+                  https://pycon.de/2026/ -> https://pycon.de/{% now ... %}/
+                  https://pretalx.com/conference-2026/ -> https://pretalx.com/conference-{% now ... %}/
+                  https://pydata.org/london2026/ -> https://pydata.org/london{% now ... %}/
               """
               if not start_month:
                   return url
@@ -348,18 +354,67 @@ jobs:
               parsed = urlparse(url)
               netloc_parts = parsed.netloc.split('.')
 
-              # Check for year in subdomain (e.g., 2026.pycon.de)
-              if netloc_parts and re.match(r'^20(?:2[4-9]|3[0-5])$', netloc_parts[0]):
-                  # Replace year subdomain with template
-                  netloc_parts[0] = template
-                  new_netloc = '.'.join(netloc_parts)
-                  return f"{parsed.scheme}://{new_netloc}{parsed.path or ''}"
+              # Check subdomain for year patterns
+              if len(netloc_parts) >= 2:
+                  # Handle www.prefix2026.domain.com by checking both first and second part
+                  for idx in [0, 1]:
+                      if idx >= len(netloc_parts):
+                          break
 
-              # Check for year in path (existing logic)
-              match = YEAR_PATTERN.search(url)
-              if not match:
-                  return url
-              return YEAR_PATTERN.sub(f'/{template}/', url)
+                      subdomain = netloc_parts[idx]
+
+                      # Pattern 1: Pure year (2026)
+                      if re.match(r'^20(?:2[4-9]|3[0-5])$', subdomain):
+                          netloc_parts[idx] = template
+                          new_netloc = '.'.join(netloc_parts)
+                          return f"{parsed.scheme}://{new_netloc}{parsed.path or ''}"
+
+                      # Pattern 2: Prefix + year (ep2026, scipy2026)
+                      match = re.match(r'^([a-z]+)(20(?:2[4-9]|3[0-5]))$', subdomain, re.IGNORECASE)
+                      if match:
+                          prefix = match.group(1)
+                          netloc_parts[idx] = f"{prefix}{template}"
+                          new_netloc = '.'.join(netloc_parts)
+                          return f"{parsed.scheme}://{new_netloc}{parsed.path or ''}"
+
+                      # Only check second part if first part is 'www'
+                      if idx == 0 and subdomain.lower() != 'www':
+                          break
+
+              # Check path for year patterns
+              path = parsed.path or ''
+
+              # Pattern 1: Standalone year in path (/2026/ or /2026)
+              new_path = re.sub(
+                  r'/(20(?:2[4-9]|3[0-5]))(/|$)',
+                  rf'/{template}\2',
+                  path
+              )
+              if new_path != path:
+                  return f"{parsed.scheme}://{parsed.netloc}{new_path}"
+
+              # Pattern 2: Word(s) + hyphen + year (/conference-2026/ or /conference-2026)
+              new_path = re.sub(
+                  r'/([a-z0-9-]+)-(20(?:2[4-9]|3[0-5]))(/|$)',
+                  rf'/\1-{template}\3',
+                  path,
+                  flags=re.IGNORECASE
+              )
+              if new_path != path:
+                  return f"{parsed.scheme}://{parsed.netloc}{new_path}"
+
+              # Pattern 3: Word + year no hyphen (/london2026/ or /london2026)
+              new_path = re.sub(
+                  r'/([a-z]+)(20(?:2[4-9]|3[0-5]))(/|$)',
+                  rf'/\1{template}\3',
+                  path,
+                  flags=re.IGNORECASE
+              )
+              if new_path != path:
+                  return f"{parsed.scheme}://{parsed.netloc}{new_path}"
+
+              # No year found, return original
+              return url
 
           def build_tags(conf: dict, field: str = 'link') -> list[str]:
               tags = list(BASE_TAGS)
@@ -391,7 +446,9 @@ jobs:
 
               Examples:
                 https://2026.pycon.de/cfp -> https://pycon.de (year subdomain stripped)
+                https://ep2026.europython.eu -> https://europython.eu (prefix+year stripped)
                 https://{% now ... %}.pycon.de -> https://pycon.de (template stripped)
+                https://ep{% now ... %}.europython.eu -> https://europython.eu (prefix+template stripped)
                 https://www.pycon.de -> https://pycon.de (www stripped)
                 https://us.pycon.org -> https://us.pycon.org (meaningful subdomain kept)
               """
@@ -411,8 +468,16 @@ jobs:
               if len(parts) >= 3 and re.match(r'^20(?:2[4-9]|3[0-5])$', parts[0]):
                   parts = parts[1:]
 
+              # Strip prefix+year subdomain (ep2026, scipy2026)
+              if len(parts) >= 3 and re.match(r'^[a-z]+20(?:2[4-9]|3[0-5])$', parts[0], re.IGNORECASE):
+                  parts = parts[1:]
+
               # Strip Jinja template subdomain (starts with {%)
               if len(parts) >= 3 and parts[0].startswith('{%'):
+                  parts = parts[1:]
+
+              # Strip prefix+template subdomain (ep{% now ... %})
+              if len(parts) >= 3 and re.search(r'{%.*%}', parts[0]):
                   parts = parts[1:]
 
               # Reconstruct domain
