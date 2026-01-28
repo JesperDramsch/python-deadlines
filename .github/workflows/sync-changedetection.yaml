@@ -335,12 +335,30 @@ jobs:
               return None
 
           def template_url(url: str, start_month: Optional[int]) -> str:
+              """Template years in URL (subdomain or path) with Jinja expressions.
+
+              Examples:
+                https://2026.pycon.de/cfp -> https://{% now ... %}.pycon.de/cfp
+                https://pycon.de/2026/cfp -> https://pycon.de/{% now ... %}/cfp
+              """
               if not start_month:
                   return url
+
+              template = f"{{% now 'utc' + 'months={start_month}', '%Y' %}}"
+              parsed = urlparse(url)
+              netloc_parts = parsed.netloc.split('.')
+
+              # Check for year in subdomain (e.g., 2026.pycon.de)
+              if netloc_parts and re.match(r'^20(?:2[4-9]|3[0-5])$', netloc_parts[0]):
+                  # Replace year subdomain with template
+                  netloc_parts[0] = template
+                  new_netloc = '.'.join(netloc_parts)
+                  return f"{parsed.scheme}://{new_netloc}{parsed.path or ''}"
+
+              # Check for year in path (existing logic)
               match = YEAR_PATTERN.search(url)
               if not match:
                   return url
-              template = f"{{% now 'utc' + 'months={start_month}', '%Y' %}}"
               return YEAR_PATTERN.sub(f'/{template}/', url)
 
           def build_tags(conf: dict, field: str = 'link') -> list[str]:
@@ -366,17 +384,16 @@ jobs:
               return f"{parsed.scheme}://{parsed.netloc}"
 
           def get_root_domain(url: str) -> str:
-              """Extract root domain, stripping year-based subdomains and 'www'.
+              """Extract root domain, stripping year-based subdomains, templates, and 'www'.
 
-              Year subdomains (2024-2035) and 'www' are stripped, meaningful subdomains are kept.
+              Year subdomains (2024-2035), Jinja templates, and 'www' are stripped.
+              Meaningful subdomains are kept.
 
               Examples:
                 https://2026.pycon.de/cfp -> https://pycon.de (year subdomain stripped)
+                https://{% now ... %}.pycon.de -> https://pycon.de (template stripped)
                 https://www.pycon.de -> https://pycon.de (www stripped)
-                https://www.2026.pycon.de -> https://pycon.de (both stripped)
                 https://us.pycon.org -> https://us.pycon.org (meaningful subdomain kept)
-                https://ng.pycon.org -> https://ng.pycon.org (meaningful subdomain kept)
-                https://pycon.de -> https://pycon.de (no change)
               """
               if not url:
                   return ''
@@ -392,6 +409,10 @@ jobs:
 
               # Strip year subdomain if present (2024-2035)
               if len(parts) >= 3 and re.match(r'^20(?:2[4-9]|3[0-5])$', parts[0]):
+                  parts = parts[1:]
+
+              # Strip Jinja template subdomain (starts with {%)
+              if len(parts) >= 3 and parts[0].startswith('{%'):
                   parts = parts[1:]
 
               # Reconstruct domain
