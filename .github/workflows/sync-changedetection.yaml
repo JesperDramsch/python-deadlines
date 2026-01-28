@@ -64,10 +64,20 @@ jobs:
             echo "::error::CHANGEDETECTION_KEY secret not set"
             exit 1
           fi
+
+          # Check if CF Access is required (common for changedetection.io instances)
+          if [ -z "${{ secrets.CF_ACCESS_CLIENT_ID }}" ] || [ -z "${{ secrets.CF_ACCESS_CLIENT_SECRET }}" ]; then
+            echo "::warning::Cloudflare Access credentials not configured"
+            echo "::warning::If your instance requires CF Access, set CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET secrets"
+            echo "::warning::Proceeding without CF Access headers - may cause HTTP 302 errors"
+          else
+            echo "::notice::Cloudflare Access credentials configured"
+          fi
+
           echo "configured=true" >> $GITHUB_OUTPUT
 
-      - name: Fetch existing watches from changedetection.io
-        id: fetch-watches
+      - name: Test API connectivity
+        id: test-api
         if: inputs.dry_run != true
         run: |
           # Build auth headers
@@ -77,37 +87,71 @@ jobs:
             AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
           fi
 
-          API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/watch"
+          API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/systeminfo"
 
-          echo "Fetching existing watches from $API_URL..."
+          echo "Testing API connectivity..."
 
-          # Get response with HTTP status code
-          HTTP_RESPONSE=$(eval "curl -s -w 'HTTP_STATUS:%{http_code}' $AUTH_HEADERS '$API_URL'")
-          HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tr -d '\n' | sed -e 's/.*HTTP_STATUS://')
-          RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTP_STATUS:[0-9]*$//')
-
-          echo "HTTP Status: $HTTP_STATUS"
-
-          # Validate HTTP status is 200
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "::error::API returned HTTP $HTTP_STATUS (expected 200)"
-            echo "Response body (first 500 chars):"
-            echo "$RESPONSE_BODY" | head -c 500
+          # Test with systeminfo endpoint (doesn't require parsing watch data)
+          RESPONSE=$(eval "curl -sf $AUTH_HEADERS '$API_URL'") && {
+            echo "✅ API connectivity test passed"
+            echo "API version: $(echo "$RESPONSE" | jq -r '.version // "unknown"')"
+          } || {
+            echo "::error::❌ API connectivity test failed"
+            echo "::error::Cannot connect to changedetection.io API"
+            echo "::error::This will cause the workflow to fail"
             exit 1
+          }
+
+      - name: Fetch existing watches from changedetection.io
+        id: fetch-watches
+        if: inputs.dry_run != true
+        run: |
+          # Build auth headers (same pattern as archive-new-urls.yml)
+          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
+            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
           fi
 
-          # Validate response is valid JSON
-          if ! echo "$RESPONSE_BODY" | jq empty 2>/dev/null; then
-            echo "::error::API returned invalid JSON"
-            echo "Response body (first 500 chars):"
-            echo "$RESPONSE_BODY" | head -c 500
+          API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/watch"
+
+          echo "Fetching existing watches from changedetection.io..."
+
+          # Use same pattern as archive-new-urls.yml (working version)
+          RESPONSE=$(eval "curl -sf $AUTH_HEADERS '$API_URL'") || {
+            echo "::error::Failed to fetch existing watches from changedetection.io"
+            echo "::error::This usually indicates:"
+            echo "::error::  1. Cloudflare Access credentials are missing or incorrect"
+            echo "::error::  2. CHANGEDETECTION_KEY is invalid"
+            echo "::error::  3. CHANGEDETECTION_URL is incorrect"
+            echo "::error::"
+            echo "::error::Please verify:"
+            echo "::error::  - CHANGEDETECTION_URL variable is set correctly"
+            echo "::error::  - CHANGEDETECTION_KEY secret is valid"
+            if [ -z "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+              echo "::error::  - CF_ACCESS_CLIENT_ID secret is set (if your instance uses Cloudflare Access)"
+              echo "::error::  - CF_ACCESS_CLIENT_SECRET secret is set (if your instance uses Cloudflare Access)"
+            else
+              echo "::error::  - CF Access credentials are correct and not expired"
+            fi
+            exit 1
+          }
+
+          # Validate response is valid JSON (not a CF Access login page)
+          if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
+            echo "::error::API returned invalid JSON (possibly a Cloudflare Access login page)"
+            echo "::error::Response preview:"
+            echo "$RESPONSE" | head -c 500
+            echo "::error::"
+            echo "::error::This indicates Cloudflare Access authentication failed."
+            echo "::error::Verify CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET secrets are set correctly."
             exit 1
           fi
 
           # Extract and save URLs
-          echo "$RESPONSE_BODY" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > existing_urls.txt
+          echo "$RESPONSE" | jq -r '.[] | .url' | tr '[:upper:]' '[:lower:]' | sed 's:/*$::' > existing_urls.txt
           URL_COUNT=$(wc -l < existing_urls.txt)
-          echo "Fetched $URL_COUNT existing watch URLs"
+          echo "Successfully fetched $URL_COUNT existing watch URLs"
           echo "count=$URL_COUNT" >> $GITHUB_OUTPUT
 
       - name: Create empty existing URLs file (dry run)
@@ -349,7 +393,7 @@ jobs:
         id: add-watches
         if: inputs.dry_run != true && steps.process.outputs.count != '0'
         run: |
-          # Build auth headers
+          # Build auth headers (same pattern)
           AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
           if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
             AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
@@ -372,29 +416,28 @@ jobs:
             PAYLOAD=$(jq -n --arg url "$URL" --arg title "$TITLE" --argjson tags "$TAGS" \
               '{url: $url, title: $title, tags: $tags}')
 
-            echo "$PAYLOAD" > payload.json
-
             echo "Adding: $TITLE"
 
-            # Get response with HTTP status
-            HTTP_RESPONSE=$(eval "curl -s -w 'HTTP_STATUS:%{http_code}' -X POST $AUTH_HEADERS -H 'Content-Type: application/json' -d @payload.json '$API_URL'")
-            HTTP_STATUS=$(echo "$HTTP_RESPONSE" | tr -d '\n' | sed -e 's/.*HTTP_STATUS://')
-            RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTP_STATUS:[0-9]*$//')
+            # Use same simple pattern as archive-new-urls.yml
+            RESPONSE=$(eval "curl -sf -X POST $AUTH_HEADERS \
+              -H 'Content-Type: application/json' \
+              -d '$PAYLOAD' \
+              '$API_URL'") && {
 
-            if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "201" ]; then
-              if echo "$RESPONSE_BODY" | jq -e '.uuid' >/dev/null 2>&1; then
-                echo "  ✅ Added (HTTP $HTTP_STATUS)"
+              # Validate response has UUID
+              UUID=$(echo "$RESPONSE" | jq -r '.uuid // empty')
+              if [ -n "$UUID" ]; then
+                echo "  ✅ Added successfully (UUID: $UUID)"
                 ADDED=$((ADDED + 1))
               else
-                echo "  ❌ HTTP $HTTP_STATUS but no UUID in response"
-                echo "  Response: $RESPONSE_BODY"
+                echo "  ❌ No UUID in response"
+                echo "  Response: $RESPONSE"
                 FAILED=$((FAILED + 1))
               fi
-            else
-              echo "  ❌ HTTP $HTTP_STATUS"
-              echo "  Response: $(echo "$RESPONSE_BODY" | head -c 200)"
+            } || {
+              echo "  ❌ Failed to add (check CF Access credentials)"
               FAILED=$((FAILED + 1))
-            fi
+            }
 
             sleep 1
           done < <(jq -c '.[]' watches_to_add.json)
@@ -409,6 +452,10 @@ jobs:
           # Fail the step if any additions failed
           if [ "$FAILED" -gt 0 ]; then
             echo "::error::$FAILED out of $TOTAL watches failed to add"
+            echo "::error::Common causes:"
+            echo "::error::  - Cloudflare Access authentication failed"
+            echo "::error::  - API key is invalid or expired"
+            echo "::error::  - Network connectivity issues"
             exit 1
           fi
 
