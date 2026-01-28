@@ -21,10 +21,17 @@ on:
   workflow_dispatch:
     # Allow manual trigger for testing
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: Run JavaScript Tests
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
 
     strategy:
       fail-fast: true
