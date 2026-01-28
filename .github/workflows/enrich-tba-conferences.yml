@@ -101,7 +101,7 @@ jobs:
           cp _data/conferences.yml /tmp/conferences_before.yml
 
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.3
+        uses: prefix-dev/setup-pixi@v0.9.4
 
       - name: Install lynx for text extraction
         run: sudo apt-get install -qq -y lynx > /dev/null 2>&1 || true

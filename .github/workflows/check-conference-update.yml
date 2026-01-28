@@ -977,7 +977,7 @@ jobs:
 
       - name: Setup Pixi
         if: steps.check_changes.outputs.changed == 'true'
-        uses: prefix-dev/setup-pixi@v0.9.3
+        uses: prefix-dev/setup-pixi@v0.9.4
 
       - name: Sort conferences
         if: steps.check_changes.outputs.changed == 'true'
@@ -1227,7 +1227,7 @@ jobs:
 
       - name: Setup Pixi
         if: steps.check_changes.outputs.changed == 'true'
-        uses: prefix-dev/setup-pixi@v0.9.3
+        uses: prefix-dev/setup-pixi@v0.9.4
 
       - name: Sort conferences
         if: steps.check_changes.outputs.changed == 'true'
