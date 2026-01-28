@@ -80,48 +80,65 @@ jobs:
         id: test-api
         if: inputs.dry_run != true
         run: |
-          # Build auth headers
-          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
-          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
-          fi
-
           API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/systeminfo"
 
           echo "Testing API connectivity..."
 
           # Test with systeminfo endpoint (doesn't require parsing watch data)
-          RESPONSE=$(eval "curl -sf $AUTH_HEADERS '$API_URL'") && {
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            RESPONSE=$(curl -sf \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+              -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+              "$API_URL")
+          else
+            RESPONSE=$(curl -sf \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              "$API_URL")
+          fi
+
+          if [ $? -eq 0 ]; then
             echo "✅ API connectivity test passed"
             echo "API version: $(echo "$RESPONSE" | jq -r '.version // "unknown"')"
-          } || {
+          else
             echo "::error::❌ API connectivity test failed"
             echo "::error::Cannot connect to changedetection.io API"
             echo "::error::This will cause the workflow to fail"
             exit 1
-          }
+          fi
 
       - name: Fetch existing watches from changedetection.io
         id: fetch-watches
         if: inputs.dry_run != true
         run: |
-          # Build auth headers (same pattern as archive-new-urls.yml)
-          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
-          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
-          fi
-
           API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/watch"
 
           echo "Fetching existing watches from changedetection.io..."
           echo "Debug: API URL: $API_URL"
 
+          # Debug: Show if CF Access credentials are being used
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            echo "Debug: CF Access credentials ARE configured"
+          else
+            echo "Debug: CF Access credentials NOT configured"
+          fi
+
           # Test curl with verbose output to see what's happening
           echo "Debug: Testing curl with verbose output..."
           CURL_OUTPUT=$(mktemp)
-          HTTP_CODE=$(eval "curl -w '%{http_code}' -s $AUTH_HEADERS '$API_URL' -o '$CURL_OUTPUT'")
+
+          # Build curl command with proper headers (no eval needed)
+          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+            HTTP_CODE=$(curl -w '%{http_code}' -s \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+              -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+              "$API_URL" -o "$CURL_OUTPUT")
+          else
+            HTTP_CODE=$(curl -w '%{http_code}' -s \
+              -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+              "$API_URL" -o "$CURL_OUTPUT")
+          fi
 
           echo "Debug: HTTP status code: $HTTP_CODE"
           echo "Debug: Response size: $(wc -c < "$CURL_OUTPUT") bytes"
@@ -438,13 +455,6 @@ jobs:
         id: add-watches
         if: inputs.dry_run != true && steps.process.outputs.count != '0'
         run: |
-          # Build auth headers (same pattern)
-          AUTH_HEADERS="-H \"x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}\""
-          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}\""
-            AUTH_HEADERS="$AUTH_HEADERS -H \"CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}\""
-          fi
-
           API_URL="${{ vars.CHANGEDETECTION_URL }}/api/v1/watch"
 
           ADDED=0
@@ -457,16 +467,28 @@ jobs:
             TITLE=$(echo "$watch" | jq -r '.title')
 
             # Use complete payload from Python (includes fetch_backend)
-            PAYLOAD=$(echo "$watch" | jq '{url, title, tags, fetch_backend}')
+            PAYLOAD=$(echo "$watch" | jq -c '{url, title, tags, fetch_backend}')
 
             echo "Adding: $TITLE"
 
-            # Use same simple pattern as archive-new-urls.yml
-            RESPONSE=$(eval "curl -sf -X POST $AUTH_HEADERS \
-              -H 'Content-Type: application/json' \
-              -d '$PAYLOAD' \
-              '$API_URL'") && {
+            # Build curl command with proper headers (no eval needed)
+            if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
+              RESPONSE=$(curl -sf -X POST \
+                -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+                -H "CF-Access-Client-Id: ${{ secrets.CF_ACCESS_CLIENT_ID }}" \
+                -H "CF-Access-Client-Secret: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}" \
+                -H "Content-Type: application/json" \
+                -d "$PAYLOAD" \
+                "$API_URL")
+            else
+              RESPONSE=$(curl -sf -X POST \
+                -H "x-api-key: ${{ secrets.CHANGEDETECTION_KEY }}" \
+                -H "Content-Type: application/json" \
+                -d "$PAYLOAD" \
+                "$API_URL")
+            fi
 
+            if [ $? -eq 0 ]; then
               # Validate response has UUID
               UUID=$(echo "$RESPONSE" | jq -r '.uuid // empty')
               if [ -n "$UUID" ]; then
@@ -481,10 +503,10 @@ jobs:
                 fi
                 FAILED=$((FAILED + 1))
               fi
-            } || {
+            else
               echo "  ❌ Failed to add (check CF Access credentials)"
               FAILED=$((FAILED + 1))
-            }
+            fi
 
             sleep 1
           done < <(jq -c '.[]' watches_to_add.json)
