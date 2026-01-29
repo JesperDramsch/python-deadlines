@@ -147,6 +147,21 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: North Bay Python
+  year: 2026
+  link: https://northbaypython.org/
+  cfp: '2026-02-14 00:00:00'
+  timezone: America/Los_Angeles
+  place: Petaluma, USA
+  start: 2026-04-25
+  end: 2026-04-26
+  mastodon: https://bsky.app/profile/NorthBayPython.org
+  sub: PY
+  location:
+  - title: North Bay Python 2026
+    latitude: 38.2325829
+    longitude: -122.636465
+
 - conference: EuroSciPy
   year: 2026
   link: https://euroscipy.org/
@@ -318,6 +333,7 @@
     longitude: 17.05860104184979
 
 - conference: PythonAsia
+  alt_name: PyCon APAC
   year: 2026
   link: https://2026.pythonasia.org/
   cfp_link: https://pretalx.com/python-asia-2026
