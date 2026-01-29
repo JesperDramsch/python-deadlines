@@ -163,6 +163,22 @@
     latitude: 50.061389
     longitude: 19.938333
 
+- conference: DjangoCon Europe
+  year: 2026
+  link: https://2026.djangocon.eu/
+  cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2026/cfp
+  cfp: '2026-02-08 23:59:59'
+  timezone: Europe/Athens
+  place: Athens, Greece
+  start: 2026-04-15
+  end: 2026-04-19
+  sponsor: https://2026.djangocon.eu/call-for-sponsors/
+  sub: WEB
+  location:
+  - title: DjangoCon Europe 2026
+    latitude: 37.9755648
+    longitude: 23.7348324
+
 - conference: PyCon Lithuania
   alt_name: PyCon LT
   year: 2026
