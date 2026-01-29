@@ -1584,6 +1584,21 @@
     latitude: 50.8465573
     longitude: 4.351697
 
+- conference: SciPyData Japan
+  alt_name: SciPy Japan
+  year: 2025
+  link: https://scipydata.connpass.com/
+  cfp: None
+  timezone: Asia/Tokyo
+  place: Tokyo, Japan
+  start: 2025-01-25
+  end: 2025-01-25
+  sub: SCIPY,DATA
+  location:
+  - title: SciPyData Japan 2025
+    latitude: 35.718741949999995
+    longitude: 139.73118058112317
+
 - conference: PyCon Web
   year: 2025
   link: https://www.pyconweb.com/

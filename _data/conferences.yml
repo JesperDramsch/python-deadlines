@@ -448,3 +448,17 @@
   - title: FOSDEM 2026
     latitude: 50.8465573
     longitude: 4.351697
+
+- conference: SciPyData Japan
+  year: 2026
+  link: https://scipydata.connpass.com/event/364718/
+  cfp: None
+  timezone: Asia/Tokyo
+  place: Tokyo, Japan
+  start: 2026-01-24
+  end: 2026-01-24
+  sub: SCIPY,DATA
+  location:
+  - title: SciPyData Japan 2026
+    latitude: 35.718741949999995
+    longitude: 139.73118058112317
