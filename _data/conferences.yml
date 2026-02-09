@@ -203,6 +203,7 @@
   link: https://2026.djangocon.eu/
   cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2026/cfp
   cfp: '2026-02-08 23:59:59'
+  cfp_ext: '2026-02-15 23:59:00'
   timezone: Europe/Athens
   place: Athens, Greece
   start: 2026-04-15
