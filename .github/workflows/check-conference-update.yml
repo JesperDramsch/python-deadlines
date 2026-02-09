@@ -937,6 +937,14 @@ jobs:
           echo "content_file=$CONTENT_FILE" >> $GITHUB_OUTPUT
           echo "::notice title=Content::Stored $(wc -c < "$CONTENT_FILE") bytes in $CONTENT_FILE"
 
+      # Workaround for anthropics/claude-code-action#900: the action's
+      # checkHumanActor calls the GitHub API before checking allowed_bots,
+      # which 404s for bot actors like github-actions[bot]. Override
+      # GITHUB_ACTOR so the action sees a real user.
+      - name: Fix actor for bot-triggered runs
+        if: contains(github.actor, '[bot]')
+        run: echo "GITHUB_ACTOR=${{ github.repository_owner }}" >> "$GITHUB_ENV"
+
       - name: Run Claude Code Analysis
         uses: anthropics/claude-code-action@v1
         with:
@@ -1189,6 +1197,14 @@ jobs:
           # Store file path as output (safe - no special characters)
           echo "content_file=$CONTENT_FILE" >> $GITHUB_OUTPUT
           echo "::notice title=Content::Stored $(wc -c < "$CONTENT_FILE") bytes in $CONTENT_FILE"
+
+      # Workaround for anthropics/claude-code-action#900: the action's
+      # checkHumanActor calls the GitHub API before checking allowed_bots,
+      # which 404s for bot actors like github-actions[bot]. Override
+      # GITHUB_ACTOR so the action sees a real user.
+      - name: Fix actor for bot-triggered runs
+        if: contains(github.actor, '[bot]')
+        run: echo "GITHUB_ACTOR=${{ github.repository_owner }}" >> "$GITHUB_ENV"
 
       - name: Run Claude Code Analysis
         uses: anthropics/claude-code-action@v1
