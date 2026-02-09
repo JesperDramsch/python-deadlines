@@ -203,6 +203,7 @@
   link: https://2026.djangocon.eu/
   cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2026/cfp
   cfp: '2026-02-08 23:59:59'
+  cfp_ext: '2026-02-15 23:59:00'
   timezone: Europe/Athens
   place: Athens, Greece
   start: 2026-04-15
@@ -340,6 +341,7 @@
   link: https://na.pycon.org/
   cfp_link: https://pretalx.com/pycon-namibia-2026/cfp
   cfp: '2025-12-01 23:59:00'
+  cfp_ext: '2026-02-05 23:59:00'
   timezone: Africa/Windhoek
   place: Windhoek, Namibia
   start: 2026-02-20
@@ -447,6 +449,7 @@
   place: Karlsruhe, Germany
   start: 2026-02-21
   end: 2026-02-22
+  sponsor: https://barcamps.eu/pythonbarcamp-2026/sponsoren
   sub: CAMP
   location:
   - title: Python BarCamp Karlsruhe 2026
