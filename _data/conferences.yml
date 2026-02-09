@@ -397,6 +397,19 @@
   end: 2026-11-17
   sub: PY
 
+- conference: PyCon Spain
+  year: 2026
+  link: https://2026.es.pycon.org/
+  cfp: TBA
+  place: Barcelona, Spain
+  start: 2026-11-06
+  end: 2026-11-08
+  sub: PY
+  location:
+  - title: PyCon Spain 2026
+    latitude: 41.3828939
+    longitude: 2.1774322
+
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
