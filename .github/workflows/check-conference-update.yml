@@ -941,6 +941,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          allowed_bots: 'github-actions[bot]'
           prompt: |
             Update pythondeadlin.es conference data. DO NOT use Task tool or fetch URLs.
 
@@ -1193,6 +1194,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          allowed_bots: 'github-actions[bot]'
           prompt: |
             Create/update entry for NEW YEAR of Python conference. DO NOT fetch URLs - content provided in files.
 
