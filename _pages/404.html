@@ -6,16 +6,76 @@ title: titles.a404
 <html>
 	<head>
 		{% include head.html %}
+		<style>
+			.snek-404 {
+				text-align: center;
+				padding: 3rem 1rem;
+			}
+			.snek-404-illustration {
+				display: inline-block;
+				margin-bottom: 2rem;
+			}
+			.snek-404 h1 {
+				font-size: 4rem;
+				margin-bottom: 0.5rem;
+				color: #3776ab;
+			}
+			.snek-404 .snek-message {
+				font-size: 1.25rem;
+				color: #666;
+				margin-bottom: 2rem;
+			}
+			.snek-404 .snek-home-link {
+				display: inline-block;
+				padding: 12px 32px;
+				background: #3776ab;
+				color: white;
+				border-radius: 8px;
+				text-decoration: none;
+				border: none;
+				font-size: 1rem;
+				transition: background 0.2s ease;
+			}
+			.snek-404 .snek-home-link:hover {
+				background: #2a5a87;
+				color: white;
+			}
+			@media (prefers-color-scheme: dark) {
+				.snek-404 h1 {
+					color: #ffde57;
+				}
+				.snek-404 .snek-message {
+					color: #aaa;
+				}
+			}
+		</style>
 	</head>
 
 	<body>
 		{% include header.html %}
 		<div class="container">
-			<br />
-			<h1>{{title}}</h1>
-			<div class="row">
-				<div class="meta col-sm-12">Page not found! :(</div>
-				<br />
+			<div class="snek-404">
+				<div class="snek-404-illustration">
+					<svg xmlns="http://www.w3.org/2000/svg" width="120" height="186" viewBox="0 0 315 885" aria-hidden="true">
+						<path
+							fill="#ffde57"
+							stroke="#ffde57"
+							stroke-width="1"
+							d="M 88.00,78.38 C 89.95,78.23 90.96,77.98 93.00,78.38 110.72,80.10 107.67,105.69 90.00,103.80 76.59,102.36 72.32,84.05 88.00,78.38 Z M 307.00,885.00 C 307.00,885.00 307.00,160.00 307.00,160.00 307.00,85.00 243.00,10.00 157.00,10.00 82.46,10.00 8.86,82.12 7.00,157.09 7.00,159.13 8.63,160.00 11.73,160.00 34.54,160.00 132.00,160.00 132.00,160.00 149.48,160.00 157.00,166.91 157.00,185.00 157.00,185.00 157.00,885.00 157.00,885.00 157.00,885.00 307.00,885.00 307.00,885.00 Z"
+						/>
+					</svg>
+					<svg xmlns="http://www.w3.org/2000/svg" width="120" height="186" viewBox="0 0 315 885" style="margin-left: -40px;" aria-hidden="true">
+						<path
+							fill="#4584b6"
+							stroke="#4584b6"
+							stroke-width="1"
+							d="M 88.00,78.38 C 89.95,78.23 90.96,77.98 93.00,78.38 110.72,80.10 107.67,105.69 90.00,103.80 76.59,102.36 72.32,84.05 88.00,78.38 Z M 307.00,885.00 C 307.00,885.00 307.00,160.00 307.00,160.00 307.00,85.00 243.00,10.00 157.00,10.00 82.46,10.00 8.86,82.12 7.00,157.09 7.00,159.13 8.63,160.00 11.73,160.00 34.54,160.00 132.00,160.00 132.00,160.00 149.48,160.00 157.00,166.91 157.00,185.00 157.00,185.00 157.00,885.00 157.00,885.00 157.00,885.00 307.00,885.00 307.00,885.00 Z"
+						/>
+					</svg>
+				</div>
+				<h1>404</h1>
+				<p class="snek-message">This page slithered away! The sneks couldn't find what you're looking for.</p>
+				<a href="/" class="snek-home-link">Back to conference deadlines</a>
 			</div>
 		</div>
 		<footer>{% include_cached footer.html %}</footer>
