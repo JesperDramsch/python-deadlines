@@ -5,3 +5,8 @@
 #search-box:focus {
 	width: 15em;
 }
+@media (prefers-reduced-motion: reduce) {
+	#search-box {
+		transition: none;
+	}
+}

@@ -1,10 +1,21 @@
-<div id="breadcrumbs">
+<nav aria-label="Breadcrumb" id="breadcrumbs">
+	<ol>
 	{% assign crumbs = include.url | remove:'/index.html' | split: '/' %} {% if crumbs.size > 1 %}
-	<a href="{{site.baseurl}}/">Home</a>
-	{% endif %} {% for crumb in crumbs offset: 1 %} {% if forloop.last %} / <a href="#">{{ title }}</a> {% else %} /
-	<a
+	<li><a href="{{site.baseurl}}/">Home</a></li>
+	{% endif %} {% for crumb in crumbs offset: 1 %} {% if forloop.last %}<li aria-current="page"><a href="#">{{ title }}</a></li> {% else %}
+	<li><a
 		href="{% assign crumb_limit = forloop.index | plus: 1 %}{% for crumb in crumbs limit: crumb_limit %}{{ crumb | append: '/' | replace:'without-plugin/','without-plugins/' }}{% endfor %}"
 		>{{ crumb | replace:'-',' ' | remove:'.html' | capitalize }}</a
-	>
+	></li>
 	{% endif %} {% endfor %}
-</div>
+	</ol>
+</nav>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {% assign crumbs = include.url | remove:'/index.html' | split: '/' %}{% if crumbs.size > 1 %}{"@type": "ListItem", "position": 1, "name": "Home", "item": "{{ site.url }}{{ site.baseurl }}/"}{% endif %}{% for crumb in crumbs offset: 1 %}{% if forloop.last %},{"@type": "ListItem", "position": {{ forloop.index | plus: 1 }}, "name": {{ title | jsonify }}}{% else %},{"@type": "ListItem", "position": {{ forloop.index | plus: 1 }}, "name": "{{ crumb | replace:'-',' ' | remove:'.html' | capitalize }}", "item": "{{ site.url }}{% assign crumb_limit = forloop.index | plus: 1 %}{% for crumb in crumbs limit: crumb_limit %}{{ crumb | append: '/' | replace:'without-plugin/','without-plugins/' }}{% endfor %}"}{% endif %}{% endfor %}
+  ]
+}
+</script>

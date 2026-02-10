@@ -4,12 +4,13 @@
 		{% assign sub_trimmed = sub | strip %}
 		{% for type in site.data.types %}
 			{% if type.sub == sub_trimmed %}
-			<span
+			<button
+				type="button"
 				title="Click to only show {{type.sub}} conferences"
 				data-sub="{{type.sub}}"
 				class="badge badge-light conf-sub {{type.sub}}-tag"
-				style="background-color: {{type.color}}; color: white; cursor: pointer;"
-			>{{type.name | downcase}}</span>
+				style="background-color: {{type.color}}; color: white; cursor: pointer; border: none;"
+			>{{type.name | downcase}}</button>
 			{% endif %}
 		{% endfor %}
 		{% endfor %}

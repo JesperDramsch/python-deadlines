@@ -35,9 +35,9 @@
       {% include masthead.html url=page.url title=masthead_title hook=masthead_hook description=masthead_description %}
     {% endif %}
 
-    <div class="container" id="main-content">
+    <main class="container" id="main-content">
       {{ content }}
-    </div>
+    </main>
 
     {% if page.extra_js %}
       {% for js in page.extra_js %}
