@@ -41,87 +41,126 @@ title: titles.search
 			var searchResults = document.getElementById('search-results');
 
 			if (results.length) {
-				var appendString = '';
+				searchResults.innerHTML = '';
 
 				for (var i = 0; i < results.length; i++) {
 					var item = docs[results[i].ref];
 
-					appendString += `
-                    <div id="${results[i].ref}" class="ConfItem ${item.subs
-						.split(',')
-						.map((sub) => sub.trim() + '-conf')
-						.join(' ')}">
-                        <div class="row conf-row">
-                            <div class="col-6">
-                                <span class="conf-title">
-                                    <a title="Deadline Details" href="${item.url}">${item.title}</a>
-                                </span>
-                                <span class="conf-title-small">
-                                    <a title="Deadline Details" href="${item.url}">${item.title}</a>
-                                </span>
-                                ${
-									item.link
-										? `<span class="conf-title-icon">
-                                            <a title="Conference Website" href="${item.link}" target="_blank">
-                                                <img src="/static/img/203-earth.svg" class="badge-link" alt="Link to Conference Website" width="16" height="16" />
-                                            </a>
-                                            &ZeroWidthSpace;
-                                        </span>`
-										: ''
-								}
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-12 col-sm-6">
-                                <div class="meta">
-                                    <span class="conf-place">
-                                        ${
-											item.content.length > 150
-												? item.content.substring(0, 150) + '... '
-												: item.content
-										},
-                                        ${
-											item.place === 'Online'
-												? `<a href="#">${item.place}</a>`
-												: `<a href="http://maps.google.com/?q=${item.place}">${item.place}</a>`
-										}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="col-12 col-sm-6">
-                                <div class="deadline">
-                                    <div>
-                                        <span class="deadline-time">${item.date}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-6">
-                                ${item.subs
-									.split(',')
-									.map(
-										(sub) => `
-                                        <span
-                                            title="Click to only show ${sub.trim()} conferences"
-                                            data-sub="${sub.trim()}"
-                                            class="badge badge-light conf-sub ${sub.trim()}-tag"
-                                        ></span>`
-									)
-									.join('')}
-                            </div>
-                            <div class="col-6">
-                                <div class="calendar"></div>
-                            </div>
-                        </div>
-                        <hr />
-                    </div>
-                `;
+					var confDiv = document.createElement('div');
+				confDiv.id = results[i].ref;
+				confDiv.className = 'ConfItem ' + item.subs.split(',').map(function(sub) { return sub.trim() + '-conf'; }).join(' ');
+
+				var titleRow = document.createElement('div');
+				titleRow.className = 'row conf-row';
+				var titleCol = document.createElement('div');
+				titleCol.className = 'col-6';
+
+				var titleSpan = document.createElement('span');
+				titleSpan.className = 'conf-title';
+				var titleLink = document.createElement('a');
+				titleLink.title = 'Deadline Details';
+				titleLink.href = item.url;
+				titleLink.textContent = item.title;
+				titleSpan.appendChild(titleLink);
+				titleCol.appendChild(titleSpan);
+
+				var titleSmall = document.createElement('span');
+				titleSmall.className = 'conf-title-small';
+				var titleSmallLink = document.createElement('a');
+				titleSmallLink.title = 'Deadline Details';
+				titleSmallLink.href = item.url;
+				titleSmallLink.textContent = item.title;
+				titleSmall.appendChild(titleSmallLink);
+				titleCol.appendChild(titleSmall);
+
+				if (item.link) {
+					var iconSpan = document.createElement('span');
+					iconSpan.className = 'conf-title-icon';
+					var iconLink = document.createElement('a');
+					iconLink.title = 'Conference Website';
+					iconLink.href = item.link;
+					iconLink.target = '_blank';
+					iconLink.rel = 'noopener noreferrer';
+					var iconImg = document.createElement('img');
+					iconImg.src = '/static/img/203-earth.svg';
+					iconImg.className = 'badge-link';
+					iconImg.alt = 'Link to Conference Website';
+					iconImg.width = 16;
+					iconImg.height = 16;
+					iconLink.appendChild(iconImg);
+					iconSpan.appendChild(iconLink);
+					titleCol.appendChild(iconSpan);
+				}
+				titleRow.appendChild(titleCol);
+				confDiv.appendChild(titleRow);
+
+				var metaRow = document.createElement('div');
+				metaRow.className = 'row';
+				var metaCol = document.createElement('div');
+				metaCol.className = 'col-12 col-sm-6';
+				var metaDiv = document.createElement('div');
+				metaDiv.className = 'meta';
+				var placeSpan = document.createElement('span');
+				placeSpan.className = 'conf-place';
+				var contentText = item.content.length > 150 ? item.content.substring(0, 150) + '... ' : item.content + ', ';
+				placeSpan.appendChild(document.createTextNode(contentText));
+				var placeLink = document.createElement('a');
+				if (item.place === 'Online') {
+					placeLink.href = '#';
+				} else {
+					placeLink.href = 'https://maps.google.com/?q=' + encodeURIComponent(item.place);
+					placeLink.target = '_blank';
+					placeLink.rel = 'noopener noreferrer';
+				}
+				placeLink.textContent = item.place;
+				placeSpan.appendChild(placeLink);
+				metaDiv.appendChild(placeSpan);
+				metaCol.appendChild(metaDiv);
+				metaRow.appendChild(metaCol);
+
+				var deadlineCol = document.createElement('div');
+				deadlineCol.className = 'col-12 col-sm-6';
+				var deadlineDiv = document.createElement('div');
+				deadlineDiv.className = 'deadline';
+				var deadlineInner = document.createElement('div');
+				var deadlineSpan = document.createElement('span');
+				deadlineSpan.className = 'deadline-time';
+				deadlineSpan.textContent = item.date;
+				deadlineInner.appendChild(deadlineSpan);
+				deadlineDiv.appendChild(deadlineInner);
+				deadlineCol.appendChild(deadlineDiv);
+				metaRow.appendChild(deadlineCol);
+				confDiv.appendChild(metaRow);
+
+				var subsRow = document.createElement('div');
+				subsRow.className = 'row';
+				var subsCol = document.createElement('div');
+				subsCol.className = 'col-6';
+				item.subs.split(',').forEach(function(sub) {
+					var badge = document.createElement('span');
+					badge.title = 'Click to only show ' + sub.trim() + ' conferences';
+					badge.dataset.sub = sub.trim();
+					badge.className = 'badge badge-light conf-sub ' + sub.trim() + '-tag';
+					subsCol.appendChild(badge);
+				});
+				subsRow.appendChild(subsCol);
+				var calCol = document.createElement('div');
+				calCol.className = 'col-6';
+				var calDiv = document.createElement('div');
+				calDiv.className = 'calendar';
+				calCol.appendChild(calDiv);
+				subsRow.appendChild(calCol);
+				confDiv.appendChild(subsRow);
+				confDiv.appendChild(document.createElement('hr'));
+
+				searchResults.appendChild(confDiv);
 				}
 
-				searchResults.innerHTML = appendString;
 			} else {
-				searchResults.innerHTML = '<li>{% t search.no-results %}</li>';
+				var noResults = document.createElement('p');
+				noResults.textContent = '{% t search.no-results %}';
+				searchResults.innerHTML = '';
+				searchResults.appendChild(noResults);
 			}
 		}
 
@@ -157,7 +196,11 @@ title: titles.search
 			})
 			.catch((error) => {
 				console.error('Error loading search index:', error);
-				document.getElementById('search-results').innerHTML = '<li>{% t search.error %}</li>';
+				var errorEl = document.createElement('p');
+				errorEl.textContent = '{% t search.error %}';
+				var sr = document.getElementById('search-results');
+				sr.innerHTML = '';
+				sr.appendChild(errorEl);
 			});
 	})();
 </script>

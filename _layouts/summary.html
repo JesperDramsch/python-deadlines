@@ -29,8 +29,16 @@ description: Summary of the conference and its instances throughout the years.
               var pubDate = item.querySelector("pubDate").textContent;
 
               var feedItem = document.createElement("div");
-              feedItem.setAttribute("class", "timeline-item")
-              feedItem.innerHTML = '<div class="timeline-content">' + post + '</div><a href="' + link + '">' + pubDate + ' by {{page.conference}}</a>';
+              feedItem.setAttribute("class", "timeline-item");
+              var contentDiv = document.createElement("div");
+              contentDiv.setAttribute("class", "timeline-content");
+              contentDiv.textContent = post;
+              var linkEl = document.createElement("a");
+              linkEl.href = link;
+              linkEl.rel = "noopener noreferrer";
+              linkEl.textContent = pubDate + ' by {{page.conference}}';
+              feedItem.appendChild(contentDiv);
+              feedItem.appendChild(linkEl);
               feedContainer.appendChild(feedItem);
             }
           }
@@ -97,18 +105,18 @@ description: Summary of the conference and its instances throughout the years.
           <div class="col-12 col-md-6">
             <div>
               <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" />
-              <a id="conf-website" target="_blank" href="{{confs[0].link}}">{{confs[0].link}}</a>
+              <a id="conf-website" target="_blank" rel="noopener noreferrer" href="{{confs[0].link}}">{{confs[0].link}}</a>
             </div>
             {% if confs[0].twitter %}
               <div>
                 <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" />
-                <a id="conf-twitter" target="_blank" href="https://twitter.com/{{confs[0].twitter}}">@{{confs[0].twitter}}</a>
+                <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{confs[0].twitter}}">@{{confs[0].twitter}}</a>
               </div>
             {% endif %}
             {% if confs[0].mastodon %}
               <div>
                 <img src="/static/img/407-mastodon.svg" class="badge-link" alt="Mastodon icon" width="16" height="16" />
-                <a id="conf-mastodon" target="_blank" href="{{confs[0].mastodon}}">Mastodon</a>
+                <a id="conf-mastodon" target="_blank" rel="noopener noreferrer" href="{{confs[0].mastodon}}">Mastodon</a>
               </div>
             {% endif %}
             </div>
