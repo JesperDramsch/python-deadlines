@@ -58,6 +58,7 @@
                     ? 'Passed'
                     : 'Deadline passed';
                 el.classList.add('deadline-passed');
+                el.removeAttribute('data-urgency');
             } else {
                 // Format and display countdown - get normalized components using shiftTo
                 const normalized = diff.shiftTo('days', 'hours', 'minutes', 'seconds');
@@ -77,6 +78,17 @@
                 } else {
                     // Full format for regular countdown
                     el.textContent = `${days} days ${hours}h ${minutes}m ${seconds}s`;
+                }
+
+                // Set urgency level for visual feedback
+                if (days < 3) {
+                    el.setAttribute('data-urgency', 'critical');
+                } else if (days < 7) {
+                    el.setAttribute('data-urgency', 'high');
+                } else if (days < 14) {
+                    el.setAttribute('data-urgency', 'medium');
+                } else {
+                    el.removeAttribute('data-urgency');
                 }
 
                 el.classList.remove('deadline-passed');

@@ -107,7 +107,8 @@
   transition: transform 0.2s ease;
 }
 
-.btn-action-calendar-wrapper:hover .calendar-dropdown-arrow {
+.btn-action-calendar-wrapper:hover .calendar-dropdown-arrow,
+.btn-action-calendar-wrapper:focus-within .calendar-dropdown-arrow {
   transform: rotate(180deg);
 }
 
@@ -138,7 +139,8 @@
   }
 }
 
-.btn-action-calendar-wrapper:hover .calendar-dropdown-menu {
+.btn-action-calendar-wrapper:hover .calendar-dropdown-menu,
+.btn-action-calendar-wrapper:focus-within .calendar-dropdown-menu {
   display: block;
 }
 
@@ -279,6 +281,32 @@
     background: #3a3a3a;
     color: #e0e0e0;
   }
+}
+
+/* Notification Toasts */
+.conf-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  animation: dropdownSlide 0.3s ease;
+}
+
+.conf-notification-success {
+  background: var(--btn-action-primary);
+}
+
+.conf-notification-info {
+  background: #17a2b8;
+}
+
+.conf-notification-warning {
+  background: #ffc107;
+  color: #333;
 }
 
 /* Accessibility */

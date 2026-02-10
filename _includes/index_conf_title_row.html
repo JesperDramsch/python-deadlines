@@ -8,20 +8,20 @@
                 <a title="Deadline Details" href="{{site.baseurl}}/conference/{{conf.conference | slugify: "latin"}}-{{conf.year}}/">{{conf.conference}} '{{conf.year | slice: -2, 3}}</a>
             </span>
             <span class="conf-external-links">
-                <a title="Conference Website" href="{{conf.link}}" target="_blank"><img src="/static/img/203-earth.svg" alt="Website" width="14" height="14" /></a>
+                <a title="Conference Website" href="{{conf.link}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/203-earth.svg" alt="Website" width="14" height="14" /></a>
                 {% if conf.cfp_link %}
-                <a title="Call for Participation" href="{{conf.cfp_link}}" target="_blank"><img src="/static/img/035-file-text.svg" alt="CFP" width="14" height="14" /></a>
+                <a title="Call for Participation" href="{{conf.cfp_link}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/035-file-text.svg" alt="CFP" width="14" height="14" /></a>
                 {% endif %}
                 {% if conf.finaid %}
-                <a title="Financial Aid" href="{{conf.finaid}}" target="_blank"><img src="/static/img/066-lifebuoy.svg" alt="Aid" width="14" height="14" /></a>
+                <a title="Financial Aid" href="{{conf.finaid}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/066-lifebuoy.svg" alt="Aid" width="14" height="14" /></a>
                 {% endif %}
                 {% if conf.sponsor %}
-                <a title="Sponsorship" href="{{conf.sponsor}}" target="_blank"><img src="/static/img/060-coin-dollar.svg" alt="Sponsor" width="14" height="14" /></a>
+                <a title="Sponsorship" href="{{conf.sponsor}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/060-coin-dollar.svg" alt="Sponsor" width="14" height="14" /></a>
                 {% endif %}
                 {% if conf.mastodon %}
-                <a title="Mastodon" href="{{conf.mastodon}}" target="_blank"><img src="/static/img/407-mastodon.svg" alt="Mastodon" width="14" height="14" /></a>
+                <a title="Mastodon" href="{{conf.mastodon}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/407-mastodon.svg" alt="Mastodon" width="14" height="14" /></a>
                 {% elsif conf.twitter %}
-                <a title="Twitter" href="https://twitter.com/{{conf.twitter}}" target="_blank"><img src="/static/img/407-twitter.svg" alt="Twitter" width="14" height="14" /></a>
+                <a title="Twitter" href="https://twitter.com/{{conf.twitter}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/407-twitter.svg" alt="Twitter" width="14" height="14" /></a>
                 {% endif %}
             </span>
         </div>
@@ -33,10 +33,10 @@
             <span class="timer-small">{{cfp_deadline}}</span>
         {% else %}
             <span class="timer">
-                <span class="countdown-display" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}">Loading...</span>
+                <span class="countdown-display" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}" role="timer" aria-live="off" aria-label="Countdown to {{conf.conference}} {{conf.year}} CFP deadline">{{cfp_deadline | date: "%b %e, %Y"}}</span>
             </span>
             <span class="timer-small">
-                <span class="countdown-display countdown-small" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}">...</span>
+                <span class="countdown-display countdown-small" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}" aria-hidden="true">{{cfp_deadline | date: "%b %e"}}</span>
             </span>
         {% endif %}
     </div>
