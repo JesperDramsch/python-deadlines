@@ -1,6 +1,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 
 {% capture base_title %}{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}{% endcapture %}
 {% assign start_title = base_title | split: "." | first %}
@@ -10,21 +12,13 @@
 {% seo title=false %}
 
 <link rel="alternate" type="application/rss+xml" title="RSS Feed for Pythondeadlin.es" href="/feed.xml" />
-{% if page.permalink %}
-<link rel="alternate" hreflang="en" href="{{ site.baseurl_root }}{{ page.permalink }}" title="">
-{% else %}
-<link rel="alternate" hreflang="en" href="{{ site.baseurl_root }}{{ page.url }}" title="">
-{% endif %}
-{% if page.permalink_es %}
-<link rel="alternate"  title="{{title}} in Spanish" hreflang="es" href="{{ site.baseurl_root }}/es{{ page.permalink_es }}">
-{% else %}
-<link rel="alternate"  title="{{title}} in Spanish" hreflang="es" href="{{ site.baseurl_root }}/es{{ page.url }}">
-{% endif %}
-{% if page.permalink_de %}
-<link rel="alternate"  title="{{title}} in German" hreflang="de" href="{{ site.baseurl_root }}/de{{ page.permalink_de }}">
-{% else %}
-<link rel="alternate"  title="{{title}} in German" hreflang="de" href="{{ site.baseurl_root }}/de{{ page.url }}">
-{% endif %}
+{% assign page_path = page.permalink | default: page.url %}
+<link rel="canonical" href="{{ site.url }}{{ site.baseurl_root }}{{ page_path }}">
+<link rel="alternate" hreflang="x-default" href="{{ site.baseurl_root }}{{ page_path }}">
+<link rel="alternate" hreflang="en" href="{{ site.baseurl_root }}{{ page_path }}">
+{% for lang in site.languages %}{% if lang != "en" %}{% capture lang_permalink %}permalink_{{ lang }}{% endcapture %}{% assign lang_path = page[lang_permalink] | default: page.url %}
+<link rel="alternate" hreflang="{{ lang }}" href="{{ site.baseurl_root }}/{{ lang }}{{ lang_path }}">
+{% endif %}{% endfor %}
 
 <link rel="stylesheet" type="text/css" href="{{ "/static/css/js-year-calendar.min.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s' }}" media="screen,projection">
 
@@ -36,10 +30,12 @@
 <link rel="stylesheet" type="text/css" href="{{ "/static/css/dashboard.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
 <link rel="stylesheet" type="text/css" href="{{ "/static/css/action-bar-minimal.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
 <link rel="stylesheet" type="text/css" href="{{ "/static/css/conference-detail-actions.css" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}" media="screen,projection">
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/fontawesome.min.css" media="screen,projection">
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/solid.min.css" media="screen,projection">
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/regular.min.css" media="screen,projection">
-<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/brands.min.css" media="screen,projection">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preconnect" href="https://info.pythondeadlin.es" crossorigin>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/fontawesome.min.css" integrity="sha512-B46MVOJpI6RBsdcU307elYeStF2JKT87SsHZfRSkjVi4/iZ3912zXi45X5/CBr/GbCyLx6M1GQtTKYRd52Jxgw==" crossorigin="anonymous" referrerpolicy="no-referrer" media="screen,projection">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/solid.min.css" integrity="sha512-/r+0SvLvMMSIf41xiuy19aNkXxI+3zb/BN8K9lnDDWI09VM0dwgTMzK7Qi5vv5macJ3VH4XZXr60ip7v13QnmQ==" crossorigin="anonymous" referrerpolicy="no-referrer" media="screen,projection">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/regular.min.css" integrity="sha512-j+P0XpTXw+hDTK64xqC/cjv62cf629/IR4/0bokmich7J8XdVlWT40+1M/Z58rCQ4F+3QoJIfzh6Ui6TTIP6WQ==" crossorigin="anonymous" referrerpolicy="no-referrer" media="screen,projection">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/brands.min.css" integrity="sha512-EJp8vMVhYl7tBFE2rgNGb//drnr1+6XKMvTyamMS34YwOEFohhWkGq13tPWnK0FbjSS6D8YoA3n3bZmb3KiUYA==" crossorigin="anonymous" referrerpolicy="no-referrer" media="screen,projection">
 
 <link rel="shortcut icon" href="{{ "/static/img/favicon.png" | prepend:site.baseurl_root }}">
 
@@ -61,13 +57,13 @@
   </style>
 
 <script defer data-domain="pythondeadlin.es" src="https://info.pythondeadlin.es/js/script.js"></script>
-<script type="text/javascript" src="{{ "/static/js/js-year-calendar.js" | prepend:site.baseurl_root }}"></script>
-<script type="text/javascript" src="{{ "/static/js/jquery.min.js" | prepend:site.baseurl_root }}"></script>
-<script type="text/javascript" src="{{ "/static/js/popper.min.js" | prepend:site.baseurl_root }}"></script>
-<script type="text/javascript" src="{{ "/static/js/bootstrap.min.js" | prepend:site.baseurl_root }}"></script>
-<script type="text/javascript" src="{{ "/static/js/luxon.js" | prepend:site.baseurl_root }}"></script>
-<script type="text/javascript" src="{{ "/static/js/countdown-simple.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
-<script type="text/javascript" src="{{ "/static/js/store.min.js" | prepend:site.baseurl_root }}"></script>
+<script src="{{ "/static/js/js-year-calendar.js" | prepend:site.baseurl_root }}"></script>
+<script src="{{ "/static/js/jquery.min.js" | prepend:site.baseurl_root }}"></script>
+<script src="{{ "/static/js/popper.min.js" | prepend:site.baseurl_root }}"></script>
+<script src="{{ "/static/js/bootstrap.min.js" | prepend:site.baseurl_root }}"></script>
+<script src="{{ "/static/js/luxon.js" | prepend:site.baseurl_root }}"></script>
+<script defer src="{{ "/static/js/countdown-simple.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script src="{{ "/static/js/store.min.js" | prepend:site.baseurl_root }}"></script>
 <script type="text/javascript">
 // Only inject active conferences to avoid performance issues
 // Archive data (592 conferences) loaded on-demand when needed
@@ -107,10 +103,10 @@ window.conferenceData = {
     // Archive will be loaded on-demand to save ~224KB initial payload
 };
 </script>
-<script type="text/javascript" src="{{ "/static/js/conference-manager.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
-<script type="text/javascript" src="{{ "/static/js/favorites.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
-<script type="text/javascript" src="{{ "/static/js/series-manager.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
-<script type="text/javascript" src="{{ "/static/js/ouical.min.js" | prepend:site.baseurl_root }}"></script>
-<script type="text/javascript" src="{{ "/static/js/action-bar.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
-<script type="text/javascript" src="{{ "/static/js/notifications.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
-<script type="text/javascript" src="{{ "/static/js/bootstrap-multiselect.min.js" |prepend:site.baseurl_root }}"></script>
+<script defer src="{{ "/static/js/conference-manager.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script defer src="{{ "/static/js/favorites.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script defer src="{{ "/static/js/series-manager.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script defer src="{{ "/static/js/ouical.min.js" | prepend:site.baseurl_root }}"></script>
+<script defer src="{{ "/static/js/action-bar.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script defer src="{{ "/static/js/notifications.js" | prepend:site.baseurl_root }}?t={{site.time | date: '%s'}}"></script>
+<script src="{{ "/static/js/bootstrap-multiselect.min.js" |prepend:site.baseurl_root }}"></script>
