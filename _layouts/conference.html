@@ -1,5 +1,4 @@
 ---
-description: Countdown for the Call for Participation of this conference including conference dates and details.
 ---
 
 {% if page.cfp_ext %}
@@ -11,6 +10,34 @@ description: Countdown for the Call for Participation of this conference includi
 <html>
 <head>
   {% include head.html %}
+  <meta name="description" content="Call for Proposals deadline for {{ page.conference }} {{ page.year }} in {{ page.place }}. Conference dates: {{ page.start | date: '%B %e' }} - {{ page.end | date: '%B %e, %Y' }}.">
+  <meta property="og:title" content="{{ page.conference }} {{ page.year }} - CFP Deadline">
+  <meta property="og:description" content="Call for Proposals deadline for {{ page.conference }} {{ page.year }} in {{ page.place }}. Submit your talk before {{ page.cfp_ext | default: page.cfp | date: '%B %e, %Y' }}.">
+  <meta property="og:url" content="{{ site.url }}/conference/{{ page.conference | slugify: 'latin' }}-{{ page.year }}/">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": {{ page.conference | append: " " | append: page.year | jsonify }},
+    "startDate": {{ page.start | jsonify }},
+    "endDate": {{ page.end | jsonify }},
+    "eventAttendanceMode": "{% if page.place == 'Online' %}https://schema.org/OnlineEventAttendanceMode{% elsif page.extra_places %}https://schema.org/MixedEventAttendanceMode{% else %}https://schema.org/OfflineEventAttendanceMode{% endif %}",
+    "eventStatus": "https://schema.org/EventScheduled",
+    "location": {
+      {% if page.place == 'Online' %}
+      "@type": "VirtualLocation",
+      "url": {{ page.link | jsonify }}
+      {% else %}
+      "@type": "Place",
+      "name": {{ page.place | jsonify }},
+      "address": {{ page.place | jsonify }}
+      {% endif %}
+    },
+    "url": {{ page.link | jsonify }},
+    "description": {{ page.conference | append: " " | append: page.year | append: " - Python conference in " | append: page.place | jsonify }}
+  }
+  </script>
   {% if page.mastodon %}
   <link rel="stylesheet" type="text/css" href="{{ "/static/css/mastodon.css" | prepend:site.baseurl_root }}">
   <script>
@@ -34,8 +61,16 @@ description: Countdown for the Call for Participation of this conference includi
               var pubDate = item.querySelector("pubDate").textContent;
 
               var feedItem = document.createElement("div");
-              feedItem.setAttribute("class", "timeline-item")
-              feedItem.innerHTML = '<div class="timeline-content">' + post + '</div><a href="' + link + '">' + pubDate + ' by {{ page.conference }}</a>';
+              feedItem.setAttribute("class", "timeline-item");
+              var contentDiv = document.createElement("div");
+              contentDiv.setAttribute("class", "timeline-content");
+              contentDiv.textContent = post;
+              var linkEl = document.createElement("a");
+              linkEl.href = link;
+              linkEl.rel = "noopener noreferrer";
+              linkEl.textContent = pubDate + ' by {{ page.conference }}';
+              feedItem.appendChild(contentDiv);
+              feedItem.appendChild(linkEl);
               feedContainer.appendChild(feedItem);
             }
           }
@@ -69,7 +104,7 @@ description: Countdown for the Call for Participation of this conference includi
             <span id="conf-title-href" href="{{site.baseurl_root}}/conference/{{page.conference | slugify: "latin"}}-{{page.year}}/">{{ page.conference }} {{page.year}}</span>
           </h1>
           {% if page.alt_name %}
-          <h3 id="conf-subtitle">a.k.a. {{page.alt_name}} {{page.year}}</h3>
+          <h2 id="conf-subtitle">a.k.a. {{page.alt_name}} {{page.year}}</h2>
           {% endif %}
         </div>
       </div>
@@ -103,7 +138,10 @@ description: Countdown for the Call for Participation of this conference includi
       <div id="conf-deadline-timer" class="row">
         <div id="cfp-timer" class="col-12 conf-timer countdown-display"
              data-deadline="{{ page.cfp_ext | default: page.cfp }}"
-             data-timezone="{{ page.timezone | default: 'UTC-12' }}">
+             data-timezone="{{ page.timezone | default: 'UTC-12' }}"
+             role="timer"
+             aria-live="off"
+             aria-label="Countdown to {{ page.conference }} {{ page.year }} CFP deadline">
           {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}{{cfp}}{%endif%}
         </div>
       </div>
@@ -116,60 +154,60 @@ description: Countdown for the Call for Participation of this conference includi
       <div id="conf-key-facts" class="row">
         <div class="col-12 col-md-6">
           <div>
-            <img src="/static/img/084-calendar.svg" class="badge-link" alt="Calendar icon" width="16" height="16" />
+            <img src="/static/img/084-calendar.svg" class="badge-link" alt="Calendar icon" width="16" height="16" loading="lazy" />
             <span id="conf-date">{% assign conf = page %}{%- translate_file dates/pretty_dates.html start=conf.start end=conf.end -%}</span>
           </div>
           <div>
-            <img src="/static/img/072-location.svg" class="badge-link" alt="Location icon" width="16" height="16" />
-            <a id="conf-place" target="_blank"
+            <img src="/static/img/072-location.svg" class="badge-link" alt="Location icon" width="16" height="16" loading="lazy" />
+            <a id="conf-place" target="_blank" rel="noopener noreferrer"
               href="{% if page.place == 'Online' %}#{% else %}https://maps.google.com/?q={{page.place}}{% endif %}">{{page.place}}</a>
           </div>
           <div>
-            <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" />
-            <a id="conf-website" target="_blank" href="{{page.link}}">{{page.link}}</a>
+            <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" loading="lazy" />
+            <a id="conf-website" target="_blank" rel="noopener noreferrer" href="{{page.link}}">{{page.link}}</a>
           </div>
           {% if page.cfp_ext %}
           <div>
             <img src="/static/img/035-file-text.svg" class="badge-link" alt="Document Icon for original CfP" width="16"
-              height="16" />
+              height="16" loading="lazy" />
             <span id="conf-cfp_ext">{% t global.cfp_ext %} {{page.cfp}}</span>
           </div>
           {% endif %}
           {% if page.cfp_link %}
           <div>
             <img src="/static/img/035-file-text.svg" class="badge-link" alt="Document Icon for CfP link" width="16"
-              height="16" />
-            <a id="conf-cfp_link" target="_blank" href="{{page.cfp_link}}">{% t global.cfp %}</a>
+              height="16" loading="lazy" />
+            <a id="conf-cfp_link" target="_blank" rel="noopener noreferrer" href="{{page.cfp_link}}">{% t global.cfp %}</a>
           </div>
           {% endif %}
           <div>
-            <img src="/static/img/002-home2.svg" class="badge-link" alt="Conference Series" width="16" height="16" />
+            <img src="/static/img/002-home2.svg" class="badge-link" alt="Conference Series" width="16" height="16" loading="lazy" />
             <a id="conf-series" href="{{site.baseurl}}/series/{{page.conference | slugify: "latin"}}">{% t conference.all %} {{ page.conference }}</a>
           </div>
           {% if page.finaid %}
           <div>
             <img src="/static/img/066-lifebuoy.svg" class="badge-link" alt="Life Buoy for Financial Aid" width="16"
-              height="16" />
-            <a id="conf-finaid" target="_blank" href="{{page.finaid}}">{% t conference.finaid %}</a>
+              height="16" loading="lazy" />
+            <a id="conf-finaid" target="_blank" rel="noopener noreferrer" href="{{page.finaid}}">{% t conference.finaid %}</a>
           </div>
           {% endif %}
           {% if page.sponsor %}
           <div>
             <img src="/static/img/060-coin-dollar.svg" class="badge-link" alt="Coin Dollar Icon for Sponsorship"
-              width="16" height="16" />
-            <a id="conf-sponsor" target="_blank" href="{{page.sponsor}}">{% t conference.sponsor %}</a>
+              width="16" height="16" loading="lazy" />
+            <a id="conf-sponsor" target="_blank" rel="noopener noreferrer" href="{{page.sponsor}}">{% t conference.sponsor %}</a>
           </div>
           {% endif %}
           {% if page.twitter %}
           <div>
-            <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" />
-            <a id="conf-twitter" target="_blank" href="https://twitter.com/{{page.twitter}}">@{{page.twitter}}</a>
+            <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" loading="lazy" />
+            <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{page.twitter}}">@{{page.twitter}}</a>
           </div>
           {% endif %}
           {% if page.mastodon %}
           <div>
-            <img src="/static/img/407-mastodon.svg" class="badge-link" alt="Mastodon icon" width="16" height="16" />
-            <a id="conf-mastodon" target="_blank" href="{{page.mastodon}}">Mastodon</a>
+            <img src="/static/img/407-mastodon.svg" class="badge-link" alt="Mastodon icon" width="16" height="16" loading="lazy" />
+            <a id="conf-mastodon" target="_blank" rel="noopener noreferrer" href="{{page.mastodon}}">Mastodon</a>
           </div>
           {% endif %}
         </div>
@@ -291,21 +329,9 @@ description: Countdown for the Call for Participation of this conference includi
 
       // Notification helper
       function showConferenceNotification(text, type) {
-        const bgColor = type === 'success' ? '#28a745' : type === 'info' ? '#17a2b8' : '#ffc107';
         const message = $('<div>')
           .text(text)
-          .css({
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            background: bgColor,
-            color: 'white',
-            padding: '12px 24px',
-            borderRadius: '6px',
-            zIndex: 9999,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-            animation: 'slideIn 0.3s ease'
-          });
+          .addClass('conf-notification conf-notification-' + type);
 
         $('body').append(message);
         setTimeout(() => {
