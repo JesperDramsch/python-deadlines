@@ -477,6 +477,8 @@
   place: Online
   start: 2026-03-04
   end: 2026-03-04
+  mastodon: https://www.youtube.com/@PyCharmIDE
+  bluesky: https://bsky.app/profile/pycharm.dev
   sub: PY
 
 - conference: Python BarCamp Karlsruhe
