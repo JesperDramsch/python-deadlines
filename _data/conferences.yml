@@ -201,7 +201,7 @@
 
 - conference: DjangoCon Europe
   year: 2026
-  link: https://2026.djangocon.eu/
+  link: https://djangocon.eu/
   cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2026/cfp
   cfp: '2026-02-08 23:59:59'
   cfp_ext: '2026-02-15 23:59:00'
@@ -477,6 +477,8 @@
   place: Online
   start: 2026-03-04
   end: 2026-03-04
+  mastodon: https://www.youtube.com/@PyCharmIDE
+  bluesky: https://bsky.app/profile/pycharm.dev
   sub: PY
 
 - conference: Python BarCamp Karlsruhe
