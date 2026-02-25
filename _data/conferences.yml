@@ -43,8 +43,8 @@
   cfp: '2026-03-16 11:00:00'
   timezone: America/Chicago
   place: Chicago, USA
-  start: 2026-09-14
-  end: 2026-09-18
+  start: 2026-08-24
+  end: 2026-08-28
   mastodon: https://fosstodon.org/@djangocon
   sub: WEB
   location:
