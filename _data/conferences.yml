@@ -68,6 +68,21 @@
     latitude: 47.8454821
     longitude: 16.5249288
 
+- conference: PyCon Estonia
+  alt_name: PyCon EE
+  year: 2026
+  link: https://pycon.ee/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSewbFKG6BEsGXR9ilgsW1wqfmzRR0Pf9XDO5WXTFhrcgrrN3g/viewform
+  cfp: '2026-02-28 23:59:00'
+  place: Tallinn, Estonia
+  start: 2026-10-08
+  end: 2026-10-09
+  sub: PY
+  location:
+  - title: PyCon Estonia 2026
+    latitude: 59.4372155
+    longitude: 24.7453688
+
 - conference: SciPy US
   alt_name: SciPy
   year: 2026
@@ -86,21 +101,6 @@
   - title: SciPy US 2026
     latitude: 44.9772995
     longitude: -93.2654692
-
-- conference: PyCon Estonia
-  alt_name: PyCon EE
-  year: 2026
-  link: https://pycon.ee/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSewbFKG6BEsGXR9ilgsW1wqfmzRR0Pf9XDO5WXTFhrcgrrN3g/viewform
-  cfp: '2026-02-28 23:59:00'
-  place: Tallinn, Estonia
-  start: 2026-10-08
-  end: 2026-10-09
-  sub: PY
-  location:
-  - title: PyCon Estonia 2026
-    latitude: 59.4372155
-    longitude: 24.7453688
 
 - conference: PyData London
   year: 2026
