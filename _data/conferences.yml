@@ -474,6 +474,20 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: PyCon Russia
+  year: 2026
+  link: https://www.pycon.ru/
+  cfp: TBA
+  timezone: Europe/Moscow
+  place: Moscow, Russia
+  start: 2026-07-24
+  end: 2026-07-25
+  sub: PY
+  location:
+  - title: PyCon Russia 2026
+    latitude: 55.7558
+    longitude: 37.6173
+
 - conference: Python Unplugged on PyTV
   year: 2026
   link: https://lp.jetbrains.com/python-unplugged/
