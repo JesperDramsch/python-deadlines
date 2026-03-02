@@ -443,6 +443,19 @@
     latitude: 37.9755648
     longitude: 23.7348324
 
+- conference: PyCon Cameroon
+  year: 2026
+  link: https://pycon.pythoncameroon.org/
+  cfp: TBA
+  place: Yaoundé, Cameroon
+  start: 2026-09-17
+  end: 2026-09-19
+  sub: PY
+  location:
+  - title: PyCon Cameroon 2026
+    latitude: 3.8689867
+    longitude: 11.5213344
+
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
