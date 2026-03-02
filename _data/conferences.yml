@@ -90,11 +90,12 @@
   cfp_link: https://pretalx.com/scipy-2026/cfp
   cfp: '2026-02-25 15:20:00'
   cfp_ext: '2026-03-04 23:59:00'
-  tutorial_deadline: '2026-05-04 23:59:00'
+  tutorial_deadline: '2026-03-04 23:59:00'
   timezone: America/Chicago
   place: Minneapolis, USA
   start: 2026-07-13
   end: 2026-07-19
+  finaid: https://docs.google.com/forms/d/e/1FAIpQLSdVD-AHPDcoVF4FPKdaWDTS9NyZtGym0KxoKf6AnWxv0MIiWg/viewform
   sponsor: https://www.scipy2026.scipy.org/s/SciPy26-SponsorProspectus-wn87.pdf
   mastodon: https://mastodon.social/@SciPyConf
   sub: SCIPY
