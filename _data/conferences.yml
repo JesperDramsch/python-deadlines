@@ -492,7 +492,8 @@
 - conference: PyCon Russia
   year: 2026
   link: https://www.pycon.ru/
-  cfp: TBA
+  cfp_link: https://www.pycon.ru/cfp
+  cfp: '2026-05-15 23:59:00'
   timezone: Europe/Moscow
   place: Moscow, Russia
   start: 2026-07-24
