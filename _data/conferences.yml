@@ -16,12 +16,56 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: PyCon Russia
+  year: 2026
+  link: https://www.pycon.ru/
+  cfp_link: https://www.pycon.ru/cfp
+  cfp: '2026-05-15 23:59:00'
+  timezone: Europe/Moscow
+  place: Moscow, Russia
+  start: 2026-07-24
+  end: 2026-07-25
+  sponsor: https://www.pycon.ru/partneram
+  sub: PY
+  location:
+  - title: PyCon Russia 2026
+    latitude: 55.7558
+    longitude: 37.6173
+
+- conference: Python Ho
+  year: 2026
+  link: https://2026.pythonho.com/
+  cfp: '2026-05-01 23:59:00'
+  place: Ho, Ghana
+  start: 2026-10-23
+  end: 2026-10-24
+  sub: PY
+  location:
+  - title: Python Ho 2026
+    latitude: 6.6126598
+    longitude: 0.4688932
+
+- conference: PyCon Cameroon
+  year: 2026
+  link: https://pycon.pythoncameroon.org/
+  cfp_link: https://sessionize.com/pycon-camerooon-2026/
+  cfp: '2026-04-20 23:59:00'
+  timezone: Africa/Douala
+  place: Yaoundé, Cameroon
+  start: 2026-09-17
+  end: 2026-09-19
+  sub: PY
+  location:
+  - title: PyCon Cameroon 2026
+    latitude: 3.8689867
+    longitude: 11.5213344
+
 - conference: PyCon Australia
   alt_name: PyCon AU
   year: 2026
   link: https://2026.pycon.org.au/
   cfp_link: https://pretalx.com/pycon-au-2026/cfp
-  cfp: '2026-03-30 21:59:00'
+  cfp: '2026-03-29 23:59:00'
   timezone: Australia/Brisbane
   place: Brisbane, Australia
   start: 2026-08-26
@@ -95,8 +139,8 @@
   place: Minneapolis, USA
   start: 2026-07-13
   end: 2026-07-19
-  finaid: https://docs.google.com/forms/d/e/1FAIpQLSdVD-AHPDcoVF4FPKdaWDTS9NyZtGym0KxoKf6AnWxv0MIiWg/viewform
   sponsor: https://www.scipy2026.scipy.org/s/SciPy26-SponsorProspectus-wn87.pdf
+  finaid: https://docs.google.com/forms/d/e/1FAIpQLSdVD-AHPDcoVF4FPKdaWDTS9NyZtGym0KxoKf6AnWxv0MIiWg/viewform
   mastodon: https://mastodon.social/@SciPyConf
   sub: SCIPY
   location:
@@ -417,19 +461,6 @@
     latitude: 41.3828939
     longitude: 2.1774322
 
-- conference: Python Ho
-  year: 2026
-  link: https://2026.pythonho.com/
-  cfp: TBA
-  place: Ho, Ghana
-  start: 2026-10-23
-  end: 2026-10-24
-  sub: PY
-  location:
-  - title: Python Ho 2026
-    latitude: 6.6126598
-    longitude: 0.4688932
-
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -438,26 +469,12 @@
   place: Athens, Greece
   start: 2026-10-12
   end: 2026-10-14
+  mastodon: https://www.youtube.com/@pycongreece
   sub: PY
   location:
   - title: PyCon Greece 2026
     latitude: 37.9755648
     longitude: 23.7348324
-
-- conference: PyCon Cameroon
-  year: 2026
-  link: https://pycon.pythoncameroon.org/
-  cfp_link: https://sessionize.com/pycon-camerooon-2026/
-  cfp: '2026-04-20 23:59:00'
-  timezone: Africa/Douala
-  place: Yaoundé, Cameroon
-  start: 2026-09-17
-  end: 2026-09-19
-  sub: PY
-  location:
-  - title: PyCon Cameroon 2026
-    latitude: 3.8689867
-    longitude: 11.5213344
 
 - conference: PyCon Kenya
   year: 2026
@@ -489,22 +506,6 @@
   - title: PyOhio 2026
     latitude: 41.4996574
     longitude: -81.6936772
-
-- conference: PyCon Russia
-  year: 2026
-  link: https://www.pycon.ru/
-  cfp_link: https://www.pycon.ru/cfp
-  cfp: '2026-05-15 23:59:00'
-  timezone: Europe/Moscow
-  place: Moscow, Russia
-  start: 2026-07-24
-  end: 2026-07-25
-  sponsor: https://www.pycon.ru/partneram
-  sub: PY
-  location:
-  - title: PyCon Russia 2026
-    latitude: 55.7558
-    longitude: 37.6173
 
 - conference: Python Unplugged on PyTV
   year: 2026
@@ -545,17 +546,3 @@
   - title: FOSDEM 2026
     latitude: 50.8465573
     longitude: 4.351697
-
-- conference: SciPyData Japan
-  year: 2026
-  link: https://scipydata.connpass.com/event/364718/
-  cfp: None
-  timezone: Asia/Tokyo
-  place: Tokyo, Japan
-  start: 2026-01-24
-  end: 2026-01-24
-  sub: SCIPY,DATA
-  location:
-  - title: SciPyData Japan 2026
-    latitude: 35.718741949999995
-    longitude: 139.73118058112317
