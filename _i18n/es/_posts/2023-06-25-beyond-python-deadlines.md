@@ -2,9 +2,7 @@
 title: Explorando recursos adicionales para fechas límite de conferencias
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conferences
+tags: [ "Python", "conferences" ]
 ---
 
 Pythondeadlin.es ha sido un destino popular para la comunidad Python para encontrar fechas límite de conferencias en un lugar conveniente durante el último año.
