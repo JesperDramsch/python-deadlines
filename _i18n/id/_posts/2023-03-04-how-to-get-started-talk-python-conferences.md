@@ -2,9 +2,7 @@
 title: Bagaimana cara membuat presentasi luar biasa untuk konferensi Python?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
+tags: [ 'Python', 'presentation' ]
 ---
 
 Konferensi Python menawarkan platform yang sangat baik bagi para developer untuk menunjukkan keterampilan mereka, berbagi pengetahuan, dan berjejaring dengan sesama profesional.
