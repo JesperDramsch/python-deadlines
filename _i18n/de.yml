@@ -5,6 +5,7 @@ global:
   sub_filter: 'Filter nach Unterkategorie:'
   cfp: 'Aufruf zur Teilnahme'
   cfp_ext: 'CfP verlängert von'
+  subscribe: 'Abonnieren'
 titles:
   default: 'Deadlines für Python-Konferenzen'
   archive: 'Archiv für Python-Konferenzen'
@@ -31,6 +32,7 @@ header:
   series: 'Eventserien'
   resources: 'Ressourcen'
   formatter: 'Formatierungs-App'
+  course: 'E-Mail-Kurs'
   articles: 'Erste Schritte'
 conference:
   title: 'Konferenz Deadlines'
