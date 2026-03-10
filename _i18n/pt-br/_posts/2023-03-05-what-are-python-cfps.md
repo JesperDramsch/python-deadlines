@@ -2,10 +2,7 @@
 title: O que é um CfP de conferência Python?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - conference
+tags: [ "Python", "CfP", "conference" ]
 ---
 
 Chamada de Propostas (CfP) ou Chamada para Participação é um termo comum usado em comunidades acadêmicas, de pesquisa e profissionais para convidar indivíduos ou grupos a submeterem propostas ou resumos para conferências, workshops, simpósios e outros eventos.
