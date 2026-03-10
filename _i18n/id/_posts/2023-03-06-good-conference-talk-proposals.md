@@ -2,11 +2,7 @@
 title: Cara menulis Proposal Presentasi Konferensi Python yang bagus
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conference
-  - CfP
-  - audience
+tags: [ "Python", "conference", "CfP", "audience" ]
 ---
 
 Writing a good conference proposal can be challenging. Still, some key elements can help make your proposal stand out. Here are five essential components of a successful conference proposal.
