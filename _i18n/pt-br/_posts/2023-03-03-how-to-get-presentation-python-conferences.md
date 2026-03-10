@@ -2,9 +2,7 @@
 title: Como conseguir palestrar em conferências Python?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
+tags: [ "Python", "CfP" ]
 ---
 
 Conferências Python são uma excelente plataforma para compartilhar conhecimento, fazer networking com colegas e se manter atualizado com os últimos desenvolvimentos na comunidade Python. Se você é apaixonado por Python e quer compartilhar seus insights com um público mais amplo, falar em uma conferência Python pode ser uma ótima oportunidade. Neste post do blog, vamos explorar como conseguir palestrar em conferências Python.
