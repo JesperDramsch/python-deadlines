@@ -5,6 +5,7 @@ global:
   sub_filter: '按子类别筛选:'
   cfp: '参与征集'
   cfp_ext: '延长的征集期'
+  subscribe: '订阅'
 titles:
   default: 'Python会议截止日期'
   archive: '往期Python会议'
@@ -31,6 +32,7 @@ header:
   series: '系列'
   resources: '资源'
   formatter: '格式化器应用'
+  course: '邮件课程'
   articles: '入门文章'
 conference:
   title: '会议截止日期'
