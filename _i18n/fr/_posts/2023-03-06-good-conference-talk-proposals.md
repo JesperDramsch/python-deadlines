@@ -2,11 +2,7 @@
 title: Comment rédiger une excellente proposition de présentation pour les conférences Python
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conference
-  - CfP
-  - audience
+tags: [ "Python", "conference", "CfP", "audience" ]
 ---
 
 Rédiger une bonne proposition de conférence peut être un défi. Cependant, certains éléments clés peuvent aider à faire ressortir votre proposition. Voici cinq composantes essentielles d'une proposition de conférence réussie.
