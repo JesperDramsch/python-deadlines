@@ -2,11 +2,7 @@
 title: पायथन कॉन्फ्रेंस टॉक प्रस्ताव कैसे लिखें
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conference
-  - CfP
-  - audience
+tags: [ "Python", "conference", "CfP", "audience" ]
 ---
 
 Writing a good conference proposal can be challenging. Still, some key elements can help make your proposal stand out. Here are five essential components of a successful conference proposal.
