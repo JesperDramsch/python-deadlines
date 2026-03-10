@@ -2,11 +2,7 @@
 title: Wie definieren Sie Ihre Zielgruppe für einen Python-Konferenzvortrag?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
-  - conference
-  - audience
+tags: [ "Python", "presentation", "conference", "audience" ]
 ---
 
 Bei der Einreichung eines Vorschlags für eine Konferenzpräsentation ist es wichtig, Ihre Zielgruppe zu definieren. Zu wissen, mit wem Sie sprechen, kann Ihnen helfen, Ihre Präsentation auf die Bedürfnisse, Interessen und das Hintergrundwissen des Publikums zuzuschneiden. In diesem Beitrag besprechen wir, wie Sie Ihre Zielgruppe für einen Konferenzvorschlag definieren und warum dies wichtig ist.
