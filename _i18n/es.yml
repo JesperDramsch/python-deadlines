@@ -5,6 +5,7 @@ global:
   sub_filter: 'Filtrar por Subcategoría:'
   cfp: 'Llamada por participación'
   cfp_ext: 'CfP extendido de'
+  subscribe: 'Suscribirse'
 titles:
   default: 'Fechas Limites de Conferencias de Python '
   archive: 'Conferencias anteriores de Python'
@@ -31,6 +32,7 @@ header:
   series: 'Serie'
   resources: 'Recursos'
   formatter: 'Formateador'
+  course: 'Curso por Email'
   articles: 'Comenzando'
 conference:
   title: 'Fechas de Conferencias'
