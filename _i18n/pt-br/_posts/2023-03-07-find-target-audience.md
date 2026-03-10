@@ -2,11 +2,7 @@
 title: Como definir seu público-alvo para uma palestra de conferência Python?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
-  - conference
-  - audience
+tags: [ "Python", "presentation", "conference", "audience" ]
 ---
 
 Quando se trata de enviar uma proposta para uma apresentação em conferência, é essencial definir seu público-alvo. Saber com quem você está falando pode ajudá-lo a adaptar sua apresentação às necessidades, interesses e conhecimentos prévios da audiência. Neste post, discutiremos como definir seu público-alvo para uma proposta de conferência e por que isso é importante.
