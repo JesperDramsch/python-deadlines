@@ -2,11 +2,7 @@
 title: ¿Cómo defines tu público objetivo para una charla de conferencia Python?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
-  - conference
-  - audience
+tags: [ "Python", "presentation", "conference", "audience" ]
 ---
 
 Cuando se trata de enviar una propuesta para una presentación en una conferencia, es esencial definir tu público objetivo. Saber a quién le estás hablando puede ayudarte a adaptar tu presentación a las necesidades, intereses y conocimientos previos de la audiencia. En este post, discutiremos cómo definir tu público objetivo para una propuesta de conferencia y por qué es importante.
