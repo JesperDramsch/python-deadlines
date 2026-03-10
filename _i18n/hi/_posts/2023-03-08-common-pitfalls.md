@@ -2,10 +2,7 @@
 title: 9 सामान्य गलतियाँ जो आपके पायथन कॉन्फ्रेंस टॉक प्रस्ताव को अस्वीकार करवा देती हैं
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - pitfalls
+tags: [ "Python", "CfP", "pitfalls" ]
 ---
 
 Suppose you're looking to submit a proposal for a conference talk. In that case, knowing what to avoid is essential to increase your chances of acceptance. Here are nine common pitfalls to watch out for:
