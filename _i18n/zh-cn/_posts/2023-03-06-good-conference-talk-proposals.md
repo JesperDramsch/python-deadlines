@@ -2,11 +2,7 @@
 title: 如何撰写出色的Python会议演讲提案
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conference
-  - CfP
-  - audience
+tags: [ "Python", "conference", "CfP", "audience" ]
 ---
 
 Writing a good conference proposal can be challenging. Still, some key elements can help make your proposal stand out. 撰写一份好的会议提案可能具有挑战性。然而，一些关键元素可以帮助使您的提案脱颖而出。以下是成功会议提案的五个基本组成部分。
