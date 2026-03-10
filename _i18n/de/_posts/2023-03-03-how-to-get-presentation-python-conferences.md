@@ -2,9 +2,7 @@
 title: Wie kann man auf Python-Konferenzen sprechen?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
+tags: [ "Python", "CfP" ]
 ---
 
 Python-Konferenzen sind eine ausgezeichnete Plattform zum Teilen von Wissen, zum Networking mit Kollegen und um über die neuesten Entwicklungen in der Python-Community auf dem Laufenden zu bleiben. Wenn Sie leidenschaftlich an Python interessiert sind und Ihre Erkenntnisse mit einem breiteren Publikum teilen möchten, kann ein Vortrag auf einer Python-Konferenz eine großartige Gelegenheit sein. In diesem Blogbeitrag werden wir untersuchen, wie Sie auf Python-Konferenzen sprechen können.
