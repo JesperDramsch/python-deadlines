@@ -5,6 +5,7 @@ global:
   sub_filter: 'उपश्रेणी द्वारा फ़िल्टर करें:'
   cfp: 'भागीदारी के लिए आमंत्रण'
   cfp_ext: 'विस्तारित सीएफपी'
+  subscribe: 'सदस्यता लें'
 titles:
   default: 'पायथन सम्मेलन समय सीमाएँ'
   archive: 'पिछले पायथन सम्मेलन'
@@ -31,6 +32,7 @@ header:
   series: 'श्रृंखला'
   resources: 'संसाधन'
   formatter: 'फॉर्मेटर ऐप'
+  course: 'ईमेल कोर्स'
   articles: 'शुरू करने के लिए लेख'
 conference:
   title: 'सम्मेलन समय सीमाएँ'
