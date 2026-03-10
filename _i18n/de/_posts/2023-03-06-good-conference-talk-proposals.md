@@ -2,11 +2,7 @@
 title: Wie man einen großartigen Python-Konferenz-Vortragsvorschlag schreibt
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conference
-  - CfP
-  - audience
+tags: [ "Python", "conference", "CfP", "audience" ]
 ---
 
 Das Schreiben eines guten Konferenzvorschlags kann herausfordernd sein. Dennoch gibt es einige Schlüsselelemente, die helfen können, Ihren Vorschlag hervorzuheben. Hier sind fünf wesentliche Komponenten eines erfolgreichen Konferenzvorschlags.
