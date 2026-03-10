@@ -2,9 +2,7 @@
 title: 如何为Python会议创建出色的演讲？
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
+tags: [ 'Python', 'presentation' ]
 ---
 
 Python 会议为开发者提供了展示技能、分享知识和与同行建立联系的绝佳平台。
