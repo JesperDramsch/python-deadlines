@@ -2,9 +2,7 @@
 title: Zusätzliche Ressourcen für Konferenztermine
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conferences
+tags: [ "Python", "conferences" ]
 ---
 
 Pythondeadlin.es ist seit einem Jahr ein beliebtes Ziel für die Python-Community, um Konferenztermine an einem Ort zu finden.
