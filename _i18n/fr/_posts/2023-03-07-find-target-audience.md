@@ -2,11 +2,7 @@
 title: Comment définir votre public cible pour une présentation lors d'une conférence Python ?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
-  - conference
-  - audience
+tags: [ "Python", "presentation", "conference", "audience" ]
 ---
 
 Lorsqu'il s'agit de soumettre une proposition pour une présentation de conférence, il est essentiel de définir votre public cible. Savoir à qui vous vous adressez peut vous aider à adapter votre présentation aux besoins, aux intérêts et aux connaissances préalables de l'audience. Dans ce billet, nous discuterons de la manière de définir votre public cible pour une proposition de conférence et pourquoi c'est important.
