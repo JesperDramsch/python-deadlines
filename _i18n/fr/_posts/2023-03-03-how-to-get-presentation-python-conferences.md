@@ -2,9 +2,7 @@
 title: Comment obtenir une présentation lors de conférences Python ?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
+tags: [ "Python", "CfP" ]
 ---
 
 Les conférences Python sont une excellente plateforme pour partager des connaissances, réseauter avec des pairs et se tenir au courant des derniers développements dans la communauté Python. Si vous êtes passionné par Python et souhaitez partager vos idées avec un public plus large, parler lors d'une conférence Python peut être une excellente opportunité. Dans cet article de blog, nous explorerons comment obtenir une présentation lors de conférences Python.
