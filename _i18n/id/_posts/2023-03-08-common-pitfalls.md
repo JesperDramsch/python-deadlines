@@ -2,10 +2,7 @@
 title: 9 Kesalahan Umum yang Membuat Proposal Presentasi Konferensi Python Anda Ditolak
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - pitfalls
+tags: [ "Python", "CfP", "pitfalls" ]
 ---
 
 Suppose you're looking to submit a proposal for a conference talk. In that case, knowing what to avoid is essential to increase your chances of acceptance. Here are nine common pitfalls to watch out for:
