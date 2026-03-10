@@ -2,9 +2,7 @@
 title: 探索会议截止日期的额外资源
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conferences
+tags: [ "Python", "conferences" ]
 ---
 
 在过去的一年里，Pythondeadlin.es 一直是 Python 社区在一个便捷位置查找会议截止日期的热门目的地。
