@@ -2,10 +2,7 @@
 title: 9 pièges courants qui font rejeter votre proposition de présentation pour les conférences Python
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - pitfalls
+tags: [ "Python", "CfP", "pitfalls" ]
 ---
 
 Suppose you're looking to submit a proposal for a conference talk. In that case, knowing what to avoid is essential to increase your chances of acceptance. Voici neuf pièges courants à surveiller :
