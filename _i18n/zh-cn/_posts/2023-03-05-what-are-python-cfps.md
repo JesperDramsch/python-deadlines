@@ -2,10 +2,7 @@
 title: 什么是Python会议CfP？
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - conference
+tags: [ "Python", "CfP", "conference" ]
 ---
 
 征集提案(CfP)或参与邀请是学术、研究和专业社区中常用的术语，用于邀请个人或团体为会议、研讨会、专题讨论会和其他活动提交提案或摘要。
