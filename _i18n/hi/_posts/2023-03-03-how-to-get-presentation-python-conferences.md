@@ -2,9 +2,7 @@
 title: पायथन सम्मेलनों में कैसे बात करें?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
+tags: [ "Python", "CfP" ]
 ---
 
 Python conferences are an excellent platform for sharing knowledge, networking with peers, and staying up-to-date with the latest developments in the Python community. Speaking at a Python conference can be a great opportunity if you're passionate about Python and want to share your insights with a wider audience. In this blog post, we'll explore how to get to speak at Python conferences.
