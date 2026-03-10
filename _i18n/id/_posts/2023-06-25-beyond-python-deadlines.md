@@ -2,9 +2,7 @@
 title: Menjelajahi Sumber Daya Tambahan untuk Tenggat Waktu Konferensi
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conferences
+tags: [ "Python", "conferences" ]
 ---
 
 Pythondeadlin.es telah menjadi tujuan populer bagi komunitas Python untuk menemukan tenggat waktu konferensi di satu lokasi yang nyaman selama setahun terakhir.
