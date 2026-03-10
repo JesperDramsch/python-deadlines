@@ -2,11 +2,7 @@
 title: 如何为Python会议演讲定义目标受众？
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
-  - conference
-  - audience
+tags: [ "Python", "presentation", "conference", "audience" ]
 ---
 
 在提交会议演讲提案时，定义目标受众至关重要。了解你的演讲对象可以帮助你根据受众的需求、兴趣和背景知识来调整演讲内容。在本文中，我们将讨论如何为会议提案定义目标受众以及为什么这很重要。 Knowing who you are speaking to can help you tailor your presentation to the audience's needs, interests, and background knowledge. In this post, we will discuss how to define your target audience for a conference proposal and why it matters.
