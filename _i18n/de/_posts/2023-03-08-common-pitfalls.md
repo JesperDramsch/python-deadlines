@@ -2,10 +2,7 @@
 title: 9 häufige Fallstricke, die zur Ablehnung Ihres Python-Konferenz-Vortragsvorschlags führen
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - pitfalls
+tags: [ "Python", "CfP", "pitfalls" ]
 ---
 
 Wenn Sie einen Vorschlag für einen Konferenzvortrag einreichen möchten, ist es wichtig zu wissen, was zu vermeiden ist, um Ihre Erfolgschancen zu erhöhen. In that case, knowing what to avoid is essential to increase your chances of acceptance. Hier sind neun häufige Fallstricke, auf die Sie achten sollten:
