@@ -2,10 +2,7 @@
 title: 9 armadilhas comuns que fazem sua proposta de palestra para conferências Python ser rejeitada
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - pitfalls
+tags: [ "Python", "CfP", "pitfalls" ]
 ---
 
 Suppose you're looking to submit a proposal for a conference talk. Se você está pensando em enviar uma proposta para uma palestra de conferência, é essencial saber o que evitar para aumentar suas chances de aceitação. Aqui estão nove armadilhas comuns para ficar atento:
