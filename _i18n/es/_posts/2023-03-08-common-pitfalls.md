@@ -2,10 +2,7 @@
 title: 9 errores comunes que hacen que rechacen tu propuesta de charla para conferencias Python
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - pitfalls
+tags: [ "Python", "CfP", "pitfalls" ]
 ---
 
 Si estás pensando en enviar una propuesta para una charla en una conferencia, es esencial saber qué evitar para aumentar tus posibilidades de aceptación. In that case, knowing what to avoid is essential to increase your chances of acceptance. Aquí hay nueve errores comunes a tener en cuenta:
