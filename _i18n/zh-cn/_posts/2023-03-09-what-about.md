@@ -2,9 +2,7 @@
 title: 我的Python会议演讲应该讲什么？
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - presentation
+tags: [ "Python", "presentation" ]
 ---
 
 We often get a paradox conundrum when we finally decide to give a talk at a Python conference. We learned about so many exciting things. So much is interesting. 当我们终于决定在 Python 会议上发表演讲时，我们常常面临一个矛盾的困境。我们学习了许多令人兴奋的事物。有如此多的内容很有趣。但是我的 Python 演讲应该讲什么呢？！
