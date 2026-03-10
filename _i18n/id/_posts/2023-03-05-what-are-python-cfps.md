@@ -2,10 +2,7 @@
 title: Apa itu CfP konferensi Python?
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
-  - conference
+tags: [ "Python", "CfP", "conference" ]
 ---
 
 Call for Proposals (CfP) atau Call for Participation adalah istilah umum yang digunakan dalam komunitas akademis, penelitian, dan profesional untuk mengundang individu atau kelompok untuk mengirimkan proposal atau abstrak untuk konferensi, workshop, simposium, dan acara lainnya.
