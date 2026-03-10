@@ -2,9 +2,7 @@
 title: सम्मेलन समय सीमाओं के लिए अतिरिक्त संसाधनों का अन्वेषण
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conferences
+tags: [ "Python", "conferences" ]
 ---
 
 Pythondeadlin.es पिछले एक वर्ष से एक सुविधाजनक स्थान पर सम्मेलन समय सीमाओं को खोजने के लिए Python समुदाय के लिए एक लोकप्रिय गंतव्य रहा है।
