@@ -2,9 +2,7 @@
 title: 如何在Python会议上发表演讲？
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - CfP
+tags: [ "Python", "CfP" ]
 ---
 
 Python conferences are an excellent platform for sharing knowledge, networking with peers, and staying up-to-date with the latest developments in the Python community. Python 会议是分享知识、与同行建立关系网络以及了解 Python 社区最新发展的绝佳平台。如果你对 Python 充满热情并希望与更广泛的受众分享你的见解，在 Python 会议上发言可能是一个很好的机会。在这篇博文中，我们将探讨如何在 Python 会议上发表演讲。 In this blog post, we'll explore how to get to speak at Python conferences.
