@@ -2,9 +2,7 @@
 title: Explorando Recursos Adicionais para Prazos de Conferências
 author: Jesper Dramsch
 layout: post
-tags:
-  - Python
-  - conferences
+tags: [ "Python", "conferences" ]
 ---
 
 Pythondeadlin.es tem sido um destino popular para a comunidade Python encontrar prazos de conferências em um local conveniente durante o último ano.
