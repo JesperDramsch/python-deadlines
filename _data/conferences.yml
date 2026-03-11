@@ -469,6 +469,7 @@
   place: Athens, Greece
   start: 2026-10-12
   end: 2026-10-14
+  mastodon: https://www.youtube.com/@pycongreece
   sub: PY
   location:
   - title: PyCon Greece 2026
@@ -531,17 +532,3 @@
   - title: Python BarCamp Karlsruhe 2026
     latitude: 49.0068705
     longitude: 8.4034195
-
-- conference: FOSDEM
-  year: 2026
-  link: https://fosdem.org/2026/
-  cfp: TBA
-  place: Brussels, Belgium
-  start: 2026-01-31
-  end: 2026-01-31
-  sponsor: https://fosdem.org/2026/about/sponsors/
-  sub: PY
-  location:
-  - title: FOSDEM 2026
-    latitude: 50.8465573
-    longitude: 4.351697
