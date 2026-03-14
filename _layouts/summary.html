@@ -7,57 +7,7 @@ description: Summary of the conference and its instances throughout the years.
 <head>
   {% include head.html %}
   {% if page.mastodon %}
-  <link rel="stylesheet" type="text/css" href="{{ "/static/css/mastodon.css" | prepend:site.baseurl_root }}">
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      fetch("{{page.mastodon}}.rss")
-        .then(function (response) {
-          return response.text();
-        })
-        .then(function (xmlText) {
-          var parser = new DOMParser();
-          var xml = parser.parseFromString(xmlText, "text/xml");
-          var items = xml.querySelectorAll("item");
-          var feedContainer = document.getElementById("mastodon-feed");
-          var postLimit = 2; // Number of posts to display
-
-          if (feedContainer) {
-            for (var i = 0; i < postLimit && i < items.length; i++) {
-              var item = items[i];
-              var post = item.querySelector("description").textContent;
-              var link = item.querySelector("link").textContent;
-              var pubDate = item.querySelector("pubDate").textContent;
-
-              var feedItem = document.createElement("div");
-              feedItem.setAttribute("class", "timeline-item");
-              var contentDiv = document.createElement("div");
-              contentDiv.setAttribute("class", "timeline-content");
-              contentDiv.textContent = post;
-              var linkEl = document.createElement("a");
-              linkEl.href = link;
-              linkEl.rel = "noopener noreferrer";
-              linkEl.textContent = pubDate + ' by {{page.conference}}';
-              feedItem.appendChild(contentDiv);
-              feedItem.appendChild(linkEl);
-              feedContainer.appendChild(feedItem);
-            }
-          }
-        })
-        .catch(function (error) {
-          console.log("Error fetching Mastodon RSS feed:", error);
-        });
-    });
-  </script>
-  {% elsif page.twitter %}
-  <style>
-    #twitter-widget {
-      width: 100%;
-    }
-
-    .twitter-timeline {
-      width: 100% !important;
-    }
-    </style>
+  {% include mastodon_head.html %}
   {% endif %}
 </head>
 
@@ -101,75 +51,69 @@ description: Summary of the conference and its instances throughout the years.
       </div>
     </div>
     <div id="page-content">
-        <div id="conf-key-facts" class="row">
-          <div class="col-12 col-md-6">
-            <div>
-              <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" />
-              <a id="conf-website" target="_blank" rel="noopener noreferrer" href="{{confs[0].link}}">{{confs[0].link}}</a>
-            </div>
-            {% if confs[0].twitter %}
+      <div id="summary-main-section" class="row">
+        <div id="summary-confs-column" class="col-12{% if confs[0].mastodon %} col-lg-7{% endif %}">
+          <div id="conf-key-facts" class="row">
+            <div class="col-12">
+              <div>
+                <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" />
+                <a id="conf-website" target="_blank" rel="noopener noreferrer" href="{{confs[0].link}}">{{confs[0].link}}</a>
+              </div>
+              {% if confs[0].twitter %}
               <div>
                 <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" />
                 <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{confs[0].twitter}}">@{{confs[0].twitter}}</a>
               </div>
-            {% endif %}
-            {% if confs[0].mastodon %}
+              {% endif %}
+              {% if confs[0].mastodon %}
               <div>
                 <img src="/static/img/407-mastodon.svg" class="badge-link" alt="Mastodon icon" width="16" height="16" />
                 <a id="conf-mastodon" target="_blank" rel="noopener noreferrer" href="{{confs[0].mastodon}}">Mastodon</a>
               </div>
-            {% endif %}
+              {% endif %}
             </div>
-            <div class="col-12 col-md-6">
-            {% if confs[0].mastodon %}
-              <!-- Mastodon timeline -->
-              <div class="meta">Mastodon Posts by {{page.conference}}:</div>
-              <div id="mastodon-feed"></div>
-              <a href="{{ page.mastodon }}">See all Mastodon posts for {{ page.conference }}</a>
-            {% elsif confs[0].twitter %}
-              <!-- Twitter timeline -->
-              <div id="twitter-widget">
-                <a class="twitter-timeline" href="https://twitter.com/{{page.twitter}}" data-tweet-limit=2>Tweets by
-                  {{confs[0].twitter}}</a>
-                <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-              </div>
-            {% endif %}
+          </div>
+          <div id="all_confs">
+            {% for conf in confs %}
+            {% assign subs = conf.sub | split: "," %}
+            <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
+                 class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}"
+                 data-conf-id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
+                 data-conf-name="{{conf.conference}}"
+                 data-conf-year="{{conf.year}}"
+                 data-location="{{conf.place}}"
+                 data-format="{% if conf.extra_places %}hybrid{% elsif conf.link contains 'virtual' or conf.place contains 'Virtual' or conf.place contains 'Online' %}virtual{% else %}in-person{% endif %}"
+                 data-topics="{{conf.sub}}"
+                 data-cfp="{{conf.cfp}}"
+                 data-cfp-ext="{{conf.cfp_ext}}"
+                 data-start="{{conf.start}}"
+                 data-end="{{conf.end}}"
+                 data-link="{{conf.link}}"
+                 data-cfp-link="{{conf.cfp_link}}"
+                 data-has-finaid="{% if conf.finaid %}true{% else %}false{% endif %}"
+                 data-has-workshop="{% if conf.workshop_deadline %}true{% else %}false{% endif %}"
+                 data-has-sponsor="{% if conf.sponsor %}true{% else %}false{% endif %}">
+              {% include index_conf_title_row.html %}
+              {% include_cached index_conf_date_place.html place=conf.place extra_places=conf.extra_places note=conf.note cfp=conf.cfp start=conf.start end=conf.end %}
+              {% include index_conf_subs.html subs=subs %}
+              <hr />
+            </div>
+            {% endfor %}
           </div>
         </div>
-        <hr />
-      <div id="all_confs">
-        {% for conf in confs %}
-          {% assign subs = conf.sub | split: "," %}
-          <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
-               class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}"
-               data-conf-id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
-               data-conf-name="{{conf.conference}}"
-               data-conf-year="{{conf.year}}"
-               data-location="{{conf.place}}"
-               data-format="{% if conf.extra_places %}hybrid{% elsif conf.link contains 'virtual' or conf.place contains 'Virtual' or conf.place contains 'Online' %}virtual{% else %}in-person{% endif %}"
-               data-topics="{{conf.sub}}"
-               data-cfp="{{conf.cfp}}"
-               data-cfp-ext="{{conf.cfp_ext}}"
-               data-start="{{conf.start}}"
-               data-end="{{conf.end}}"
-               data-link="{{conf.link}}"
-               data-cfp-link="{{conf.cfp_link}}"
-               data-has-finaid="{% if conf.finaid %}true{% else %}false{% endif %}"
-               data-has-workshop="{% if conf.workshop_deadline %}true{% else %}false{% endif %}"
-               data-has-sponsor="{% if conf.sponsor %}true{% else %}false{% endif %}">
-            {% include index_conf_title_row.html %}
-            {% include_cached index_conf_date_place.html place=conf.place extra_places=conf.extra_places note=conf.note cfp=conf.cfp start=conf.start end=conf.end %}
-            {% include index_conf_subs.html subs=subs %}
-            <hr />
-          </div>
-        {% endfor %}
+        {% if confs[0].mastodon %}
+        <div id="summary-feed-column" class="col-12 col-lg-5">
+          {% assign summary_mastodon = confs[0].mastodon %}
+          {% include mastodon_feed.html account=summary_mastodon label=page.conference %}
+        </div>
+        {% endif %}
+      </div>
+      {% if page.place == confs[0].place and confs[0].place == confs[1].place %}
+      <div class="row">
+        {% google_map zoom="6" width="100%" %}
+      </div>
+      {% endif %}
     </div>
-    {% if page.place == confs[0].place and confs[0].place == confs[1].place %}
-    <div class="row">
-      {% google_map zoom="6" width="100%" %}
-    </div>
-    {% endif %}
-  </div>
 </div>
 <footer>
   {% include_cached footer.html %}
