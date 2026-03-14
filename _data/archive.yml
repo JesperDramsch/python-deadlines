@@ -1,5 +1,19 @@
 ---
 
+- conference: FOSDEM
+  year: 2026
+  link: https://fosdem.org/2026/
+  cfp: TBA
+  place: Brussels, Belgium
+  start: 2026-01-31
+  end: 2026-01-31
+  sponsor: https://fosdem.org/2026/about/sponsors/
+  sub: PY
+  location:
+  - title: FOSDEM 2026
+    latitude: 50.8465573
+    longitude: 4.351697
+
 - conference: SciPyData Japan
   year: 2026
   link: https://scipydata.connpass.com/event/364718/
