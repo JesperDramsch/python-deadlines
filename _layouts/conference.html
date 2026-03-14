@@ -39,57 +39,7 @@
   }
   </script>
   {% if page.mastodon %}
-  <link rel="stylesheet" type="text/css" href="{{ "/static/css/mastodon.css" | prepend:site.baseurl_root }}">
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      fetch("{{page.mastodon}}.rss")
-        .then(function (response) {
-          return response.text();
-        })
-        .then(function (xmlText) {
-          var parser = new DOMParser();
-          var xml = parser.parseFromString(xmlText, "text/xml");
-          var items = xml.querySelectorAll("item");
-          var feedContainer = document.getElementById("mastodon-feed");
-          var postLimit = 2; // Number of posts to display
-
-          if (feedContainer) {
-            for (var i = 0; i < postLimit && i < items.length; i++) {
-              var item = items[i];
-              var post = item.querySelector("description").textContent;
-              var link = item.querySelector("link").textContent;
-              var pubDate = item.querySelector("pubDate").textContent;
-
-              var feedItem = document.createElement("div");
-              feedItem.setAttribute("class", "timeline-item");
-              var contentDiv = document.createElement("div");
-              contentDiv.setAttribute("class", "timeline-content");
-              contentDiv.textContent = post;
-              var linkEl = document.createElement("a");
-              linkEl.href = link;
-              linkEl.rel = "noopener noreferrer";
-              linkEl.textContent = pubDate + ' by {{ page.conference }}';
-              feedItem.appendChild(contentDiv);
-              feedItem.appendChild(linkEl);
-              feedContainer.appendChild(feedItem);
-            }
-          }
-        })
-        .catch(function (error) {
-          console.log("Error fetching Mastodon RSS feed:", error);
-        });
-    });
-  </script>
-  {% elsif page.twitter %}
-  <style>
-    #twitter-widget {
-      width: 100%;
-    }
-
-    .twitter-timeline {
-      width: 100% !important;
-    }
-    </style>
+  {% include mastodon_head.html %}
   {% endif %}
 </head>
 
@@ -135,138 +85,132 @@
          data-start="{{page.start}}"
          data-end="{{page.end}}"
          data-link="{{page.link}}">
-      <div id="conf-deadline-timer" class="row">
-        <div id="cfp-timer" class="col-12 conf-timer countdown-display"
-             data-deadline="{{ page.cfp_ext | default: page.cfp }}"
-             data-timezone="{{ page.timezone | default: 'UTC-12' }}"
-             role="timer"
-             aria-live="off"
-             aria-label="Countdown to {{ page.conference }} {{ page.year }} CFP deadline">
-          {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}{{cfp}}{%endif%}
+      <div id="conf-top-section" class="row">
+        <div id="conf-main-column" class="col-12{% if page.mastodon %} col-lg-7{% endif %}">
+          <div id="conf-deadline-timer" class="row">
+            <div id="cfp-timer" class="col-12 conf-timer countdown-display"
+                 data-deadline="{{ page.cfp_ext | default: page.cfp }}"
+                 data-timezone="{{ page.timezone | default: 'UTC-12' }}"
+                 role="timer"
+                 aria-live="off"
+                 aria-label="Countdown to {{ page.conference }} {{ page.year }} CFP deadline">
+              {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}{{cfp}}{%endif%}
+            </div>
+          </div>
+          <!-- Conference Action Buttons -->
+          <div class="row">
+            <div class="col-12">
+              {% include conference_detail_actions.html %}
+            </div>
+          </div>
+          <div id="conf-key-facts" class="row">
+            <div class="col-12">
+              <div>
+                <img src="/static/img/084-calendar.svg" class="badge-link" alt="Calendar icon" width="16" height="16" loading="lazy" />
+                <span id="conf-date">{% assign conf = page %}{%- translate_file dates/pretty_dates.html start=conf.start end=conf.end -%}</span>
+              </div>
+              <div>
+                <img src="/static/img/072-location.svg" class="badge-link" alt="Location icon" width="16" height="16" loading="lazy" />
+                <a id="conf-place" target="_blank" rel="noopener noreferrer"
+                  href="{% if page.place == 'Online' %}#{% else %}https://maps.google.com/?q={{page.place}}{% endif %}">{{page.place}}</a>
+              </div>
+              <div>
+                <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" loading="lazy" />
+                <a id="conf-website" target="_blank" rel="noopener noreferrer" href="{{page.link}}">{{page.link}}</a>
+              </div>
+              {% if page.cfp_ext %}
+              <div>
+                <img src="/static/img/035-file-text.svg" class="badge-link" alt="Document Icon for original CfP" width="16"
+                  height="16" loading="lazy" />
+                <span id="conf-cfp_ext">{% t global.cfp_ext %} {{page.cfp}}</span>
+              </div>
+              {% endif %}
+              {% if page.cfp_link %}
+              <div>
+                <img src="/static/img/035-file-text.svg" class="badge-link" alt="Document Icon for CfP link" width="16"
+                  height="16" loading="lazy" />
+                <a id="conf-cfp_link" target="_blank" rel="noopener noreferrer" href="{{page.cfp_link}}">{% t global.cfp %}</a>
+              </div>
+              {% endif %}
+              <div>
+                <img src="/static/img/002-home2.svg" class="badge-link" alt="Conference Series" width="16" height="16" loading="lazy" />
+                <a id="conf-series" href="{{site.baseurl}}/series/{{page.conference | slugify: "latin"}}">{% t conference.all %} {{ page.conference }}</a>
+              </div>
+              {% if page.finaid %}
+              <div>
+                <img src="/static/img/066-lifebuoy.svg" class="badge-link" alt="Life Buoy for Financial Aid" width="16"
+                  height="16" loading="lazy" />
+                <a id="conf-finaid" target="_blank" rel="noopener noreferrer" href="{{page.finaid}}">{% t conference.finaid %}</a>
+              </div>
+              {% endif %}
+              {% if page.sponsor %}
+              <div>
+                <img src="/static/img/060-coin-dollar.svg" class="badge-link" alt="Coin Dollar Icon for Sponsorship"
+                  width="16" height="16" loading="lazy" />
+                <a id="conf-sponsor" target="_blank" rel="noopener noreferrer" href="{{page.sponsor}}">{% t conference.sponsor %}</a>
+              </div>
+              {% endif %}
+              {% if page.twitter %}
+              <div>
+                <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" loading="lazy" />
+                <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{page.twitter}}">@{{page.twitter}}</a>
+              </div>
+              {% endif %}
+              {% if page.mastodon %}
+              <div>
+                <img src="/static/img/407-mastodon.svg" class="badge-link" alt="Mastodon icon" width="16" height="16" loading="lazy" />
+                <a id="conf-mastodon" target="_blank" rel="noopener noreferrer" href="{{page.mastodon}}">Mastodon</a>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          <div id="conf-deadlines" class="row">
+            <div class="col-12">
+              <div class="meta deadline">
+                {% t conference.deadline_tz_theirs %}:
+              </div>
+              <div class="meta">
+                <span class="deadline-time">{{conf.cfp | date: "%A, %e %B %Y"}}</span>
+              </div>
+              <div class="meta">
+                {% t conference.deadline_tz_local %}:
+              </div>
+              <div class="local-timezone-hide meta">
+                <span class="deadline-local-time"></span>
+              </div>
+            </div>
+          </div>
+          <div class="row" id="conf-share-links">
+            <div class="col-12">
+                  <a href="https://twitter.com/share?url={{site.url}}{{page.url}}&via=jesperdramsch&text=I%20found%20this%20Python%20conference:%20{{ page.conference }}%20{{page.year}}"
+                    data-toggle="tooltip" title="Tweet on Twitter!">
+                    {% t social.twitter %}
+                  </a> |
+                  <a href="https://www.linkedin.com/sharing/share-offsite/?url={{site.url}}{{page.url}}" data-toggle="tooltip"
+                    title="Share on Linkedin!">
+                    {% t social.linkedin %}
+                  </a> |
+                  <a href="https://www.facebook.com/sharer/sharer.php?u={{site.url}}{{page.url}}&t={{ page.conference }}%20{{page.year}}"
+                    data-toggle="tooltip" title="Share of Facebook!">
+                    {% t social.facebook %}
+                  </a> |
+                  <a href="https://api.whatsapp.com/send?text=I%20found%20this%20Python%20conference:%20{{ page.conference }}%20{{page.year}}%20{{site.url}}{{page.url}}"
+                    data-action="share/whatsapp/share" data-toggle="tooltip" title="Text on Whatsapp!">
+                    {% t social.whatsapp %}
+                  </a> |
+                  <a href="mailto:?subject=Do%20you%20want%20to%20speak%20at%20{{ page.conference }}%20{{page.year}}&body=Hey,%20the%20CfP%20deadline%20for%20{{ page.conference }}%20{{page.year}}%20is%20approaching!%20%20{{site.url}}{{page.url}}"
+                    data-toggle="tooltip" title="Email to a Friend!">
+                    {% t social.email %}
+                  </a>
+            </div>
+            </div>
         </div>
+        {% if page.mastodon %}
+        <div id="conf-feed-column" class="col-12 col-lg-5">
+          {% include mastodon_feed.html account=page.mastodon label=page.conference %}
+        </div>
+        {% endif %}
       </div>
-      <!-- Conference Action Buttons -->
-      <div class="row">
-        <div class="col-12">
-          {% include conference_detail_actions.html %}
-        </div>
-      </div>
-      <div id="conf-key-facts" class="row">
-        <div class="col-12 col-md-6">
-          <div>
-            <img src="/static/img/084-calendar.svg" class="badge-link" alt="Calendar icon" width="16" height="16" loading="lazy" />
-            <span id="conf-date">{% assign conf = page %}{%- translate_file dates/pretty_dates.html start=conf.start end=conf.end -%}</span>
-          </div>
-          <div>
-            <img src="/static/img/072-location.svg" class="badge-link" alt="Location icon" width="16" height="16" loading="lazy" />
-            <a id="conf-place" target="_blank" rel="noopener noreferrer"
-              href="{% if page.place == 'Online' %}#{% else %}https://maps.google.com/?q={{page.place}}{% endif %}">{{page.place}}</a>
-          </div>
-          <div>
-            <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" loading="lazy" />
-            <a id="conf-website" target="_blank" rel="noopener noreferrer" href="{{page.link}}">{{page.link}}</a>
-          </div>
-          {% if page.cfp_ext %}
-          <div>
-            <img src="/static/img/035-file-text.svg" class="badge-link" alt="Document Icon for original CfP" width="16"
-              height="16" loading="lazy" />
-            <span id="conf-cfp_ext">{% t global.cfp_ext %} {{page.cfp}}</span>
-          </div>
-          {% endif %}
-          {% if page.cfp_link %}
-          <div>
-            <img src="/static/img/035-file-text.svg" class="badge-link" alt="Document Icon for CfP link" width="16"
-              height="16" loading="lazy" />
-            <a id="conf-cfp_link" target="_blank" rel="noopener noreferrer" href="{{page.cfp_link}}">{% t global.cfp %}</a>
-          </div>
-          {% endif %}
-          <div>
-            <img src="/static/img/002-home2.svg" class="badge-link" alt="Conference Series" width="16" height="16" loading="lazy" />
-            <a id="conf-series" href="{{site.baseurl}}/series/{{page.conference | slugify: "latin"}}">{% t conference.all %} {{ page.conference }}</a>
-          </div>
-          {% if page.finaid %}
-          <div>
-            <img src="/static/img/066-lifebuoy.svg" class="badge-link" alt="Life Buoy for Financial Aid" width="16"
-              height="16" loading="lazy" />
-            <a id="conf-finaid" target="_blank" rel="noopener noreferrer" href="{{page.finaid}}">{% t conference.finaid %}</a>
-          </div>
-          {% endif %}
-          {% if page.sponsor %}
-          <div>
-            <img src="/static/img/060-coin-dollar.svg" class="badge-link" alt="Coin Dollar Icon for Sponsorship"
-              width="16" height="16" loading="lazy" />
-            <a id="conf-sponsor" target="_blank" rel="noopener noreferrer" href="{{page.sponsor}}">{% t conference.sponsor %}</a>
-          </div>
-          {% endif %}
-          {% if page.twitter %}
-          <div>
-            <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" loading="lazy" />
-            <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{page.twitter}}">@{{page.twitter}}</a>
-          </div>
-          {% endif %}
-          {% if page.mastodon %}
-          <div>
-            <img src="/static/img/407-mastodon.svg" class="badge-link" alt="Mastodon icon" width="16" height="16" loading="lazy" />
-            <a id="conf-mastodon" target="_blank" rel="noopener noreferrer" href="{{page.mastodon}}">Mastodon</a>
-          </div>
-          {% endif %}
-        </div>
-        </div>
-        <div id="conf-deadlines" class="row">
-          <div class="col-12 col-md-6">
-          <div class="meta deadline">
-            {% t conference.deadline_tz_theirs %}:
-          </div>
-          <div class="meta">
-            <span class="deadline-time">{{conf.cfp | date: "%A, %e %B %Y"}}</span>
-          </div>
-          <div class="meta">
-            {% t conference.deadline_tz_local %}:
-          </div>
-          <div class="local-timezone-hide meta">
-            <span class="deadline-local-time"></span>
-          </div>
-        </div>
-        <div class="col-12 col-md-6">
-          {% if page.mastodon %}
-          <!-- Mastodon timeline -->
-          <div class="meta">Mastodon Posts by {{ page.conference }}:</div>
-          <div id="mastodon-feed"></div>
-          <a href="{{ page.mastodon }}">See all Mastodon posts for {{ page.conference }}</a>
-          {% elsif page.twitter %}
-          <!-- Twitter timeline -->
-          <div id="twitter-widget">
-            <a class="twitter-timeline" href="https://twitter.com/{{page.twitter}}" data-tweet-limit=2>Tweets by
-              {{page.twitter}}</a>
-            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-          </div>
-          {% endif %}
-        </div>
-      </div>
-      <div class="row" id="conf-share-links">
-        <div class="col-12">
-              <a href="https://twitter.com/share?url={{site.url}}{{page.url}}&via=jesperdramsch&text=I%20found%20this%20Python%20conference:%20{{ page.conference }}%20{{page.year}}"
-                data-toggle="tooltip" title="Tweet on Twitter!">
-                {% t social.twitter %}
-              </a> |
-              <a href="https://www.linkedin.com/sharing/share-offsite/?url={{site.url}}{{page.url}}" data-toggle="tooltip"
-                title="Share on Linkedin!">
-                {% t social.linkedin %}
-              </a> |
-              <a href="https://www.facebook.com/sharer/sharer.php?u={{site.url}}{{page.url}}&t={{ page.conference }}%20{{page.year}}"
-                data-toggle="tooltip" title="Share of Facebook!">
-                {% t social.facebook %}
-              </a> |
-              <a href="https://api.whatsapp.com/send?text=I%20found%20this%20Python%20conference:%20{{ page.conference }}%20{{page.year}}%20{{site.url}}{{page.url}}"
-                data-action="share/whatsapp/share" data-toggle="tooltip" title="Text on Whatsapp!">
-                {% t social.whatsapp %}
-              </a> |
-              <a href="mailto:?subject=Do%20you%20want%20to%20speak%20at%20{{ page.conference }}%20{{page.year}}&body=Hey,%20the%20CfP%20deadline%20for%20{{ page.conference }}%20{{page.year}}%20is%20approaching!%20%20{{site.url}}{{page.url}}"
-                data-toggle="tooltip" title="Email to a Friend!">
-                {% t social.email %}
-              </a>
-        </div>
-        </div>
       <div class="row">
         {% if page.location %}
         {% google_map zoom="6" width="100%" %}

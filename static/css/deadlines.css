@@ -203,6 +203,12 @@ footer .row * {
 	font-size: 12px;
 }
 
+#conf-deadline-timer #cfp-timer.conf-timer {
+	margin-top: 15px;
+	line-height: 100%;
+	margin-bottom: 10px;
+}
+
 /* Countdown urgency states */
 .countdown-display[data-urgency="medium"] {
 	color: #b8860b;
@@ -539,7 +545,7 @@ footer .row * {
 	.calendar,
 	#conf-share-links,
 	#twitter-widget,
-	#mastodon-feed,
+	.mastodon-feed,
 	footer {
 		display: none !important;
 	}
