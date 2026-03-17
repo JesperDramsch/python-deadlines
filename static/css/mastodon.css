@@ -1,23 +1,20 @@
-#mastodon-feed {
+.mastodon-feed {
     font-family: Arial, sans-serif;
+}
+
+.mastodon-feed-link {
+  display: inline-block;
+  margin: 0.35rem 0;
 }
 
 .timeline-item {
     position: relative;
-    padding-left: 30px;
     margin-bottom: 20px;
   }
 
-  .timeline-content {
-    margin-left: 15px;
+@media only screen and (min-width: 992px) {
+  .mastodon-feed {
+    max-height: 72vh;
+    overflow-y: auto;
   }
-
-  .timeline-content a {
-    color: #343434;
-    text-decoration: none;
-    border-bottom: 0 !important;
-  }
-
-  .timeline-content a:hover {
-    text-decoration: underline;
-  }
+}

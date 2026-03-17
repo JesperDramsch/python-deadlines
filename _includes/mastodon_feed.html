@@ -1,0 +1,9 @@
+{% assign mastodon_account = include.account %}
+{% assign mastodon_label = include.label | default: page.conference %}
+{% assign mastodon_post_limit = include.post_limit | default: 2 %}
+
+<div class="meta">Mastodon Posts by {{ mastodon_label }}:</div>
+<div class="mastodon-feed"
+     data-mastodon-account="{{ mastodon_account }}"
+     data-mastodon-post-limit="{{ mastodon_post_limit }}"></div>
+<a class="mastodon-feed-link" href="{{ mastodon_account }}">See all Mastodon posts for {{ mastodon_label }}</a>
