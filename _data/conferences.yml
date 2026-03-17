@@ -50,6 +50,7 @@
 - conference: PyOhio
   year: 2026
   link: https://pyohio.org/2026/
+  cfp_link: https://pretalx.com/pyohio-2026/cfp
   cfp: '2026-04-20 08:00:00'
   timezone: America/New_York
   place: Cleveland, USA
@@ -87,7 +88,8 @@
   year: 2026
   link: https://2026.djangocon.us/
   cfp_link: https://pretalx.com/djangocon-us-2026/cfp
-  cfp: '2026-03-23 11:00:00'
+  cfp: '2026-03-16 11:00:00'
+  cfp_ext: '2026-03-23 11:00:00'
   timezone: America/Chicago
   place: Chicago, USA
   start: 2026-08-24
@@ -485,7 +487,6 @@
   place: Athens, Greece
   start: 2026-10-12
   end: 2026-10-14
-  mastodon: https://www.youtube.com/@pycongreece
   sub: PY
   location:
   - title: PyCon Greece 2026
