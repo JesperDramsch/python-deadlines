@@ -47,6 +47,22 @@
     latitude: 3.8689867
     longitude: 11.5213344
 
+- conference: PyOhio
+  year: 2026
+  link: https://pyohio.org/2026/
+  cfp: '2026-04-20 08:00:00'
+  timezone: America/New_York
+  place: Cleveland, USA
+  start: 2026-07-25
+  end: 2026-07-26
+  sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
+  mastodon: https://fosstodon.org/@pyohio
+  sub: PY
+  location:
+  - title: PyOhio 2026
+    latitude: 41.4996574
+    longitude: -81.6936772
+
 - conference: PyCon Australia
   alt_name: PyCon AU
   year: 2026
@@ -491,21 +507,6 @@
   - title: PyCon Kenya 2026
     latitude: -1.2136405
     longitude: 36.87930533266044
-
-- conference: PyOhio
-  year: 2026
-  link: https://pyohio.org/2026/
-  cfp: TBA
-  place: Cleveland, USA
-  start: 2026-07-25
-  end: 2026-07-26
-  sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
-  mastodon: https://fosstodon.org/@pyohio
-  sub: PY
-  location:
-  - title: PyOhio 2026
-    latitude: 41.4996574
-    longitude: -81.6936772
 
 - conference: Python Unplugged on PyTV
   year: 2026
