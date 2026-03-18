@@ -32,6 +32,20 @@
     latitude: 55.7558
     longitude: 37.6173
 
+- conference: Black Python Devs Leadership Summit
+  year: 2026
+  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html
+  cfp_link: https://pretalx.com/pyohio-2026/submit/?track=6985-black-python-devs-leadership-summit
+  cfp: '2026-04-20 23:59:00'
+  place: Cleveland, USA
+  start: 2026-07-24
+  end: 2026-07-24
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2026
+    latitude: 41.4996574
+    longitude: -81.6936772
+
 - conference: PyCon Cameroon
   year: 2026
   link: https://pycon.pythoncameroon.org/
