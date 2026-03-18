@@ -23,6 +23,9 @@
                 {% elsif conf.twitter %}
                 <a title="Twitter" href="https://twitter.com/{{conf.twitter}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/407-twitter.svg" alt="Twitter" width="14" height="14" /></a>
                 {% endif %}
+                {% if conf.bluesky %}
+                <a title="Bluesky" href="{{conf.bluesky}}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-bluesky" style="width:14px;height:14px;" aria-hidden="true"></i></a>
+                {% endif %}
             </span>
         </div>
     </div>
