@@ -524,6 +524,19 @@
     latitude: -1.2136405
     longitude: 36.87930533266044
 
+- conference: PyCon Ghana
+  year: 2026
+  link: https://gh.pycon.org/2026/
+  cfp: TBA
+  place: Accra, Ghana
+  start: 2026-08-20
+  end: 2026-08-22
+  sub: PY
+  location:
+  - title: PyCon Ghana 2026
+    latitude: 5.5571096
+    longitude: -0.2012376
+
 - conference: Python Unplugged on PyTV
   year: 2026
   link: https://lp.jetbrains.com/python-unplugged/
