@@ -33,6 +33,7 @@ OPTIONAL_COLUMNS = [
     "twitter",
     "mastodon",
     "bluesky",
+    "youtube",
     "location",
     "extra_places",
 ]

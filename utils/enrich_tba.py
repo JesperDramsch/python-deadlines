@@ -50,7 +50,7 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 MAX_CONTENT_LENGTH = 15000  # Max characters per conference website
 
 # Field type categorization for validation
-URL_FIELDS = {"sponsor", "finaid", "mastodon", "bluesky", "cfp_link"}
+URL_FIELDS = {"sponsor", "finaid", "mastodon", "bluesky", "youtube", "cfp_link"}
 DATE_FIELDS = {"cfp", "workshop_deadline", "tutorial_deadline"}
 TIMEZONE_FIELD = "timezone"
 
@@ -341,13 +341,24 @@ def extract_links_from_url(url: str) -> dict[str, str]:
             seen_types.add("bluesky")
             logger.debug(f"  Found bluesky: {link}")
 
+        # YouTube - youtube.com/@channel or youtu.be links
+        elif "youtube" not in seen_types and ("youtube.com" in link_lower or "youtu.be" in link_lower):
+            domain = parsed_link.netloc.lower()
+            if "youtube.com" in domain or "youtu.be" in domain:
+                found["youtube"] = link
+                seen_types.add("youtube")
+                logger.debug(f"  Found youtube: {link}")
+
         # Mastodon - /@username pattern on known instances or any instance
-        # Exclude Twitter/X which don't use /@, but guard against edge cases
+        # Exclude Twitter/X and YouTube which also use /@username patterns
         elif "mastodon" not in seen_types and "/@" in link:
             domain = parsed_link.netloc.lower()
 
             # Skip Twitter/X domains (exact host or subdomains only)
             if domain == "twitter.com" or domain.endswith((".x.com", ".twitter.com")) or domain == "x.com":
+                pass
+            # Skip YouTube domains
+            elif "youtube.com" in domain or "youtu.be" in domain:
                 pass
             elif domain in MASTODON_INSTANCES or "mastodon" in domain or "toot" in domain:
                 found["mastodon"] = link
