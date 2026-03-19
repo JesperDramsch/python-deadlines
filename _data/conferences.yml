@@ -16,6 +16,19 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: Python Ho
+  year: 2026
+  link: https://2026.pythonho.com/
+  cfp: '2026-05-15 23:59:00'
+  place: Ho, Ghana
+  start: 2026-10-23
+  end: 2026-10-24
+  sub: PY
+  location:
+  - title: Python Ho 2026
+    latitude: 6.6126598
+    longitude: 0.4688932
+
 - conference: PyCon Russia
   year: 2026
   link: https://www.pycon.ru/
@@ -480,19 +493,6 @@
     latitude: 41.3828939
     longitude: 2.1774322
 
-- conference: Python Ho
-  year: 2026
-  link: https://2026.pythonho.com/
-  cfp: TBA
-  place: Ho, Ghana
-  start: 2026-10-23
-  end: 2026-10-24
-  sub: PY
-  location:
-  - title: Python Ho 2026
-    latitude: 6.6126598
-    longitude: 0.4688932
-
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -501,7 +501,7 @@
   place: Athens, Greece
   start: 2026-10-12
   end: 2026-10-14
-  youtube: https://www.youtube.com/@pycongreece
+  mastodon: https://www.youtube.com/@pycongreece
   sub: PY
   location:
   - title: PyCon Greece 2026
