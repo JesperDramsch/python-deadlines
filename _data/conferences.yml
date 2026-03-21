@@ -19,7 +19,9 @@
 - conference: PyCon Indonesia
   year: 2026
   link: https://pycon.id/
+  cfp_link: https://www.papercall.io/pyconid2026
   cfp: '2026-05-31 17:00:00'
+  timezone: UTC
   place: Jakarta, Indonesia
   start: 2026-08-08
   end: 2026-08-09
