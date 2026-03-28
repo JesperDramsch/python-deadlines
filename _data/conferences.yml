@@ -108,6 +108,21 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: Warsaw Python Pizza
+  year: 2026
+  link: https://warsaw.python.pizza/
+  cfp_link: https://forms.gle/5pqj68ES9ENaGPBf6
+  cfp: '2026-04-12 23:59:00'
+  place: Warsaw, Poland
+  start: 2026-05-09
+  end: 2026-05-09
+  sponsor: https://warsaw.python.pizza/#sponsors
+  sub: PY
+  location:
+  - title: Warsaw Python Pizza 2026
+    latitude: 52.2319581
+    longitude: 21.0067249
+
 - conference: PyCon Australia
   alt_name: PyCon AU
   year: 2026
