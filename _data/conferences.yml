@@ -65,6 +65,22 @@
     latitude: 55.7558
     longitude: 37.6173
 
+- conference: PyCon Spain
+  year: 2026
+  link: https://2026.es.pycon.org/
+  cfp: '2026-05-03 23:59:00'
+  timezone: Europe/Madrid
+  place: Barcelona, Spain
+  start: 2026-11-06
+  end: 2026-11-08
+  sponsor: https://2026.es.pycon.org/es/sponsors/
+  bluesky: https://bsky.app/profile/es.pycon.org
+  sub: PY
+  location:
+  - title: PyCon Spain 2026
+    latitude: 41.3828939
+    longitude: 2.1774322
+
 - conference: Black Python Devs Leadership Summit
   year: 2026
   link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html
@@ -479,21 +495,6 @@
   start: 2026-11-17
   end: 2026-11-17
   sub: PY
-
-- conference: PyCon Spain
-  year: 2026
-  link: https://2026.es.pycon.org/
-  cfp: TBA
-  place: Barcelona, Spain
-  start: 2026-11-06
-  end: 2026-11-08
-  sponsor: https://2026.es.pycon.org/es/sponsors/
-  bluesky: https://bsky.app/profile/es.pycon.org
-  sub: PY
-  location:
-  - title: PyCon Spain 2026
-    latitude: 41.3828939
-    longitude: 2.1774322
 
 - conference: Python Ho
   year: 2026
