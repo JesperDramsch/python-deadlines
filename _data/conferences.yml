@@ -1,5 +1,22 @@
 ---
 
+- conference: Django Day Copenhagen
+  year: 2026
+  link: https://2026.djangoday.dk/
+  cfp_link: https://2026.djangoday.dk/cfp/
+  cfp: '2026-08-16 23:59:59'
+  timezone: Europe/Copenhagen
+  place: Copenhagen, Denmark
+  start: 2026-10-02
+  end: 2026-10-02
+  sponsor: https://2026.djangoday.dk/#supporters
+  mastodon: https://fosstodon.org/@djangodenmark
+  sub: WEB
+  location:
+  - title: Django Day Copenhagen 2026
+    latitude: 50.0478
+    longitude: 12.5604627
+
 - conference: PyBay
   year: 2026
   link: https://pybay.org/
