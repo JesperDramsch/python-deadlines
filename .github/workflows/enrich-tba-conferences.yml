@@ -221,7 +221,7 @@ jobs:
 
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
