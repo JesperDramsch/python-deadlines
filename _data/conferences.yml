@@ -1,23 +1,5 @@
 ---
 
-- conference: Swiss Python Summit
-  year: 2026
-  link: https://python-summit.ch/
-  cfp_link: https://www.python-summit.ch/cfp/
-  cfp: '2026-05-31 23:59:00'
-  timezone: Europe/Zurich
-  place: Rapperswil, Switzerland
-  start: 2026-10-22
-  end: 2026-10-23
-  sponsor: https://www.python-summit.ch/sponsoring/
-  twitter: pythonsummit
-  sub: PY,DATA
-  note: 'Day 1: General Python Day; Day 2: Data Science Day'
-  location:
-  - title: Swiss Python Summit 2026
-    latitude: 47.223987
-    longitude: 8.8173
-
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
@@ -50,6 +32,24 @@
   - title: PyBay 2026
     latitude: 37.7681571
     longitude: -122.392929
+
+- conference: Swiss Python Summit
+  year: 2026
+  link: https://python-summit.ch/
+  cfp_link: https://www.python-summit.ch/cfp/
+  cfp: '2026-05-31 23:59:00'
+  timezone: Europe/Zurich
+  place: Rapperswil, Switzerland
+  start: 2026-10-22
+  end: 2026-10-23
+  sponsor: https://www.python-summit.ch/sponsoring/
+  twitter: pythonsummit
+  sub: PY,DATA
+  note: 'Day 1: General Python Day; Day 2: Data Science Day'
+  location:
+  - title: Swiss Python Summit 2026
+    latitude: 47.223987
+    longitude: 8.8173
 
 - conference: PyCon Indonesia
   year: 2026
