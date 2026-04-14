@@ -99,6 +99,21 @@
     latitude: 41.3828939
     longitude: 2.1774322
 
+- conference: Python Ho
+  year: 2026
+  link: https://2026.pythonho.com/
+  cfp: '2026-05-01 23:59:00'
+  timezone: Africa/Accra
+  place: Ho, Ghana
+  start: 2026-10-23
+  end: 2026-10-24
+  sponsor: https://2026.pythonho.com/sponsors
+  sub: PY
+  location:
+  - title: Python Ho 2026
+    latitude: 6.6126598
+    longitude: 0.4688932
+
 - conference: Black Python Devs Leadership Summit
   year: 2026
   link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html
@@ -513,21 +528,6 @@
   start: 2026-11-17
   end: 2026-11-17
   sub: PY
-
-- conference: Python Ho
-  year: 2026
-  link: https://2026.pythonho.com/
-  cfp: TBA
-  timezone: Africa/Accra
-  place: Ho, Ghana
-  start: 2026-10-23
-  end: 2026-10-24
-  sponsor: https://2026.pythonho.com/sponsors
-  sub: PY
-  location:
-  - title: Python Ho 2026
-    latitude: 6.6126598
-    longitude: 0.4688932
 
 - conference: PyCon Greece
   year: 2026
