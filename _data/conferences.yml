@@ -83,6 +83,22 @@
     latitude: 55.7558
     longitude: 37.6173
 
+- conference: PyCon Greece
+  year: 2026
+  link: https://pycon.gr/
+  cfp: '2026-05-10 23:59:00'
+  timezone: Europe/Athens
+  place: Athens, Greece
+  start: 2026-10-12
+  end: 2026-10-13
+  finaid: https://pycon.gr/
+  mastodon: https://www.youtube.com/@pycongreece
+  sub: PY
+  location:
+  - title: PyCon Greece 2026
+    latitude: 37.9755648
+    longitude: 23.7348324
+
 - conference: PyCon Spain
   year: 2026
   link: https://2026.es.pycon.org/
@@ -528,21 +544,6 @@
   start: 2026-11-17
   end: 2026-11-17
   sub: PY
-
-- conference: PyCon Greece
-  year: 2026
-  link: https://pycon.gr/
-  cfp: TBA
-  timezone: Europe/Athens
-  place: Athens, Greece
-  start: 2026-10-12
-  end: 2026-10-14
-  mastodon: https://www.youtube.com/@pycongreece
-  sub: PY
-  location:
-  - title: PyCon Greece 2026
-    latitude: 37.9755648
-    longitude: 23.7348324
 
 - conference: PyCon Kenya
   year: 2026
