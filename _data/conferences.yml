@@ -536,6 +536,20 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
+- conference: PyCon Namibia
+  year: 2027
+  link: https://na.pycon.org/
+  cfp: TBA
+  timezone: Africa/Johannesburg
+  place: Windhoek, Namibia
+  start: 2027-02-19
+  end: 2027-02-25
+  sub: PY
+  location:
+  - title: PyCon Namibia 2027
+    latitude: -22.5597
+    longitude: 17.0832
+
 - conference: XtremePython
   year: 2026
   link: https://xtremepython.dev/
