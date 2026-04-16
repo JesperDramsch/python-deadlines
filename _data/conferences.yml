@@ -83,6 +83,22 @@
     latitude: 55.7558
     longitude: 37.6173
 
+- conference: PyCon Greece
+  year: 2026
+  link: https://pycon.gr/
+  cfp: '2026-05-10 23:59:00'
+  timezone: Europe/Athens
+  place: Athens, Greece
+  start: 2026-10-12
+  end: 2026-10-13
+  finaid: https://pycon.gr/
+  mastodon: https://www.youtube.com/@pycongreece
+  sub: PY
+  location:
+  - title: PyCon Greece 2026
+    latitude: 37.9755648
+    longitude: 23.7348324
+
 - conference: PyCon Spain
   year: 2026
   link: https://2026.es.pycon.org/
@@ -98,6 +114,21 @@
   - title: PyCon Spain 2026
     latitude: 41.3828939
     longitude: 2.1774322
+
+- conference: Python Ho
+  year: 2026
+  link: https://2026.pythonho.com/
+  cfp: None
+  timezone: Africa/Accra
+  place: Ho, Ghana
+  start: 2026-10-23
+  end: 2026-10-24
+  sponsor: https://2026.pythonho.com/sponsors
+  sub: PY
+  location:
+  - title: Python Ho 2026
+    latitude: 6.6126598
+    longitude: 0.4688932
 
 - conference: Black Python Devs Leadership Summit
   year: 2026
@@ -149,7 +180,7 @@
   year: 2026
   link: https://warsaw.python.pizza/
   cfp_link: https://forms.gle/5pqj68ES9ENaGPBf6
-  cfp: '2026-04-12 23:59:00'
+  cfp: '2026-04-14 23:59:00'
   place: Warsaw, Poland
   start: 2026-05-09
   end: 2026-05-09
@@ -505,6 +536,22 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
+- conference: PyCon Namibia
+  year: 2027
+  link: https://na.pycon.org/
+  cfp: TBA
+  timezone: Africa/Johannesburg
+  place: Windhoek, Namibia
+  start: 2027-02-19
+  end: 2027-02-25
+  mastodon: https://hachyderm.io/@PyConNA
+  bluesky: https://bsky.app/profile/pyconna.bsky.social
+  sub: PY
+  location:
+  - title: PyCon Namibia 2027
+    latitude: -22.5597
+    longitude: 17.0832
+
 - conference: XtremePython
   year: 2026
   link: https://xtremepython.dev/
@@ -513,36 +560,6 @@
   start: 2026-11-17
   end: 2026-11-17
   sub: PY
-
-- conference: Python Ho
-  year: 2026
-  link: https://2026.pythonho.com/
-  cfp: TBA
-  timezone: Africa/Accra
-  place: Ho, Ghana
-  start: 2026-10-23
-  end: 2026-10-24
-  sponsor: https://2026.pythonho.com/sponsors
-  sub: PY
-  location:
-  - title: Python Ho 2026
-    latitude: 6.6126598
-    longitude: 0.4688932
-
-- conference: PyCon Greece
-  year: 2026
-  link: https://pycon.gr/
-  cfp: TBA
-  timezone: Europe/Athens
-  place: Athens, Greece
-  start: 2026-10-12
-  end: 2026-10-14
-  mastodon: https://www.youtube.com/@pycongreece
-  sub: PY
-  location:
-  - title: PyCon Greece 2026
-    latitude: 37.9755648
-    longitude: 23.7348324
 
 - conference: PyCon Kenya
   year: 2026
@@ -588,3 +605,14 @@
   - title: PyCon Ghana 2026
     latitude: 5.5571096
     longitude: -0.2012376
+
+- conference: PyCon Germany & PyData Conference
+  alt_name: PyCon Germany
+  year: 2027
+  link: https://2027.pycon.de
+  cfp: TBA
+  timezone: Europe/Berlin
+  place: Heidelberg, Germany
+  start: 2027-04-13
+  end: 2027-04-22
+  sub: PY,DATA
