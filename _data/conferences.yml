@@ -544,6 +544,8 @@
   place: Windhoek, Namibia
   start: 2027-02-19
   end: 2027-02-25
+  mastodon: https://hachyderm.io/@PyConNA
+  bluesky: https://bsky.app/profile/pyconna.bsky.social
   sub: PY
   location:
   - title: PyCon Namibia 2027
