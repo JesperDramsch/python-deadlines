@@ -730,19 +730,31 @@ def build_enrichment_prompt(
     ]
     field_instructions = """
 Extract the following fields if found:
-- cfp: MAIN CFP deadline for talks/papers/proposals (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
-- workshop_deadline: Workshop submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
-- tutorial_deadline: Tutorial submission deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
+- cfp: MAIN CFP CLOSING deadline for talks/papers/proposals - the date submissions CLOSE
+  (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
+- workshop_deadline: Workshop submission CLOSING deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
+- tutorial_deadline: Tutorial submission CLOSING deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
 - timezone: Conference timezone (MUST be IANA format with slash, e.g., 'America/Chicago', 'Europe/Berlin')
   - NEVER use abbreviations like EST, CEST, PST, UTC - ONLY full IANA names with slash
 
 CRITICAL RULES:
-- cfp MUST be the MAIN Call for Papers/Proposals deadline (talks, papers, presentations)
+- cfp MUST be the MAIN Call for Papers/Proposals CLOSING deadline (when submissions end)
+- cfp MUST NOT be the date the CFP OPENS / starts / launches - only when it CLOSES
 - cfp MUST NOT be: sponsors, volunteers, specialist tracks, financial aid, grants, reviewers
 - If only "Call for Sponsors/Volunteers/Tracks" found, set status to "not_announced"
+- If only the CFP OPENING date is announced (e.g., "CFP opens on X", "CFP will open",
+  "submissions open on X", "proposals open on X") with no closing date, set status to
+  "not_announced" and DO NOT populate cfp
 - Date fields: MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
 - Timezone: MUST be IANA format with slash (America/New_York), NEVER abbreviations (EST, CEST)
 - Leave field EMPTY if not found on the page
+
+Opening-vs-closing examples (DO NOT treat opening dates as deadlines):
+- "CFP will open on February 1, 2026" → status "not_announced", cfp EMPTY
+- "Call for Proposals opens March 15" → status "not_announced", cfp EMPTY
+- "Submissions open: Feb 1 — Submissions close: Mar 15" → cfp="2026-03-15 23:59:00"
+- "Deadline: March 15, 2026" → cfp="2026-03-15 23:59:00"
+- "Submit proposals by March 15, 2026" → cfp="2026-03-15 23:59:00"
 
 Date conversion examples:
 - "February 8, 2026" → "2026-02-08 23:59:00"
@@ -779,14 +791,16 @@ IMPORTANT RULES:
 1. Only extract dates that are EXPLICITLY stated on the website
 2. Do NOT guess or approximate dates - if unsure, set status to "not_announced"
 3. If a deadline says "TBA", "coming soon", or is not found, set status to "not_announced"
-4. Use status "found" when you have extracted all requested date fields with clear values
-5. Use status "partial" ONLY when some fields are found but others are missing
-6. CONFIDENCE SCORING:
+4. If only a CFP OPENING date is listed (no closing deadline yet), set status to
+   "not_announced" - an opening date is NOT a submission deadline
+5. Use status "found" when you have extracted all requested date fields with clear values
+6. Use status "partial" ONLY when some fields are found but others are missing
+7. CONFIDENCE SCORING:
    - 0.9-1.0: Date is clearly and unambiguously stated (even if in human-readable format)
    - 0.7-0.9: Date is stated but requires interpretation (e.g., relative dates)
    - 0.5-0.7: Date is implied or uncertain
    - Below 0.5: Do not include - set status to "not_announced" instead
-7. For URLs, only include if they appear to be valid absolute URLs
+8. For URLs, only include if they appear to be valid absolute URLs
 
 Fields to extract: {', '.join(fields_to_extract)}
 
