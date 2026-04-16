@@ -118,7 +118,7 @@
 - conference: Python Ho
   year: 2026
   link: https://2026.pythonho.com/
-  cfp: '2026-05-01 23:59:00'
+  cfp: None
   timezone: Africa/Accra
   place: Ho, Ghana
   start: 2026-10-23
@@ -605,3 +605,14 @@
   - title: PyCon Ghana 2026
     latitude: 5.5571096
     longitude: -0.2012376
+
+- conference: PyCon Germany & PyData Conference
+  alt_name: PyCon Germany
+  year: 2027
+  link: https://2027.pycon.de
+  cfp: TBA
+  timezone: Europe/Berlin
+  place: Heidelberg, Germany
+  start: 2027-04-13
+  end: 2027-04-22
+  sub: PY,DATA
