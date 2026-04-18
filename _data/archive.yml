@@ -1,5 +1,67 @@
 ---
 
+- conference: Python Unplugged on PyTV
+  year: 2026
+  link: https://lp.jetbrains.com/python-unplugged/
+  cfp: None
+  timezone: Europe/Berlin
+  place: Online
+  start: 2026-03-04
+  end: 2026-03-04
+  mastodon: https://fosstodon.org/@t_redactyl
+  bluesky: https://bsky.app/profile/pycharm.dev
+  sub: PY
+
+- conference: Python BarCamp Karlsruhe
+  year: 2026
+  link: https://barcamps.eu/pythonbarcamp-2026/
+  cfp: None
+  timezone: Europe/Berlin
+  place: Karlsruhe, Germany
+  start: 2026-02-21
+  end: 2026-02-22
+  sponsor: https://barcamps.eu/pythonbarcamp-2026/sponsoren
+  sub: CAMP
+  location:
+  - title: Python BarCamp Karlsruhe 2026
+    latitude: 49.0068705
+    longitude: 8.4034195
+
+- conference: Python Pizza Ostrava
+  year: 2026
+  link: https://ostrava.python.pizza/
+  cfp: '2026-01-07 23:59:00'
+  timezone: Europe/Prague
+  place: Ostrava, Czechia
+  start: 2026-02-21
+  end: 2026-02-21
+  twitter: pythonpizzaconf
+  mastodon: https://fosstodon.org/@pythonpizza
+  sub: PY
+  location:
+  - title: Python Pizza Ostrava 2026
+    latitude: 49.8349139
+    longitude: 18.2820084
+
+- conference: PyCon Namibia
+  alt_name: PyCon NA
+  year: 2026
+  link: https://na.pycon.org/
+  cfp_link: https://pretalx.com/pycon-namibia-2026/cfp
+  cfp: '2025-12-01 23:59:00'
+  cfp_ext: '2026-02-05 23:59:00'
+  timezone: Africa/Windhoek
+  place: Windhoek, Namibia
+  start: 2026-02-20
+  end: 2026-02-26
+  sponsor: https://na.pycon.org/sponsor/
+  twitter: PyConNA
+  sub: PY
+  location:
+  - title: PyCon Namibia 2026
+    latitude: -22.611456150000002
+    longitude: 17.05860104184979
+
 - conference: FOSDEM
   year: 2026
   link: https://fosdem.org/2026/

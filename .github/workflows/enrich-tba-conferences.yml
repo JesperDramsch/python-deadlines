@@ -105,7 +105,7 @@ jobs:
           cp _data/conferences.yml /tmp/conferences_before.yml
 
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.4
+        uses: prefix-dev/setup-pixi@v0.9.5
 
       - name: Install lynx for text extraction
         run: sudo apt-get install -qq -y lynx > /dev/null 2>&1 || true
@@ -221,7 +221,7 @@ jobs:
 
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}

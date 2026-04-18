@@ -119,7 +119,7 @@ jobs:
           cp _data/archive.yml /tmp/archive_before.yml 2>/dev/null || true
 
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.9.4
+        uses: prefix-dev/setup-pixi@v0.9.5
 
       - name: Run merge scripts
         id: merge
@@ -214,7 +214,7 @@ jobs:
 
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           SOURCE: ${{ steps.source.outputs.source }}
