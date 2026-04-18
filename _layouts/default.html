@@ -45,10 +45,7 @@
       {% endfor %}
     {% endif %}
 
-    {% if page.include_footer %}
-      <footer>{% include_cached footer.html %}</footer>
-    {% else %}
-      {% include sneks.html %}
-    {% endif %}
+    <footer>{% include_cached footer.html %}</footer>
+    {% include sneks.html %}
   </body>
 </html>
