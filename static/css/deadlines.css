@@ -503,6 +503,80 @@ footer .row * {
 	bottom: 1rem;
 }
 
+.snek-speech-bubble {
+	position: fixed;
+	right: 2rem;
+	bottom: 5.5rem;
+	max-width: 220px;
+	padding: 0.6rem 1.75rem 0.6rem 0.9rem;
+	background: #fff;
+	color: #333;
+	border: 2px solid #646464;
+	border-radius: 0.9rem;
+	box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+	font-size: 0.85rem;
+	line-height: 1.3;
+	z-index: 1004;
+	opacity: 0;
+	transform: translateY(0.5rem);
+	transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.snek-speech-bubble.visible {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.snek-speech-bubble::after {
+	content: '';
+	position: absolute;
+	bottom: -12px;
+	right: 24px;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-top: 12px solid #646464;
+}
+
+.snek-speech-bubble::before {
+	content: '';
+	position: absolute;
+	bottom: -8px;
+	right: 26px;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-top: 10px solid #fff;
+	z-index: 1;
+}
+
+.snek-speech-link {
+	color: inherit;
+	text-decoration: none;
+}
+
+.snek-speech-link:hover,
+.snek-speech-link:focus {
+	color: #4584b6;
+	text-decoration: underline;
+}
+
+.snek-speech-close {
+	position: absolute;
+	top: 1px;
+	right: 6px;
+	background: none;
+	border: none;
+	font-size: 1.1rem;
+	line-height: 1;
+	cursor: pointer;
+	color: #888;
+	padding: 0 0.25rem;
+}
+
+.snek-speech-close:hover,
+.snek-speech-close:focus {
+	color: #333;
+}
+
 #right-snek.wiggle {
 	bottom: 2rem;
 }
@@ -528,7 +602,8 @@ footer .row * {
 
 /* Only show on medium screens and up (≥768px) */
 @media (max-width: 767.98px) {
-	.location-pin {
+	.location-pin,
+	.snek-speech-bubble {
 		display: none !important;
 	}
 }
@@ -536,6 +611,7 @@ footer .row * {
 /* Print styles */
 @media print {
 	.location-pin,
+	.snek-speech-bubble,
 	.skip-nav,
 	.navbar,
 	.conference-actions,
