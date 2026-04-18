@@ -115,21 +115,6 @@
     latitude: 41.3828939
     longitude: 2.1774322
 
-- conference: Python Ho
-  year: 2026
-  link: https://2026.pythonho.com/
-  cfp: None
-  timezone: Africa/Accra
-  place: Ho, Ghana
-  start: 2026-10-23
-  end: 2026-10-24
-  sponsor: https://2026.pythonho.com/sponsors
-  sub: PY
-  location:
-  - title: Python Ho 2026
-    latitude: 6.6126598
-    longitude: 0.4688932
-
 - conference: Black Python Devs Leadership Summit
   year: 2026
   link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html
@@ -536,6 +521,21 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
+- conference: PyCon Germany & PyData Conference
+  alt_name: PyCon Germany
+  year: 2027
+  link: https://2027.pycon.de/
+  cfp: TBA
+  timezone: Europe/Berlin
+  place: Heidelberg, Germany
+  start: 2027-04-13
+  end: 2027-04-22
+  sub: PY,DATA
+  location:
+  - title: PyCon Germany & PyData Conference 2027
+    latitude: 49.4093582
+    longitude: 8.694724
+
 - conference: PyCon Namibia
   year: 2027
   link: https://na.pycon.org/
@@ -560,6 +560,21 @@
   start: 2026-11-17
   end: 2026-11-17
   sub: PY
+
+- conference: Python Ho
+  year: 2026
+  link: https://2026.pythonho.com/
+  cfp: None
+  timezone: Africa/Accra
+  place: Ho, Ghana
+  start: 2026-10-23
+  end: 2026-10-24
+  sponsor: https://2026.pythonho.com/sponsors
+  sub: PY
+  location:
+  - title: Python Ho 2026
+    latitude: 6.6126598
+    longitude: 0.4688932
 
 - conference: PyCon Kenya
   year: 2026
@@ -605,14 +620,3 @@
   - title: PyCon Ghana 2026
     latitude: 5.5571096
     longitude: -0.2012376
-
-- conference: PyCon Germany & PyData Conference
-  alt_name: PyCon Germany
-  year: 2027
-  link: https://2027.pycon.de
-  cfp: TBA
-  timezone: Europe/Berlin
-  place: Heidelberg, Germany
-  start: 2027-04-13
-  end: 2027-04-22
-  sub: PY,DATA
