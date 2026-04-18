@@ -175,6 +175,45 @@ $(function () {
 		$('#smol-snek-all').show().addClass('visible');
 	}, 3250);
 
+	// Speech bubble: announce the newsletter unless dismissed
+	var speechDismissed = false;
+	try {
+		speechDismissed = localStorage.getItem('snek-speech-dismissed') === '1';
+	} catch (e) {
+		// localStorage unavailable (private mode); show the bubble anyway
+	}
+
+	if (!speechDismissed) {
+		setTimeout(function () {
+			$('#snek-speech').show();
+			// next tick so the transition runs
+			setTimeout(function () {
+				$('#snek-speech').addClass('visible');
+			}, 50);
+		}, 4000);
+	}
+
+	function dismissSpeechBubble() {
+		$('#snek-speech').removeClass('visible');
+		setTimeout(function () {
+			$('#snek-speech').hide();
+		}, 400);
+		try {
+			localStorage.setItem('snek-speech-dismissed', '1');
+		} catch (e) {
+			// ignore
+		}
+	}
+
+	$('#snek-speech-close').on('click', function (e) {
+		e.preventDefault();
+		dismissSpeechBubble();
+	});
+
+	$('.snek-speech-link').on('click', function () {
+		dismissSpeechBubble();
+	});
+
 	// Show on scroll
 	$(window).scroll(function () {
 		if ($(window).scrollTop() > 100) {
