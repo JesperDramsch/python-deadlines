@@ -71,6 +71,18 @@ description: Summary of the conference and its instances throughout the years.
                 <a id="conf-mastodon" target="_blank" rel="noopener noreferrer" href="{{confs[0].mastodon}}">Mastodon</a>
               </div>
               {% endif %}
+              {% if confs[0].bluesky %}
+              <div>
+                <i class="fa-brands fa-bluesky" style="width:16px;height:16px;" aria-hidden="true"></i>
+                <a id="conf-bluesky" target="_blank" rel="noopener noreferrer" href="{{confs[0].bluesky}}">Bluesky</a>
+              </div>
+              {% endif %}
+              {% if confs[0].youtube %}
+              <div>
+                <i class="fa-brands fa-youtube" style="width:16px;height:16px;" aria-hidden="true"></i>
+                <a id="conf-youtube" target="_blank" rel="noopener noreferrer" href="{{confs[0].youtube}}">YouTube</a>
+              </div>
+              {% endif %}
             </div>
           </div>
           <div id="all_confs">
