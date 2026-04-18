@@ -50,7 +50,7 @@ ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
 MAX_CONTENT_LENGTH = 15000  # Max characters per conference website
 
 # Field type categorization for validation
-URL_FIELDS = {"sponsor", "finaid", "mastodon", "bluesky", "cfp_link"}
+URL_FIELDS = {"sponsor", "finaid", "mastodon", "bluesky", "youtube", "cfp_link"}
 DATE_FIELDS = {"cfp", "workshop_deadline", "tutorial_deadline"}
 TIMEZONE_FIELD = "timezone"
 
@@ -267,6 +267,11 @@ def get_all_links(url: str) -> list[str]:
         return []
 
 
+def _domain_matches(domain: str, hosts: tuple[str, ...]) -> bool:
+    """Return True if domain equals one of hosts or is a subdomain of one."""
+    return any(domain == h or domain.endswith(f".{h}") for h in hosts)
+
+
 # Known Mastodon instances (common ones in tech/Python community)
 MASTODON_INSTANCES = {
     "mastodon.social",
@@ -334,6 +339,10 @@ def extract_links_from_url(url: str) -> dict[str, str]:
     for link in links:
         link_lower = link.lower()
         parsed_link = urlparse(link)
+        link_domain = parsed_link.netloc.lower()
+
+        is_youtube = _domain_matches(link_domain, ("youtube.com", "youtu.be"))
+        is_twitter = _domain_matches(link_domain, ("twitter.com", "x.com"))
 
         # Bluesky - always bsky.app/profile/
         if "bluesky" not in seen_types and "bsky.app/profile/" in link_lower:
@@ -341,15 +350,19 @@ def extract_links_from_url(url: str) -> dict[str, str]:
             seen_types.add("bluesky")
             logger.debug(f"  Found bluesky: {link}")
 
-        # Mastodon - /@username pattern on known instances or any instance
-        # Exclude Twitter/X which don't use /@, but guard against edge cases
-        elif "mastodon" not in seen_types and "/@" in link:
-            domain = parsed_link.netloc.lower()
+        # YouTube - youtube.com/@channel or youtu.be links
+        elif "youtube" not in seen_types and is_youtube:
+            found["youtube"] = link
+            seen_types.add("youtube")
+            logger.debug(f"  Found youtube: {link}")
 
-            # Skip Twitter/X domains (exact host or subdomains only)
-            if domain == "twitter.com" or domain.endswith((".x.com", ".twitter.com")) or domain == "x.com":
+        # Mastodon - /@username pattern on known instances or any instance
+        # Exclude Twitter/X and YouTube which also use /@username patterns
+        elif "mastodon" not in seen_types and "/@" in link:
+            # Skip Twitter/X and YouTube domains
+            if is_twitter or is_youtube:
                 pass
-            elif domain in MASTODON_INSTANCES or "mastodon" in domain or "toot" in domain:
+            elif link_domain in MASTODON_INSTANCES or "mastodon" in link_domain or "toot" in link_domain:
                 found["mastodon"] = link
                 seen_types.add("mastodon")
                 logger.debug(f"  Found mastodon: {link}")

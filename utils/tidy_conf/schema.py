@@ -72,6 +72,7 @@ class Conference(BaseModel):
     twitter: str | None = None
     mastodon: HttpUrl | None = None
     bluesky: str | None = None
+    youtube: HttpUrl | None = None
     sub: str
     note: str | None = None
     location: list[Location] | None = None
@@ -121,7 +122,7 @@ class Conference(BaseModel):
             return re.sub(r"\b(19|20)\d{2}\b", "", v).strip()
         return v
 
-    @field_serializer("link", "cfp_link", "sponsor", "finaid", "mastodon")
+    @field_serializer("link", "cfp_link", "sponsor", "finaid", "mastodon", "youtube")
     def ser_url(self, value):
         return str(value)
 
