@@ -355,10 +355,7 @@ def extract_links_from_url(url: str) -> dict[str, str]:
             domain = parsed_link.netloc.lower()
 
             # Skip Twitter/X domains (exact host or subdomains only)
-            if domain == "twitter.com" or domain.endswith((".x.com", ".twitter.com")) or domain == "x.com":
-                pass
-            # Skip YouTube domains
-            elif "youtube.com" in domain or "youtu.be" in domain:
+            if domain == "twitter.com" or domain.endswith((".x.com", ".twitter.com")) or domain == "x.com" or ("youtube.com" in domain or "youtu.be" in domain):
                 pass
             elif domain in MASTODON_INSTANCES or "mastodon" in domain or "toot" in domain:
                 found["mastodon"] = link
