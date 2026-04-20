@@ -18,6 +18,7 @@
   twitter: BestConfEver # Twitter handle of conference (Optional)
   mastodon: https://mastodon.social/@bconf # Mastodon handle of conference (Optional)
   bluesky: https://bsky.app/@bconf # Bluesky handle of conference (Optional)
+  youtube: https://www.youtube.com/@bconf # YouTube channel of conference (Optional)
   sub: PY # Type of conference (see or add _data/types.yml)
   note: Important # In case there are extra notes about the conference (Optional)
   location: # Geolocation for inclusion in map
