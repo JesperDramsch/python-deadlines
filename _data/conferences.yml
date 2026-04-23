@@ -33,6 +33,21 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: PyCon Togo
+  year: 2026
+  link: https://pycontg.pytogo.org/
+  cfp: '2026-05-31 18:00:00'
+  place: Lomé, Togo
+  start: 2026-08-28
+  end: 2026-08-29
+  sponsor: https://pycontg.pytogo.org/partners
+  youtube: https://www.youtube.com/@KwekuTech
+  sub: PY
+  location:
+  - title: PyCon Togo 2026
+    latitude: 6.130419
+    longitude: 1.215829
+
 - conference: Swiss Python Summit
   year: 2026
   link: https://python-summit.ch/
@@ -521,7 +536,7 @@
     latitude: 49.27213705
     longitude: -123.13439461006233
 
-- conference: PyCon Germany & PyData Conference
+- conference: PyCon Germany
   alt_name: PyCon Germany
   year: 2027
   link: https://2027.pycon.de/
@@ -579,8 +594,8 @@
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
-  cfp_link: https://pycon-kenya-2025.sessionize.com/
-  cfp: TBA
+  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
+  cfp: "2026-06-10 00:00:00"
   timezone: Africa/Nairobi
   place: Nairobi, Kenya
   start: 2026-08-28
@@ -591,21 +606,6 @@
   - title: PyCon Kenya 2026
     latitude: -1.2136405
     longitude: 36.87930533266044
-
-- conference: PyCon Togo
-  year: 2026
-  link: https://pycontg.pytogo.org/
-  cfp: TBA
-  place: Lomé, Togo
-  start: 2026-08-28
-  end: 2026-08-29
-  sponsor: https://pycontg.pytogo.org/partners
-  mastodon: https://www.youtube.com/@KwekuTech
-  sub: PY
-  location:
-  - title: PyCon Togo 2026
-    latitude: 6.130419
-    longitude: 1.215829
 
 - conference: PyCon Ghana
   year: 2026
