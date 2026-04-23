@@ -594,8 +594,8 @@
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
-  cfp_link: https://pycon-kenya-2025.sessionize.com/
-  cfp: TBA
+  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
+  cfp: "2026-06-10 00:00:00"
   timezone: Africa/Nairobi
   place: Nairobi, Kenya
   start: 2026-08-28
