@@ -33,6 +33,22 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: PyCon Kenya
+  year: 2026
+  link: https://www.pycon.ke/
+  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
+  cfp: '2026-06-10 00:00:00'
+  timezone: Africa/Nairobi
+  place: Nairobi, Kenya
+  start: 2026-08-28
+  end: 2026-08-29
+  sponsor: https://www.pycon.ke/sponsors
+  sub: PY
+  location:
+  - title: PyCon Kenya 2026
+    latitude: -1.2136405
+    longitude: 36.87930533266044
+
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
@@ -416,22 +432,6 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
-- conference: PyConf Hyderabad
-  year: 2026
-  link: https://2026.pyconfhyd.org/
-  cfp_link: https://www.papercall.io/pyconfhyd2026
-  cfp: '2026-01-15 23:59:00'
-  timezone: Asia/Kolkata
-  place: Hyderabad, India
-  start: 2026-03-14
-  end: 2026-03-15
-  sponsor: https://2026.pyconfhyd.org/#sponsors
-  sub: PY
-  location:
-  - title: PyConf Hyderabad
-    latitude: 17.426801501802966
-    longitude: 78.37126527965896
-
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2026
@@ -590,22 +590,6 @@
   - title: Python Ho 2026
     latitude: 6.6126598
     longitude: 0.4688932
-
-- conference: PyCon Kenya
-  year: 2026
-  link: https://www.pycon.ke/
-  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
-  cfp: "2026-06-10 00:00:00"
-  timezone: Africa/Nairobi
-  place: Nairobi, Kenya
-  start: 2026-08-28
-  end: 2026-08-29
-  sponsor: https://www.pycon.ke/sponsors
-  sub: PY
-  location:
-  - title: PyCon Kenya 2026
-    latitude: -1.2136405
-    longitude: 36.87930533266044
 
 - conference: PyCon Ghana
   year: 2026
