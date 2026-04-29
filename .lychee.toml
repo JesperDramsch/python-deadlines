@@ -24,9 +24,6 @@ accept = ["200", "204", "301", "302", "429"]
 # User agent to avoid bot detection
 user_agent = "Mozilla/5.0 (compatible; lychee/0.15; +https://github.com/lycheeverse/lychee)"
 
-# Skip mail addresses
-exclude_mail = true
-
 # Output format
 output = "lychee/out.md"
 format = "markdown"
