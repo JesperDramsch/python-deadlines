@@ -502,40 +502,6 @@
     latitude: 30.2711286
     longitude: -97.7436995
 
-- conference: PythonAsia
-  alt_name: PyCon APAC
-  year: 2026
-  link: https://2026.pythonasia.org/
-  cfp_link: https://pretalx.com/python-asia-2026
-  cfp: '2025-11-30 23:59:00'
-  timezone: Asia/Manila
-  place: Malate, Philippines
-  start: 2026-03-21
-  end: 2026-03-23
-  sponsor: https://bit.ly/PythonAsia2026-CallForSponsors
-  sub: PY
-  location:
-  - title: PythonAsia 2026
-    latitude: 14.5700388
-    longitude: 120.9915263
-
-- conference: PyCascades
-  year: 2026
-  link: https://2026.pycascades.com/
-  cfp_link: https://pretalx.com/pycascades-2026/cfp
-  cfp: '2025-10-27 23:59:00'
-  cfp_ext: '2025-11-04 23:59:00'
-  place: Vancouver, Canada
-  start: 2026-03-21
-  end: 2026-03-22
-  sponsor: https://2026.pycascades.com/sponsors/become-a-sponsor/
-  mastodon: https://fosstodon.org/@pycascades
-  sub: PY
-  location:
-  - title: PyCascades 2026
-    latitude: 49.27213705
-    longitude: -123.13439461006233
-
 - conference: PyCon Germany
   alt_name: PyCon Germany
   year: 2027
@@ -575,6 +541,19 @@
   start: 2026-11-17
   end: 2026-11-17
   sub: PY
+
+- conference: FastAPI Conference
+  year: 2026
+  link: https://fastapiconf.com/
+  cfp: TBA
+  place: Amsterdam, The Netherlands
+  start: 2026-10-28
+  end: 2026-10-28
+  sub: PY
+  location:
+  - title: FastAPI Conference 2026
+    latitude: 52.3730796
+    longitude: 4.8924534
 
 - conference: Python Ho
   year: 2026
