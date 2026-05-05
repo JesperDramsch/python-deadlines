@@ -1,5 +1,52 @@
 ---
 
+- conference: PyCascades
+  year: 2026
+  link: https://2026.pycascades.com/
+  cfp_link: https://pretalx.com/pycascades-2026/cfp
+  cfp: '2025-10-27 23:59:00'
+  cfp_ext: '2025-11-04 23:59:00'
+  place: Vancouver, Canada
+  start: 2026-03-21
+  end: 2026-03-22
+  sponsor: https://2026.pycascades.com/sponsors/become-a-sponsor/
+  mastodon: https://fosstodon.org/@pycascades
+  sub: PY
+  location:
+  - title: PyCascades 2026
+    latitude: 49.27213705
+    longitude: -123.13439461006233
+
+- conference: PythonAsia
+  alt_name: PyCon APAC
+  year: 2026
+  link: https://2026.pythonasia.org/
+  cfp_link: https://pretalx.com/python-asia-2026
+  cfp: '2025-11-30 23:59:00'
+  timezone: Asia/Manila
+  place: Malate, Philippines
+  start: 2026-03-21
+  end: 2026-03-23
+  sponsor: https://bit.ly/PythonAsia2026-CallForSponsors
+  sub: PY
+  location:
+  - title: PythonAsia 2026
+    latitude: 14.5700388
+    longitude: 120.9915263
+
+- conference: PyConf Hyderabad
+  year: 2026
+  link: http://2026.pyconfhyd.org/
+  cfp: TBA
+  place: Hyderabad, India
+  start: 2026-03-14
+  end: 2026-03-15
+  sub: PY
+  location:
+  - title: PyConf Hyderabad 2026
+    latitude: 17.4454957
+    longitude: 78.34854697544472
+
 - conference: Python Unplugged on PyTV
   year: 2026
   link: https://lp.jetbrains.com/python-unplugged/
