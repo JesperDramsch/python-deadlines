@@ -243,6 +243,21 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: PyData Amsterdam
+  year: 2026
+  link: https://amsterdam.pydata.org/
+  cfp_link: https://pretalx.com/pydata-amsterdam2026/cfp
+  cfp: '2026-04-19 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2026-09-10
+  end: 2026-09-11
+  sub: DATA
+  location:
+  - title: PyData Amsterdam 2026
+    latitude: 52.4036
+    longitude: 4.8901
+
 - conference: Warsaw Python Pizza
   year: 2026
   link: https://warsaw.python.pizza/
@@ -581,6 +596,16 @@
     latitude: -22.5597
     longitude: 17.0832
 
+- conference: PyData Global
+  year: 2026
+  link: https://pydata.org/global2026/
+  cfp: TBA
+  place: Online
+  start: 2026-12-08
+  end: 2026-12-10
+  sponsor: https://pydata.org/sponsor-pydata/
+  sub: DATA
+
 - conference: XtremePython
   year: 2026
   link: https://xtremepython.dev/
@@ -643,6 +668,20 @@
   - title: PyCon Latam 2026
     latitude: 9.7843604
     longitude: -83.4995932
+
+- conference: PyData Yerevan
+  alt_name: PyData PyCon Yerevan
+  year: 2026
+  link: https://pycon.am/
+  cfp: TBA
+  place: Yerevan, Armenia
+  start: 2026-07-24
+  end: 2026-07-25
+  sub: DATA
+  location:
+  - title: PyData Yerevan 2026
+    latitude: 40.1872
+    longitude: 44.5152
 
 - conference: PyCon Singapore
   year: 2026
