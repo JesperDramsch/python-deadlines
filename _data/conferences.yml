@@ -570,6 +570,20 @@
     latitude: 6.6126598
     longitude: 0.4688932
 
+- conference: PyHEP
+  year: 2026
+  link: https://indico.cern.ch/category/7971/
+  cfp: TBA
+  timezone: Europe/Zurich
+  place: Geneva, Switzerland
+  start: 2026-09-07
+  end: 2026-09-09
+  sub: PY
+  location:
+  - title: PyHEP 2026
+    latitude: 46.2047169
+    longitude: 6.1423106290939335
+
 - conference: PyCon Ghana
   year: 2026
   link: https://gh.pycon.org/2026/
