@@ -33,6 +33,22 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: Python Ho
+  year: 2026
+  link: https://2026.pythonho.com/
+  cfp_link: https://sessionize.com/pyho-2026/
+  cfp: '2026-06-15 23:59:00'
+  timezone: Africa/Accra
+  place: Ho, Ghana
+  start: 2026-10-23
+  end: 2026-10-24
+  sponsor: https://2026.pythonho.com/sponsors
+  sub: PY
+  location:
+  - title: Python Ho 2026
+    latitude: 6.6126598
+    longitude: 0.4688932
+
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
@@ -48,6 +64,21 @@
   - title: PyCon Kenya 2026
     latitude: -1.2136405
     longitude: 36.87930533266044
+
+- conference: PyCon Ghana
+  year: 2026
+  link: https://gh.pycon.org/2026/
+  cfp: '2026-06-06 23:59:00'
+  timezone: Africa/Accra
+  place: Accra, Ghana
+  start: 2026-08-20
+  end: 2026-08-22
+  sponsor: https://gh.pycon.org/2026/sponsors/
+  sub: PY
+  location:
+  - title: PyCon Ghana 2026
+    latitude: 5.5571096
+    longitude: -0.2012376
 
 - conference: PyCon Togo
   year: 2026
@@ -555,21 +586,6 @@
     latitude: 52.3730796
     longitude: 4.8924534
 
-- conference: Python Ho
-  year: 2026
-  link: https://2026.pythonho.com/
-  cfp: None
-  timezone: Africa/Accra
-  place: Ho, Ghana
-  start: 2026-10-23
-  end: 2026-10-24
-  sponsor: https://2026.pythonho.com/sponsors
-  sub: PY
-  location:
-  - title: Python Ho 2026
-    latitude: 6.6126598
-    longitude: 0.4688932
-
 - conference: PyHEP
   year: 2026
   link: https://indico.cern.ch/category/7971/
@@ -583,17 +599,3 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
-
-- conference: PyCon Ghana
-  year: 2026
-  link: https://gh.pycon.org/2026/
-  cfp: TBA
-  place: Accra, Ghana
-  start: 2026-08-20
-  end: 2026-08-22
-  sponsor: https://gh.pycon.org/2026/sponsors/
-  sub: PY
-  location:
-  - title: PyCon Ghana 2026
-    latitude: 5.5571096
-    longitude: -0.2012376
