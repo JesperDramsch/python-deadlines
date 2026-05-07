@@ -599,3 +599,17 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
+
+- conference: PyCon Singapore
+  year: 2026
+  link: http://pycon.sg/
+  cfp: TBA
+  place: Singapore, Singapore
+  start: 2026-06-19
+  end: 2026-06-21
+  sponsor: http://pycon.sg/index.html#sponsors
+  sub: PY
+  location:
+  - title: PyCon Singapore 2026
+    latitude: 1.2899175
+    longitude: 103.8519072
