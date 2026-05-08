@@ -541,6 +541,7 @@
   place: Eisenstadt, Austria
   start: 2027-04-25
   end: 2027-04-26
+  mastodon: https://mastodon.social/@pycon_austria
   sub: PY
   location:
   - title: PyCon Austria 2027
