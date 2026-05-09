@@ -105,7 +105,7 @@
   start: 2026-10-22
   end: 2026-10-23
   sponsor: https://www.python-summit.ch/sponsoring/
-  twitter:pythonsummit
+  twitter: pythonsummit
   sub: PY,DATA
   note: 'Day 1: General Python Day; Day 2: Data Science Day'
   location:
@@ -604,10 +604,10 @@
   alt_name: PyCon.KR
   year: 2026
   link: https://2026.pycon.kr
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSeK_uM8byFE45mzWi3TLNzJm937vE6lYBmO4BchBW59wL3V9A/viewform?usp=header
+  cfp_link: 'https://docs.google.com/forms/d/e/1FAIpQLSeK_uM8byFE45mzWi3TLNzJm937vE6lYBmO4BchBW59wL3V9A/viewform?usp=header'
   cfp: '2026-05-09 23:59:59'
   cfp_ext: '2026-06-14 23:59:59'
-  sponsor: https://2026.pycon.kr/sponsor/apply
+  sponsor: 'https://2026.pycon.kr/sponsor/apply'
   twitter: PyConKR
   timezone: Asia/Seoul
   place: Seoul, South Korea
