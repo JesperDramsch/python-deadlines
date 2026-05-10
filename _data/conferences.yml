@@ -634,19 +634,6 @@
     latitude: 46.2047169
     longitude: 6.1423106290939335
 
-- conference: PyCon South Korea
-  year: 2026
-  link: https://2026.pycon.kr/
-  cfp: TBA
-  place: Seoul, Republic of Korea
-  start: 2026-08-15
-  end: 2026-08-17
-  sub: PY
-  location:
-  - title: PyCon South Korea 2026
-    latitude: 37.5666791
-    longitude: 126.9782914
-
 - conference: PyCon Singapore
   year: 2026
   link: http://pycon.sg/
