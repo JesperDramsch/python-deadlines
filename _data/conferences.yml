@@ -552,6 +552,21 @@
     latitude: 30.2711286
     longitude: -97.7436995
 
+- conference: PyCon Austria
+  year: 2027
+  link: https://pycon.at/
+  cfp: TBA
+  timezone: Europe/Vienna
+  place: Eisenstadt, Austria
+  start: 2027-04-25
+  end: 2027-04-26
+  mastodon: https://mastodon.social/@pycon_austria
+  sub: PY
+  location:
+  - title: PyCon Austria 2027
+    latitude: 47.8454821
+    longitude: 16.5249288
+
 - conference: PyCon Germany
   alt_name: PyCon Germany
   year: 2027
@@ -618,3 +633,17 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
+
+- conference: PyCon Singapore
+  year: 2026
+  link: http://pycon.sg/
+  cfp: TBA
+  place: Singapore, Singapore
+  start: 2026-06-19
+  end: 2026-06-21
+  sponsor: http://pycon.sg/index.html#sponsors
+  sub: PY
+  location:
+  - title: PyCon Singapore 2026
+    latitude: 1.2899175
+    longitude: 103.8519072
