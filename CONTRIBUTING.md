@@ -207,6 +207,9 @@ Example:
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/coolandsmartrr"><img src="https://avatars.githubusercontent.com/u/905436?v=4?s=100" width="100px;" alt="Ricky"/><br /><sub><b>Ricky</b></sub></a><br /><a href="#conference-coolandsmartrr" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://bruhin.software/"><img src="https://avatars.githubusercontent.com/u/625793?v=4?s=100" width="100px;" alt="Florian Bruhin"/><br /><sub><b>Florian Bruhin</b></sub></a><br /><a href="#conference-The-Compiler" title="Python conference (Added or updated)">📆</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jungmir"><img src="https://avatars.githubusercontent.com/u/61821253?v=4?s=100" width="100px;" alt="jungmir"/><br /><sub><b>jungmir</b></sub></a><br /><a href="#conference-jungmir" title="Python conference (Added or updated)">📆</a></td>
+    </tr>
   </tbody>
 </table>
 
