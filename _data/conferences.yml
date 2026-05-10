@@ -132,7 +132,8 @@
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
-  cfp: '2026-05-17 23:59:00'
+  cfp: '2026-05-10 23:59:00'
+  cfp_ext: '2026-05-17 23:59:00'
   timezone: Europe/Athens
   place: Athens, Greece
   start: 2026-10-12
