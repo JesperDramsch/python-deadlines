@@ -17,6 +17,9 @@ permalink: /newsletter.xml
         <generator>Jekyll v{{ jekyll.version }}</generator>
 {%- assign today = site.time | date: "%s" | plus: 0 -%}
 {%- assign horizon = site.time | date: "%s" | plus: 1209600 -%}
+{%- assign taglines = "yes, your weird side project counts.|first-timers especially welcome.|got a Python story worth telling?|your debugging war stories are gold.|submit before you talk yourself out of it.|that thing you fixed at 2am? talk material.|the niche you think is too niche? it isn't.|lurkers, this is your sign.|polish optional. submit anyway.|the talk you wish existed? write it.|your maintainer rants are speaker material.|the conference is just people who said yes." | split: "|" -%}
+{%- assign shuffled = taglines | sample: taglines.size -%}
+{%- assign emitted = 0 -%}
 {%- for conf in site.data.conferences -%}
     {%- if conf.cfp_ext -%}
         {%- assign cfp = conf.cfp_ext -%}
@@ -25,18 +28,20 @@ permalink: /newsletter.xml
     {%- endif -%}
     {%- if cfp != "TBA" and cfp != "Cancelled" and cfp != "None" -%}
         {%- assign cfp_epoch = cfp | date: "%s" | plus: 0 -%}
-        {%- if cfp_epoch >= today and cfp_epoch <= horizon %}
+        {%- if cfp_epoch >= today and cfp_epoch <= horizon -%}
+        {%- assign idx = emitted | modulo: shuffled.size -%}
+        {%- assign tagline = shuffled[idx] %}
         <item>
-            <title>{{ conf.conference | xml_escape }} {{ conf.year }} &#8212; CFP closes {{ cfp | date: "%b %-d" }}</title>
+            <title>{{ conf.conference | xml_escape }} {{ conf.year }}</title>
             <link>{{ site.url }}{{ site.baseurl }}/conference/{{ conf.conference | slugify: "latin" }}-{{ conf.year }}/</link>
             <guid isPermaLink="false">{{ conf.conference | slugify: "latin" }}-{{ conf.year }}</guid>
             <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
             <dc:creator>{{ site.title | xml_escape }}</dc:creator>
             <category>{{ conf.sub }}</category>
             <description><![CDATA[<p>&#128205; {{ conf.place | xml_escape }} &#183; &#128197; {% translate_file dates/pretty_dates.html start=conf.start end=conf.end %}</p>
-<p>&#128221; CfP deadline: {% translate_file dates/pretty_dates.html start=cfp end=cfp %}</p>
-{% if conf.cfp_link %}<p><a href="{{ conf.cfp_link }}">Submit your proposal &#8594;</a></p>{% endif %}]]></description>
+<p>&#9997; CfP closes {% translate_file dates/pretty_dates.html start=cfp end=cfp %} &#8212; {{ tagline }}</p>]]></description>
         </item>
+        {%- assign emitted = emitted | plus: 1 -%}
         {%- endif -%}
     {%- endif -%}
 {%- endfor %}
