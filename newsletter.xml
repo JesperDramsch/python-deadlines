@@ -1,0 +1,44 @@
+---
+permalink: /newsletter.xml
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+    xmlns:atom="http://www.w3.org/2005/Atom"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/"
+>
+    <channel>
+        <title>{{ site.title | xml_escape }} Newsletter</title>
+        <description>Python conference CFP deadlines coming up in the next 14 days</description>
+        <link>{{ site.url }}</link>
+        <atom:link href="{{ site.url }}{{ site.baseurl }}/newsletter.xml" rel="self" type="application/rss+xml" />
+        <language>en-US</language>
+        <lastBuildDate>{{ site.time | date_to_rfc822 }}</lastBuildDate>
+        <generator>Jekyll v{{ jekyll.version }}</generator>
+{%- assign today = site.time | date: "%s" | plus: 0 -%}
+{%- assign horizon = site.time | date: "%s" | plus: 1209600 -%}
+{%- for conf in site.data.conferences -%}
+    {%- if conf.cfp_ext -%}
+        {%- assign cfp = conf.cfp_ext -%}
+    {%- else -%}
+        {%- assign cfp = conf.cfp -%}
+    {%- endif -%}
+    {%- if cfp != "TBA" and cfp != "Cancelled" and cfp != "None" -%}
+        {%- assign cfp_epoch = cfp | date: "%s" | plus: 0 -%}
+        {%- if cfp_epoch >= today and cfp_epoch <= horizon %}
+        <item>
+            <title>{{ conf.conference | xml_escape }} {{ conf.year }} &#8212; CFP closes {{ cfp | date: "%b %-d" }}</title>
+            <link>{{ site.url }}{{ site.baseurl }}/conference/{{ conf.conference | slugify: "latin" }}-{{ conf.year }}/</link>
+            <guid isPermaLink="false">{{ conf.conference | slugify: "latin" }}-{{ conf.year }}</guid>
+            <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
+            <dc:creator>{{ site.title | xml_escape }}</dc:creator>
+            <category>{{ conf.sub }}</category>
+            <description><![CDATA[<p>&#128205; {{ conf.place | xml_escape }} &#183; &#128197; {% translate_file dates/pretty_dates.html start=conf.start end=conf.end %}</p>
+<p>&#128221; CfP deadline: {% translate_file dates/pretty_dates.html start=cfp end=cfp %}</p>
+{% if conf.cfp_link %}<p><a href="{{ conf.cfp_link }}">Submit your proposal &#8594;</a></p>{% endif %}]]></description>
+        </item>
+        {%- endif -%}
+    {%- endif -%}
+{%- endfor %}
+    </channel>
+</rss>
