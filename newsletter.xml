@@ -40,16 +40,7 @@ permalink: /newsletter.xml
             <pubDate>{{ site.time | date_to_rfc822 }}</pubDate>
             <dc:creator>{{ site.title | xml_escape }}</dc:creator>
             <category>{{ conf.sub }}</category>
-            <description><![CDATA[<p style="margin:0 0 10px 0;">
-{%- if days_until <= 0 -%}<span style="background:#fecaca;color:#991b1b;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;display:inline-block;">&#128680; Last day!</span>
-{%- elsif days_until == 1 -%}<span style="background:#fed7aa;color:#9a3412;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;display:inline-block;">&#128293; 1 day left</span>
-{%- elsif days_until <= 3 -%}<span style="background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;display:inline-block;">&#9200; {{ days_until }} days left</span>
-{%- elsif days_until <= 7 -%}<span style="background:#fef9c3;color:#854d0e;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;display:inline-block;">&#9203; {{ days_until }} days left</span>
-{%- else -%}<span style="background:#dbeafe;color:#1e40af;padding:4px 12px;border-radius:999px;font-size:13px;font-weight:700;display:inline-block;">&#128197; {{ days_until }} days</span>
-{%- endif -%}
-</p>
-<p>&#128205; {{ conf.place | xml_escape }} &#183; &#128197; {% translate_file dates/pretty_dates.html start=conf.start end=conf.end %}</p>
-<p>&#9997; CfP closes {% translate_file dates/pretty_dates.html start=cfp end=cfp %} &#8212; {{ tagline }}</p>]]></description>
+            <description><![CDATA[<p>&#128205; {{ conf.place | xml_escape }} &#183; &#128197; {% translate_file dates/pretty_dates.html start=conf.start end=conf.end %}</p><p>&#9997; CfP closes {% translate_file dates/pretty_dates.html start=cfp end=cfp %} &#8212; {{ tagline }}</p>]]></description>
         </item>
         {%- assign emitted = emitted | plus: 1 -%}
         {%- endif -%}
