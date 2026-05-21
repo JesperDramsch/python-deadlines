@@ -1,5 +1,18 @@
 ---
 
+- conference: PyCon Lithuania
+  year: 2026
+  link: https://pycon.lt/2026
+  cfp: TBA
+  place: Vilnius, Lithuania
+  start: 2026-04-08
+  end: 2026-04-10
+  sub: PY
+  location:
+  - title: PyCon Lithuania 2026
+    latitude: 54.6870458
+    longitude: 25.2829111
+
 - conference: PyCascades
   year: 2026
   link: https://2026.pycascades.com/
