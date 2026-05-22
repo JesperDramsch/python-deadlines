@@ -465,24 +465,6 @@
     latitude: 37.9755648
     longitude: 23.7348324
 
-- conference: PyCon Lithuania
-  alt_name: PyCon LT
-  year: 2026
-  link: https://pycon.lt/2026
-  cfp_link: https://pycon.lt/2026/call-for-proposals
-  cfp: '2026-01-15 23:59:00'
-  cfp_ext: '2026-01-31 23:59:00'
-  timezone: Europe/Vilnius
-  place: Vilnius, Lithuania
-  start: 2026-04-08
-  end: 2026-04-10
-  sponsor: https://pycon.lt/2026/partnership
-  sub: PY
-  location:
-  - title: PyCon Lithuania 2026
-    latitude: 54.6870458
-    longitude: 25.2829111
-
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2026
@@ -634,6 +616,33 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
+
+- conference: Python Norte
+  year: 2026
+  link: https://pythonnorte.org/
+  cfp: TBA
+  place: Ananindeua, Brazil
+  start: 2026-08-27
+  end: 2026-08-29
+  sub: PY
+  location:
+  - title: Python Norte 2026
+    latitude: -1.374035
+    longitude: -48.4016623
+
+- conference: PyCon Latin America
+  alt_name: PyCon LatAm
+  year: 2026
+  link: https://www.pylatam.org/
+  cfp: TBA
+  place: Turrialba, Costa Rica
+  start: 2026-08-20
+  end: 2026-08-23
+  sub: PY
+  location:
+  - title: PyCon Latam 2026
+    latitude: 9.7843604
+    longitude: -83.4995932
 
 - conference: PyCon Singapore
   year: 2026
