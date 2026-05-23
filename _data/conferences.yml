@@ -631,7 +631,9 @@
 - conference: PyBeach
   year: 2026
   link: https://2026.pybeach.org/
-  cfp: TBA
+  cfp_link: https://pretalx.com/pybeach2026/cfp
+  cfp: "2026-06-07 23:59:00"
+  timezone: WAmerica/Los_Angeles
   place: Santa Monica, USA
   start: 2026-10-24
   end: 2026-10-24
