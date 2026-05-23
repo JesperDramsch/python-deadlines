@@ -628,6 +628,19 @@
     latitude: 52.3730796
     longitude: 4.8924534
 
+- conference: PyBeach
+  year: 2026
+  link: https://2026.pybeach.org/
+  cfp: TBA
+  place: Santa Monica, USA
+  start: 2026-10-24
+  end: 2026-10-24
+  sub: PY
+  location:
+  - title: PyBeach 2026
+    latitude: 34.0194704
+    longitude: -118.491227
+
 - conference: PyHEP
   year: 2026
   link: https://indico.cern.ch/category/7971/
@@ -668,6 +681,19 @@
   - title: PyCon Latam 2026
     latitude: 9.7843604
     longitude: -83.4995932
+
+- conference: PyData PyCon Armenia
+  year: 2026
+  link: https://pycon.am/
+  cfp: TBA
+  place: Yerevan, Armenia
+  start: 2026-07-24
+  end: 2026-07-25
+  sub: PY
+  location:
+  - title: PyData PyCon Armenia 2026
+    latitude: 40.1777112
+    longitude: 44.5126233
 
 - conference: PyData Yerevan
   alt_name: PyData PyCon Yerevan

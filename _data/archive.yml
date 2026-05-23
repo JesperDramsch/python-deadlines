@@ -54,11 +54,13 @@
 
 - conference: PyConf Hyderabad
   year: 2026
-  link: http://2026.pyconfhyd.org/
-  cfp: TBA
+  link: https://2026.pyconfhyd.org/
+  cfp_link: https://www.papercall.io/pyconfhyd2026
+  cfp: '2026-01-15 23:59:00'
   place: Hyderabad, India
   start: 2026-03-14
   end: 2026-03-15
+  sponsor: https://2026.pyconfhyd.org/#sponsors
   sub: PY
   location:
   - title: PyConf Hyderabad 2026

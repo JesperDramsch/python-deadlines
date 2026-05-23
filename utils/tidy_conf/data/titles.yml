@@ -86,6 +86,8 @@ alt_name:
     global: PyCon JP
   PyCon Latin America:
     global: PyCon LatAm
+    variations:
+    - PyCon Latam
   PyCon Lithuania:
     global: PyCon LT
   PyCon Middle East and Africa:
@@ -124,6 +126,11 @@ alt_name:
     - Python Tanzania Conference
   PyCon Ukraine:
     global: PyCon UA
+  PyCon Yerevan:
+    global: PyCon Armenia
+    variations:
+    - PyData PyCon Armenia
+    - PyData PyCon Yerevan
   PyCon Web:
     variations:
     - PyCon+Web
