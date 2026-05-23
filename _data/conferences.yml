@@ -610,6 +610,8 @@
   place: Santa Monica, USA
   start: 2026-10-24
   end: 2026-10-24
+  mastodon: https://fosstodon.org/@pybeach
+  bluesky: https://bsky.app/profile/pybeach.bsky.social
   sub: PY
   location:
   - title: PyBeach 2026
