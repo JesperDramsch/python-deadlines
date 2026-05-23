@@ -65,6 +65,23 @@
     latitude: -1.2136405
     longitude: 36.87930533266044
 
+- conference: PyBeach
+  year: 2026
+  link: https://2026.pybeach.org/
+  cfp_link: https://pretalx.com/pybeach2026/cfp
+  cfp: '2026-06-07 23:59:00'
+  timezone: America/Los_Angeles
+  place: Santa Monica, USA
+  start: 2026-10-24
+  end: 2026-10-24
+  mastodon: https://fosstodon.org/@pybeach
+  bluesky: https://bsky.app/profile/pybeach.bsky.social
+  sub: PY
+  location:
+  - title: PyBeach 2026
+    latitude: 34.0194704
+    longitude: -118.491227
+
 - conference: PyCon Ghana
   year: 2026
   link: https://gh.pycon.org/2026/
@@ -242,6 +259,21 @@
   - title: PyOhio 2026
     latitude: 41.4996574
     longitude: -81.6936772
+
+- conference: PyData Amsterdam
+  year: 2026
+  link: https://amsterdam.pydata.org/
+  cfp_link: https://pretalx.com/pydata-amsterdam2026/cfp
+  cfp: '2026-04-19 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2026-09-10
+  end: 2026-09-11
+  sub: DATA
+  location:
+  - title: PyData Amsterdam 2026
+    latitude: 52.4036
+    longitude: 4.8901
 
 - conference: Warsaw Python Pizza
   year: 2026
@@ -581,6 +613,16 @@
     latitude: -22.5597
     longitude: 17.0832
 
+- conference: PyData Global
+  year: 2026
+  link: https://pydata.org/global2026/
+  cfp: TBA
+  place: Online
+  start: 2026-12-08
+  end: 2026-12-10
+  sponsor: https://pydata.org/sponsor-pydata/
+  sub: DATA
+
 - conference: XtremePython
   year: 2026
   link: https://xtremepython.dev/
@@ -602,21 +644,6 @@
   - title: FastAPI Conference 2026
     latitude: 52.3730796
     longitude: 4.8924534
-
-- conference: PyBeach
-  year: 2026
-  link: https://2026.pybeach.org/
-  cfp: TBA
-  place: Santa Monica, USA
-  start: 2026-10-24
-  end: 2026-10-24
-  mastodon: https://fosstodon.org/@pybeach
-  bluesky: https://bsky.app/profile/pybeach.bsky.social
-  sub: PY
-  location:
-  - title: PyBeach 2026
-    latitude: 34.0194704
-    longitude: -118.491227
 
 - conference: PyHEP
   year: 2026
@@ -673,7 +700,8 @@
     latitude: 9.7843604
     longitude: -83.4995932
 
-- conference: PyData PyCon Armenia
+- conference: PyCon Yerevan
+  alt_name: PyData PyCon Armenia
   year: 2026
   link: https://pycon.am/
   cfp: TBA
@@ -685,6 +713,20 @@
   - title: PyData PyCon Armenia 2026
     latitude: 40.1777112
     longitude: 44.5126233
+
+- conference: PyData Yerevan
+  alt_name: PyData PyCon Yerevan
+  year: 2026
+  link: https://pycon.am/
+  cfp: TBA
+  place: Yerevan, Armenia
+  start: 2026-07-24
+  end: 2026-07-25
+  sub: DATA
+  location:
+  - title: PyData Yerevan 2026
+    latitude: 40.1872
+    longitude: 44.5152
 
 - conference: PyCon Singapore
   year: 2026
