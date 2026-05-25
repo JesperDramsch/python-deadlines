@@ -126,10 +126,10 @@ alt_name:
     - Python Tanzania Conference
   PyCon Ukraine:
     global: PyCon UA
-  PyCon Yerevan:
-    global: PyCon Armenia
+  PyCon Armenia:
+    global: PyData PyCon Armenia
     variations:
-    - PyData PyCon Armenia
+    - PyCon Yerevan
     - PyData PyCon Yerevan
   PyCon Web:
     variations:
