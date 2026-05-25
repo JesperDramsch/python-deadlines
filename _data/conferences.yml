@@ -674,25 +674,12 @@
   place: Yerevan, Armenia
   start: 2026-07-24
   end: 2026-07-25
-  sub: PY
+  sponsor: https://pycon.am/#sponsors
+  sub: PY,DATA
   location:
   - title: PyData PyCon Armenia 2026
     latitude: 40.1777112
     longitude: 44.5126233
-
-- conference: PyData Yerevan
-  alt_name: PyData PyCon Yerevan
-  year: 2026
-  link: https://pycon.am/
-  cfp: TBA
-  place: Yerevan, Armenia
-  start: 2026-07-24
-  end: 2026-07-25
-  sub: DATA
-  location:
-  - title: PyData Yerevan 2026
-    latitude: 40.1872
-    longitude: 44.5152
 
 - conference: PyCon Singapore
   year: 2026
