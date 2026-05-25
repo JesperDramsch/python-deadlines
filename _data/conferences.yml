@@ -674,6 +674,7 @@
   place: Yerevan, Armenia
   start: 2026-07-24
   end: 2026-07-25
+  sponsor: https://pycon.am/#sponsors
   sub: PY
   location:
   - title: PyData PyCon Armenia 2026
@@ -688,6 +689,7 @@
   place: Yerevan, Armenia
   start: 2026-07-24
   end: 2026-07-25
+  sponsor: https://pycon.am/#sponsors
   sub: DATA
   location:
   - title: PyData Yerevan 2026
