@@ -65,6 +65,23 @@
     latitude: -1.2136405
     longitude: 36.87930533266044
 
+- conference: PyBeach
+  year: 2026
+  link: https://2026.pybeach.org/
+  cfp_link: https://pretalx.com/pybeach2026/cfp
+  cfp: '2026-06-07 23:59:00'
+  timezone: America/Los_Angeles
+  place: Santa Monica, USA
+  start: 2026-10-24
+  end: 2026-10-24
+  mastodon: https://fosstodon.org/@pybeach
+  bluesky: https://bsky.app/profile/pybeach.bsky.social
+  sub: PY
+  location:
+  - title: PyBeach 2026
+    latitude: 34.0194704
+    longitude: -118.491227
+
 - conference: PyCon Ghana
   year: 2026
   link: https://gh.pycon.org/2026/
@@ -498,26 +515,6 @@
     latitude: 44.4938203
     longitude: 11.3426327
 
-- conference: PyCon Germany & PyData Conference
-  alt_name: PyCon Germany
-  year: 2026
-  link: https://2026.pycon.de/
-  cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
-  cfp: '2025-12-21 23:59:59'
-  cfp_ext: '2026-01-18 23:59:59'
-  tutorial_deadline: '2026-01-11 23:59:00'
-  timezone: Europe/Berlin
-  place: Darmstadt, Germany
-  start: 2026-04-14
-  end: 2026-04-17
-  sponsor: https://2026.pycon.de/sponsoring/
-  finaid: https://2026.pycon.de/
-  sub: PY,DATA
-  location:
-  - title: PyCon Germany & PyData Conference 2026
-    latitude: 49.872775
-    longitude: 8.651177
-
 - conference: PyCon US
   year: 2026
   link: https://us.pycon.org/2026/
@@ -628,21 +625,6 @@
     latitude: 52.3730796
     longitude: 4.8924534
 
-- conference: PyBeach
-  year: 2026
-  link: https://2026.pybeach.org/
-  cfp_link: https://pretalx.com/pybeach2026/cfp
-  cfp: "2026-06-07 23:59:00"
-  timezone: WAmerica/Los_Angeles
-  place: Santa Monica, USA
-  start: 2026-10-24
-  end: 2026-10-24
-  sub: PY
-  location:
-  - title: PyBeach 2026
-    latitude: 34.0194704
-    longitude: -118.491227
-
 - conference: PyHEP
   year: 2026
   link: https://indico.cern.ch/category/7971/
@@ -684,7 +666,8 @@
     latitude: 9.7843604
     longitude: -83.4995932
 
-- conference: PyData PyCon Armenia
+- conference: PyCon Armenia
+  alt_name: PyData PyCon Armenia
   year: 2026
   link: https://pycon.am/
   cfp: TBA
