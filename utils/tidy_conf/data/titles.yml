@@ -127,10 +127,11 @@ alt_name:
   PyCon Ukraine:
     global: PyCon UA
   PyCon Armenia:
-    global: PyData PyCon Armenia
+    global: PyData PyCon Yerevan
     variations:
     - PyCon Yerevan
-    - PyData PyCon Yerevan
+    - PyData PyCon Armenia
+    - PyData Yerevan
   PyCon Web:
     variations:
     - PyCon+Web

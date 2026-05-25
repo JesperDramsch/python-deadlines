@@ -5145,7 +5145,8 @@
     latitude: -43.530955
     longitude: 172.6364343
 
-- conference: PyData Yerevan
+- conference: PyCon Armenia
+  alt_name: PyData Yerevan
   year: 2022
   link: https://web.archive.org/web/20220812003726/http://pydata.org/yerevan2022/
   cfp: '2022-06-30 23:59:00'
