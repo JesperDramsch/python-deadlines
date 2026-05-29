@@ -1,5 +1,19 @@
 ---
 
+- conference: PyCon Ireland
+  year: 2026
+  link: https://2026.pycon.ie/
+  cfp_link: https://sessionize.com/pycon-ireland-2026/
+  cfp: '2026-08-30 23:59:00'
+  place: Dublin, Ireland
+  start: 2026-10-17
+  end: 2026-10-17
+  sub: PY
+  location:
+  - title: PyCon Ireland 2026
+    latitude: 53.3498006
+    longitude: -6.2602964
+
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
@@ -343,21 +357,6 @@
     latitude: 41.8755616
     longitude: -87.6244212
 
-- conference: PyCon Austria
-  year: 2026
-  link: https://pycon.at/
-  cfp_link: https://sessionize.com/pycon-austria-2026/
-  cfp: '2026-03-06 23:59:00'
-  timezone: Europe/Vienna
-  place: Eisenstadt, Austria
-  start: 2026-04-19
-  end: 2026-04-20
-  sub: PY
-  location:
-  - title: PyCon Austria 2026
-    latitude: 47.8454821
-    longitude: 16.5249288
-
 - conference: PyCon Estonia
   alt_name: PyCon EE
   year: 2026
@@ -497,23 +496,6 @@
     latitude: 50.061389
     longitude: 19.938333
 
-- conference: DjangoCon Europe
-  year: 2026
-  link: https://djangocon.eu/
-  cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2026/cfp
-  cfp: '2026-02-08 23:59:59'
-  cfp_ext: '2026-02-15 23:59:00'
-  timezone: Europe/Athens
-  place: Athens, Greece
-  start: 2026-04-15
-  end: 2026-04-19
-  sponsor: https://djangocon.eu/call-for-sponsors/
-  sub: WEB
-  location:
-  - title: DjangoCon Europe 2026
-    latitude: 37.9755648
-    longitude: 23.7348324
-
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2026
@@ -547,22 +529,6 @@
   - title: PyCon US 2026
     latitude: 33.7690164
     longitude: -118.191604
-
-- conference: PyTexas
-  year: 2026
-  link: https://www.pytexas.org/2026/
-  cfp_link: https://pretalx.com/pytexas-2026/cfp
-  cfp: '2025-12-07 23:59:00'
-  timezone: America/Chicago
-  place: Austin, USA
-  start: 2026-04-17
-  end: 2026-04-19
-  sponsor: https://www.pytexas.org/2026/sponsors/sponsor-us/
-  sub: PY
-  location:
-  - title: PyTexas 2026
-    latitude: 30.2711286
-    longitude: -97.7436995
 
 - conference: PyCon Austria
   year: 2027
