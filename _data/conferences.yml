@@ -1,5 +1,19 @@
 ---
 
+- conference: PyCon Ireland
+  year: 2026
+  link: https://2026.pycon.ie/
+  cfp_link: https://sessionize.com/pycon-ireland-2026/
+  cfp: '2026-08-30 23:59:00'
+  place: Dublin, Ireland
+  start: 2026-10-17
+  end: 2026-10-17
+  sub: PY
+  location:
+  - title: PyCon Ireland 2026
+    latitude: 53.3498006
+    longitude: -6.2602964
+
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
@@ -161,6 +175,23 @@
   - title: PyCon Russia 2026
     latitude: 55.7558
     longitude: 37.6173
+
+- conference: PyCon Colombia
+  year: 2026
+  link: https://2026.pycon.co/
+  cfp_link: https://2026.pycon.co/#/call-for-proposals
+  cfp: '2026-04-28 23:59:00'
+  cfp_ext: '2026-05-12 23:59:00'
+  place: Medellín, Colombia
+  start: 2026-07-24
+  end: 2026-07-26
+  sponsor: https://2026.pycon.co/#/sponsors
+  finaid: https://2026.pycon.co/scholarships
+  sub: PY
+  location:
+  - title: PyCon Colombia 2026
+    latitude: 6.2443382
+    longitude: -75.573553
 
 - conference: PyCon Greece
   year: 2026
@@ -385,11 +416,13 @@
   link: https://2026.geopython.net/
   cfp_link: https://submit.geopython.net/geopython-2026/cfp
   cfp: '2026-02-15 23:59:00'
+  cfp_ext: '2026-03-31 23:59:00'
+  tutorial_deadline: '2026-03-31 23:59:00'
   place: Basel, Switzerland
   start: 2026-06-08
   end: 2026-06-10
   sponsor: https://2026.geopython.net/app/sponsors
-  finaid: https://2026.geopython.net/app/dates
+  finaid: https://2026.geopython.net/app/finaid
   sub: GEO
   location:
   - title: GeoPython 2026
@@ -518,11 +551,13 @@
   alt_name: PyCon Germany
   year: 2027
   link: https://2027.pycon.de/
+  cfp_link: https://2027.pycon.de/
   cfp: TBA
   timezone: Europe/Berlin
   place: Heidelberg, Germany
   start: 2027-04-20
   end: 2027-04-22
+  sponsor: https://2027.pycon.de/
   sub: PY,DATA
   location:
   - title: PyCon Germany & PyData Conference 2027
