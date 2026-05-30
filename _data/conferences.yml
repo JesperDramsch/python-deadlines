@@ -180,11 +180,13 @@
   year: 2026
   link: https://2026.pycon.co/
   cfp_link: https://2026.pycon.co/#/call-for-proposals
-  cfp: '2026-05-12 23:59:00'
+  cfp: '2026-04-28 23:59:00'
+  cfp_ext: '2026-05-12 23:59:00'
   place: Medellín, Colombia
   start: 2026-07-24
   end: 2026-07-26
   sponsor: https://2026.pycon.co/#/sponsors
+  finaid: https://2026.pycon.co/scholarships
   sub: PY
   location:
   - title: PyCon Colombia 2026
