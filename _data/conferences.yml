@@ -47,6 +47,20 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: Python Nordeste
+  year: 2026
+  link: https://pythonnordeste.org/
+  cfp: '2026-06-19 23:59:00'
+  timezone: America/Bahia
+  place: Fortaleza, Brazil
+  start: 2026-08-13
+  end: 2026-08-15
+  sub: PY
+  location:
+  - title: Python Nordeste 2026
+    latitude: -3.7319
+    longitude: -38.5269
+
 - conference: Python Ho
   year: 2026
   link: https://2026.pythonho.com/
