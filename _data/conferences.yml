@@ -587,6 +587,7 @@
   start: 2026-12-08
   end: 2026-12-10
   sponsor: https://pydata.org/sponsor-pydata/
+  finaid: https://pydata.org/global2026/about#diversity
   sub: DATA
 
 - conference: XtremePython
