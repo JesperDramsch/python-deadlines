@@ -1,5 +1,21 @@
 ---
 
+- conference: North Bay Python
+  year: 2026
+  link: https://northbaypython.org/
+  cfp_link: https://pretalx.northbaypython.org/nbpy-2026/cfp
+  cfp: '2026-02-14 09:00:00'
+  timezone: America/Los_Angeles
+  place: Petaluma, USA
+  start: 2026-04-25
+  end: 2026-04-26
+  mastodon: https://bsky.app/profile/NorthBayPython.org
+  sub: PY
+  location:
+  - title: North Bay Python 2026
+    latitude: 38.2325829
+    longitude: -122.636465
+
 - conference: PyCon Austria
   year: 2026
   link: https://pycon.at/
