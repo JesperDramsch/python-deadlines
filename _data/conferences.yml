@@ -176,23 +176,6 @@
     latitude: 55.7558
     longitude: 37.6173
 
-- conference: PyCon Colombia
-  year: 2026
-  link: https://2026.pycon.co/
-  cfp_link: https://2026.pycon.co/#/call-for-proposals
-  cfp: '2026-04-28 23:59:00'
-  cfp_ext: '2026-05-12 23:59:00'
-  place: Medellín, Colombia
-  start: 2026-07-24
-  end: 2026-07-26
-  sponsor: https://2026.pycon.co/#/sponsors
-  finaid: https://2026.pycon.co/scholarships
-  sub: PY
-  location:
-  - title: PyCon Colombia 2026
-    latitude: 6.2443382
-    longitude: -75.573553
-
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -244,6 +227,23 @@
   - title: PyCon Spain 2026
     latitude: 41.3828939
     longitude: 2.1774322
+
+- conference: PyCon Colombia
+  year: 2026
+  link: https://2026.pycon.co/
+  cfp_link: https://2026.pycon.co/#/call-for-proposals
+  cfp: '2026-04-28 23:59:00'
+  cfp_ext: '2026-05-12 23:59:00'
+  place: Medellín, Colombia
+  start: 2026-07-24
+  end: 2026-07-26
+  sponsor: https://2026.pycon.co/#/sponsors
+  finaid: https://2026.pycon.co/scholarships
+  sub: PY
+  location:
+  - title: PyCon Colombia 2026
+    latitude: 6.2443382
+    longitude: -75.573553
 
 - conference: Black Python Devs Leadership Summit
   year: 2026
@@ -464,22 +464,6 @@
   - title: PyCon Poland 2026
     latitude: 50.294113
     longitude: 18.6657306
-
-- conference: North Bay Python
-  year: 2026
-  link: https://northbaypython.org/
-  cfp_link: https://pretalx.northbaypython.org/nbpy-2026/cfp
-  cfp: '2026-02-14 09:00:00'
-  timezone: America/Los_Angeles
-  place: Petaluma, USA
-  start: 2026-04-25
-  end: 2026-04-26
-  mastodon: https://bsky.app/profile/NorthBayPython.org
-  sub: PY
-  location:
-  - title: North Bay Python 2026
-    latitude: 38.2325829
-    longitude: -122.636465
 
 - conference: EuroSciPy
   year: 2026
