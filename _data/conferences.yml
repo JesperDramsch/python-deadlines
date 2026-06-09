@@ -31,6 +31,19 @@
     latitude: 50.0478
     longitude: 12.5604627
 
+- conference: PyData Global
+  year: 2026
+  link: https://pydata.org/global2026/
+  cfp: '2026-08-03 23:59:00'
+  workshop_deadline: '2026-08-03 23:59:00'
+  tutorial_deadline: '2026-08-03 23:59:00'
+  place: Online
+  start: 2026-12-08
+  end: 2026-12-10
+  sponsor: https://pydata.org/sponsor-pydata/
+  finaid: https://pydata.org/global2026/about#diversity
+  sub: DATA
+
 - conference: PyBay
   year: 2026
   link: https://pybay.org/
@@ -579,17 +592,6 @@
   - title: PyCon Namibia 2027
     latitude: -22.5597
     longitude: 17.0832
-
-- conference: PyData Global
-  year: 2026
-  link: https://pydata.org/global2026/
-  cfp: TBA
-  place: Online
-  start: 2026-12-08
-  end: 2026-12-10
-  sponsor: https://pydata.org/sponsor-pydata/
-  finaid: https://pydata.org/global2026/about#diversity
-  sub: DATA
 
 - conference: XtremePython
   year: 2026
