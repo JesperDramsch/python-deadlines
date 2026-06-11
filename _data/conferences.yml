@@ -612,6 +612,7 @@
   start: 2026-10-29
   end: 2026-11-01
   sponsor: https://www.pycon.fr/2026/en/support.html
+  mastodon: https://mamot.fr/@AFPy
   sub: PY
   location:
   - title: PyCon France 2026
@@ -640,6 +641,9 @@
   start: 2026-10-07
   end: 2026-10-11
   sponsor: https://africa.pycon.org/2026/sponsor-us/
+  finaid: https://africa.pycon.org/2026/opportunity-grants/
+  mastodon: https://mastodon.social/@pyconafrica
+  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
   sub: PY
   location:
   - title: PyCon Africa 2026
@@ -668,6 +672,8 @@
   start: 2026-09-03
   end: 2026-09-05
   sponsor: https://pycon.pt/sponsors/sponsorship/
+  finaid: https://2026.pycon.pt/information/grants/
+  youtube: https://www.youtube.com/@pyconportugal
   sub: PY
   location:
   - title: PyCon Portugal 2026
