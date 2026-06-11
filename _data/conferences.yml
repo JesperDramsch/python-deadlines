@@ -243,7 +243,7 @@
 
 - conference: PyCon Spain
   year: 2026
-  link: https://2026.es.pycon.org/
+  link: https://2026.es.pycon.org/en/
   cfp: '2026-05-03 23:59:00'
   timezone: Europe/Madrid
   place: Barcelona, Spain
@@ -263,6 +263,7 @@
   cfp_link: https://2026.pycon.co/#/call-for-proposals
   cfp: '2026-04-28 23:59:00'
   cfp_ext: '2026-05-12 23:59:00'
+  tutorial_deadline: '2026-05-12 23:59:00'
   place: Medellín, Colombia
   start: 2026-07-24
   end: 2026-07-26
@@ -602,6 +603,21 @@
   end: 2026-11-17
   sub: PY
 
+- conference: PyCon France
+  year: 2026
+  link: https://www.pycon.fr/2026/en/
+  cfp_link: https://cfp.pycon.fr/pyconfr-2026/cfp
+  cfp: TBA
+  place: Biarritz, France
+  start: 2026-10-29
+  end: 2026-11-01
+  sponsor: https://www.pycon.fr/2026/en/support.html
+  sub: PY
+  location:
+  - title: PyCon France 2026
+    latitude: 43.4711437
+    longitude: -1.5527266
+
 - conference: FastAPI Conference
   year: 2026
   link: https://fastapiconf.com/
@@ -614,6 +630,21 @@
   - title: FastAPI Conference 2026
     latitude: 52.3730796
     longitude: 4.8924534
+
+- conference: PyCon Africa
+  year: 2026
+  link: https://africa.pycon.org/
+  cfp_link: https://africa.pycon.org/2026/talks/proposals/
+  cfp: TBA
+  place: Kampala, Uganda
+  start: 2026-10-07
+  end: 2026-10-11
+  sponsor: https://africa.pycon.org/2026/sponsor-us/
+  sub: PY
+  location:
+  - title: PyCon Africa 2026
+    latitude: 0.3177137
+    longitude: 32.5813539
 
 - conference: PyHEP
   year: 2026
@@ -628,6 +659,20 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
+
+- conference: PyCon Portugal
+  year: 2026
+  link: https://2026.pycon.pt/
+  cfp: TBA
+  place: Aveiro, Portugal
+  start: 2026-09-03
+  end: 2026-09-05
+  sponsor: https://pycon.pt/sponsors/sponsorship/
+  sub: PY
+  location:
+  - title: PyCon Portugal 2026
+    latitude: 40.640496
+    longitude: -8.6537841
 
 - conference: Python Norte
   year: 2026
