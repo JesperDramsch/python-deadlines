@@ -674,19 +674,6 @@
     latitude: 40.640496
     longitude: -8.6537841
 
-- conference: Python Norte
-  year: 2026
-  link: https://pythonnorte.org/
-  cfp: TBA
-  place: Ananindeua, Brazil
-  start: 2026-08-27
-  end: 2026-08-29
-  sub: PY
-  location:
-  - title: Python Norte 2026
-    latitude: -1.374035
-    longitude: -48.4016623
-
 - conference: PyCon Latin America
   alt_name: PyCon LatAm
   year: 2026
@@ -715,6 +702,19 @@
   - title: PyData PyCon Armenia 2026
     latitude: 40.1777112
     longitude: 44.5126233
+
+- conference: Python Norte
+  year: 2026
+  link: https://pythonnorte.org/
+  cfp: TBA
+  place: Ananindeua, Brazil
+  start: 2026-07-03
+  end: 2026-07-05
+  sub: PY
+  location:
+  - title: Python Norte 2026
+    latitude: -1.374035
+    longitude: -48.4016623
 
 - conference: PyCon Singapore
   year: 2026
