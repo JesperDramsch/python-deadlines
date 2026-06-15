@@ -1,5 +1,99 @@
 ---
 
+- conference: PyCon Hong Kong
+  year: 2026
+  link: https://www.pycon.hk/
+  cfp_link: https://www.pycon.hk/
+  cfp: '2026-06-20 23:59:59'
+  timezone: Asia/Hong_Kong
+  place: Hong Kong, China
+  start: 2026-11-14
+  end: 2026-11-15
+  twitter: pyconhk
+  sub: PY
+  note: Conference dates are tentative pending official confirmation.
+  location:
+  - title: PyCon Hong Kong 2026
+    latitude: 22.2793278
+    longitude: 114.1628131
+
+- conference: PyTorch Conference
+  year: 2026
+  link: https://events.linuxfoundation.org/pytorch-conference-north-america/
+  cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
+  cfp: '2026-06-07 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Jose, USA
+  start: 2026-10-20
+  end: 2026-10-21
+  sub: DATA
+  note: Separate poster session CfP open until 2026-07-26.
+  location:
+  - title: PyTorch Conference 2026
+    latitude: 37.3382082
+    longitude: -121.8863286
+
+- conference: PyCon Japan
+  year: 2026
+  link: https://2026.pycon.jp/
+  cfp_link: https://pretalx.com/pyconjp2026/cfp
+  cfp: '2026-06-01 15:00:00'
+  timezone: Asia/Tokyo
+  place: Hiroshima, Japan
+  start: 2026-08-21
+  end: 2026-08-22
+  sub: PY
+  location:
+  - title: PyCon Japan 2026
+    latitude: 34.3917241
+    longitude: 132.4517589
+
+- conference: Python Brasil
+  year: 2026
+  link: https://2026.pythonbrasil.org.br/
+  cfp_link: https://talks.python.org.br/pybr26/cfp
+  cfp: '2026-05-24 00:00:00'
+  timezone: America/Sao_Paulo
+  place: Florianópolis, Brazil
+  start: 2026-10-14
+  end: 2026-10-19
+  mastodon: https://pynews.com.br/@pythonbrasil
+  sub: PY
+  location:
+  - title: Python Brasil 2026
+    latitude: -27.5953778
+    longitude: -48.5480367
+
+- conference: Plone Conference
+  year: 2026
+  link: https://2026.ploneconf.org/
+  cfp: TBA
+  place: Maastricht, Netherlands
+  start: 2026-09-21
+  end: 2026-09-27
+  twitter: ploneconf
+  mastodon: https://plone.social/@ploneconf
+  bluesky: https://bsky.app/profile/plone.org
+  sub: WEB
+  location:
+  - title: Plone Conference 2026
+    latitude: 50.8513682
+    longitude: 5.6909725
+
+- conference: EARL
+  year: 2026
+  link: https://earl-conference.com/
+  cfp: TBA
+  timezone: Europe/London
+  place: Brighton, UK
+  start: 2026-10-06
+  end: 2026-10-08
+  sub: BIZ
+  location:
+  - title: EARL 2026
+    latitude: 50.8214626
+    longitude: -0.1400561
+
 - conference: PyCon Ireland
   year: 2026
   link: https://2026.pycon.ie/
