@@ -1,99 +1,5 @@
 ---
 
-- conference: PyCon Hong Kong
-  year: 2026
-  link: https://www.pycon.hk/
-  cfp_link: https://www.pycon.hk/
-  cfp: '2026-06-20 23:59:59'
-  timezone: Asia/Hong_Kong
-  place: Hong Kong, China
-  start: 2026-11-14
-  end: 2026-11-15
-  twitter: pyconhk
-  sub: PY
-  note: Conference dates are tentative pending official confirmation.
-  location:
-  - title: PyCon Hong Kong 2026
-    latitude: 22.2793278
-    longitude: 114.1628131
-
-- conference: PyTorch Conference
-  year: 2026
-  link: https://events.linuxfoundation.org/pytorch-conference-north-america/
-  cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
-  cfp: '2026-06-07 23:59:00'
-  timezone: America/Los_Angeles
-  place: San Jose, USA
-  start: 2026-10-20
-  end: 2026-10-21
-  sub: DATA
-  note: Separate poster session CfP open until 2026-07-26.
-  location:
-  - title: PyTorch Conference 2026
-    latitude: 37.3382082
-    longitude: -121.8863286
-
-- conference: PyCon Japan
-  year: 2026
-  link: https://2026.pycon.jp/
-  cfp_link: https://pretalx.com/pyconjp2026/cfp
-  cfp: '2026-06-01 15:00:00'
-  timezone: Asia/Tokyo
-  place: Hiroshima, Japan
-  start: 2026-08-21
-  end: 2026-08-22
-  sub: PY
-  location:
-  - title: PyCon Japan 2026
-    latitude: 34.3917241
-    longitude: 132.4517589
-
-- conference: Python Brasil
-  year: 2026
-  link: https://2026.pythonbrasil.org.br/
-  cfp_link: https://talks.python.org.br/pybr26/cfp
-  cfp: '2026-05-24 00:00:00'
-  timezone: America/Sao_Paulo
-  place: Florianópolis, Brazil
-  start: 2026-10-14
-  end: 2026-10-19
-  mastodon: https://pynews.com.br/@pythonbrasil
-  sub: PY
-  location:
-  - title: Python Brasil 2026
-    latitude: -27.5953778
-    longitude: -48.5480367
-
-- conference: Plone Conference
-  year: 2026
-  link: https://2026.ploneconf.org/
-  cfp: TBA
-  place: Maastricht, Netherlands
-  start: 2026-09-21
-  end: 2026-09-27
-  twitter: ploneconf
-  mastodon: https://plone.social/@ploneconf
-  bluesky: https://bsky.app/profile/plone.org
-  sub: WEB
-  location:
-  - title: Plone Conference 2026
-    latitude: 50.8513682
-    longitude: 5.6909725
-
-- conference: EARL
-  year: 2026
-  link: https://earl-conference.com/
-  cfp: TBA
-  timezone: Europe/London
-  place: Brighton, UK
-  start: 2026-10-06
-  end: 2026-10-08
-  sub: BIZ
-  location:
-  - title: EARL 2026
-    latitude: 50.8214626
-    longitude: -0.1400561
-
 - conference: PyCon Ireland
   year: 2026
   link: https://2026.pycon.ie/
@@ -138,6 +44,22 @@
   finaid: https://pydata.org/global2026/about#diversity
   sub: DATA
 
+- conference: PyCon France
+  year: 2026
+  link: https://www.pycon.fr/2026/en/
+  cfp_link: https://cfp.pycon.fr/pyconfr-2026/cfp
+  cfp: '2026-07-31 23:59:00'
+  place: Biarritz, France
+  start: 2026-10-29
+  end: 2026-11-01
+  sponsor: https://www.pycon.fr/2026/en/support.html
+  mastodon: https://mamot.fr/@AFPy
+  sub: PY
+  location:
+  - title: PyCon France 2026
+    latitude: 43.4711437
+    longitude: -1.5527266
+
 - conference: PyBay
   year: 2026
   link: https://pybay.org/
@@ -153,6 +75,23 @@
   - title: PyBay 2026
     latitude: 37.7681571
     longitude: -122.392929
+
+- conference: PyCon Hong Kong
+  year: 2026
+  link: https://www.pycon.hk/
+  cfp_link: https://www.pycon.hk/
+  cfp: '2026-06-20 23:59:59'
+  timezone: Asia/Hong_Kong
+  place: Hong Kong, China
+  start: 2026-11-14
+  end: 2026-11-15
+  twitter: pyconhk
+  sub: PY
+  note: Conference dates are tentative pending official confirmation.
+  location:
+  - title: PyCon Hong Kong 2026
+    latitude: 22.2793278
+    longitude: 114.1628131
 
 - conference: Python Nordeste
   year: 2026
@@ -199,6 +138,22 @@
   - title: PyCon Kenya 2026
     latitude: -1.2136405
     longitude: 36.87930533266044
+
+- conference: PyTorch Conference
+  year: 2026
+  link: https://events.linuxfoundation.org/pytorch-conference-north-america/
+  cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
+  cfp: '2026-06-07 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Jose, USA
+  start: 2026-10-20
+  end: 2026-10-21
+  sub: DATA
+  note: Separate poster session CfP open until 2026-07-26.
+  location:
+  - title: PyTorch Conference 2026
+    latitude: 37.3382082
+    longitude: -121.8863286
 
 - conference: PyBeach
   year: 2026
@@ -248,6 +203,21 @@
     latitude: 6.130419
     longitude: 1.215829
 
+- conference: PyCon Japan
+  year: 2026
+  link: https://2026.pycon.jp/
+  cfp_link: https://pretalx.com/pyconjp2026/cfp
+  cfp: '2026-06-01 15:00:00'
+  timezone: Asia/Tokyo
+  place: Hiroshima, Japan
+  start: 2026-08-21
+  end: 2026-08-22
+  sub: PY
+  location:
+  - title: PyCon Japan 2026
+    latitude: 34.3917241
+    longitude: 132.4517589
+
 - conference: Swiss Python Summit
   year: 2026
   link: https://python-summit.ch/
@@ -282,6 +252,22 @@
   - title: PyCon Indonesia 2026
     latitude: -6.1753
     longitude: 106.8249
+
+- conference: Python Brasil
+  year: 2026
+  link: https://2026.pythonbrasil.org.br/
+  cfp_link: https://talks.python.org.br/pybr26/cfp
+  cfp: '2026-05-24 00:00:00'
+  timezone: America/Sao_Paulo
+  place: Florianópolis, Brazil
+  start: 2026-10-14
+  end: 2026-10-19
+  mastodon: https://pynews.com.br/@pythonbrasil
+  sub: PY
+  location:
+  - title: Python Brasil 2026
+    latitude: -27.5953778
+    longitude: -48.5480367
 
 - conference: PyCon Russia
   year: 2026
@@ -350,6 +336,37 @@
   - title: PyCon Spain 2026
     latitude: 41.3828939
     longitude: 2.1774322
+
+- conference: PyCon Portugal
+  year: 2026
+  link: https://2026.pycon.pt/
+  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2026/cfp
+  cfp: '2026-04-30 23:59:00'
+  place: Aveiro, Portugal
+  start: 2026-09-03
+  end: 2026-09-05
+  sponsor: https://pycon.pt/sponsors/sponsorship/
+  finaid: https://2026.pycon.pt/information/grants/
+  youtube: https://www.youtube.com/@pyconportugal
+  sub: PY
+  location:
+  - title: PyCon Portugal 2026
+    latitude: 40.640496
+    longitude: -8.6537841
+
+- conference: PyCon Latin America
+  alt_name: PyCon LatAm
+  year: 2026
+  link: https://www.pylatam.org/
+  cfp: '2026-04-30 23:59:00'
+  place: Turrialba, Costa Rica
+  start: 2026-08-20
+  end: 2026-08-23
+  sub: PY
+  location:
+  - title: PyCon Latam 2026
+    latitude: 9.7843604
+    longitude: -83.4995932
 
 - conference: PyCon Colombia
   year: 2026
@@ -429,6 +446,24 @@
   - title: PyData Amsterdam 2026
     latitude: 52.4036
     longitude: 4.8901
+
+- conference: PyCon Africa
+  year: 2026
+  link: https://africa.pycon.org/
+  cfp_link: https://africa.pycon.org/2026/talks/proposals/
+  cfp: '2026-04-16 23:59:00'
+  place: Kampala, Uganda
+  start: 2026-10-07
+  end: 2026-10-11
+  sponsor: https://africa.pycon.org/2026/sponsor-us/
+  finaid: https://africa.pycon.org/2026/opportunity-grants/
+  mastodon: https://mastodon.social/@pyconafrica
+  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
+  sub: PY
+  location:
+  - title: PyCon Africa 2026
+    latitude: 0.3177137
+    longitude: 32.5813539
 
 - conference: Warsaw Python Pizza
   year: 2026
@@ -697,22 +732,6 @@
   end: 2026-11-17
   sub: PY
 
-- conference: PyCon France
-  year: 2026
-  link: https://www.pycon.fr/2026/en/
-  cfp_link: https://cfp.pycon.fr/pyconfr-2026/cfp
-  cfp: "2026-07-31 23:59:00"
-  place: Biarritz, France
-  start: 2026-10-29
-  end: 2026-11-01
-  sponsor: https://www.pycon.fr/2026/en/support.html
-  mastodon: https://mamot.fr/@AFPy
-  sub: PY
-  location:
-  - title: PyCon France 2026
-    latitude: 43.4711437
-    longitude: -1.5527266
-
 - conference: FastAPI Conference
   year: 2026
   link: https://fastapiconf.com/
@@ -726,23 +745,39 @@
     latitude: 52.3730796
     longitude: 4.8924534
 
-- conference: PyCon Africa
+- conference: EARL
   year: 2026
-  link: https://africa.pycon.org/
-  cfp_link: https://africa.pycon.org/2026/talks/proposals/
-  cfp: "2026-04-16 23:59:00"
-  place: Kampala, Uganda
-  start: 2026-10-07
-  end: 2026-10-11
-  sponsor: https://africa.pycon.org/2026/sponsor-us/
-  finaid: https://africa.pycon.org/2026/opportunity-grants/
-  mastodon: https://mastodon.social/@pyconafrica
-  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
-  sub: PY
+  link: https://earl-conference.com/
+  cfp: TBA
+  timezone: Europe/London
+  place: Brighton, UK
+  start: 2026-10-06
+  end: 2026-10-08
+  sponsor: https://earl-conference.com/earl-archive/sponsors/
+  youtube: https://www.youtube.com/channel/UCytOFkoZJfinB9rdRIOfRow?view_as=subscriber
+  sub: BIZ
   location:
-  - title: PyCon Africa 2026
-    latitude: 0.3177137
-    longitude: 32.5813539
+  - title: EARL 2026
+    latitude: 50.8214626
+    longitude: -0.1400561
+
+- conference: Plone Conference
+  year: 2026
+  link: https://2026.ploneconf.org/
+  cfp: TBA
+  place: Maastricht, Netherlands
+  start: 2026-09-21
+  end: 2026-09-27
+  sponsor: https://2026.ploneconf.org/sponsors
+  twitter: ploneconf
+  mastodon: https://plone.social/@ploneconf
+  bluesky: https://bsky.app/profile/plone.org
+  youtube: https://www.youtube.com/@plonecms
+  sub: WEB
+  location:
+  - title: Plone Conference 2026
+    latitude: 50.8513682
+    longitude: 5.6909725
 
 - conference: PyHEP
   year: 2026
@@ -757,37 +792,6 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
-
-- conference: PyCon Portugal
-  year: 2026
-  link: https://2026.pycon.pt/
-  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2026/cfp
-  cfp: "2026-04-30 23:59:00"
-  place: Aveiro, Portugal
-  start: 2026-09-03
-  end: 2026-09-05
-  sponsor: https://pycon.pt/sponsors/sponsorship/
-  finaid: https://2026.pycon.pt/information/grants/
-  youtube: https://www.youtube.com/@pyconportugal
-  sub: PY
-  location:
-  - title: PyCon Portugal 2026
-    latitude: 40.640496
-    longitude: -8.6537841
-
-- conference: PyCon Latin America
-  alt_name: PyCon LatAm
-  year: 2026
-  link: https://www.pylatam.org/
-  cfp: "2026-04-30 23:59:00"
-  place: Turrialba, Costa Rica
-  start: 2026-08-20
-  end: 2026-08-23
-  sub: PY
-  location:
-  - title: PyCon Latam 2026
-    latitude: 9.7843604
-    longitude: -83.4995932
 
 - conference: PyCon Armenia
   alt_name: PyData PyCon Armenia
