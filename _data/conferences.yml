@@ -139,22 +139,6 @@
     latitude: -1.2136405
     longitude: 36.87930533266044
 
-- conference: PyTorch Conference
-  year: 2026
-  link: https://events.linuxfoundation.org/pytorch-conference-north-america/
-  cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
-  cfp: '2026-06-07 23:59:00'
-  timezone: America/Los_Angeles
-  place: San Jose, USA
-  start: 2026-10-20
-  end: 2026-10-21
-  sub: DATA
-  note: Separate poster session CfP open until 2026-07-26.
-  location:
-  - title: PyTorch Conference 2026
-    latitude: 37.3382082
-    longitude: -121.8863286
-
 - conference: PyBeach
   year: 2026
   link: https://2026.pybeach.org/
@@ -172,6 +156,22 @@
   - title: PyBeach 2026
     latitude: 34.0194704
     longitude: -118.491227
+
+- conference: PyTorch Conference
+  year: 2026
+  link: https://events.linuxfoundation.org/pytorch-conference-north-america/
+  cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
+  cfp: '2026-06-07 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Jose, USA
+  start: 2026-10-20
+  end: 2026-10-21
+  sub: DATA
+  note: Separate poster session CfP open until 2026-07-26.
+  location:
+  - title: PyTorch Conference 2026
+    latitude: 37.3382082
+    longitude: -121.8863286
 
 - conference: PyCon Ghana
   year: 2026
@@ -337,6 +337,20 @@
     latitude: 41.3828939
     longitude: 2.1774322
 
+- conference: PyCon Latin America
+  alt_name: PyCon LatAm
+  year: 2026
+  link: https://www.pylatam.org/
+  cfp: '2026-04-30 23:59:00'
+  place: Turrialba, Costa Rica
+  start: 2026-08-20
+  end: 2026-08-23
+  sub: PY
+  location:
+  - title: PyCon Latam 2026
+    latitude: 9.7843604
+    longitude: -83.4995932
+
 - conference: PyCon Portugal
   year: 2026
   link: https://2026.pycon.pt/
@@ -353,20 +367,6 @@
   - title: PyCon Portugal 2026
     latitude: 40.640496
     longitude: -8.6537841
-
-- conference: PyCon Latin America
-  alt_name: PyCon LatAm
-  year: 2026
-  link: https://www.pylatam.org/
-  cfp: '2026-04-30 23:59:00'
-  place: Turrialba, Costa Rica
-  start: 2026-08-20
-  end: 2026-08-23
-  sub: PY
-  location:
-  - title: PyCon Latam 2026
-    latitude: 9.7843604
-    longitude: -83.4995932
 
 - conference: PyCon Colombia
   year: 2026
@@ -722,6 +722,19 @@
   - title: PyCon Namibia 2027
     latitude: -22.5597
     longitude: 17.0832
+
+- conference: Python E-Commerce Forum
+  year: 2026
+  link: https://codehut.co.uk/2026/
+  cfp: TBA
+  place: Edinburgh, UK
+  start: 2026-11-26
+  end: 2026-11-28
+  sub: PY
+  location:
+  - title: Python E-Commerce Forum 2026
+    latitude: 55.9533456
+    longitude: -3.1883749
 
 - conference: XtremePython
   year: 2026
