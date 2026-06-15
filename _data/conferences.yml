@@ -667,7 +667,8 @@
 - conference: PyCon Portugal
   year: 2026
   link: https://2026.pycon.pt/
-  cfp: TBA
+  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2026/cfp
+  cfp: "2026-04-30 23:59:00"
   place: Aveiro, Portugal
   start: 2026-09-03
   end: 2026-09-05
@@ -684,7 +685,7 @@
   alt_name: PyCon LatAm
   year: 2026
   link: https://www.pylatam.org/
-  cfp: TBA
+  cfp: "2026-04-30 23:59:00"
   place: Turrialba, Costa Rica
   start: 2026-08-20
   end: 2026-08-23
