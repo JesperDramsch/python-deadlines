@@ -1,19 +1,5 @@
 ---
 
-- conference: PyCon Ireland
-  year: 2026
-  link: https://2026.pycon.ie/
-  cfp_link: https://sessionize.com/pycon-ireland-2026/
-  cfp: '2026-07-31 23:59:00'
-  place: Dublin, Ireland
-  start: 2026-10-17
-  end: 2026-10-17
-  sub: PY
-  location:
-  - title: PyCon Ireland 2026
-    latitude: 53.3498006
-    longitude: -6.2602964
-
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
@@ -43,6 +29,20 @@
   sponsor: https://pydata.org/global2026/sponsor
   finaid: https://pydata.org/global2026/about#diversity
   sub: DATA
+
+- conference: PyCon Ireland
+  year: 2026
+  link: https://2026.pycon.ie/
+  cfp_link: https://sessionize.com/pycon-ireland-2026/
+  cfp: '2026-07-31 23:59:00'
+  place: Dublin, Ireland
+  start: 2026-10-17
+  end: 2026-10-17
+  sub: PY
+  location:
+  - title: PyCon Ireland 2026
+    latitude: 53.3498006
+    longitude: -6.2602964
 
 - conference: PyCon France
   year: 2026
@@ -464,21 +464,6 @@
   - title: PyCon Africa 2026
     latitude: 0.3177137
     longitude: 32.5813539
-
-- conference: Warsaw Python Pizza
-  year: 2026
-  link: https://warsaw.python.pizza/
-  cfp_link: https://forms.gle/5pqj68ES9ENaGPBf6
-  cfp: '2026-04-14 23:59:00'
-  place: Warsaw, Poland
-  start: 2026-05-09
-  end: 2026-05-09
-  sponsor: https://warsaw.python.pizza/#sponsors
-  sub: PY
-  location:
-  - title: Warsaw Python Pizza 2026
-    latitude: 52.2319581
-    longitude: 21.0067249
 
 - conference: PyCon Australia
   alt_name: PyCon AU
