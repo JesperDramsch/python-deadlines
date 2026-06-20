@@ -1,5 +1,20 @@
 ---
 
+- conference: Warsaw Python Pizza
+  year: 2026
+  link: https://warsaw.python.pizza/
+  cfp_link: https://forms.gle/5pqj68ES9ENaGPBf6
+  cfp: '2026-04-14 23:59:00'
+  place: Warsaw, Poland
+  start: 2026-05-09
+  end: 2026-05-09
+  sponsor: https://warsaw.python.pizza/#sponsors
+  sub: PY
+  location:
+  - title: Warsaw Python Pizza 2026
+    latitude: 52.2319581
+    longitude: 21.0067249
+
 - conference: North Bay Python
   year: 2026
   link: https://northbaypython.org/
