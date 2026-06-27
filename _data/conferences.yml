@@ -644,22 +644,6 @@
     latitude: 44.4938203
     longitude: 11.3426327
 
-- conference: PyCon US
-  year: 2026
-  link: https://us.pycon.org/2026/
-  cfp_link: https://us.pycon.org/2026/speaking/talks/
-  cfp: '2025-12-19 23:59:00'
-  place: Long Beach, USA
-  start: 2026-05-13
-  end: 2026-05-19
-  sponsor: https://us.pycon.org/2026/sponsorship/why-sponsor/
-  mastodon: https://fosstodon.org/@pycon
-  sub: PY
-  location:
-  - title: PyCon US 2026
-    latitude: 33.7690164
-    longitude: -118.191604
-
 - conference: PyCon Austria
   year: 2027
   link: https://pycon.at/
