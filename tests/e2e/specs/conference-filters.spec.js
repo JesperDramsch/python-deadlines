@@ -69,7 +69,9 @@ test.describe('Homepage Subject Filter', () => {
       // Skip if PY filter option not found
       test.skip(pyOptionCount === 0, 'PY filter option not found in dropdown');
 
-      await pyOption.click();
+      // force: bootstrap-multiselect options resolve but aren't always "actionable"
+      // on small (mobile) viewports, where they would otherwise time out.
+      await pyOption.click({ force: true });
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Check that conferences are filtered - PY-conf class conferences should be visible
@@ -95,7 +97,7 @@ test.describe('Homepage Subject Filter', () => {
       // Skip if DATA filter option not found
       test.skip(dataOptionCount === 0, 'DATA filter option not found in dropdown');
 
-      await dataOption.click();
+      await dataOption.click({ force: true });
       await page.waitForFunction(() => document.readyState === 'complete');
 
       // Check that DATA conferences are shown
@@ -123,10 +125,10 @@ test.describe('Homepage Subject Filter', () => {
       test.skip(pyCount === 0 && webCount === 0, 'No PY or WEB filter options found in dropdown');
 
       if (pyCount > 0) {
-        await pyOption.click();
+        await pyOption.click({ force: true });
       }
       if (webCount > 0) {
-        await webOption.click();
+        await webOption.click({ force: true });
       }
 
       await page.waitForFunction(() => document.readyState === 'complete');
