@@ -361,4 +361,106 @@ describe('Snek Easter Egg', () => {
       expect(styleContent).toContain('#smol-snek-tongue path');
     });
   });
+
+  describe('Newsletter Speech Bubble', () => {
+    // Loads snek.js firing both the $(document).ready and $(function(){}) callbacks,
+    // mirroring loadSnekAndGetStyleContent but without returning the style content.
+    function loadSnek() {
+      const originalReady = $.fn.ready;
+      $.fn.ready = function (callback) {
+        if (typeof callback === 'function') {
+          callback.call(document, $);
+        }
+        return this;
+      };
+
+      const original$ = window.$;
+      window.$ = function (arg) {
+        if (typeof arg === 'function') {
+          arg.call(document, original$);
+          return original$(document);
+        }
+        return original$(arg);
+      };
+      Object.assign(window.$, original$);
+      window.$.fn = original$.fn;
+
+      jest.isolateModules(() => {
+        require('../../../static/js/snek.js');
+      });
+
+      $.fn.ready = originalReady;
+      window.$ = original$;
+    }
+
+    beforeEach(() => {
+      mockDate(2, 15); // Regular day, so seasonal logic is out of the way
+      jest.useFakeTimers();
+      localStorage.clear();
+
+      // The speech-bubble markup is separate from the snake fixture in the
+      // shared beforeEach, so add it here.
+      document.body.insertAdjacentHTML(
+        'beforeend',
+        `<div id="snek-speech" style="display: none;">
+           <a href="/newsletter/" class="snek-speech-link">Sign up</a>
+           <button id="snek-speech-close">×</button>
+         </div>`
+      );
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    test('reveals the bubble after the intro delay when not previously dismissed', () => {
+      loadSnek();
+
+      // Hidden until the 4s intro delay elapses
+      expect($('#snek-speech').hasClass('visible')).toBe(false);
+
+      jest.advanceTimersByTime(4000); // fires show()
+      expect($('#snek-speech').css('display')).not.toBe('none');
+
+      jest.advanceTimersByTime(50); // fires the transition class on the next tick
+      expect($('#snek-speech').hasClass('visible')).toBe(true);
+    });
+
+    test('does not reveal the bubble when it was dismissed before', () => {
+      // resetMocks wipes jest-localstorage-mock's store between tests, so stub
+      // the getter rather than relying on a setItem/getItem round-trip.
+      localStorage.getItem.mockReturnValue('1');
+
+      loadSnek();
+      jest.advanceTimersByTime(5000);
+
+      expect($('#snek-speech').hasClass('visible')).toBe(false);
+      expect($('#snek-speech').css('display')).toBe('none');
+    });
+
+    test('the close button dismisses the bubble and remembers the choice', () => {
+      loadSnek();
+      jest.advanceTimersByTime(4050); // reveal it first
+
+      expect($('#snek-speech').hasClass('visible')).toBe(true);
+
+      $('#snek-speech-close').trigger('click');
+
+      expect($('#snek-speech').hasClass('visible')).toBe(false);
+      expect(localStorage.setItem).toHaveBeenCalledWith('snek-speech-dismissed', '1');
+
+      jest.advanceTimersByTime(400); // the deferred hide() runs
+      expect($('#snek-speech').css('display')).toBe('none');
+    });
+
+    test('clicking the newsletter link also dismisses the bubble', () => {
+      loadSnek();
+      jest.advanceTimersByTime(4050);
+
+      $('.snek-speech-link').trigger('click');
+
+      expect($('#snek-speech').hasClass('visible')).toBe(false);
+      expect(localStorage.setItem).toHaveBeenCalledWith('snek-speech-dismissed', '1');
+    });
+  });
 });
