@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 📂 setup
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       # include the lines below if you are using jekyll-last-modified-at
     - name: 💎 setup ruby
       # or if you would otherwise need to fetch the full commit history

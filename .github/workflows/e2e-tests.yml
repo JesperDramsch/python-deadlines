@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 💎 Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
@@ -165,7 +165,7 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
@@ -250,7 +250,7 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
@@ -304,7 +304,7 @@ jobs:
 
     steps:
       - name: 📂 Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v6
