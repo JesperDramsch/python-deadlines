@@ -157,8 +157,22 @@ test.describe('Countdown Timers', () => {
       const timezone = await timezonedCountdowns.first().getAttribute('data-timezone');
       expect(timezone).toBeTruthy();
 
-      // Timezone should be valid IANA format or UTC offset
-      expect(timezone).toMatch(/^([A-Z][a-z]+\/[A-Z][a-z]+|UTC[+-]\d+)$/);
+      // Timezone should be a valid IANA zone, or the site's UTC/AoE pseudo-zone.
+      // The template emits either a conference's IANA id (e.g. "America/Los_Angeles"
+      // or "America/New_York" — underscores and multi-segment) or "UTC-12" (the
+      // Anywhere-on-Earth default). The previous [A-Z][a-z]+/[A-Z][a-z]+ pattern
+      // rejected all of those, failing deterministically on real data.
+      const isValidTimezone = (tz) => {
+        // "UTC", "UTC-12", "UTC+5" — not IANA ids, so accept explicitly.
+        if (/^UTC([+-]\d{1,2})?$/.test(tz)) return true;
+        try {
+          new Intl.DateTimeFormat('en-US', { timeZone: tz });
+          return true;
+        } catch {
+          return false;
+        }
+      };
+      expect(isValidTimezone(timezone)).toBe(true);
     });
 
     test('should default to UTC-12 (AoE) when no timezone specified', async ({ page }) => {
