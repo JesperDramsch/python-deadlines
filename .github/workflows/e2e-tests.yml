@@ -67,10 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Trimmed to chromium: firefox/webkit contributed the bulk of historical
-        # cross-browser flakiness for little extra signal on a JS-light Jekyll site.
-        # Add them back via workflow_dispatch when a UI change warrants it.
-        browser: [chromium]
+        browser:  [chromium, firefox, webkit]
 
     steps:
       - name: 📂 Checkout repository
