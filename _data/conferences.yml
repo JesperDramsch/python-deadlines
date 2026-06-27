@@ -832,3 +832,71 @@
   - title: PyCon Singapore 2026
     latitude: 1.2899175
     longitude: 103.8519072
+
+- conference: Web Summer Camp
+  year: 2026
+  link: https://websummercamp.com/
+  cfp_link: https://sessionize.com/web-summer-camp-2026/
+  cfp: '2026-02-28 23:59:59'
+  place: Opatija, Croatia
+  start: 2026-07-02
+  end: 2026-07-04
+  sub: WEB
+  location:
+  - title: Web Summer Camp 2026
+    latitude: 45.3349238
+    longitude: 14.3067834
+
+- conference: PyCamp Leipzig
+  year: 2026
+  link: https://barcamps.eu/python-barcamp-leipzig-2026/
+  cfp: TBA
+  place: Leipzig, Germany
+  start: 2026-08-01
+  end: 2026-08-02
+  sub: CAMP
+  location:
+  - title: PyCamp Leipzig 2026
+    latitude: 51.3406321
+    longitude: 12.3747329
+
+- conference: Pythoncamp Rügen
+  year: 2026
+  link: https://barcamps.eu/pythoncamp-ruegen-2026/
+  cfp: TBA
+  place: Rügen, Germany
+  start: 2026-09-26
+  end: 2026-09-27
+  sub: CAMP
+  location:
+  - title: Pythoncamp Rügen 2026
+    latitude: 54.4529015
+    longitude: 13.3882344
+
+- conference: PyCon Netherlands
+  alt_name: PyCon NL
+  year: 2026
+  link: https://pycon-nl.org/
+  cfp: TBA
+  place: Utrecht, Netherlands
+  start: 2026-10-15
+  end: 2026-10-15
+  sub: PY
+  location:
+  - title: PyCon Netherlands 2026
+    latitude: 52.090833
+    longitude: 5.121667
+
+- conference: PyCon Wroclaw
+  year: 2026
+  link: https://www.pyconwroclaw.com/
+  cfp: TBA
+  place: Wroclaw, Poland
+  start: 2026-11-20
+  end: 2026-11-21
+  twitter: pyconwroclaw
+  sub: PY
+  location:
+  - title: PyCon Wroclaw 2026
+    latitude: 51.1089776
+    longitude: 17.0326689
