@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Wroclaw
+  year: 2026
+  link: https://www.pyconwroclaw.com/
+  cfp: '2026-09-30 23:59:00'
+  timezone: Europe/Warsaw
+  place: Wroclaw, Poland
+  start: 2026-11-20
+  end: 2026-11-21
+  sponsor: https://www.pyconwroclaw.com/#sponsors
+  twitter: pyconwroclaw
+  youtube: https://www.youtube.com/embed/NL9296S0mkM
+  sub: PY
+  location:
+  - title: PyCon Wroclaw 2026
+    latitude: 51.1089776
+    longitude: 17.0326689
+
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
@@ -719,22 +736,6 @@
     latitude: 55.9533456
     longitude: -3.1883749
 
-- conference: PyCon Wroclaw
-  year: 2026
-  link: https://www.pyconwroclaw.com/
-  cfp: TBA
-  place: Wroclaw, Poland
-  start: 2026-11-20
-  end: 2026-11-21
-  sponsor: https://www.pyconwroclaw.com/#sponsors
-  twitter: pyconwroclaw
-  youtube: https://www.youtube.com/embed/NL9296S0mkM
-  sub: PY
-  location:
-  - title: PyCon Wroclaw 2026
-    latitude: 51.1089776
-    longitude: 17.0326689
-
 - conference: XtremePython
   year: 2026
   link: https://xtremepython.dev/
@@ -762,6 +763,7 @@
   year: 2026
   link: https://pycon-nl.org/
   cfp: TBA
+  timezone: Europe/Amsterdam
   place: Utrecht, Netherlands
   start: 2026-10-15
   end: 2026-10-15
@@ -806,6 +808,7 @@
   year: 2026
   link: https://2026.ploneconf.org/
   cfp: TBA
+  timezone: Europe/Amsterdam
   place: Maastricht, Netherlands
   start: 2026-09-21
   end: 2026-09-27
@@ -852,6 +855,7 @@
   year: 2026
   link: https://pycon.am/
   cfp: TBA
+  timezone: Asia/Yerevan
   place: Yerevan, Armenia
   start: 2026-07-24
   end: 2026-07-25
@@ -866,6 +870,7 @@
   year: 2026
   link: https://pythonnorte.org/
   cfp: TBA
+  timezone: America/Sao_Paulo
   place: Ananindeua, Brazil
   start: 2026-07-03
   end: 2026-07-05
