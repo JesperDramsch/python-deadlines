@@ -824,6 +824,21 @@
     latitude: 50.8513682
     longitude: 5.6909725
 
+- conference: PyHEP.dev
+  alt_name: PyHEP
+  year: 2026
+  link: https://indico.nikhef.nl/event/7873/
+  cfp: TBA
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2026-09-07
+  end: 2026-09-09
+  sub: SCIPY
+  location:
+  - title: PyHEP.dev 2026
+    latitude: 52.4036
+    longitude: 4.8901
+
 - conference: PyHEP
   year: 2026
   link: https://indico.cern.ch/category/7971/
