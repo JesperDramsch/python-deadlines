@@ -781,6 +781,9 @@
   place: Stockholm, Sweden
   start: 2026-11-19
   end: 2026-11-20
+  sponsor: https://pycon.se/#sponsorship
+  mastodon: https://unsplash.com/@micaelwidell?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
+  youtube: https://www.youtube.com/c/PyConSweden
   sub: PY
   location:
   - title: PyCon Sweden 2026
