@@ -18,6 +18,24 @@
     latitude: 51.1089776
     longitude: 17.0326689
 
+- conference: PyCon Netherlands
+  alt_name: PyCon NL
+  year: 2026
+  link: https://pycon-nl.org/
+  cfp_link: https://forms.gle/iiFnW8oZ8p9do4TR7
+  cfp: '2026-08-23 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Utrecht, Netherlands
+  start: 2026-10-15
+  end: 2026-10-15
+  sponsor: https://www.pycon-nl.org/call-for-sponsors
+  mastodon: https://mastodon.social/@pycon_nl/
+  sub: PY
+  location:
+  - title: PyCon Netherlands 2026
+    latitude: 52.090833
+    longitude: 5.121667
+
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
@@ -756,6 +774,19 @@
     latitude: 55.9533456
     longitude: -3.1883749
 
+- conference: PyCon Sweden
+  year: 2026
+  link: https://pycon.se/
+  cfp: TBA
+  place: Stockholm, Sweden
+  start: 2026-11-19
+  end: 2026-11-20
+  sub: PY
+  location:
+  - title: PyCon Sweden 2026
+    latitude: 59.3251172
+    longitude: 18.0710935
+
 - conference: XtremePython
   year: 2026
   link: https://xtremepython.dev/
@@ -777,22 +808,6 @@
   - title: FastAPI Conference 2026
     latitude: 52.3730796
     longitude: 4.8924534
-
-- conference: PyCon Netherlands
-  alt_name: PyCon NL
-  year: 2026
-  link: https://pycon-nl.org/
-  cfp: TBA
-  timezone: Europe/Amsterdam
-  place: Utrecht, Netherlands
-  start: 2026-10-15
-  end: 2026-10-15
-  mastodon: https://mastodon.social/@pycon_nl/
-  sub: PY
-  location:
-  - title: PyCon Netherlands 2026
-    latitude: 52.090833
-    longitude: 5.121667
 
 - conference: EARL
   year: 2026
