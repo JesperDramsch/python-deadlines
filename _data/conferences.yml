@@ -114,6 +114,25 @@
     latitude: 53.3498006
     longitude: -6.2602964
 
+- conference: Plone Conference
+  year: 2026
+  link: https://2026.ploneconf.org/
+  cfp_link: https://2026.ploneconf.org/call-for-proposals
+  cfp: '2026-07-31 23:59:00'
+  place: Maastricht, Netherlands
+  start: 2026-09-21
+  end: 2026-09-27
+  sponsor: https://2026.ploneconf.org/sponsors
+  twitter: ploneconf
+  mastodon: https://plone.social/@ploneconf
+  bluesky: https://bsky.app/profile/plone.org
+  youtube: https://www.youtube.com/@plonecms
+  sub: WEB
+  location:
+  - title: Plone Conference 2026
+    latitude: 50.8513682
+    longitude: 5.6909725
+
 - conference: PyBay
   year: 2026
   link: https://pybay.org/
