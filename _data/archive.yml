@@ -1,5 +1,23 @@
 ---
 
+- conference: PyCon Italy
+  alt_name: PyCon Italia
+  year: 2026
+  link: https://2026.pycon.it/en
+  cfp_link: https://pycon.it/cfp
+  cfp: '2026-01-06 23:59:59'
+  place: Bologna, Italy
+  start: 2026-05-27
+  end: 2026-05-30
+  sponsor: https://2026.pycon.it/sponsor/
+  finaid: https://2026.pycon.it/en
+  mastodon: https://social.python.it/@pycon
+  sub: PY
+  location:
+  - title: PyCon Italy 2026
+    latitude: 44.4938203
+    longitude: 11.3426327
+
 - conference: PyCon US
   year: 2026
   link: https://us.pycon.org/2026/
