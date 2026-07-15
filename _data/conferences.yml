@@ -771,6 +771,7 @@
   place: Amsterdam, The Netherlands
   start: 2026-10-28
   end: 2026-10-28
+  mastodon: https://www.google.com/maps/place/Transformatorhuis/@52.386807,4.8698442,17z
   sub: PY
   location:
   - title: FastAPI Conference 2026
