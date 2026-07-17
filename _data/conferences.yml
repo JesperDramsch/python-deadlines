@@ -893,3 +893,18 @@
   - title: PyCon Singapore 2026
     latitude: 1.2899175
     longitude: 103.8519072
+
+- conference: PyConES 2026
+  year: 2026
+  link: https://2026.es.pycon.org/
+  cfp: '2026-05-17'
+  timezone: Europe/Madrid
+  place: Barcelona, Spain
+  start: 2026-11-06
+  end: 2026-11-08
+  sponsor: https://2026.es.pycon.org/en/
+  finaid: https://2026.es.pycon.org/en/becas
+  sub: PY
+  location:
+      latitude: 41.3866666
+      longitude: 2.1636166
