@@ -1,24 +1,5 @@
 ---
 
-- conference: PyCon South Africa
-  alt_name: PyCon ZA
-  year: 2026
-  link: https://za.pycon.org/
-  cfp_link: https://za.pycon.org/pages/speaking/how_to_apply/
-  cfp: '2026-08-14 23:59:00'
-  tutorial_deadline: '2026-08-14 23:59:00'
-  timezone: Africa/Johannesburg
-  place: Rondebosch, South Africa
-  start: 2026-10-14
-  end: 2026-10-18
-  twitter: PyConZA
-  mastodon: https://fosstodon.org/@PyConZA
-  sub: PY
-  location:
-  - title: PyCon South Africa 2026
-    latitude: -33.959834
-    longitude: 18.473872
-
 - conference: PyCon Wroclaw
   year: 2026
   link: https://www.pyconwroclaw.com/
@@ -70,6 +51,25 @@
   - title: Django Day Copenhagen 2026
     latitude: 50.0478
     longitude: 12.5604627
+
+- conference: PyCon South Africa
+  alt_name: PyCon ZA
+  year: 2026
+  link: https://za.pycon.org/
+  cfp_link: https://za.pycon.org/pages/speaking/how_to_apply/
+  cfp: '2026-08-14 23:59:00'
+  tutorial_deadline: '2026-08-14 23:59:00'
+  timezone: Africa/Johannesburg
+  place: Rondebosch, South Africa
+  start: 2026-10-14
+  end: 2026-10-18
+  twitter: PyConZA
+  mastodon: https://fosstodon.org/@PyConZA
+  sub: PY
+  location:
+  - title: PyCon South Africa 2026
+    latitude: -33.959834
+    longitude: 18.473872
 
 - conference: PyData Global
   year: 2026

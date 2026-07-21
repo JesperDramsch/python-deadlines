@@ -209,6 +209,7 @@ Example:
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jungmir"><img src="https://avatars.githubusercontent.com/u/61821253?v=4?s=100" width="100px;" alt="jungmir"/><br /><sub><b>jungmir</b></sub></a><br /><a href="#conference-jungmir" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/drnlm"><img src="https://avatars.githubusercontent.com/u/642056?v=4?s=100" width="100px;" alt="Neil Muller"/><br /><sub><b>Neil Muller</b></sub></a><br /><a href="#conference-drnlm" title="Python conference (Added or updated)">📆</a></td>
     </tr>
   </tbody>
 </table>
