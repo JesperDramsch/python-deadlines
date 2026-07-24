@@ -323,6 +323,22 @@
     latitude: -27.5953778
     longitude: -48.5480367
 
+- conference: PyConES
+  year: 2026
+  link: https://2026.es.pycon.org/
+  cfp: '2026-05-17 23:59:00'
+  timezone: Europe/Madrid
+  place: Barcelona, Spain
+  start: 2026-11-06
+  end: 2026-11-08
+  sponsor: https://2026.es.pycon.org/en/
+  finaid: https://2026.es.pycon.org/en/becas
+  sub: PY
+  location:
+  - title: PyCon Spain 2026
+    latitude: 41.3866666
+    longitude: 2.1636166
+
 - conference: PyCon Russia
   year: 2026
   link: https://www.pycon.ru/
@@ -607,40 +623,6 @@
     latitude: 44.9772995
     longitude: -93.2654692
 
-- conference: PyData London
-  year: 2026
-  link: https://pydata.org/london2026
-  cfp_link: https://pydata.org/london2026/cfp#submit
-  cfp: '2026-02-16 23:59:00'
-  timezone: Europe/London
-  place: London, UK
-  start: 2026-06-05
-  end: 2026-06-07
-  sponsor: https://pydata.org/london2026/sponsor
-  sub: DATA
-  location:
-  - title: PyData London 2025
-    latitude: 51.5074456
-    longitude: -0.1277653
-
-- conference: GeoPython
-  year: 2026
-  link: https://2026.geopython.net/
-  cfp_link: https://submit.geopython.net/geopython-2026/cfp
-  cfp: '2026-02-15 23:59:00'
-  cfp_ext: '2026-03-31 23:59:00'
-  tutorial_deadline: '2026-03-31 23:59:00'
-  place: Basel, Switzerland
-  start: 2026-06-08
-  end: 2026-06-10
-  sponsor: https://2026.geopython.net/app/sponsors
-  finaid: https://2026.geopython.net/app/finaid
-  sub: GEO
-  location:
-  - title: GeoPython 2026
-    latitude: 47.3615882
-    longitude: 7.354445
-
 - conference: EuroPython
   year: 2026
   link: https://ep2026.europython.eu/
@@ -893,18 +875,3 @@
   - title: PyCon Singapore 2026
     latitude: 1.2899175
     longitude: 103.8519072
-
-- conference: PyConES 2026
-  year: 2026
-  link: https://2026.es.pycon.org/
-  cfp: '2026-05-17'
-  timezone: Europe/Madrid
-  place: Barcelona, Spain
-  start: 2026-11-06
-  end: 2026-11-08
-  sponsor: https://2026.es.pycon.org/en/
-  finaid: https://2026.es.pycon.org/en/becas
-  sub: PY
-  location:
-      latitude: 41.3866666
-      longitude: 2.1636166
