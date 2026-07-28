@@ -234,6 +234,15 @@
       "contributions": [
         "conference"
       ]
+    },
+    {
+      "login": "drnlm",
+      "name": "Neil Muller",
+      "avatar_url": "https://avatars.githubusercontent.com/u/642056?v=4",
+      "profile": "https://github.com/drnlm",
+      "contributions": [
+        "conference"
+      ]
     }
   ],
   "repoType": "github"
