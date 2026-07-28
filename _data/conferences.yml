@@ -715,13 +715,12 @@
   alt_name: PyCon Germany
   year: 2027
   link: https://2027.pycon.de/
-  cfp_link: https://2027.pycon.de/
   cfp: TBA
   timezone: Europe/Berlin
   place: Heidelberg, Germany
   start: 2027-04-20
   end: 2027-04-22
-  sponsor: https://2027.pycon.de/
+  sponsor: https://2027.pycon.de/sponsoring/
   mastodon: https://fosstodon.org/@pyconde
   sub: PY,DATA
   location:
