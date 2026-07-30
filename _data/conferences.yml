@@ -1,5 +1,19 @@
 ---
 
+- conference: PyCon Lithuania
+  year: 2027
+  link: https://pycon.lt/2027/
+  cfp_link: https://pycon.lt/2027/cfp
+  cfp: '2027-01-13 23:59:00'
+  place: Vilnius, Lithuania
+  start: 2027-04-28
+  end: 2027-04-30
+  sub: PY
+  location:
+  - title: PyCon Lithuania 2027
+    latitude: 54.6870458
+    longitude: 25.2829111
+
 - conference: PyCon Wroclaw
   year: 2026
   link: https://www.pyconwroclaw.com/
