@@ -11,7 +11,8 @@ from the JSON instead of re-reading the data files.
 
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from pathlib import Path
 
 import yaml
