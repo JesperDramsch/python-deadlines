@@ -82,7 +82,7 @@
     latitude: 50.0478
     longitude: 12.5604627
 
-- conference: PyCon Africa
+- conference: PyCon South Africa
   alt_name: PyCon ZA
   year: 2026
   link: https://za.pycon.org/
@@ -93,11 +93,8 @@
   place: Rondebosch, South Africa
   start: 2026-10-14
   end: 2026-10-18
-  sponsor: https://africa.pycon.org/2026/sponsor-us/
-  finaid: https://africa.pycon.org/2026/opportunity-grants/
   twitter: PyConZA
   mastodon: https://fosstodon.org/@PyConZA
-  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
   sub: PY
   location:
   - title: PyCon South Africa 2026
@@ -571,6 +568,24 @@
   - title: PyData Amsterdam 2026
     latitude: 52.4036
     longitude: 4.8901
+
+- conference: PyCon Africa
+  year: 2026
+  link: https://africa.pycon.org/
+  cfp_link: https://africa.pycon.org/2026/talks/proposals/
+  cfp: '2026-04-16 23:59:00'
+  place: Kampala, Uganda
+  start: 2026-10-07
+  end: 2026-10-11
+  sponsor: https://africa.pycon.org/2026/sponsor-us/
+  finaid: https://africa.pycon.org/2026/opportunity-grants/
+  mastodon: https://mastodon.social/@pyconafrica
+  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
+  sub: PY
+  location:
+  - title: PyCon Africa 2026
+    latitude: 0.3177137
+    longitude: 32.5813539
 
 - conference: PyCon Australia
   alt_name: PyCon AU
