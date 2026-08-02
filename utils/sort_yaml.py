@@ -22,6 +22,7 @@ try:
     from tidy_conf.latlon import add_latlon
     from tidy_conf.links import check_link_availability
     from tidy_conf.links import check_mastodon_migration
+    from tidy_conf.links import drop_redundant_link_fields
     from tidy_conf.links import get_cache
     from tidy_conf.schema import Conference
     from tidy_conf.schema import get_schema
@@ -35,6 +36,7 @@ except ImportError:
     from .tidy_conf.latlon import add_latlon
     from .tidy_conf.links import check_link_availability
     from .tidy_conf.links import check_mastodon_migration
+    from .tidy_conf.links import drop_redundant_link_fields
     from .tidy_conf.links import get_cache
     from .tidy_conf.schema import Conference
     from .tidy_conf.schema import get_schema
@@ -288,6 +290,10 @@ def sort_data(base="", prefix="", skip_links=False):
     # Clean Titles
     logger.info("🏷️  Cleaning titles")
     data = tidy_titles(data)
+
+    # Drop sub-page links that just repeat the homepage
+    logger.info("🔗 Dropping redundant link fields")
+    data = drop_redundant_link_fields(data)
 
     # Add Sub
     logger.info("🏢 Adding submission types")

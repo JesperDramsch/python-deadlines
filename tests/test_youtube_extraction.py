@@ -76,6 +76,29 @@ class TestYouTubeExtraction:
         assert "youtube" not in result
 
     @patch("enrich_tba.get_all_links")
+    def test_google_maps_viewport_not_mastodon(self, mock_links):
+        """Google Maps /@lat,lng,zoom viewport URLs must not be detected as mastodon.
+
+        Regression test: a venue map link like
+        https://www.google.com/maps/place/Transformatorhuis/@52.386807,4.8698442,17z
+        contains "/@" but is not a Mastodon profile.
+        """
+        mock_links.return_value = [
+            "https://www.google.com/maps/place/Transformatorhuis/@52.386807,4.8698442,17z",
+        ]
+        result = extract_links_from_url("https://fastapiconf.com")
+        assert "mastodon" not in result
+
+    @patch("enrich_tba.get_all_links")
+    def test_user_at_instance_profile_still_works(self, mock_links):
+        """Full /@user@instance profile paths are still detected as mastodon."""
+        mock_links.return_value = [
+            "https://social.example.org/@pyconf@mastodon.social",
+        ]
+        result = extract_links_from_url("https://pyconf.org")
+        assert result.get("mastodon") == "https://social.example.org/@pyconf@mastodon.social"
+
+    @patch("enrich_tba.get_all_links")
     def test_youtube_first_seen_wins(self, mock_links):
         """Only the first YouTube link is kept."""
         mock_links.return_value = [

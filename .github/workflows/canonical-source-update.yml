@@ -117,6 +117,7 @@ jobs:
         run: |
           cp _data/conferences.yml /tmp/conferences_before.yml
           cp _data/archive.yml /tmp/archive_before.yml 2>/dev/null || true
+          cp _data/legacy.yml /tmp/legacy_before.yml 2>/dev/null || true
 
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.10.0
@@ -149,6 +150,15 @@ jobs:
 
           # Capture which source was processed for commit message
           echo "source_label=$SOURCE" >> $GITHUB_OUTPUT
+
+      - name: Verify no conference data loss
+        run: |
+          # An automated merge must never delete or rename existing conferences.
+          # This blocks e.g. two distinct conferences being fuzzy-matched into one
+          # (PyCon Africa vs PyCon South Africa) before anything is committed.
+          pixi run python ./utils/check_data_loss.py \
+            --before /tmp/conferences_before.yml /tmp/archive_before.yml /tmp/legacy_before.yml \
+            --after _data/conferences.yml _data/archive.yml _data/legacy.yml
 
       - name: Check for changes
         id: check_changes

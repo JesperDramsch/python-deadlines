@@ -495,6 +495,115 @@ class TestFuzzyMatchThreshold:
         assert len(remote) >= 1
 
 
+class TestSubsetNameCollision:
+    """Regression tests for distinct conferences whose names score 100.
+
+    token_set_ratio returns 100 when one name's tokens are a subset of the
+    other's (e.g. "PyCon Africa" vs "PyCon South Africa"). Such pairs must
+    never be auto-merged as "exact" matches - that previously renamed
+    PyCon South Africa to PyCon Africa and deleted the real PyCon Africa
+    entry (commit d76e737).
+    """
+
+    @staticmethod
+    def _africa_yaml(include_africa: bool) -> pd.DataFrame:
+        rows = {
+            "conference": ["PyCon South Africa"],
+            "year": [2026],
+            "cfp": ["2026-06-01 23:59:00"],
+            "link": ["https://za.pycon.org/"],
+            "place": ["Rondebosch, South Africa"],
+            "start": ["2026-10-14"],
+            "end": ["2026-10-18"],
+        }
+        df = pd.DataFrame(rows)
+        if include_africa:
+            africa = pd.DataFrame(
+                {
+                    "conference": ["PyCon Africa"],
+                    "year": [2026],
+                    "cfp": ["2026-04-16 23:59:00"],
+                    "link": ["https://africa.pycon.org/"],
+                    "place": ["Kampala, Uganda"],
+                    "start": ["2026-10-07"],
+                    "end": ["2026-10-11"],
+                },
+            )
+            df = pd.concat([df, africa], ignore_index=True)
+        return df
+
+    @staticmethod
+    def _africa_remote() -> pd.DataFrame:
+        return pd.DataFrame(
+            {
+                "conference": ["PyCon Africa"],
+                "year": [2026],
+                "cfp": [""],
+                "link": ["https://africa.pycon.org/"],
+                "place": ["Kampala, Uganda"],
+                "start": ["2026-10-07"],
+                "end": ["2026-10-11"],
+                "sponsor": ["https://africa.pycon.org/2026/sponsor-us/"],
+            },
+        )
+
+    def test_subset_name_is_not_an_exact_match(self, mock_title_mappings):
+        """A token-subset name pair must not auto-merge without confirmation.
+
+        Contract: "PyCon South Africa" vs "PyCon Africa" scores 100 via
+        token_set_ratio, but the names are not identical, so it must go
+        through the fuzzy confirmation path (which defaults to "no" in CI).
+        """
+        df_yml = self._africa_yaml(include_africa=False)
+        df_remote = self._africa_remote()
+
+        # Non-interactive / user rejects: conferences stay separate
+        with patch("builtins.input", return_value="n"):
+            result, _remote, _report = fuzzy_match(df_yml, df_remote)
+
+        conf_list = result["conference"].tolist()
+        assert "PyCon South Africa" in conf_list, f"PyCon South Africa was renamed/merged away: {conf_list}"
+
+        za_row = result[result["conference"] == "PyCon South Africa"].iloc[0]
+        assert za_row["link"] == "https://za.pycon.org/"
+        assert za_row["start"] == "2026-10-14"
+
+    def test_both_africa_conferences_survive_merge(self, mock_title_mappings):
+        """Reproduce the d76e737 incident: both conferences must survive.
+
+        YAML has PyCon Africa (Kampala) and PyCon South Africa (Rondebosch);
+        the remote CSV has only PyCon Africa. The remote row belongs to its
+        identically-named YAML entry - PyCon South Africa must be left
+        completely alone, without prompting.
+        """
+        df_yml = self._africa_yaml(include_africa=True)
+        df_remote = self._africa_remote()
+
+        with patch(
+            "builtins.input",
+            side_effect=AssertionError("Should not prompt: remote row belongs to identical YAML entry"),
+        ):
+            result, _remote, _report = fuzzy_match(df_yml, df_remote)
+
+        conf_list = result["conference"].tolist()
+        assert "PyCon Africa" in conf_list, f"PyCon Africa was lost: {conf_list}"
+        assert "PyCon South Africa" in conf_list, f"PyCon South Africa was lost: {conf_list}"
+
+        za_row = result[result["conference"] == "PyCon South Africa"].iloc[0]
+        assert za_row["link"] == "https://za.pycon.org/"
+        assert za_row["place"] == "Rondebosch, South Africa"
+        assert za_row["start"] == "2026-10-14"
+        assert pd.isna(za_row.get("sponsor")) or za_row.get("sponsor") in (
+            "",
+            None,
+        ), "PyCon South Africa must not inherit PyCon Africa's sponsor link"
+
+        africa_row = result[result["conference"] == "PyCon Africa"].iloc[0]
+        assert africa_row["place"] == "Kampala, Uganda"
+        assert africa_row["start"] == "2026-10-07"
+        assert africa_row["sponsor"] == "https://africa.pycon.org/2026/sponsor-us/"
+
+
 class TestDataPreservation:
     """Test that original data is preserved through fuzzy matching."""
 

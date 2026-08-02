@@ -272,6 +272,11 @@ def _domain_matches(domain: str, hosts: tuple[str, ...]) -> bool:
     return any(domain == h or domain.endswith(f".{h}") for h in hosts)
 
 
+# A Mastodon profile URL's path is exactly "/@handle" (or "/@user@instance").
+# Requiring this shape prevents false positives from other "/@" URLs, e.g.
+# Google Maps viewports like "/maps/place/Venue/@52.386807,4.8698442,17z".
+MASTODON_PROFILE_RE = re.compile(r"^/@[A-Za-z0-9_][\w.-]*(?:@[\w.-]+)?/?$")
+
 # Known Mastodon instances (common ones in tech/Python community)
 MASTODON_INSTANCES = {
     "mastodon.social",
@@ -366,8 +371,8 @@ def extract_links_from_url(url: str) -> dict[str, str]:
                 found["mastodon"] = link
                 seen_types.add("mastodon")
                 logger.debug(f"  Found mastodon: {link}")
-            elif "/@" in parsed_link.path:
-                # Generic /@username pattern - likely Mastodon-compatible
+            elif MASTODON_PROFILE_RE.match(parsed_link.path):
+                # Path is exactly /@username - likely Mastodon-compatible
                 found["mastodon"] = link
                 seen_types.add("mastodon")
                 logger.debug(f"  Found mastodon (generic): {link}")
