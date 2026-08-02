@@ -1,4 +1,3 @@
----
 alt_name:
   AfroPython Conference:
     variations:
@@ -14,6 +13,11 @@ alt_name:
     variations:
     - PyCon Australia
     - PyCon AU
+  PyCon Africa:
+    variations:
+    - PyCon South Africa
+    - PyCon ZA
+    - PyConZA
   PyCon Austria:
     variations:
     - PyCon Australia
@@ -30,6 +34,9 @@ alt_name:
   PyCon Latin America:
     variations:
     - PyCon Latam
+  PyCon South Africa:
+    variations:
+    - PyCon Africa
   Python Austria:
     variations:
     - PyCon Australia

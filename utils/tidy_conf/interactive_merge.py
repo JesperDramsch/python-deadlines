@@ -55,6 +55,29 @@ MERGE_STRATEGY = {
 }
 
 
+def is_identical_name(s1: str, s2: str) -> bool:
+    """Check whether two conference names are genuinely identical.
+
+    A fuzzy score of 100 does NOT imply identity: token_set_ratio returns 100
+    whenever one name's tokens are a subset of the other's (e.g. "PyCon Africa"
+    vs "PyCon South Africa"). Only names that are equal after case and
+    whitespace normalization may be auto-merged without confirmation.
+
+    Parameters
+    ----------
+    s1 : str
+        First conference name to compare
+    s2 : str
+        Second conference name to compare
+
+    Returns
+    -------
+    bool
+        True if the names are identical after normalization
+    """
+    return " ".join(s1.lower().split()) == " ".join(s2.lower().split())
+
+
 def is_placeholder_value(value) -> bool:
     """Check if a value is a placeholder (TBA, TBD, None, empty).
 
@@ -276,6 +299,31 @@ def fuzzy_match(
         """Check if two conference names are in the combined exclusion list."""
         return frozenset([name1, name2]) in all_exclusions
 
+    def best_match(title_match):
+        """Extract (title, score) from a process.extract result (2- or 3-tuple)."""
+        match_result = title_match[0]
+        if len(match_result) == 3:
+            title, prob, _ = match_result
+        else:
+            title, prob = match_result
+        return title, prob
+
+    # Remote titles already spoken for by a YAML row with the genuinely
+    # identical name. No other YAML row may merge into these - otherwise two
+    # distinct conferences collapse into one row and one of them is lost
+    # (e.g. "PyCon South Africa" must not merge into remote "PyCon Africa"
+    # when a YAML "PyCon Africa" also exists).
+    identical_titles = set()
+    for _, row in df.iterrows():
+        if isinstance(row["title_match"], str) or not row["title_match"]:
+            continue
+        title, _prob = best_match(row["title_match"])
+        if is_identical_name(row["conference"], title):
+            identical_titles.add(title)
+
+    # Remote titles claimed by a YAML row during this run (title -> yaml name)
+    claimed_titles = {}
+
     # Process matches and track in report
     for i, row in df.iterrows():
         if isinstance(row["title_match"], str):
@@ -283,12 +331,7 @@ def fuzzy_match(
         if not row["title_match"]:
             continue
 
-        # Handle both 2-tuple and 3-tuple results from process.extract
-        match_result = row["title_match"][0]
-        if len(match_result) == 3:
-            title, prob, _ = match_result
-        else:
-            title, prob = match_result
+        title, prob = best_match(row["title_match"])
 
         conference_name = row["conference"]
         year = row.get("year", 0)
@@ -311,21 +354,45 @@ def fuzzy_match(
             df.at[i, "title_match"] = conference_name  # Use original name, not index
             record.match_type = "excluded"
             record.action = "kept_yaml"
-        elif prob >= EXACT_MATCH_THRESHOLD:
-            logger.debug(
-                f"Exact match: '{conference_name}' -> '{title}' (score: {prob})",
-            )
-            df.at[i, "title_match"] = title
-            record.match_type = "exact"
-            record.action = "merged"
+        elif prob >= EXACT_MATCH_THRESHOLD and is_identical_name(conference_name, title):
+            # Only genuinely identical names merge automatically. A score of
+            # 100 alone is NOT sufficient: token_set_ratio scores 100 whenever
+            # one name's tokens are a subset of the other's.
+            if title in claimed_titles and claimed_titles[title] != conference_name:
+                logger.warning(
+                    f"Remote '{title}' already claimed by '{claimed_titles[title]}', "
+                    f"keeping '{conference_name}' separate",
+                )
+                df.at[i, "title_match"] = conference_name
+                record.match_type = "exact"
+                record.action = "kept_yaml"
+            else:
+                logger.debug(
+                    f"Exact match: '{conference_name}' -> '{title}' (score: {prob})",
+                )
+                df.at[i, "title_match"] = title
+                claimed_titles[title] = conference_name
+                record.match_type = "exact"
+                record.action = "merged"
         elif prob >= FUZZY_MATCH_THRESHOLD:
+            if title in identical_titles or title in claimed_titles:
+                # Remote row already belongs to its identically-named YAML
+                # entry (or was claimed earlier) - never merge another
+                # conference into it.
+                logger.info(
+                    f"Skipping fuzzy match: remote '{title}' already belongs to an "
+                    f"identically-named entry, keeping '{conference_name}' separate",
+                )
+                df.at[i, "title_match"] = conference_name
+                record.match_type = "fuzzy"
+                record.action = "kept_yaml"
             # Prompt user for fuzzy matches that aren't excluded
-            logger.info(
-                f"Fuzzy match candidate: '{conference_name}' -> '{title}' (score: {prob})",
-            )
-            if not query_yes_no(
+            elif not query_yes_no(
                 f"Do '{row['conference']}' and '{title}' match? (y/n): ",
             ):
+                logger.info(
+                    f"Fuzzy match rejected: '{conference_name}' vs '{title}' (score: {prob})",
+                )
                 new_rejections[title].append(conference_name)
                 new_rejections[conference_name].append(title)
                 df.at[i, "title_match"] = conference_name  # Use original name, not index
@@ -334,6 +401,7 @@ def fuzzy_match(
             else:
                 new_mappings[conference_name].append(title)
                 df.at[i, "title_match"] = title
+                claimed_titles[title] = conference_name
                 record.match_type = "fuzzy"
                 record.action = "merged"
         else:
