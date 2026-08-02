@@ -58,7 +58,6 @@
   start: 2026-05-27
   end: 2026-05-30
   sponsor: https://2026.pycon.it/sponsor/
-  finaid: https://2026.pycon.it/en
   mastodon: https://social.python.it/@pycon
   sub: PY
   location:
@@ -174,7 +173,6 @@
   start: 2026-04-14
   end: 2026-04-17
   sponsor: https://2026.pycon.de/sponsoring/
-  finaid: https://2026.pycon.de/
   sub: PY,DATA
   location:
   - title: PyCon Germany & PyData Conference 2026
