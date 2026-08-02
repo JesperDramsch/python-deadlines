@@ -243,6 +243,15 @@
       "contributions": [
         "conference"
       ]
+    },
+    {
+      "login": "mrswats",
+      "name": "Ferran Jovell",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3410779?v=4",
+      "profile": "https://github.com/mrswats",
+      "contributions": [
+        "conference"
+      ]
     }
   ],
   "repoType": "github"

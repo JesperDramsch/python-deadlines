@@ -183,7 +183,6 @@
 - conference: PyCon Hong Kong
   year: 2026
   link: https://www.pycon.hk/
-  cfp_link: https://www.pycon.hk/
   cfp: '2026-06-20 23:59:59'
   timezone: Asia/Hong_Kong
   place: Hong Kong, China
@@ -393,15 +392,16 @@
 
 - conference: PyCon Spain
   year: 2026
-  link: https://2026.es.pycon.org/
-  cfp: '2026-05-17 23:59:00'
+  link: https://2026.es.pycon.org/en/
   cfp_link: https://pretalx.com/pycones-2026/
+  cfp: '2026-05-17 23:59:00'
   timezone: Europe/Madrid
   place: Barcelona, Spain
   start: 2026-11-06
   end: 2026-11-08
   sponsor: https://2026.es.pycon.org/en/sponsors/#about
   finaid: https://2026.es.pycon.org/en/becas
+  bluesky: https://bsky.app/profile/es.pycon.org
   sub: PY
   location:
   - title: PyCon Spain 2026
@@ -433,7 +433,6 @@
   place: Athens, Greece
   start: 2026-10-12
   end: 2026-10-13
-  finaid: https://pycon.gr/
   youtube: https://www.youtube.com/@pycongreece
   sub: PY
   location:
@@ -459,22 +458,6 @@
   - title: PyCon Korea
     latitude: 37.5580558199932
     longitude: 126.998311394625
-
-- conference: PyCon Spain
-  year: 2026
-  link: https://2026.es.pycon.org/en/
-  cfp: '2026-05-03 23:59:00'
-  timezone: Europe/Madrid
-  place: Barcelona, Spain
-  start: 2026-11-06
-  end: 2026-11-08
-  sponsor: https://2026.es.pycon.org/es/sponsors/
-  bluesky: https://bsky.app/profile/es.pycon.org
-  sub: PY
-  location:
-  - title: PyCon Spain 2026
-    latitude: 41.3828939
-    longitude: 2.1774322
 
 - conference: PyCon Latin America
   alt_name: PyCon LatAm
