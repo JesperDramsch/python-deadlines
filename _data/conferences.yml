@@ -728,6 +728,24 @@
     latitude: 50.061389
     longitude: 19.938333
 
+- conference: PyCon Sweden
+  year: 2026
+  link: https://pycon.se/
+  cfp_link: https://pretalx.com/pycon-sweden-2026/
+  cfp: '2025-08-23 23:59:00'
+  timezone: Europe/Stockholm
+  place: Stockholm, Sweden
+  start: 2026-11-19
+  end: 2026-11-20
+  sponsor: https://pycon.se/#sponsorship
+  mastodon: https://unsplash.com/@micaelwidell?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
+  youtube: https://www.youtube.com/c/PyConSweden
+  sub: PY
+  location:
+  - title: PyCon Sweden 2026
+    latitude: 59.3251172
+    longitude: 18.0710935
+
 - conference: PyCon Austria
   year: 2027
   link: https://pycon.at/
@@ -772,22 +790,6 @@
   - title: Python E-Commerce Forum 2026
     latitude: 55.9533456
     longitude: -3.1883749
-
-- conference: PyCon Sweden
-  year: 2026
-  link: https://pycon.se/
-  cfp: TBA
-  place: Stockholm, Sweden
-  start: 2026-11-19
-  end: 2026-11-20
-  sponsor: https://pycon.se/#sponsorship
-  mastodon: https://unsplash.com/@micaelwidell?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
-  youtube: https://www.youtube.com/c/PyConSweden
-  sub: PY
-  location:
-  - title: PyCon Sweden 2026
-    latitude: 59.3251172
-    longitude: 18.0710935
 
 - conference: XtremePython
   year: 2026
