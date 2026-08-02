@@ -278,6 +278,22 @@
     latitude: 5.5571096
     longitude: -0.2012376
 
+- conference: PyCon Taiwan
+  alt_name: PyCon TW
+  year: 2026
+  link: https://tw.pycon.org/2026/
+  cfp_link: https://tw.pycon.org/2026/en-us/speaking/cfp
+  cfp: '2026-06-01 23:59:59'
+  place: Taipei, Taiwan
+  start: 2026-10-17
+  end: 2026-10-18
+  sponsor: https://tw.pycon.org/2026/en-us/sponsor
+  sub: PY
+  location:
+  - title: PyCon Taiwan 2026
+    latitude: 25.033
+    longitude: 121.5654
+
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
