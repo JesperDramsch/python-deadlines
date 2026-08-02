@@ -9,6 +9,71 @@ from urllib.parse import urlparse
 import requests
 from tqdm import tqdm
 
+# Sub-page link fields that must point somewhere other than the main link.
+# A cfp_link/sponsor/finaid that is just the homepage again carries no
+# information (e.g. "cfp_link: https://2027.pycon.de/" on the PyCon DE entry
+# whose link is https://2027.pycon.de/) - it should be a different page, a
+# subdomain, or at least a #anchor on the homepage.
+REDUNDANT_LINK_FIELDS = ("cfp_link", "sponsor", "finaid")
+
+
+def normalize_url_pointer(url: str) -> tuple:
+    """Normalize a URL for same-pointer comparison.
+
+    Two URLs are the same pointer when they only differ by scheme
+    (http/https), a "www." prefix, host case, or a trailing slash.
+    Anything else - path, subdomain, query, or #fragment - makes them
+    different pointers.
+
+    Parameters
+    ----------
+    url : str
+        URL to normalize
+
+    Returns
+    -------
+    tuple
+        Comparable (host, path, params, query, fragment) tuple
+    """
+    parsed = urlparse(str(url).strip())
+    netloc = parsed.netloc.lower().removeprefix("www.")
+    return (netloc, parsed.path.rstrip("/"), parsed.params, parsed.query, parsed.fragment)
+
+
+def drop_redundant_link_fields(data: list) -> list:
+    """Drop sub-page link fields that are the same pointer as the main link.
+
+    Goes through cfp_link/sponsor/finaid on each conference and
+    removes any that just repeat the conference's main link. This catches
+    upstream sources that fill every URL column with the homepage.
+
+    Parameters
+    ----------
+    data : list
+        List of conference dictionaries
+
+    Returns
+    -------
+    list
+        The same list with redundant link fields removed
+    """
+    for q in data:
+        if not isinstance(q, dict):
+            continue
+        link = q.get("link")
+        if not link:
+            continue
+        base = normalize_url_pointer(link)
+        for field in REDUNDANT_LINK_FIELDS:
+            value = q.get(field)
+            if value and normalize_url_pointer(value) == base:
+                tqdm.write(
+                    f"Dropping redundant '{field}' from {q.get('conference')} {q.get('year')}: "
+                    f"'{value}' is the same pointer as the main link",
+                )
+                del q[field]
+    return data
+
 
 def get_cache_location():
     # Check if the URL is cached
