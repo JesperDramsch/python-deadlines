@@ -1,5 +1,19 @@
 ---
 
+- conference: PyCon Lithuania
+  year: 2027
+  link: https://pycon.lt/2027/
+  cfp_link: https://pycon.lt/2027/cfp
+  cfp: '2027-01-13 23:59:00'
+  place: Vilnius, Lithuania
+  start: 2027-04-28
+  end: 2027-04-30
+  sub: PY
+  location:
+  - title: PyCon Lithuania 2027
+    latitude: 54.6870458
+    longitude: 25.2829111
+
 - conference: PyCon Wroclaw
   year: 2026
   link: https://www.pyconwroclaw.com/
@@ -140,6 +154,7 @@
   link: https://2026.pycon.ie/
   cfp_link: https://sessionize.com/pycon-ireland-2026/
   cfp: '2026-07-31 23:59:00'
+  cfp_ext: '2026-08-30 23:59:00'
   place: Dublin, Ireland
   start: 2026-10-17
   end: 2026-10-17
@@ -318,6 +333,7 @@
   place: Hiroshima, Japan
   start: 2026-08-21
   end: 2026-08-22
+  sponsor: https://2026.pycon.jp/en/sponsors
   sub: PY
   location:
   - title: PyCon Japan 2026
