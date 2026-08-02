@@ -391,6 +391,23 @@
     latitude: -27.5953778
     longitude: -48.5480367
 
+- conference: PyCon Spain
+  year: 2026
+  link: https://2026.es.pycon.org/
+  cfp: '2026-05-17 23:59:00'
+  cfp_link: https://pretalx.com/pycones-2026/
+  timezone: Europe/Madrid
+  place: Barcelona, Spain
+  start: 2026-11-06
+  end: 2026-11-08
+  sponsor: https://2026.es.pycon.org/en/sponsors/#about
+  finaid: https://2026.es.pycon.org/en/becas
+  sub: PY
+  location:
+  - title: PyCon Spain 2026
+    latitude: 41.3866666
+    longitude: 2.1636166
+
 - conference: PyCon Russia
   year: 2026
   link: https://www.pycon.ru/
