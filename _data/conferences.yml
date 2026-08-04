@@ -105,6 +105,7 @@
   year: 2026
   link: https://pydata.org/global2026/
   cfp: '2026-08-03 23:59:00'
+  cfp_ext: '2026-08-24 23:59:00'
   workshop_deadline: '2026-08-03 23:59:00'
   tutorial_deadline: '2026-08-03 23:59:00'
   place: Online
@@ -833,6 +834,7 @@
   year: 2026
   link: https://barcamps.eu/pythoncamp-ruegen-2026/
   cfp: TBA
+  timezone: Europe/Berlin
   place: Rügen, Germany
   start: 2026-09-26
   end: 2026-09-27
@@ -861,6 +863,7 @@
   year: 2026
   link: https://barcamps.eu/python-barcamp-leipzig-2026/
   cfp: TBA
+  timezone: Europe/Berlin
   place: Leipzig, Germany
   start: 2026-08-01
   end: 2026-08-02
