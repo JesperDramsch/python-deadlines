@@ -904,3 +904,20 @@
   - title: Python Norte 2026
     latitude: -1.374035
     longitude: -48.4016623
+
+- conference: SciPy India
+  year: 2026
+  link: https://scipy.in/2026/
+  cfp: TBA
+  timezone: Asia/Kolkata
+  place: Chennai, India
+  start: 2026-12-19
+  end: 2026-12-20
+  sponsor: https://scipy.in/2026/sponsor.html
+  bluesky: https://bsky.app/profile/scipy.in
+  youtube: https://www.youtube.com/@scipy-india
+  sub: SCIPY
+  location:
+  - title: SciPy India 2026
+    latitude: 12.9917014
+    longitude: 80.2295271

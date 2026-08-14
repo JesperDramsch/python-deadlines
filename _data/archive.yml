@@ -96,6 +96,35 @@
     latitude: 52.2319581
     longitude: 21.0067249
 
+- conference: PyGrunn
+  year: 2026
+  link: https://pygrunn.org/
+  cfp_link: https://forms.gle/5qAYUczPptmGVCY58
+  cfp: TBA
+  place: Groningen, Netherlands
+  start: 2026-05-08
+  end: 2026-05-08
+  sub: PY
+  location:
+  - title: PyGrunn 2026
+    latitude: 53.2190652
+    longitude: 6.5680077
+
+- conference: Python Sul
+  alt_name: Python Sul (Brazil)
+  year: 2026
+  link: https://sul.python.org.br/
+  cfp: TBA
+  timezone: America/Sao_Paulo
+  place: Londrina, Brazil
+  start: 2026-05-01
+  end: 2026-05-03
+  sub: PY
+  location:
+  - title: Python Sul 2026
+    latitude: -23.4761271
+    longitude: -51.1179013
+
 - conference: North Bay Python
   year: 2026
   link: https://northbaypython.org/
