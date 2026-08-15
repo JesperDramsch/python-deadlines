@@ -863,16 +863,18 @@
   end: 2026-11-17
   sub: PY
 
-- conference: FastAPI Conference
+- conference: FastAPI Conf
   year: 2026
   link: https://fastapiconf.com/
-  cfp: TBA
+  cfp: Cancelled
+  timezone: Europe/Amsterdam
   place: Amsterdam, The Netherlands
   start: 2026-10-28
   end: 2026-10-28
   sub: PY
+  note: Inaugural event with invited speakers only; no Call for Proposals.
   location:
-  - title: FastAPI Conference 2026
+  - title: FastAPI Conf 2026
     latitude: 52.3730796
     longitude: 4.8924534
 
