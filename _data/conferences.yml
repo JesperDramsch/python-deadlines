@@ -59,6 +59,23 @@
   end: 2026-11-20
   sub: WEB
 
+- conference: Python Pizza Istanbul
+  alt_name: Istanbul Python Pizza
+  year: 2026
+  link: https://istanbul.python.pizza/
+  cfp_link: https://istanbul.python.pizza/cfp/
+  cfp: '2026-08-25 23:59:00'
+  place: Istanbul, Turkey
+  start: 2026-11-14
+  end: 2026-11-14
+  sponsor: https://istanbul.python.pizza/sponsors/
+  twitter: pythonpizzaist
+  sub: PY
+  location:
+  - title: Python Pizza Istanbul 2026
+    latitude: 41.1088
+    longitude: 29.0176
+
 - conference: PyCon Netherlands
   alt_name: PyCon NL
   year: 2026
