@@ -832,15 +832,6 @@
   end: 2026-11-17
   sub: PY
 
-- conference: Xtreme Python
-  year: 2026
-  link: https://xtremepython.dev/2026/
-  cfp: TBA
-  place: Online
-  start: 2026-11-17
-  end: 2026-11-17
-  sub: PY
-
 - conference: FastAPI Conference
   year: 2026
   link: https://fastapiconf.com/
