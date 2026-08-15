@@ -365,6 +365,19 @@
     latitude: -22.611456150000002
     longitude: 17.05860104184979
 
+- conference: Pytorch Day
+  year: 2026
+  link: https://events.linuxfoundation.org/pytorch-day-india/
+  cfp: TBA
+  place: Bengaluru, India
+  start: 2026-02-07
+  end: 2026-02-07
+  sub: DATA,DAY
+  location:
+  - title: Pytorch Day 2026
+    latitude: 12.9767936
+    longitude: 77.590082
+
 - conference: FOSDEM
   year: 2026
   link: https://fosdem.org/2026/

@@ -48,6 +48,17 @@
     latitude: -22.5597
     longitude: 17.0832
 
+- conference: Wagtail Space
+  year: 2026
+  link: https://wagtail.org/wagtail-space-2026/
+  cfp_link: https://pretalx.com/wagtail-space-2026/cfp
+  cfp: '2026-09-11 23:59:00'
+  timezone: UTC
+  place: Online
+  start: 2026-11-18
+  end: 2026-11-20
+  sub: WEB
+
 - conference: PyCon Netherlands
   alt_name: PyCon NL
   year: 2026
@@ -81,6 +92,21 @@
   - title: Django Day Copenhagen 2026
     latitude: 50.0478
     longitude: 12.5604627
+
+- conference: PyHEP.dev
+  alt_name: PyHEP
+  year: 2026
+  link: https://indico.nikhef.nl/event/7873/
+  cfp: '2026-08-14 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2026-09-07
+  end: 2026-09-09
+  sub: SCIPY
+  location:
+  - title: PyHEP.dev 2026
+    latitude: 52.4111289
+    longitude: 4.877231604293446
 
 - conference: PyCon South Africa
   alt_name: PyCon ZA
@@ -783,6 +809,15 @@
 - conference: XtremePython
   year: 2026
   link: https://xtremepython.dev/
+  cfp: TBA
+  place: Online
+  start: 2026-11-17
+  end: 2026-11-17
+  sub: PY
+
+- conference: Xtreme Python
+  year: 2026
+  link: https://xtremepython.dev/2026/
   cfp: TBA
   place: Online
   start: 2026-11-17
