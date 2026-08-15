@@ -626,20 +626,6 @@
     latitude: 41.8755616
     longitude: -87.6244212
 
-- conference: Web Summer Camp
-  year: 2026
-  link: https://websummercamp.com/
-  cfp_link: https://sessionize.com/web-summer-camp-2026/
-  cfp: '2026-02-28 23:59:59'
-  place: Opatija, Croatia
-  start: 2026-07-02
-  end: 2026-07-04
-  sub: WEB
-  location:
-  - title: Web Summer Camp 2026
-    latitude: 45.3349238
-    longitude: 14.3067834
-
 - conference: SciPy US
   alt_name: SciPy
   year: 2026
@@ -763,6 +749,23 @@
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
     longitude: 8.694724
+
+- conference: SciPy India
+  year: 2026
+  link: https://scipy.in/2026/
+  cfp: TBA
+  timezone: Asia/Kolkata
+  place: Chennai, India
+  start: 2026-12-19
+  end: 2026-12-20
+  sponsor: https://scipy.in/2026/sponsor.html
+  bluesky: https://bsky.app/profile/scipy.in
+  youtube: https://www.youtube.com/@scipy-india
+  sub: SCIPY
+  location:
+  - title: SciPy India 2026
+    latitude: 12.9917014
+    longitude: 80.2295271
 
 - conference: Python E-Commerce Forum
   year: 2026
@@ -890,34 +893,3 @@
   - title: PyData PyCon Armenia 2026
     latitude: 40.1777112
     longitude: 44.5126233
-
-- conference: Python Norte
-  year: 2026
-  link: https://pythonnorte.org/
-  cfp: TBA
-  timezone: America/Sao_Paulo
-  place: Ananindeua, Brazil
-  start: 2026-07-03
-  end: 2026-07-05
-  sub: PY
-  location:
-  - title: Python Norte 2026
-    latitude: -1.374035
-    longitude: -48.4016623
-
-- conference: SciPy India
-  year: 2026
-  link: https://scipy.in/2026/
-  cfp: TBA
-  timezone: Asia/Kolkata
-  place: Chennai, India
-  start: 2026-12-19
-  end: 2026-12-20
-  sponsor: https://scipy.in/2026/sponsor.html
-  bluesky: https://bsky.app/profile/scipy.in
-  youtube: https://www.youtube.com/@scipy-india
-  sub: SCIPY
-  location:
-  - title: SciPy India 2026
-    latitude: 12.9917014
-    longitude: 80.2295271

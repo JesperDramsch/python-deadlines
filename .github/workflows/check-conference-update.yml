@@ -913,7 +913,7 @@ jobs:
         run: echo "GITHUB_ACTOR=${{ github.repository_owner }}" >> "$GITHUB_ENV"
 
       - name: Run Claude Code Analysis
-        uses: anthropics/claude-code-action@v1.0.183
+        uses: anthropics/claude-code-action@v1.0.191
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_bots: 'github-actions[bot]'
@@ -953,7 +953,7 @@ jobs:
 
       - name: Setup Pixi
         if: steps.check_changes.outputs.changed == 'true'
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@v0.10.1
 
       - name: Sort conferences
         if: steps.check_changes.outputs.changed == 'true'
@@ -1178,7 +1178,7 @@ jobs:
         run: echo "GITHUB_ACTOR=${{ github.repository_owner }}" >> "$GITHUB_ENV"
 
       - name: Run Claude Code Analysis
-        uses: anthropics/claude-code-action@v1.0.183
+        uses: anthropics/claude-code-action@v1.0.191
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_bots: 'github-actions[bot]'
@@ -1216,7 +1216,7 @@ jobs:
 
       - name: Setup Pixi
         if: steps.check_changes.outputs.changed == 'true'
-        uses: prefix-dev/setup-pixi@v0.10.0
+        uses: prefix-dev/setup-pixi@v0.10.1
 
       - name: Sort conferences
         if: steps.check_changes.outputs.changed == 'true'

@@ -268,6 +268,7 @@ If you'd like to add support for a new language, please open an issue.
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jungmir"><img src="https://avatars.githubusercontent.com/u/61821253?v=4?s=100" width="100px;" alt="jungmir"/><br /><sub><b>jungmir</b></sub></a><br /><a href="#conference-jungmir" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/drnlm"><img src="https://avatars.githubusercontent.com/u/642056?v=4?s=100" width="100px;" alt="Neil Muller"/><br /><sub><b>Neil Muller</b></sub></a><br /><a href="#conference-drnlm" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/mrswats"><img src="https://avatars.githubusercontent.com/u/3410779?v=4?s=100" width="100px;" alt="Ferran Jovell"/><br /><sub><b>Ferran Jovell</b></sub></a><br /><a href="#conference-mrswats" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/agriyakhetarpal"><img src="https://avatars.githubusercontent.com/u/74401230?v=4?s=100" width="100px;" alt="Agriya Khetarpal"/><br /><sub><b>Agriya Khetarpal</b></sub></a><br /><a href="#conference-agriyakhetarpal" title="Python conference (Added or updated)">📆</a></td>
     </tr>
   </tbody>
 </table>
