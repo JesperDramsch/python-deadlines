@@ -802,6 +802,7 @@
   start: 2026-12-19
   end: 2026-12-20
   sponsor: https://scipy.in/2026/sponsor.html
+  mastodon: https://fosstodon.org/@scipyindia
   bluesky: https://bsky.app/profile/scipy.in
   youtube: https://www.youtube.com/@scipy-india
   sub: SCIPY
@@ -855,6 +856,7 @@
   place: Tallinn, Estonia
   start: 2026-10-08
   end: 2026-10-09
+  sponsor: https://pycon.ee/#sponsors
   sub: PY
   location:
   - title: PyCon Estonia 2026
