@@ -769,6 +769,7 @@
   start: 2028-04-24
   end: 2028-04-29
   sponsor: https://pycon.de/sponsoring/
+  mastodon: https://fosstodon.org/@pyconde
   sub: PY
   location:
   - title: PyCon Germany 2028
@@ -783,6 +784,8 @@
   place: Gliwice, Poland
   start: 2027-08-26
   end: 2027-08-29
+  bluesky: https://bsky.app/profile/pyconpl.bsky.social
+  youtube: https://www.youtube.com/user/pyconpl
   sub: PY
   location:
   - title: PyCon Poland 2027
