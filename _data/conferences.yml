@@ -761,6 +761,22 @@
     latitude: 59.3251172
     longitude: 18.0710935
 
+- conference: PyCon Poland
+  year: 2027
+  link: https://pl.pycon.org/2027
+  cfp_link: https://pyconpl.confreg.pl/
+  cfp: TBA
+  place: Gliwice, Poland
+  start: 2027-08-26
+  end: 2027-08-29
+  bluesky: https://bsky.app/profile/pyconpl.bsky.social
+  youtube: https://www.youtube.com/user/pyconpl
+  sub: PY
+  location:
+  - title: PyCon Poland 2027
+    latitude: 50.294113
+    longitude: 18.6657306
+
 - conference: PyCon Austria
   year: 2027
   link: https://pycon.at/
@@ -796,6 +812,7 @@
 - conference: SciPy India
   year: 2026
   link: https://scipy.in/2026/
+  cfp_link: https://scipy.in/2026/cfp.html
   cfp: TBA
   timezone: Asia/Kolkata
   place: Chennai, India
@@ -833,16 +850,18 @@
   end: 2026-11-17
   sub: PY
 
-- conference: FastAPI Conference
+- conference: FastAPI Conf
   year: 2026
   link: https://fastapiconf.com/
-  cfp: TBA
+  cfp: None
+  timezone: Europe/Amsterdam
   place: Amsterdam, The Netherlands
   start: 2026-10-28
   end: 2026-10-28
   sub: PY
+  note: Inaugural event with invited speakers only; no Call for Proposals.
   location:
-  - title: FastAPI Conference 2026
+  - title: FastAPI Conf 2026
     latitude: 52.3730796
     longitude: 4.8924534
 
