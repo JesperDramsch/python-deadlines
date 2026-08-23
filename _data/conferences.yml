@@ -777,6 +777,20 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: PyCon Thailand
+  year: 2027
+  link: https://th.pycon.org/
+  cfp: TBA
+  timezone: Asia/Bangkok
+  place: Bangkok, Thailand
+  start: 2027-06-18
+  end: 2027-06-19
+  sub: PY
+  location:
+  - title: PyCon Thailand 2027
+    latitude: 13.7563
+    longitude: 100.5018
+
 - conference: PyCon Austria
   year: 2027
   link: https://pycon.at/
