@@ -796,7 +796,8 @@
 - conference: SciPy India
   year: 2026
   link: https://scipy.in/2026/
-  cfp: TBA
+  cfp: '2026-10-19 23:59:00'
+  cfp_link: https://cfp.scipy.in/scipy-india-2026/cfp
   timezone: Asia/Kolkata
   place: Chennai, India
   start: 2026-12-19
