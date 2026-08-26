@@ -844,6 +844,25 @@
     latitude: 49.4093582
     longitude: 8.694724
 
+- conference: SciPy India
+  year: 2026
+  link: https://scipy.in/2026/
+  cfp: '2026-10-19 23:59:00'
+  cfp_link: https://cfp.scipy.in/scipy-india-2026/cfp
+  timezone: Asia/Kolkata
+  place: Chennai, India
+  start: 2026-12-19
+  end: 2026-12-20
+  sponsor: https://scipy.in/2026/sponsor.html
+  mastodon: https://fosstodon.org/@scipyindia
+  bluesky: https://bsky.app/profile/scipy.in
+  youtube: https://www.youtube.com/@scipy-india
+  sub: SCIPY
+  location:
+  - title: SciPy India 2026
+    latitude: 12.9917014
+    longitude: 80.2295271
+
 - conference: Python E-Commerce Forum
   year: 2026
   link: https://codehut.co.uk/2026/
@@ -866,7 +885,21 @@
   end: 2026-11-17
   sub: PY
 
-- conference: FastAPI Conf
+- conference: PyCon Tanzania
+  alt_name: Python Tanzania Conference
+  year: 2026
+  link: https://pycon.or.tz/
+  cfp: TBA
+  place: Dar Es Salaam, Tanzania
+  start: 2026-11-14
+  end: 2026-11-16
+  sub: PY
+  location:
+  - title: PyCon Tanzania 2026
+    latitude: -6.8160837
+    longitude: 39.2803583
+
+- conference: FastAPI Conference
   year: 2026
   link: https://fastapiconf.com/
   cfp: None
@@ -880,6 +913,19 @@
   - title: FastAPI Conf 2026
     latitude: 52.3730796
     longitude: 4.8924534
+
+- conference: PyCon Panamá
+  year: 2026
+  link: https://pycon.pa/2026/
+  cfp: TBA
+  place: Panama City, Panamá
+  start: 2026-10-22
+  end: 2026-10-23
+  sub: PY
+  location:
+  - title: PyCon Panamá 2026
+    latitude: 8.9714493
+    longitude: -79.5341802
 
 - conference: PyCon Estonia
   alt_name: PyCon EE
