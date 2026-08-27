@@ -742,6 +742,20 @@
     latitude: 59.3251172
     longitude: 18.0710935
 
+- conference: PyCon Germany
+  year: 2028
+  link: https://pycon.de/
+  cfp: nan
+  place: Heidelberg, Germany
+  start: 2028-04-24
+  end: 2028-04-29
+  sponsor: https://pycon.de/sponsoring/
+  sub: PY
+  location:
+  - title: PyCon Germany 2028
+    latitude: 49.4093582
+    longitude: 8.694724
+
 - conference: PyCon Poland
   year: 2027
   link: https://pl.pycon.org/2027
@@ -791,6 +805,7 @@
   alt_name: PyCon Germany
   year: 2027
   link: https://2027.pycon.de/
+  cfp_link: https://pycon.de/
   cfp: TBA
   timezone: Europe/Berlin
   place: Heidelberg, Germany
@@ -846,9 +861,10 @@
   link: https://fastapiconf.com/
   cfp: None
   timezone: Europe/Amsterdam
-  place: Amsterdam, The Netherlands
+  place: Amsterdam, Netherlands
   start: 2026-10-28
   end: 2026-10-28
+  sponsor: https://fastapiconf.com/#sponsors
   sub: PY
   note: Inaugural event with invited speakers only; no Call for Proposals.
   location:
