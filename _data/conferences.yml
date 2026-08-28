@@ -750,6 +750,7 @@
   start: 2028-04-24
   end: 2028-04-29
   sponsor: https://pycon.de/sponsoring/
+  mastodon: https://fosstodon.org/@pyconde
   sub: PY
   location:
   - title: PyCon Germany 2028
