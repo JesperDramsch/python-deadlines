@@ -1,5 +1,45 @@
 ---
 
+- conference: SciPy US
+  alt_name: SciPy
+  year: 2026
+  link: https://www.scipy2026.scipy.org/
+  cfp_link: https://pretalx.com/scipy-2026/cfp
+  cfp: '2026-02-25 15:20:00'
+  cfp_ext: '2026-03-04 23:59:00'
+  tutorial_deadline: '2026-03-04 23:59:00'
+  timezone: America/Chicago
+  place: Minneapolis, USA
+  start: 2026-07-13
+  end: 2026-07-19
+  sponsor: https://www.scipy2026.scipy.org/s/SciPy26-SponsorProspectus-wn87.pdf
+  finaid: https://docs.google.com/forms/d/e/1FAIpQLSdVD-AHPDcoVF4FPKdaWDTS9NyZtGym0KxoKf6AnWxv0MIiWg/viewform
+  mastodon: https://mastodon.social/@SciPyConf
+  sub: SCIPY
+  location:
+  - title: SciPy US 2026
+    latitude: 44.9772995
+    longitude: -93.2654692
+
+- conference: EuroPython
+  year: 2026
+  link: https://ep2026.europython.eu/
+  cfp_link: https://ep2026.europython.eu/cfp
+  cfp: '2026-02-15 23:55:00'
+  tutorial_deadline: '2026-02-15 23:59:00'
+  place: Kraków, Poland
+  start: 2026-07-13
+  end: 2026-07-19
+  sponsor: https://ep2026.europython.eu/sponsors
+  finaid: https://ep2026.europython.eu/finaid
+  twitter: EuroPython
+  mastodon: https://fosstodon.org/@europython
+  sub: PY
+  location:
+  - title: EuroPython 2026
+    latitude: 50.0478
+    longitude: 19.9314
+
 - conference: Python Norte
   year: 2026
   link: https://pythonnorte.org/
@@ -42,6 +82,21 @@
     latitude: 1.2899175
     longitude: 103.8519072
 
+- conference: Wagtail Space Netherlands
+  year: 2026
+  link: https://nl.wagtail.space/
+  cfp_link: https://nl.wagtail.space/call-for-participation
+  cfp: '2026-05-29 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Rotterdam, Netherlands
+  start: 2026-06-12
+  end: 2026-06-12
+  sub: WEB
+  location:
+  - title: Wagtail Space Netherlands 2026
+    latitude: 51.9244424
+    longitude: 4.47775
+
 - conference: GeoPython
   year: 2026
   link: https://2026.geopython.net/
@@ -59,6 +114,19 @@
   - title: GeoPython 2026
     latitude: 47.3615882
     longitude: 7.354445
+
+- conference: PyDay Valparaiso
+  year: 2026
+  link: https://www.pyday.cl/valparaiso.html
+  cfp: TBA
+  place: Valparaiso, Chile
+  start: 2026-06-05
+  end: 2026-06-05
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2026
+    latitude: -32.5976089
+    longitude: -70.8529753
 
 - conference: PyData London
   year: 2026
