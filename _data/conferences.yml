@@ -14,6 +14,25 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: SciPy India
+  year: 2026
+  link: https://scipy.in/2026/
+  cfp_link: https://cfp.scipy.in/scipy-india-2026/cfp
+  cfp: '2026-10-19 23:59:00'
+  timezone: Asia/Kolkata
+  place: Chennai, India
+  start: 2026-12-19
+  end: 2026-12-20
+  sponsor: https://scipy.in/2026/sponsor.html
+  mastodon: https://fosstodon.org/@scipyindia
+  bluesky: https://bsky.app/profile/scipy.in
+  youtube: https://www.youtube.com/@scipy-india
+  sub: SCIPY
+  location:
+  - title: SciPy India 2026
+    latitude: 12.9917014
+    longitude: 80.2295271
+
 - conference: PyCon Wroclaw
   year: 2026
   link: https://www.pyconwroclaw.com/
@@ -669,46 +688,6 @@
     latitude: 41.8755616
     longitude: -87.6244212
 
-- conference: SciPy US
-  alt_name: SciPy
-  year: 2026
-  link: https://www.scipy2026.scipy.org/
-  cfp_link: https://pretalx.com/scipy-2026/cfp
-  cfp: '2026-02-25 15:20:00'
-  cfp_ext: '2026-03-04 23:59:00'
-  tutorial_deadline: '2026-03-04 23:59:00'
-  timezone: America/Chicago
-  place: Minneapolis, USA
-  start: 2026-07-13
-  end: 2026-07-19
-  sponsor: https://www.scipy2026.scipy.org/s/SciPy26-SponsorProspectus-wn87.pdf
-  finaid: https://docs.google.com/forms/d/e/1FAIpQLSdVD-AHPDcoVF4FPKdaWDTS9NyZtGym0KxoKf6AnWxv0MIiWg/viewform
-  mastodon: https://mastodon.social/@SciPyConf
-  sub: SCIPY
-  location:
-  - title: SciPy US 2026
-    latitude: 44.9772995
-    longitude: -93.2654692
-
-- conference: EuroPython
-  year: 2026
-  link: https://ep2026.europython.eu/
-  cfp_link: https://ep2026.europython.eu/cfp
-  cfp: '2026-02-15 23:55:00'
-  tutorial_deadline: '2026-02-15 23:59:00'
-  place: Kraków, Poland
-  start: 2026-07-13
-  end: 2026-07-19
-  sponsor: https://ep2026.europython.eu/sponsors
-  finaid: https://ep2026.europython.eu/finaid
-  twitter: EuroPython
-  mastodon: https://fosstodon.org/@europython
-  sub: PY
-  location:
-  - title: EuroPython 2026
-    latitude: 50.0478
-    longitude: 19.9314
-
 - conference: PyCon Poland
   alt_name: PyCon PL
   year: 2026
@@ -792,25 +771,6 @@
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
     longitude: 8.694724
-
-- conference: SciPy India
-  year: 2026
-  link: https://scipy.in/2026/
-  cfp: '2026-10-19 23:59:00'
-  cfp_link: https://cfp.scipy.in/scipy-india-2026/cfp
-  timezone: Asia/Kolkata
-  place: Chennai, India
-  start: 2026-12-19
-  end: 2026-12-20
-  sponsor: https://scipy.in/2026/sponsor.html
-  mastodon: https://fosstodon.org/@scipyindia
-  bluesky: https://bsky.app/profile/scipy.in
-  youtube: https://www.youtube.com/@scipy-india
-  sub: SCIPY
-  location:
-  - title: SciPy India 2026
-    latitude: 12.9917014
-    longitude: 80.2295271
 
 - conference: Python E-Commerce Forum
   year: 2026
