@@ -15,14 +15,14 @@
 {% else %}
     {% assign start_date = include.start | date: "%Y-%m-%d" %}
     {% assign end_date = include.end | date: "%Y-%m-%d" %}
-    
+
     {% if start_date == end_date %}
         {%- comment -%}When start and end dates are the same{%- endcomment -%}
         {% assign day = start_date | date: "%-d" %}
         {% assign year = start_date | date: "%Y" %}
         {% capture month %}{% t "times.months.{{ start_date | date: '%B' }}" %}{% endcapture %}
         {% capture pretty_date %}{{ month }} {{ day }}, {{ year }}{% endcapture %}
-    
+
     {% elsif start_date | date: "%Y-%m" == end_date | date: "%Y-%m" %}
         {%- comment -%}When start and end dates are in the same month{% endcomment %}
         {% assign start_day = start_date | date: "%-d" %}
@@ -30,7 +30,7 @@
         {% capture month %}{% t "times.months.{{ start_date | date: '%B' }}" %}{% endcapture %}
         {% assign year = start_date | date: "%Y" %}
         {% capture pretty_date %}{{ month }} {{ start_day }} – {{ end_day }}, {{ year }}{% endcapture %}
-    
+
     {% elsif start_date | date: "%Y" == end_date | date: "%Y" %}
         {%- comment -%}When start and end dates are in the same year{%- endcomment -%}
         {% assign start_day = start_date | date: "%-d" %}
@@ -39,7 +39,7 @@
         {% capture end_month %}{% t "times.months.{{ end_date | date: '%B' }}" %}{% endcapture %}
         {% assign year = start_date | date: "%Y" %}
         {% capture pretty_date %}{{ start_month }} {{ start_day }} – {{ end_month }} {{ end_day }}, {{ year }}{% endcapture %}
-    
+
     {% else %}
         {%- comment -%}When start and end dates are in different years{%- endcomment -%}
         {% assign start_day = start_date | date: "%-d" %}
