@@ -19,6 +19,8 @@
   link: https://scipy.in/2026/
   cfp_link: https://cfp.scipy.in/scipy-india-2026/cfp
   cfp: '2026-10-19 23:59:00'
+  workshop_deadline: '2026-10-19 23:59:00'
+  tutorial_deadline: '2026-10-19 23:59:00'
   timezone: Asia/Kolkata
   place: Chennai, India
   start: 2026-12-19
@@ -84,6 +86,7 @@
   link: https://istanbul.python.pizza/
   cfp_link: https://istanbul.python.pizza/cfp/
   cfp: '2026-08-25 23:59:00'
+  cfp_ext: '2026-09-07 23:59:00'
   place: Istanbul, Turkey
   start: 2026-11-14
   end: 2026-11-14
@@ -355,6 +358,21 @@
     latitude: 5.5571096
     longitude: -0.2012376
 
+- conference: PyCon Togo
+  year: 2026
+  link: https://pycontg.pytogo.org/
+  cfp: '2026-06-04 18:00:00'
+  place: Lomé, Togo
+  start: 2026-08-28
+  end: 2026-08-30
+  sponsor: https://pycontg.pytogo.org/partners
+  youtube: https://www.youtube.com/@KwekuTech
+  sub: PY
+  location:
+  - title: PyCon Togo 2026
+    latitude: 6.130419
+    longitude: 1.215829
+
 - conference: PyCon Taiwan
   alt_name: PyCon TW
   year: 2026
@@ -370,21 +388,6 @@
   - title: PyCon Taiwan 2026
     latitude: 25.033
     longitude: 121.5654
-
-- conference: PyCon Togo
-  year: 2026
-  link: https://pycontg.pytogo.org/
-  cfp: '2026-05-31 18:00:00'
-  place: Lomé, Togo
-  start: 2026-08-28
-  end: 2026-08-30
-  sponsor: https://pycontg.pytogo.org/partners
-  youtube: https://www.youtube.com/@KwekuTech
-  sub: PY
-  location:
-  - title: PyCon Togo 2026
-    latitude: 6.130419
-    longitude: 1.215829
 
 - conference: PyCon Japan
   year: 2026
@@ -471,22 +474,6 @@
     latitude: 41.3866666
     longitude: 2.1636166
 
-- conference: PyCon Russia
-  year: 2026
-  link: https://www.pycon.ru/
-  cfp_link: https://www.pycon.ru/cfp
-  cfp: '2026-05-15 23:59:00'
-  timezone: Europe/Moscow
-  place: Moscow, Russia
-  start: 2026-07-24
-  end: 2026-07-25
-  sponsor: https://www.pycon.ru/partneram
-  sub: PY
-  location:
-  - title: PyCon Russia 2026
-    latitude: 55.7558
-    longitude: 37.6173
-
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
@@ -553,38 +540,6 @@
     latitude: 40.640496
     longitude: -8.6537841
 
-- conference: PyCon Colombia
-  year: 2026
-  link: https://2026.pycon.co/
-  cfp_link: https://2026.pycon.co/#/call-for-proposals
-  cfp: '2026-04-28 23:59:00'
-  cfp_ext: '2026-05-12 23:59:00'
-  tutorial_deadline: '2026-05-12 23:59:00'
-  place: Medellín, Colombia
-  start: 2026-07-24
-  end: 2026-07-26
-  sponsor: https://2026.pycon.co/#/sponsors
-  finaid: https://2026.pycon.co/scholarships
-  sub: PY
-  location:
-  - title: PyCon Colombia 2026
-    latitude: 6.2443382
-    longitude: -75.573553
-
-- conference: Black Python Devs Leadership Summit
-  year: 2026
-  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html
-  cfp_link: https://pretalx.com/pyohio-2026/submit/?track=6985-black-python-devs-leadership-summit
-  cfp: '2026-04-20 23:59:00'
-  place: Cleveland, USA
-  start: 2026-07-24
-  end: 2026-07-24
-  sub: PY
-  location:
-  - title: Black Python Devs Leadership Summit 2026
-    latitude: 41.4996574
-    longitude: -81.6936772
-
 - conference: PyCon Cameroon
   year: 2026
   link: https://pycon.pythoncameroon.org/
@@ -599,23 +554,6 @@
   - title: PyCon Cameroon 2026
     latitude: 3.8689867
     longitude: 11.5213344
-
-- conference: PyOhio
-  year: 2026
-  link: https://pyohio.org/2026/
-  cfp_link: https://pretalx.com/pyohio-2026/cfp
-  cfp: '2026-04-20 08:00:00'
-  timezone: America/New_York
-  place: Cleveland, USA
-  start: 2026-07-25
-  end: 2026-07-26
-  sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
-  mastodon: https://fosstodon.org/@pyohio
-  sub: PY
-  location:
-  - title: PyOhio 2026
-    latitude: 41.4996574
-    longitude: -81.6936772
 
 - conference: PyData Amsterdam
   year: 2026
@@ -705,23 +643,6 @@
     latitude: 50.294113
     longitude: 18.6657306
 
-- conference: EuroSciPy
-  year: 2026
-  link: https://euroscipy.org/
-  cfp_link: https://euroscipy.org/call-for-proposals/
-  cfp: '2026-02-08 23:59:00'
-  cfp_ext: '2026-03-01 23:59:00'
-  tutorial_deadline: '2026-02-22 23:59:00'
-  timezone: Europe/Berlin
-  place: Krakow, Poland
-  start: 2026-07-18
-  end: 2026-07-23
-  sub: SCIPY
-  location:
-  - title: EuroSciPy 2026
-    latitude: 50.061389
-    longitude: 19.938333
-
 - conference: PyCon Sweden
   year: 2026
   link: https://pycon.se/
@@ -739,6 +660,51 @@
   - title: PyCon Sweden 2026
     latitude: 59.3251172
     longitude: 18.0710935
+
+- conference: PyCon Germany
+  year: 2028
+  link: https://pycon.de/
+  cfp: nan
+  place: Heidelberg, Germany
+  start: 2028-04-24
+  end: 2028-04-29
+  sponsor: https://pycon.de/sponsoring/
+  mastodon: https://fosstodon.org/@pyconde
+  sub: PY
+  location:
+  - title: PyCon Germany 2028
+    latitude: 49.4093582
+    longitude: 8.694724
+
+- conference: PyCon Poland
+  year: 2027
+  link: https://pl.pycon.org/2027
+  cfp_link: https://pyconpl.confreg.pl/
+  cfp: TBA
+  place: Gliwice, Poland
+  start: 2027-08-26
+  end: 2027-08-29
+  bluesky: https://bsky.app/profile/pyconpl.bsky.social
+  youtube: https://www.youtube.com/user/pyconpl
+  sub: PY
+  location:
+  - title: PyCon Poland 2027
+    latitude: 50.294113
+    longitude: 18.6657306
+
+- conference: PyCon Thailand
+  year: 2027
+  link: https://th.pycon.org/
+  cfp: TBA
+  timezone: Asia/Bangkok
+  place: Bangkok, Thailand
+  start: 2027-06-18
+  end: 2027-06-19
+  sub: PY
+  location:
+  - title: PyCon Thailand 2027
+    latitude: 13.7563
+    longitude: 100.5018
 
 - conference: PyCon Austria
   year: 2027
@@ -802,6 +768,7 @@
   place: Dar Es Salaam, Tanzania
   start: 2026-11-14
   end: 2026-11-16
+  sponsor: https://pycon.or.tz/sponsor/
   sub: PY
   location:
   - title: PyCon Tanzania 2026
@@ -811,13 +778,16 @@
 - conference: FastAPI Conference
   year: 2026
   link: https://fastapiconf.com/
-  cfp: TBA
-  place: Amsterdam, The Netherlands
+  cfp: None
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
   start: 2026-10-28
   end: 2026-10-28
+  sponsor: https://fastapiconf.com/#sponsors
   sub: PY
+  note: Inaugural event with invited speakers only; no Call for Proposals.
   location:
-  - title: FastAPI Conference 2026
+  - title: FastAPI Conf 2026
     latitude: 52.3730796
     longitude: 4.8924534
 
@@ -909,19 +879,3 @@
   - title: PyCamp Leipzig 2026
     latitude: 51.3406321
     longitude: 12.3747329
-
-- conference: PyCon Armenia
-  alt_name: PyData PyCon Armenia
-  year: 2026
-  link: https://pycon.am/
-  cfp: TBA
-  timezone: Asia/Yerevan
-  place: Yerevan, Armenia
-  start: 2026-07-24
-  end: 2026-07-25
-  sponsor: https://pycon.am/#sponsors
-  sub: PY,DATA
-  location:
-  - title: PyData PyCon Armenia 2026
-    latitude: 40.1777112
-    longitude: 44.5126233
