@@ -913,7 +913,7 @@ jobs:
         run: echo "GITHUB_ACTOR=${{ github.repository_owner }}" >> "$GITHUB_ENV"
 
       - name: Run Claude Code Analysis
-        uses: anthropics/claude-code-action@v1.0.191
+        uses: anthropics/claude-code-action@v1.0.210
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_bots: 'github-actions[bot]'
@@ -1178,7 +1178,7 @@ jobs:
         run: echo "GITHUB_ACTOR=${{ github.repository_owner }}" >> "$GITHUB_ENV"
 
       - name: Run Claude Code Analysis
-        uses: anthropics/claude-code-action@v1.0.191
+        uses: anthropics/claude-code-action@v1.0.210
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           allowed_bots: 'github-actions[bot]'
