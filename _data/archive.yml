@@ -82,6 +82,21 @@
     latitude: 1.2899175
     longitude: 103.8519072
 
+- conference: Wagtail Space Netherlands
+  year: 2026
+  link: https://nl.wagtail.space/
+  cfp_link: https://nl.wagtail.space/call-for-participation
+  cfp: '2026-05-29 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Rotterdam, Netherlands
+  start: 2026-06-12
+  end: 2026-06-12
+  sub: WEB
+  location:
+  - title: Wagtail Space Netherlands 2026
+    latitude: 51.9244201
+    longitude: 4.4777325
+
 - conference: GeoPython
   year: 2026
   link: https://2026.geopython.net/
@@ -99,6 +114,19 @@
   - title: GeoPython 2026
     latitude: 47.3615882
     longitude: 7.354445
+
+- conference: PyDay Valparaiso
+  year: 2026
+  link: https://www.pyday.cl/valparaiso.html
+  cfp: TBA
+  place: Valparaiso, Chile
+  start: 2026-06-05
+  end: 2026-06-05
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2026
+    latitude: -32.5976089
+    longitude: -70.8529753
 
 - conference: PyData London
   year: 2026
