@@ -4,14 +4,8 @@ name: CodeQL Analysis
 on:
   push:
     branches: [ main, master ]
-    paths-ignore:
-    - '_data/**'
-    - .all-contributorsrc
   pull_request:
     branches: [ main, master ]
-    paths-ignore:
-    - '_data/**'
-    - .all-contributorsrc
   schedule:
   - cron: '0 0 * * 0'
 
@@ -22,7 +16,7 @@ jobs:
       security-events: write
 
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v7.0.1
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4.37.9
       with:
