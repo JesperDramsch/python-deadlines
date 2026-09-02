@@ -5,15 +5,6 @@ vendor
 .DS_Store
 .idea
 .tmp
-.jekyll-metadata
-.playwright-mcp/
-
-# Claude Code configuration
-.claude/
-CLAUDE.md
-
-# Temporary workflow files
-.github/enrichment_review.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -67,13 +58,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
-coverage/
-test-results/
-
-# Test files
-test-*.html
-*.test.html
-static/test-*.html
 
 # Translations
 *.mo
@@ -161,7 +145,6 @@ venv.bak/
 
 # mkdocs documentation
 /site
-/playwright-report
 
 # mypy
 .mypy_cache/
@@ -188,6 +171,3 @@ utils/tidy_conf/data/.tmp/
 # pixi environments
 .pixi
 *.egg-info
-
-# Node modules
-node_modules/

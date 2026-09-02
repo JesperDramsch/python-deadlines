@@ -1,5 +1,3 @@
----
-exclude: '.*[\\/]pretty_.*\.html$'
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.6.0
@@ -7,9 +5,7 @@ repos:
   - id: check-yaml # Check YAML files for syntax errors
   - id: debug-statements # Check for debugger imports and py37+ breakpoint()
   - id: end-of-file-fixer # Ensure files end in a newline
-    exclude: '^pretty_.*\.html$'
   - id: trailing-whitespace # Trailing whitespace checker
-    exclude: '^pretty_.*\.html$'
   - id: check-added-large-files # Check for large files added to git
   - id: check-merge-conflict # Check for files that contain merge conflict strings
 - repo: https://github.com/pre-commit/pygrep-hooks
@@ -27,7 +23,7 @@ repos:
     - --force-single-line-imports
     - --profile black
 - repo: https://github.com/asottile/pyupgrade # Upgrade Python syntax
-  rev: v3.21.2
+  rev: v3.15.2
   hooks:
   - id: pyupgrade
     args:
@@ -58,15 +54,3 @@ repos:
     - --check-protected # Check protected methods
     - --check-class # Check class docstrings
     - --disable=E113 # Disable empty docstrings
-    - --summary # Print a summary
-
-ci:
-  autofix_commit_msg: |
-    [pre-commit.ci] auto fixes from pre-commit.com hooks
-
-    for more information, see https://pre-commit.ci
-  autofix_prs: true
-  autoupdate_branch: 'automated/pre-commit-autoupdate'
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
-  autoupdate_schedule: monthly
-  submodules: false
