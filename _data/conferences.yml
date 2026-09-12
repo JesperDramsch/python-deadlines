@@ -14,6 +14,21 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: DjangoCon Europe
+  year: 2027
+  link: https://2027.djangocon.eu/
+  cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2027/
+  cfp: '2026-11-15 23:59:59'
+  timezone: Europe/Vienna
+  place: Innsbruck, Austria
+  start: 2027-02-17
+  end: 2027-02-21
+  sub: WEB
+  location:
+  - title: DjangoCon Europe 2027
+    latitude: 47.2654296
+    longitude: 11.3927685
+
 - conference: SciPy India
   year: 2026
   link: https://scipy.in/2026/
@@ -865,17 +880,3 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
-
-- conference: PyCamp Leipzig
-  year: 2026
-  link: https://barcamps.eu/python-barcamp-leipzig-2026/
-  cfp: TBA
-  timezone: Europe/Berlin
-  place: Leipzig, Germany
-  start: 2026-08-01
-  end: 2026-08-02
-  sub: CAMP
-  location:
-  - title: PyCamp Leipzig 2026
-    latitude: 51.3406321
-    longitude: 12.3747329
