@@ -866,17 +866,3 @@
   - title: PyHEP 2026
     latitude: 46.2047169
     longitude: 6.1423106290939335
-
-- conference: PyCamp Leipzig
-  year: 2026
-  link: https://barcamps.eu/python-barcamp-leipzig-2026/
-  cfp: TBA
-  timezone: Europe/Berlin
-  place: Leipzig, Germany
-  start: 2026-08-01
-  end: 2026-08-02
-  sub: CAMP
-  location:
-  - title: PyCamp Leipzig 2026
-    latitude: 51.3406321
-    longitude: 12.3747329
