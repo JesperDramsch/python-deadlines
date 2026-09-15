@@ -69,6 +69,20 @@
     latitude: -22.5597
     longitude: 17.0832
 
+- conference: PyCon Panamá
+  year: 2026
+  link: https://pycon.pa/2026/
+  cfp: '2026-09-18 23:59:00'
+  timezone: America/Panama
+  place: Panama City, Panamá
+  start: 2026-10-22
+  end: 2026-10-23
+  sub: PY
+  location:
+  - title: PyCon Panamá 2026
+    latitude: 8.9714493
+    longitude: -79.5341802
+
 - conference: Wagtail Space
   year: 2026
   link: https://wagtail.org/wagtail-space-2026/
@@ -791,19 +805,6 @@
   - title: FastAPI Conf 2026
     latitude: 52.3730796
     longitude: 4.8924534
-
-- conference: PyCon Panamá
-  year: 2026
-  link: https://pycon.pa/2026/
-  cfp: TBA
-  place: Panama City, Panamá
-  start: 2026-10-22
-  end: 2026-10-23
-  sub: PY
-  location:
-  - title: PyCon Panamá 2026
-    latitude: 8.9714493
-    longitude: -79.5341802
 
 - conference: PyCon Estonia
   alt_name: PyCon EE
