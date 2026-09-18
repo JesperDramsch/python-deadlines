@@ -72,11 +72,13 @@
 - conference: PyCon Panamá
   year: 2026
   link: https://pycon.pa/2026/
+  cfp_link: https://pycon.pa/2026/ponentes
   cfp: '2026-09-18 23:59:00'
   timezone: America/Panama
   place: Panama City, Panamá
   start: 2026-10-22
   end: 2026-10-23
+  sponsor: https://pycon.pa/2026/patrocinadores
   sub: PY
   location:
   - title: PyCon Panamá 2026
@@ -438,22 +440,6 @@
     latitude: 47.223987
     longitude: 8.8173
 
-- conference: PyCon Indonesia
-  year: 2026
-  link: https://pycon.id/
-  cfp_link: https://www.papercall.io/pyconid2026
-  cfp: '2026-05-31 17:00:00'
-  timezone: UTC
-  place: Jakarta, Indonesia
-  start: 2026-08-08
-  end: 2026-08-09
-  sponsor: https://drive.google.com/file/d/1YVBx9KNewNCUyfgLhoNT9aM05sCaCvSG/view
-  sub: PY
-  location:
-  - title: PyCon Indonesia 2026
-    latitude: -6.1753
-    longitude: 106.8249
-
 - conference: Python Brasil
   year: 2026
   link: https://2026.pythonbrasil.org.br/
@@ -563,6 +549,7 @@
   place: Yaoundé, Cameroon
   start: 2026-09-17
   end: 2026-09-19
+  sponsor: https://cm.pycon.org/en/sponsor
   sub: PY
   location:
   - title: PyCon Cameroon 2026
@@ -740,6 +727,7 @@
   alt_name: PyCon Germany
   year: 2027
   link: https://2027.pycon.de/
+  cfp_link: https://pycon.de/
   cfp: TBA
   timezone: Europe/Berlin
   place: Heidelberg, Germany
@@ -752,6 +740,16 @@
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
     longitude: 8.694724
+
+- conference: PyLadiesCon
+  year: 2026
+  link: https://2026.conference.pyladies.com/en/
+  cfp: TBA
+  place: Online
+  start: 2026-12-05
+  end: 2026-12-07
+  sponsor: https://2026.conference.pyladies.com/en/sponsors/
+  sub: PY
 
 - conference: Python E-Commerce Forum
   year: 2026
