@@ -749,6 +749,9 @@
   start: 2026-12-05
   end: 2026-12-07
   sponsor: https://2026.conference.pyladies.com/en/sponsors/
+  mastodon: https://fosstodon.org/@pyladiescon
+  bluesky: https://bsky.app/profile/pyladiescon.bsky.social
+  youtube: https://www.youtube.com/@PyLadiesGlobal
   sub: PY
 
 - conference: Python E-Commerce Forum
