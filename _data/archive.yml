@@ -16,6 +16,19 @@
     latitude: -6.1753
     longitude: 106.8249
 
+- conference: PyCamp Leipzig
+  year: 2026
+  link: https://barcamps.eu/python-barcamp-leipzig-2026
+  cfp: TBA
+  place: Leipzig, Germany
+  start: 2026-08-01
+  end: 2026-08-02
+  sub: PY
+  location:
+  - title: PyCamp Leipzig 2026
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: PyOhio
   year: 2026
   link: https://www.pyohio.org/2026/
@@ -45,6 +58,19 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: PyCon Armenia
+  year: 2026
+  link: https://pycon.am/
+  cfp: TBA
+  place: Yerevan, Armenia
+  start: 2026-07-24
+  end: 2026-07-26
+  sub: PY
+  location:
+  - title: PyCon Armenia 2026
+    latitude: 40.1777112
+    longitude: 44.5126233
+
 - conference: PyCon Colombia
   year: 2026
   link: https://2026.pycon.co/
@@ -59,6 +85,19 @@
   - title: PyCon Colombia 2026
     latitude: 6.2443382
     longitude: -75.573553
+
+- conference: Python Sudeste
+  year: 2026
+  link: https://ingressos.python.org.br/sudeste/ingressos
+  cfp: TBA
+  place: Rio de Janeiro, RJ
+  start: 2026-07-24
+  end: 2026-07-26
+  sub: PY
+  location:
+  - title: Python Sudeste 2026
+    latitude: -22.9110137
+    longitude: -43.2093727
 
 - conference: EuroSciPy
   year: 2026
@@ -205,6 +244,20 @@
     latitude: 51.5074456
     longitude: -0.1277653
 
+- conference: PyDay Chile Valparaiso
+  year: 2026
+  link: https://pyday.cl/valparaiso
+  cfp: TBA
+  place: Valparaiso, Chile
+  start: 2026-06-05
+  end: 2026-06-05
+  sponsor: https://pyday.cl/sponsors
+  sub: DAY
+  location:
+  - title: PyDay Chile Valparaiso 2026
+    latitude: -32.5976089
+    longitude: -70.8529753
+
 - conference: PyDay Valparaiso
   year: 2026
   link: https://www.pyday.cl/valparaiso.html
@@ -217,6 +270,19 @@
   - title: PyDay Valparaiso 2026
     latitude: -32.5976089
     longitude: -70.8529753
+
+- conference: Python Leiden User Group
+  year: 2026
+  link: https://pythonleiden.nl/meeting-2026-05-28.html?py
+  cfp: TBA
+  place: Leiden, The Netherlands
+  start: 2026-05-28
+  end: 2026-05-28
+  sub: PY
+  location:
+  - title: Python Leiden User Group 2026
+    latitude: 52.1594747
+    longitude: 4.4908843
 
 - conference: PyCon Italy
   alt_name: PyCon Italia
@@ -531,6 +597,19 @@
   sub: PY
   location:
   - title: FOSDEM 2026
+    latitude: 50.8465573
+    longitude: 4.351697
+
+- conference: 'FOSDEM: Python Dev Room'
+  year: 2026
+  link: https://fosdem.org/2026/schedule/track/python
+  cfp: TBA
+  place: Brussels, Belgium
+  start: 2026-01-31
+  end: 2026-02-01
+  sub: PY
+  location:
+  - title: 'FOSDEM: Python Dev Room 2026'
     latitude: 50.8465573
     longitude: 4.351697
 
