@@ -705,6 +705,8 @@
   place: Cleveland, USA
   start: 2027-07-24
   end: 2027-07-25
+  sponsor: https://www.pyohio.org/2026/sponsors/
+  mastodon: https://fosstodon.org/@pyohio
   sub: PY
   location:
   - title: PyOhio 2027
@@ -746,6 +748,10 @@
   start: 2027-05-12
   end: 2027-05-18
   sponsor: https://www.python.org/sponsors/application
+  finaid: https://us.pycon.org/2026/about/diversity/
+  mastodon: https://fosstodon.org/@pycon
+  bluesky: https://bsky.app/profile/pycon.us
+  youtube: https://www.youtube.com/c/pyconus
   sub: PY
   location:
   - title: PyCon US 2027
@@ -805,6 +811,8 @@
   place: Dakar, Senegal
   start: 2026-11-27
   end: 2026-11-28
+  sponsor: https://www.pyconsenegambia.org/en/sponsorship
+  finaid: https://www.pyconsenegambia.org/en/#diversity
   sub: PY
   location:
   - title: PyCon Senegambia 2026
@@ -946,6 +954,7 @@
   place: Sogamoso, Colombia
   start: 2026-09-12
   end: 2026-09-13
+  sponsor: https://www.pyday.co/#sponsors
   sub: DAY
   location:
   - title: PyDay Boyacá 2026
