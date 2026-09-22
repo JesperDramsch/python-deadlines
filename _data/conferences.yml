@@ -278,21 +278,6 @@
     latitude: 22.2793278
     longitude: 114.1628131
 
-- conference: Python Nordeste
-  alt_name: PyNE
-  year: 2026
-  link: https://pythonnordeste.org/
-  cfp: '2026-06-19 23:59:00'
-  timezone: America/Bahia
-  place: Fortaleza, Brazil
-  start: 2026-08-13
-  end: 2026-08-15
-  sub: PY
-  location:
-  - title: Python Nordeste 2026
-    latitude: -3.7319
-    longitude: -38.5269
-
 - conference: Python Ho
   year: 2026
   link: https://2026.pythonho.com/
@@ -808,6 +793,7 @@
   year: 2026
   link: https://www.pyconsenegambia.org/
   cfp: TBA
+  timezone: Africa/Dakar
   place: Dakar, Senegal
   start: 2026-11-27
   end: 2026-11-28
@@ -922,6 +908,7 @@
   year: 2026
   link: https://pycaxias.com.br/
   cfp: TBA
+  timezone: America/Sao_Paulo
   place: Caxias do Sul, Brasil
   start: 2026-09-26
   end: 2026-09-26
