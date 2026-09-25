@@ -1206,7 +1206,7 @@
   year: 2018
   link: https://web.archive.org/web/20181107132342/http://www.pyparis.org/
   cfp: '2018-09-30 23:59:00'
-  cfp_ext: '2018-10-07'
+  cfp_ext: '2018-10-07 23:59:00'
   place: Paris, France
   start: 2018-11-14
   end: 2018-11-15
@@ -2035,7 +2035,7 @@
   year: 2016
   link: https://web.archive.org/web/20160602152545/http://pydata.org/paris2016/
   cfp: '2016-05-15 23:59:00'
-  cfp_ext: '2016-05-20'
+  cfp_ext: '2016-05-20 23:59:00'
   place: Paris, France
   start: 2016-06-14
   end: 2016-06-15
@@ -3944,7 +3944,7 @@
   year: 2016
   link: https://web.archive.org/web/20160722184438/https://pycon.my/
   cfp: '2016-05-28 23:59:00'
-  cfp_ext: '2016-06-10'
+  cfp_ext: '2016-06-10 23:59:00'
   place: Kuala Lumpur, Malaysia
   start: 2016-08-26
   end: 2016-08-28
@@ -3960,7 +3960,7 @@
   link: https://web.archive.org/web/20150812151551/http://www.pycon.my/pycon-my-2015
   cfp_link: https://web.archive.org/web/20150812142938/http://www.pycon.my/call-for-proposal
   cfp: '2015-07-03 23:59:00'
-  cfp_ext: '2015-07-10'
+  cfp_ext: '2015-07-10 23:59:00'
   timezone: Asia/Kuala_Lumpur
   place: Kuala Lumpur, Malaysia
   start: 2015-08-21
@@ -5110,7 +5110,7 @@
   link: https://web.archive.org/web/20180202200818/https://cz.pycon.org/2018/
   cfp_link: https://web.archive.org/web/20180203120450/https://cz.pycon.org/2018/proposals/
   cfp: '2018-02-28 23:59:00'
-  cfp_ext: '2018-03-10'
+  cfp_ext: '2018-03-10 23:59:00'
   place: Prague, Czechia
   start: 2018-06-01
   end: 2018-06-03
@@ -6290,7 +6290,7 @@
   year: 2013
   link: https://web.archive.org/web/20130208160717/http://www.ploneconf.org/
   cfp: '2012-08-15 23:59:00'
-  cfp_ext: '2013-08-19'
+  cfp_ext: '2013-08-19 23:59:00'
   place: Brasilia, Brazil
   start: 2013-09-30
   end: 2013-10-06

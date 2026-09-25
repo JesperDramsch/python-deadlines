@@ -12,6 +12,8 @@ alt_name:
     variations:
     - Python Devroom @ FOSDEM
     - Python devroom @ FOSDEM
+    - 'FOSDEM: Python Dev Room'
+    - 'FOSDEM: Python Devroom'
   Kiwi PyCon:
     global: PyCon NZ
     regexes:
@@ -144,6 +146,10 @@ alt_name:
     - 'PyDay Mexico: CDMX'
     - PyDay CDMX
     - Python Day Mexico
+  PyDay Valparaiso:
+    variations:
+    - PyDay Chile Valparaiso
+    - PyDay Valparaíso
   PyLadiesCon:
     variations:
     - PyLadies Conference

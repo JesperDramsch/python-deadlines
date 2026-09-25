@@ -279,9 +279,10 @@
     latitude: 51.5074456
     longitude: -0.1277653
 
-- conference: PyDay Chile Valparaiso
+- conference: PyDay Valparaiso
+  alt_name: PyDay Chile Valparaiso
   year: 2026
-  link: https://pyday.cl/valparaiso
+  link: https://www.pyday.cl/valparaiso.html
   cfp: TBA
   place: Valparaiso, Chile
   start: 2026-06-05
@@ -290,19 +291,6 @@
   sub: DAY
   location:
   - title: PyDay Chile Valparaiso 2026
-    latitude: -32.5976089
-    longitude: -70.8529753
-
-- conference: PyDay Valparaiso
-  year: 2026
-  link: https://www.pyday.cl/valparaiso.html
-  cfp: TBA
-  place: Valparaiso, Chile
-  start: 2026-06-05
-  end: 2026-06-05
-  sub: DAY
-  location:
-  - title: PyDay Valparaiso 2026
     latitude: -32.5976089
     longitude: -70.8529753
 
@@ -622,26 +610,14 @@
     longitude: 77.590082
 
 - conference: FOSDEM
-  year: 2026
-  link: https://fosdem.org/2026/
-  cfp: TBA
-  place: Brussels, Belgium
-  start: 2026-01-31
-  end: 2026-01-31
-  sponsor: https://fosdem.org/2026/about/sponsors/
-  sub: PY
-  location:
-  - title: FOSDEM 2026
-    latitude: 50.8465573
-    longitude: 4.351697
-
-- conference: 'FOSDEM: Python Dev Room'
+  alt_name: 'FOSDEM: Python Dev Room'
   year: 2026
   link: https://fosdem.org/2026/schedule/track/python
   cfp: TBA
   place: Brussels, Belgium
   start: 2026-01-31
-  end: 2026-02-01
+  end: 2026-01-31
+  sponsor: https://fosdem.org/2026/about/sponsors/
   sub: PY
   location:
   - title: 'FOSDEM: Python Dev Room 2026'
@@ -6235,7 +6211,7 @@
   link: https://pycon.hk/2021/
   cfp_link: https://forms.gle/roP6WDYGYK61eKX16
   cfp: '2021-06-14 23:59:00'
-  cfp_ext: '2021-06-30'
+  cfp_ext: '2021-06-30 23:59:00'
   place: Hong Kong, Hong Kong
   start: 2021-10-08
   end: 2021-10-09
@@ -6271,7 +6247,7 @@
   link: https://2021.es.pycon.org/
   cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSeNa71Fi9w8tppJlYoACnBVf5GB2ywU9lfJiHO0Aj0lmamwlQ/closedform
   cfp: '2021-05-02 23:59:00'
-  cfp_ext: '2021-05-16'
+  cfp_ext: '2021-05-16 23:59:00'
   place: Online
   start: 2021-10-02
   end: 2021-10-03
@@ -8411,7 +8387,7 @@
   link: https://web.archive.org/web/20190130011628/https://cz.pycon.org/2019/
   cfp_link: https://web.archive.org/web/20210518170623/https://cz.pycon.org/2019/proposals/
   cfp: '2019-02-17 23:59:00'
-  cfp_ext: '2019-03-07'
+  cfp_ext: '2019-03-07 23:59:00'
   place: Ostrava, Czechia
   start: 2019-06-14
   end: 2019-06-16
