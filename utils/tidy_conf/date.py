@@ -20,7 +20,7 @@ def clean_dates(data):
             )
 
     # Make deadlines
-    for datetimes in ["cfp", "workshop_deadline", "tutorial_deadline"]:
+    for datetimes in ["cfp", "cfp_ext", "workshop_deadline", "tutorial_deadline"]:
         if datetimes not in data:
             # Check if we have this key
             continue

@@ -34,7 +34,8 @@ class TestSortByCfp:
                 sub="PY",
             )
             result = sort_yaml.sort_by_cfp(conf)
-            assert result == word
+            # The schema normalises the pandas artefact "nan" to "TBA"
+            assert result == ("TBA" if word == "nan" else word)
 
     def test_sort_by_cfp_without_time(self):
         """Test CFP sorting when no time is specified."""
@@ -390,9 +391,12 @@ class TestTidyDates:
             {"conference": "Error Conference", "cfp": "invalid-date"},
         ]
 
-        with patch("tqdm.tqdm", side_effect=lambda x, total=None: x), pytest.raises(
-            ValueError,
-            match="Date parsing error",
+        with (
+            patch("tqdm.tqdm", side_effect=lambda x, total=None: x),
+            pytest.raises(
+                ValueError,
+                match="Date parsing error",
+            ),
         ):
             # Error should propagate from clean_dates
             sort_yaml.tidy_dates(data)
@@ -667,9 +671,12 @@ class TestErrorHandlingAndEdgeCases:
 
     def test_check_links_empty_data(self):
         """Test check links with empty data."""
-        with patch("sort_yaml.get_cache", return_value=(set(), set())), patch(
-            "tqdm.tqdm",
-            side_effect=lambda x, total=None: x,
+        with (
+            patch("sort_yaml.get_cache", return_value=(set(), set())),
+            patch(
+                "tqdm.tqdm",
+                side_effect=lambda x, total=None: x,
+            ),
         ):
             result = sort_yaml.check_links([])
 
