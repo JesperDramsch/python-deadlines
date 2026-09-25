@@ -277,21 +277,6 @@
     latitude: 22.2793278
     longitude: 114.1628131
 
-- conference: Python Nordeste
-  alt_name: PyNE
-  year: 2026
-  link: https://pythonnordeste.org/
-  cfp: '2026-06-19 23:59:00'
-  timezone: America/Bahia
-  place: Fortaleza, Brazil
-  start: 2026-08-13
-  end: 2026-08-15
-  sub: PY
-  location:
-  - title: Python Nordeste 2026
-    latitude: -3.7319
-    longitude: -38.5269
-
 - conference: Python Ho
   year: 2026
   link: https://2026.pythonho.com/
@@ -439,22 +424,6 @@
     latitude: 47.223987
     longitude: 8.8173
 
-- conference: PyCon Indonesia
-  year: 2026
-  link: https://pycon.id/
-  cfp_link: https://www.papercall.io/pyconid2026
-  cfp: '2026-05-31 17:00:00'
-  timezone: UTC
-  place: Jakarta, Indonesia
-  start: 2026-08-08
-  end: 2026-08-09
-  sponsor: https://drive.google.com/file/d/1YVBx9KNewNCUyfgLhoNT9aM05sCaCvSG/view
-  sub: PY
-  location:
-  - title: PyCon Indonesia 2026
-    latitude: -6.1753
-    longitude: 106.8249
-
 - conference: Python Brasil
   year: 2026
   link: https://2026.pythonbrasil.org.br/
@@ -505,24 +474,24 @@
     latitude: 37.9755648
     longitude: 23.7348324
 
-- conference: PyCon South Korea
-  alt_name: PyCon.KR
+- conference: PyCon Portugal
+  alt_name: PyCon PT
   year: 2026
-  link: https://2026.pycon.kr/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSeK_uM8byFE45mzWi3TLNzJm937vE6lYBmO4BchBW59wL3V9A/viewform?usp=header
-  cfp: '2026-05-09 23:59:59'
-  cfp_ext: '2026-06-14 23:59:59'
-  timezone: Asia/Seoul
-  place: Seoul, South Korea
-  start: 2026-08-15
-  end: 2026-08-17
-  sponsor: https://2026.pycon.kr/sponsor/apply
-  twitter: PyConKR
+  link: https://2026.pycon.pt/
+  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2026/cfp
+  cfp: '2026-05-01 12:59:00'
+  timezone: Europe/Lisbon
+  place: Aveiro, Portugal
+  start: 2026-09-03
+  end: 2026-09-05
+  sponsor: https://pycon.pt/sponsors/sponsorship/
+  finaid: https://2026.pycon.pt/information/grants/
+  youtube: https://www.youtube.com/@pyconportugal
   sub: PY
   location:
-  - title: PyCon Korea
-    latitude: 37.5580558199932
-    longitude: 126.998311394625
+  - title: PyCon Portugal 2026
+    latitude: 40.63070934919421
+    longitude: -8.657472831794745
 
 - conference: PyCon Latin America
   alt_name: PyCon LatAm
@@ -537,23 +506,6 @@
   - title: PyCon Latam 2026
     latitude: 9.7843604
     longitude: -83.4995932
-
-- conference: PyCon Portugal
-  year: 2026
-  link: https://2026.pycon.pt/
-  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2026/cfp
-  cfp: '2026-04-30 23:59:00'
-  place: Aveiro, Portugal
-  start: 2026-09-03
-  end: 2026-09-05
-  sponsor: https://pycon.pt/sponsors/sponsorship/
-  finaid: https://2026.pycon.pt/information/grants/
-  youtube: https://www.youtube.com/@pyconportugal
-  sub: PY
-  location:
-  - title: PyCon Portugal 2026
-    latitude: 40.640496
-    longitude: -8.6537841
 
 - conference: PyCon Cameroon
   year: 2026

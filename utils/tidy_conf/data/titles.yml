@@ -43,6 +43,12 @@ alt_name:
     - Plone Conference & PyCon Finland
   PyCamp Czechia:
     global: PyCamp CZ
+  PyCon Armenia:
+    global: PyData PyCon Yerevan
+    variations:
+    - PyCon Yerevan
+    - PyData PyCon Armenia
+    - PyData Yerevan
   PyCon Asia Pacific:
     global: PyCon APAC
   PyCon Australia:
@@ -126,12 +132,6 @@ alt_name:
     - Python Tanzania Conference
   PyCon Ukraine:
     global: PyCon UA
-  PyCon Armenia:
-    global: PyData PyCon Yerevan
-    variations:
-    - PyCon Yerevan
-    - PyData PyCon Armenia
-    - PyData Yerevan
   PyCon Web:
     variations:
     - PyCon+Web
