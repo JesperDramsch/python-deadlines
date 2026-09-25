@@ -163,21 +163,24 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
 
 
 def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
-    """Update the title mappings in the YAML file."""
+    """Update the title mappings in the YAML file.
+
+    Repo-relative paths under utils/tidy_conf/data/ (the defaults used by the merge
+    pipeline) resolve relative to this module so the working directory doesn't matter.
+    Any other path, e.g. a temporary file in tests, is written exactly as given.
+    """
     original_path = Path(path)
-    module_dir = Path(__file__).parent
-
-    # Determine filename based on what was requested
-    filename = "rejections.yml" if "rejection" in str(original_path).lower() else "titles.yml"
-
-    # Use module-relative path (most reliable)
-    path = module_dir / "data" / filename
+    if original_path.as_posix().startswith("utils/tidy_conf/data/"):
+        path = Path(__file__).parent / "data" / original_path.name
+    else:
+        path = original_path
 
     if not path.exists() or path.stat().st_size == 0:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open(
             "w",
             encoding="utf-8",
+            newline="\n",
         ) as file:
             yaml.dump({"spelling": [], "alt_name": data}, file, default_flow_style=False, allow_unicode=True)
     else:
@@ -201,6 +204,7 @@ def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
         with path.open(
             "w",
             encoding="utf-8",
+            newline="\n",
         ) as file:
             yaml.dump(title_data, file, default_flow_style=False, allow_unicode=True)
 
