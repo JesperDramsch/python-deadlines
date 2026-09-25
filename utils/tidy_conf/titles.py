@@ -2,6 +2,7 @@ import re
 
 # Import centralized country mappings - this is the SINGLE SOURCE OF TRUTH
 from tidy_conf.countries import COUNTRY_CODE_TO_NAME
+from tidy_conf.utils import fold_name
 from tidy_conf.yaml import load_title_mappings
 from tqdm import tqdm
 
@@ -19,23 +20,27 @@ def tidy_titles(data):
                     index = low_conf.index(spelling.lower())
                     q["conference"] = q["conference"][:index] + spelling + q["conference"][index + len(spelling) :]
 
+            # Accent-insensitive form for matching, so "PyDay Mexico" matches "PyDay México"
+            folded_conf = fold_name(q["conference"])
+
             for key, values in alt_names.items():
                 global_name = values.get("global")
                 variations = values.get("variations", [])
                 regexes = values.get("regexes", [])
 
                 # Match global name
-                if global_name and global_name.lower().strip() == low_conf:
+                if global_name and fold_name(global_name) == folded_conf:
                     if "alt_name" not in q:
                         q["alt_name"] = global_name.strip()
                     continue
 
                 # Match variations
                 for variation in variations:
+                    folded_variation = fold_name(variation)
                     if (
-                        (variation.lower().strip() == low_conf)
-                        or (variation.lower().strip().replace(" ", "") == low_conf)
-                        or (variation.lower().strip().replace("Conference", "") == low_conf)
+                        (folded_variation == folded_conf)
+                        or (folded_variation.replace(" ", "") == folded_conf)
+                        or (" ".join(folded_variation.replace("conference", "").split()) == folded_conf)
                     ):
                         if "alt_name" not in q and q["conference"].strip() != key:
                             q["alt_name"] = q["conference"].strip()

@@ -9,10 +9,12 @@ try:
     from tidy_conf.schema import Conference
     from tidy_conf.schema import get_schema
     from tidy_conf.utils import ordered_dump
+    from tidy_conf.utils import strip_accents
 except ImportError:
     from .schema import Conference
     from .schema import get_schema
     from .utils import ordered_dump
+    from .utils import strip_accents
 
 
 def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:
@@ -138,6 +140,8 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
             current_variations.update(
                 re.sub(r"\b\s*(19|20)\d{2}\s*\b", "", variation).strip() for variation in current_variations.copy()
             )
+            # Add variations without accents, so "PyDay Mexico" matches "PyDay México"
+            current_variations.update(strip_accents(variation) for variation in current_variations.copy())
             # Filter out empty strings
             variations.extend(v for v in current_variations if v)
 
