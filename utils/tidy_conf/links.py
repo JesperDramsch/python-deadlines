@@ -79,6 +79,8 @@ def get_cache_location():
     # Check if the URL is cached
     cache_file = Path("utils", "tidy_conf", "data", ".tmp", "no_archive.txt")
     cache_file_archived = Path("utils", "tidy_conf", "data", ".tmp", "archived_links.txt")
+    # The cache directory is gitignored, so it does not exist in a fresh checkout
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
     return cache_file, cache_file_archived
 
 
@@ -236,6 +238,10 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
     """Check if a Mastodon account has migrated and return the new URL.
 
     Follows migration chains (A→B→C) until finding the final destination.
+    A chain that loops back to an account already visited (A→B→A) has no
+    canonical destination, so it returns None and the stored URL is left
+    untouched; anything else would flip-flop between the accounts on every
+    link check.
 
     Args:
         mastodon_url: Full Mastodon profile URL (e.g., https://fosstodon.org/@pycon)
@@ -251,18 +257,11 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
         tqdm.write(f"Warning: Could not parse Mastodon URL: {mastodon_url}")
         return None
 
-    visited = set()
     current_url = mastodon_url
     current_instance, current_username = parsed
+    visited = {f"{current_username}@{current_instance}"}
 
     for _ in range(max_depth):
-        # Detect circular migrations
-        account_key = f"{current_username}@{current_instance}"
-        if account_key in visited:
-            tqdm.write(f"Warning: Circular migration detected for {mastodon_url}")
-            break
-        visited.add(account_key)
-
         # Query the Mastodon API
         api_url = f"https://{current_instance}/api/v1/accounts/lookup?acct={current_username}"
         headers = {"User-Agent": "Pythondeadlin.es Link Checker/0.1 (https://pythondeadlin.es)"}
@@ -291,15 +290,23 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
                 if not new_url:
                     break
 
+                # Parse the new URL for the next iteration
+                new_parsed = parse_mastodon_url(new_url)
+
+                # A circular migration has no canonical destination: keep the
+                # stored URL rather than flip-flopping between the accounts.
+                if new_parsed and f"{new_parsed[1]}@{new_parsed[0]}" in visited:
+                    tqdm.write(f"Warning: Circular migration detected for {mastodon_url}")
+                    return None
+
                 tqdm.write(f"Mastodon migration detected: {current_url} → {new_url}")
                 current_url = new_url
 
-                # Parse the new URL for the next iteration
-                new_parsed = parse_mastodon_url(new_url)
                 if not new_parsed:
                     # If we can't parse the new URL, return it anyway
                     return new_url
                 current_instance, current_username = new_parsed
+                visited.add(f"{current_username}@{current_instance}")
 
                 # Rate limit: wait 1 second between API calls
                 time.sleep(1)

@@ -1,6 +1,7 @@
 """Tests for Mastodon account migration detection functionality."""
 
 import sys
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
@@ -208,8 +209,10 @@ class TestCheckMastodonMigration:
         with patch("tidy_conf.links.time.sleep"), patch("tidy_conf.links.tqdm.write"):
             result = links.check_mastodon_migration(url_a)
 
-        # Should return B (last valid before cycle detected)
-        assert result == url_b
+        # A cycle has no canonical destination: leave the stored URL untouched.
+        # Returning B would make the next links run (starting from B) return A,
+        # rewriting the field on every run.
+        assert result is None
 
     @responses.activate
     def test_max_depth_limit(self):
@@ -403,7 +406,8 @@ class TestCheckMastodonMigrationIntegration:
                 "year": 2025,
                 "link": "https://example.com",
                 "mastodon": old_url,
-                "start": "2025-06-01",
+                # sort_data runs tidy_dates before check_links, so start is a date
+                "start": date(2025, 6, 1),
             },
         ]
 
@@ -445,7 +449,8 @@ class TestCheckMastodonMigrationIntegration:
                 "year": 2025,
                 "link": "https://example.com",
                 "mastodon": url,
-                "start": "2025-06-01",
+                # sort_data runs tidy_dates before check_links, so start is a date
+                "start": date(2025, 6, 1),
             },
         ]
 

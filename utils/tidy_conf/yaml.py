@@ -9,10 +9,12 @@ try:
     from tidy_conf.schema import Conference
     from tidy_conf.schema import get_schema
     from tidy_conf.utils import ordered_dump
+    from tidy_conf.utils import strip_accents
 except ImportError:
     from .schema import Conference
     from .schema import get_schema
     from .utils import ordered_dump
+    from .utils import strip_accents
 
 
 def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:
@@ -36,6 +38,7 @@ def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:
     with Path(url).open(
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as outfile:
         for line in ordered_dump(
             data,
@@ -138,6 +141,8 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
             current_variations.update(
                 re.sub(r"\b\s*(19|20)\d{2}\s*\b", "", variation).strip() for variation in current_variations.copy()
             )
+            # Add variations without accents, so "PyDay Mexico" matches "PyDay México"
+            current_variations.update(strip_accents(variation) for variation in current_variations.copy())
             # Filter out empty strings
             variations.extend(v for v in current_variations if v)
 
@@ -163,21 +168,24 @@ def load_title_mappings(reverse=False, path="utils/tidy_conf/data/titles.yml"):
 
 
 def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
-    """Update the title mappings in the YAML file."""
+    """Update the title mappings in the YAML file.
+
+    Repo-relative paths under utils/tidy_conf/data/ (the defaults used by the merge
+    pipeline) resolve relative to this module so the working directory doesn't matter.
+    Any other path, e.g. a temporary file in tests, is written exactly as given.
+    """
     original_path = Path(path)
-    module_dir = Path(__file__).parent
-
-    # Determine filename based on what was requested
-    filename = "rejections.yml" if "rejection" in str(original_path).lower() else "titles.yml"
-
-    # Use module-relative path (most reliable)
-    path = module_dir / "data" / filename
+    if original_path.as_posix().startswith("utils/tidy_conf/data/"):
+        path = Path(__file__).parent / "data" / original_path.name
+    else:
+        path = original_path
 
     if not path.exists() or path.stat().st_size == 0:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open(
             "w",
             encoding="utf-8",
+            newline="\n",
         ) as file:
             yaml.dump({"spelling": [], "alt_name": data}, file, default_flow_style=False, allow_unicode=True)
     else:
@@ -201,6 +209,7 @@ def update_title_mappings(data, path="utils/tidy_conf/data/titles.yml"):
         with path.open(
             "w",
             encoding="utf-8",
+            newline="\n",
         ) as file:
             yaml.dump(title_data, file, default_flow_style=False, allow_unicode=True)
 
@@ -212,5 +221,6 @@ def write_df_yaml(df, out_url):
     df["end"] = pd.to_datetime(df["end"]).dt.date
     df["start"] = pd.to_datetime(df["start"]).dt.date
     df["year"] = df["year"].astype(int)
-    df["cfp"] = df["cfp"].astype(str)
+    # astype(str) would turn missing values into the literal string "nan"
+    df["cfp"] = df["cfp"].fillna("TBA").astype(str).replace({"nan": "TBA", "NaN": "TBA", "": "TBA"})
     write_conference_yaml(df, out_url)

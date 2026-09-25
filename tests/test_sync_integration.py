@@ -132,7 +132,7 @@ class TestFullMergePipeline:
 
         # Step 1: Fuzzy match
         with patch("builtins.input", return_value="y"):  # Accept matches
-            matched, remote = fuzzy_match(df_yml, df_csv)
+            matched, remote, _report = fuzzy_match(df_yml, df_csv)
 
         # Verify fuzzy match output
         assert not matched.empty, "Fuzzy match should produce output"
@@ -184,7 +184,7 @@ class TestFullMergePipeline:
         )
 
         with patch("builtins.input", return_value="y"):
-            matched, remote = fuzzy_match(df_yml, df_csv)
+            matched, remote, _report = fuzzy_match(df_yml, df_csv)
 
         with patch("tidy_conf.interactive_merge.get_schema") as mock_schema:
             mock_schema.return_value = pd.DataFrame(
@@ -259,7 +259,7 @@ class TestDataIntegrityThroughPipeline:
 
         # Run through pipeline
         with patch("builtins.input", return_value="n"):
-            result, _ = fuzzy_match(df_yml, df_csv)
+            result, _, _report = fuzzy_match(df_yml, df_csv)
 
         # All conferences should be present
         result_names = result["conference"].tolist()
@@ -290,7 +290,7 @@ class TestDataIntegrityThroughPipeline:
         df_csv = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
         with patch("builtins.input", return_value="n"):
-            result, _ = fuzzy_match(df_yml, df_csv)
+            result, _, _report = fuzzy_match(df_yml, df_csv)
 
         # Optional fields should be preserved
         if "mastodon" in result.columns:
@@ -319,7 +319,7 @@ class TestPipelineEdgeCases:
         df_csv = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
         with patch("builtins.input", return_value="n"):
-            result, _ = fuzzy_match(df_yml, df_csv)
+            result, _, _report = fuzzy_match(df_yml, df_csv)
 
         # Unicode names should be preserved
         result_names = " ".join(result["conference"].tolist())
@@ -349,7 +349,7 @@ class TestPipelineEdgeCases:
         df_csv = pd.DataFrame(columns=["conference", "year", "cfp", "link", "place", "start", "end"])
 
         with patch("builtins.input", return_value="n"):
-            result, _ = fuzzy_match(df_yml, df_csv)
+            result, _, _report = fuzzy_match(df_yml, df_csv)
 
         # Long name should be preserved (possibly without year)
         assert len(result) == 1

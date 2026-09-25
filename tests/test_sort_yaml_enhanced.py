@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import pytest
 import pytz
+from freezegun import freeze_time
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -34,7 +35,8 @@ class TestSortByCfp:
                 sub="PY",
             )
             result = sort_yaml.sort_by_cfp(conf)
-            assert result == word
+            # The schema normalises the pandas artefact "nan" to "TBA"
+            assert result == ("TBA" if word == "nan" else word)
 
     def test_sort_by_cfp_without_time(self):
         """Test CFP sorting when no time is specified."""
@@ -172,6 +174,8 @@ class TestSortByDate:
 class TestSortByDatePassed:
     """Test date passed sorting functionality."""
 
+    # Freeze "today" so the 2026 CFP stays in the future regardless of when the suite runs
+    @freeze_time("2026-01-15")
     def test_sort_by_date_passed_future(self):
         """Test date passed sorting for future conferences."""
         conf = Conference(
@@ -390,9 +394,12 @@ class TestTidyDates:
             {"conference": "Error Conference", "cfp": "invalid-date"},
         ]
 
-        with patch("tqdm.tqdm", side_effect=lambda x, total=None: x), pytest.raises(
-            ValueError,
-            match="Date parsing error",
+        with (
+            patch("tqdm.tqdm", side_effect=lambda x, total=None: x),
+            pytest.raises(
+                ValueError,
+                match="Date parsing error",
+            ),
         ):
             # Error should propagate from clean_dates
             sort_yaml.tidy_dates(data)
@@ -401,6 +408,8 @@ class TestTidyDates:
 class TestSplitData:
     """Test data splitting functionality."""
 
+    # Freeze "today" so the 2026 conference is still upcoming regardless of when the suite runs
+    @freeze_time("2026-01-15")
     def test_split_data_basic_categories(self):
         """Test basic data splitting into categories."""
         # Use fixed dates to avoid year boundary issues
@@ -463,7 +472,11 @@ class TestSplitData:
 
         assert "Active Conference" in conf_names
         assert "TBA Conference" in tba_names
+        assert [c.conference for c in expired] == ["Expired Conference"]
+        assert [c.conference for c in legacy] == ["Legacy Conference"]
 
+    # Freeze "today" so the 2026 conference is still upcoming regardless of when the suite runs
+    @freeze_time("2026-01-15")
     def test_split_data_cfp_ext_handling(self):
         """Test handling of extended CFP deadlines."""
         # Use fixed dates in same year to avoid validation issues
@@ -482,13 +495,11 @@ class TestSplitData:
         with patch("tqdm.tqdm", side_effect=lambda x: x):
             result_conf, _, _, _ = sort_yaml.split_data([conf])
 
-        # Should have added time to cfp
+        # Should have added the default time to both deadlines
         assert len(result_conf) == 1
         processed = result_conf[0]
-        assert "23:59:00" in processed.cfp
-        # cfp_ext time handling depends on Conference object attribute check
-        # Just verify the conference was processed correctly
-        assert processed.cfp_ext is not None
+        assert processed.cfp == "2026-02-15 23:59:00"
+        assert processed.cfp_ext == "2026-03-01 23:59:00"
 
     def test_split_data_boundary_dates(self):
         """Test splitting with boundary date conditions."""
@@ -596,9 +607,30 @@ class TestSortDataIntegration:
     def test_sort_data_no_files_exist(self):
         """Test sort_data when no data files exist."""
 
-    @pytest.mark.skip(reason="Test requires complex Path mock with context manager - covered by real integration tests")
-    def test_sort_data_validation_errors(self):
-        """Test sort_data with validation errors."""
+    def test_sort_data_refuses_to_write_on_validation_errors(self, tmp_path):
+        """An entry that fails the schema must abort the run, not be silently dropped.
+
+        The automated sort runs commit whatever is written, so dropping the entry
+        would delete it from the data files unnoticed.
+        """
+        data_dir = tmp_path / "_data"
+        data_dir.mkdir()
+        conferences = data_dir / "conferences.yml"
+        entry = (
+            "- conference: {name}\n  year: {year}\n  link: https://example.com/\n  cfp: '2026-02-15 23:59:00'\n"
+            "  place: Online\n  start: 2026-06-01\n  end: 2026-06-03\n  sub: PY\n"
+        )
+        conferences.write_text(
+            entry.format(name="Valid Conference", year=2026) + entry.format(name="Invalid Conference", year=1988),
+            encoding="utf-8",
+        )
+        before = conferences.read_bytes()
+
+        with pytest.raises(ValueError, match="1 conferences failed validation"):
+            sort_yaml.sort_data(base=str(tmp_path), skip_links=True)
+
+        assert conferences.read_bytes() == before
+        assert not (data_dir / "archive.yml").exists()
 
 
 class TestCommandLineInterface:
@@ -667,9 +699,12 @@ class TestErrorHandlingAndEdgeCases:
 
     def test_check_links_empty_data(self):
         """Test check links with empty data."""
-        with patch("sort_yaml.get_cache", return_value=(set(), set())), patch(
-            "tqdm.tqdm",
-            side_effect=lambda x, total=None: x,
+        with (
+            patch("sort_yaml.get_cache", return_value=(set(), set())),
+            patch(
+                "tqdm.tqdm",
+                side_effect=lambda x, total=None: x,
+            ),
         ):
             result = sort_yaml.check_links([])
 

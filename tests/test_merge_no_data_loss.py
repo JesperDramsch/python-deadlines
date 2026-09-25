@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
+import yaml
 from hypothesis import given
 from hypothesis import settings
 from hypothesis import strategies as st
@@ -228,28 +229,24 @@ alt_name:
 """,
             )
 
-            # Patch the path resolution to use our temp file
-            with patch("tidy_conf.yaml.Path") as mock_path:
-                # Make the module-relative path point to our temp file
-                mock_path.return_value = titles_path
-                mock_path.__truediv__ = lambda self, other: titles_path
+            import tidy_conf.yaml
 
-                # This should not raise KeyError
-                try:
-                    # Import fresh to use patched path
-                    import importlib
+            real_titles = Path(tidy_conf.yaml.__file__).parent / "data" / "titles.yml"
+            real_before = real_titles.read_bytes()
 
-                    import tidy_conf.yaml
+            # This should not raise KeyError
+            try:
+                tidy_conf.yaml.update_title_mappings(
+                    {"ExistingConf": ["New Variation"]},
+                    path=str(titles_path),
+                )
+            except KeyError as e:
+                pytest.fail(f"KeyError raised for missing 'variations' key: {e}")
 
-                    importlib.reload(tidy_conf.yaml)
-
-                    # Try to update with new mapping
-                    tidy_conf.yaml.update_title_mappings(
-                        {"ExistingConf": ["New Variation"]},
-                        path=str(titles_path),
-                    )
-                except KeyError as e:
-                    pytest.fail(f"KeyError raised for missing 'variations' key: {e}")
+            written = yaml.safe_load(titles_path.read_text(encoding="utf-8"))
+            assert written["alt_name"]["ExistingConf"]["variations"] == ["New Variation"]
+            # The real mapping file must not be touched by tests
+            assert real_titles.read_bytes() == real_before
 
     def test_load_title_mappings_handles_missing_variations(self):
         """load_title_mappings should handle entries without 'variations' key."""

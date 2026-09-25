@@ -1,4 +1,5 @@
 import sys
+import unicodedata
 
 import pandas as pd
 import yaml
@@ -37,6 +38,23 @@ def ordered_dump(data, stream=None, dumper=yaml.Dumper, **kwds):
 
     OrderedDumper.add_representer(dict, _dict_representer)
     return yaml.dump(data, stream, OrderedDumper, **kwds)
+
+
+def strip_accents(text: str) -> str:
+    """Remove diacritics while preserving case, e.g. "PyCon Panamá" -> "PyCon Panama".
+
+    Only use this for matching. Stored conference names keep their original spelling.
+    """
+    decomposed = unicodedata.normalize("NFKD", text)
+    return unicodedata.normalize("NFC", "".join(c for c in decomposed if not unicodedata.combining(c)))
+
+
+def fold_name(text: str) -> str:
+    """Fold a name for comparison: strip accents, casefold, and collapse whitespace.
+
+    "PyDay  México" and "pyday mexico" both fold to "pyday mexico".
+    """
+    return " ".join(strip_accents(text).casefold().split())
 
 
 def pretty_print(header, conf, tba=None, expired=None) -> None:

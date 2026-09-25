@@ -69,6 +69,22 @@
     latitude: -22.5597
     longitude: 17.0832
 
+- conference: PyCon Panamá
+  year: 2026
+  link: https://pycon.pa/2026/
+  cfp_link: https://pycon.pa/2026/ponentes
+  cfp: '2026-09-18 23:59:00'
+  timezone: America/Panama
+  place: Panama City, Panamá
+  start: 2026-10-22
+  end: 2026-10-23
+  sponsor: https://pycon.pa/2026/patrocinadores
+  sub: PY
+  location:
+  - title: PyCon Panamá 2026
+    latitude: 8.9714493
+    longitude: -79.5341802
+
 - conference: Wagtail Space
   year: 2026
   link: https://wagtail.org/wagtail-space-2026/
@@ -304,6 +320,7 @@
   place: Santa Monica, USA
   start: 2026-10-24
   end: 2026-10-24
+  sponsor: https://2026.pybeach.org/prospectus
   mastodon: https://fosstodon.org/@pybeach
   bluesky: https://bsky.app/profile/pybeach.bsky.social
   sub: PY
@@ -331,6 +348,7 @@
 - conference: PyCon Ghana
   year: 2026
   link: https://gh.pycon.org/2026/
+  cfp_link: https://gh.pycon.org/2026/talks/submit_talk
   cfp: '2026-06-06 23:59:00'
   timezone: Africa/Accra
   place: Accra, Ghana
@@ -361,7 +379,7 @@
 - conference: PyCon Taiwan
   alt_name: PyCon TW
   year: 2026
-  link: https://tw.pycon.org/2026/
+  link: https://tw.pycon.org/2026/en-us
   cfp_link: https://tw.pycon.org/2026/en-us/speaking/cfp
   cfp: '2026-06-01 23:59:59'
   place: Taipei, Taiwan
@@ -446,12 +464,14 @@
 - conference: PyCon Greece
   year: 2026
   link: https://pycon.gr/
+  cfp_link: https://2026.pycon.gr/en/program/cfp-faq
   cfp: '2026-05-10 23:59:00'
   cfp_ext: '2026-05-17 23:59:00'
   timezone: Europe/Athens
   place: Athens, Greece
   start: 2026-10-12
   end: 2026-10-13
+  sponsor: https://2026.pycon.gr/en/sponsors
   youtube: https://www.youtube.com/@pycongreece
   sub: PY
   location:
@@ -501,6 +521,7 @@
   place: Yaoundé, Cameroon
   start: 2026-09-17
   end: 2026-09-19
+  sponsor: https://cm.pycon.org/en/sponsor
   sub: PY
   location:
   - title: PyCon Cameroon 2026
@@ -616,7 +637,8 @@
 - conference: PyCon Germany
   year: 2028
   link: https://pycon.de/
-  cfp: nan
+  cfp: TBA
+  timezone: Europe/Berlin
   place: Heidelberg, Germany
   start: 2028-04-24
   end: 2028-04-29
@@ -644,6 +666,21 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: PyOhio
+  year: 2027
+  link: https://www.pyohio.org/
+  cfp: TBA
+  place: Cleveland, USA
+  start: 2027-07-24
+  end: 2027-07-25
+  sponsor: https://www.pyohio.org/2026/sponsors/
+  mastodon: https://fosstodon.org/@pyohio
+  sub: PY
+  location:
+  - title: PyOhio 2027
+    latitude: 41.4996574
+    longitude: -81.6936772
+
 - conference: PyCon Thailand
   year: 2027
   link: https://th.pycon.org/
@@ -657,6 +694,37 @@
   - title: PyCon Thailand 2027
     latitude: 13.7563
     longitude: 100.5018
+
+- conference: PyCon Angola
+  year: 2027
+  link: https://ao.pycon.org/
+  cfp: TBA
+  place: Luanda, Angola
+  start: 2027-05-20
+  end: 2027-05-26
+  sub: PY
+  location:
+  - title: PyCon Angola 2027
+    latitude: -8.8272699
+    longitude: 13.2439512
+
+- conference: PyCon US
+  year: 2027
+  link: https://us.pycon.org/
+  cfp: TBA
+  place: Long Beach, USA
+  start: 2027-05-12
+  end: 2027-05-18
+  sponsor: https://www.python.org/sponsors/application
+  finaid: https://us.pycon.org/2026/about/diversity/
+  mastodon: https://fosstodon.org/@pycon
+  bluesky: https://bsky.app/profile/pycon.us
+  youtube: https://www.youtube.com/c/pyconus
+  sub: PY
+  location:
+  - title: PyCon US 2027
+    latitude: 33.7690164
+    longitude: -118.191604
 
 - conference: PyCon Austria
   year: 2027
@@ -677,6 +745,7 @@
   alt_name: PyCon Germany
   year: 2027
   link: https://2027.pycon.de/
+  cfp_link: https://pycon.de/
   cfp: TBA
   timezone: Europe/Berlin
   place: Heidelberg, Germany
@@ -689,6 +758,35 @@
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
     longitude: 8.694724
+
+- conference: PyLadiesCon
+  year: 2026
+  link: https://2026.conference.pyladies.com/en/
+  cfp: TBA
+  place: Online
+  start: 2026-12-05
+  end: 2026-12-07
+  sponsor: https://2026.conference.pyladies.com/en/sponsors/
+  mastodon: https://fosstodon.org/@pyladiescon
+  bluesky: https://bsky.app/profile/pyladiescon.bsky.social
+  youtube: https://www.youtube.com/@PyLadiesGlobal
+  sub: PY
+
+- conference: PyCon Senegambia
+  year: 2026
+  link: https://www.pyconsenegambia.org/
+  cfp: TBA
+  timezone: Africa/Dakar
+  place: Dakar, Senegal
+  start: 2026-11-27
+  end: 2026-11-28
+  sponsor: https://www.pyconsenegambia.org/en/sponsorship
+  finaid: https://www.pyconsenegambia.org/en/#diversity
+  sub: PY
+  location:
+  - title: PyCon Senegambia 2026
+    latitude: 14.693425
+    longitude: -17.447938
 
 - conference: Python E-Commerce Forum
   year: 2026
@@ -743,18 +841,19 @@
     latitude: 52.3730796
     longitude: 4.8924534
 
-- conference: PyCon Panamá
+- conference: PyDay Mexico
+  alt_name: 'PyDay México: CDMX'
   year: 2026
-  link: https://pycon.pa/2026/
+  link: https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029
   cfp: TBA
-  place: Panama City, Panamá
-  start: 2026-10-22
-  end: 2026-10-23
-  sub: PY
+  place: Ciudad de México, México
+  start: 2026-10-10
+  end: 2026-10-10
+  sub: DAY
   location:
-  - title: PyCon Panamá 2026
-    latitude: 8.9714493
-    longitude: -79.5341802
+  - title: PyDay Mexico 2026
+    latitude: 19.3207722
+    longitude: -99.1514678
 
 - conference: PyCon Estonia
   alt_name: PyCon EE
@@ -789,6 +888,21 @@
     latitude: 50.8214626
     longitude: -0.1400561
 
+- conference: PyCaxias
+  year: 2026
+  link: https://pycaxias.com.br/
+  cfp: TBA
+  timezone: America/Sao_Paulo
+  place: Caxias do Sul, Brasil
+  start: 2026-09-26
+  end: 2026-09-26
+  sponsor: https://pycaxias.com.br/#patrocinio
+  sub: PY
+  location:
+  - title: PyCaxias 2026
+    latitude: -29.1685045
+    longitude: -51.1796385
+
 - conference: Pythoncamp Rügen
   year: 2026
   link: https://barcamps.eu/pythoncamp-ruegen-2026/
@@ -803,6 +917,20 @@
   - title: Pythoncamp Rügen 2026
     latitude: 54.4529015
     longitude: 13.3882344
+
+- conference: PyDay Boyacá
+  year: 2026
+  link: https://www.pyday.co/
+  cfp: TBA
+  place: Sogamoso, Colombia
+  start: 2026-09-12
+  end: 2026-09-13
+  sponsor: https://www.pyday.co/#sponsors
+  sub: DAY
+  location:
+  - title: PyDay Boyacá 2026
+    latitude: 5.7148307
+    longitude: -72.9279328
 
 - conference: PyHEP
   year: 2026
