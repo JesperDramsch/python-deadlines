@@ -1,6 +1,7 @@
 """Tests for Mastodon account migration detection functionality."""
 
 import sys
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
@@ -403,7 +404,8 @@ class TestCheckMastodonMigrationIntegration:
                 "year": 2025,
                 "link": "https://example.com",
                 "mastodon": old_url,
-                "start": "2025-06-01",
+                # sort_data runs tidy_dates before check_links, so start is a date
+                "start": date(2025, 6, 1),
             },
         ]
 
@@ -445,7 +447,8 @@ class TestCheckMastodonMigrationIntegration:
                 "year": 2025,
                 "link": "https://example.com",
                 "mastodon": url,
-                "start": "2025-06-01",
+                # sort_data runs tidy_dates before check_links, so start is a date
+                "start": date(2025, 6, 1),
             },
         ]
 

@@ -251,18 +251,11 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
         tqdm.write(f"Warning: Could not parse Mastodon URL: {mastodon_url}")
         return None
 
-    visited = set()
     current_url = mastodon_url
     current_instance, current_username = parsed
+    visited = {f"{current_username}@{current_instance}"}
 
     for _ in range(max_depth):
-        # Detect circular migrations
-        account_key = f"{current_username}@{current_instance}"
-        if account_key in visited:
-            tqdm.write(f"Warning: Circular migration detected for {mastodon_url}")
-            break
-        visited.add(account_key)
-
         # Query the Mastodon API
         api_url = f"https://{current_instance}/api/v1/accounts/lookup?acct={current_username}"
         headers = {"User-Agent": "Pythondeadlin.es Link Checker/0.1 (https://pythondeadlin.es)"}
@@ -291,15 +284,24 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
                 if not new_url:
                     break
 
+                # Parse the new URL for the next iteration
+                new_parsed = parse_mastodon_url(new_url)
+
+                # Detect circular migrations before following the hop, so the
+                # result is the last account reached before the loop (B for
+                # A→B→A) rather than the revisited one.
+                if new_parsed and f"{new_parsed[1]}@{new_parsed[0]}" in visited:
+                    tqdm.write(f"Warning: Circular migration detected for {mastodon_url}")
+                    break
+
                 tqdm.write(f"Mastodon migration detected: {current_url} → {new_url}")
                 current_url = new_url
 
-                # Parse the new URL for the next iteration
-                new_parsed = parse_mastodon_url(new_url)
                 if not new_parsed:
                     # If we can't parse the new URL, return it anyway
                     return new_url
                 current_instance, current_username = new_parsed
+                visited.add(f"{current_username}@{current_instance}")
 
                 # Rate limit: wait 1 second between API calls
                 time.sleep(1)
