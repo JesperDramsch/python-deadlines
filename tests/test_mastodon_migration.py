@@ -209,8 +209,10 @@ class TestCheckMastodonMigration:
         with patch("tidy_conf.links.time.sleep"), patch("tidy_conf.links.tqdm.write"):
             result = links.check_mastodon_migration(url_a)
 
-        # Should return B (last valid before cycle detected)
-        assert result == url_b
+        # A cycle has no canonical destination: leave the stored URL untouched.
+        # Returning B would make the next links run (starting from B) return A,
+        # rewriting the field on every run.
+        assert result is None
 
     @responses.activate
     def test_max_depth_limit(self):

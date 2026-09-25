@@ -238,8 +238,10 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
     """Check if a Mastodon account has migrated and return the new URL.
 
     Follows migration chains (A→B→C) until finding the final destination.
-    If the chain loops back to an account already visited (A→B→A), it stops
-    at the last account before the loop.
+    A chain that loops back to an account already visited (A→B→A) has no
+    canonical destination, so it returns None and the stored URL is left
+    untouched; anything else would flip-flop between the accounts on every
+    link check.
 
     Args:
         mastodon_url: Full Mastodon profile URL (e.g., https://fosstodon.org/@pycon)
@@ -291,12 +293,11 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
                 # Parse the new URL for the next iteration
                 new_parsed = parse_mastodon_url(new_url)
 
-                # Detect circular migrations before following the hop, so the
-                # result is the last account reached before the loop (B for
-                # A→B→A) rather than the revisited one.
+                # A circular migration has no canonical destination: keep the
+                # stored URL rather than flip-flopping between the accounts.
                 if new_parsed and f"{new_parsed[1]}@{new_parsed[0]}" in visited:
                     tqdm.write(f"Warning: Circular migration detected for {mastodon_url}")
-                    break
+                    return None
 
                 tqdm.write(f"Mastodon migration detected: {current_url} → {new_url}")
                 current_url = new_url
