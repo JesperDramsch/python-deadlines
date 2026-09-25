@@ -57,16 +57,13 @@ jobs:
 
     - name: 🐍 Setup Pixi
       uses: prefix-dev/setup-pixi@v0.10.2
+      with:
+        environments: tests
 
+    # Linting is covered by the pre-commit job (ruff, black, isort on all files)
     - name: 🧪 Run Python tests
       run: |
-        pixi run test-fast || echo "Tests completed"
-
-    - name: 🔍 Check Python code quality
-      run: |
-        # Run ruff for linting
-        ruff check utils/ || true
-        ruff format utils/ --check || true
+        pixi run -e tests test-fast
 
   pre-commit:
     name: Pre-commit Checks
