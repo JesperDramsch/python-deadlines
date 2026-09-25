@@ -3,6 +3,7 @@ import re
 # Import centralized country mappings - this is the SINGLE SOURCE OF TRUTH
 from tidy_conf.countries import COUNTRY_CODE_TO_NAME
 from tidy_conf.utils import fold_name
+from tidy_conf.utils import strip_accents
 from tidy_conf.yaml import load_title_mappings
 from tqdm import tqdm
 
@@ -135,9 +136,13 @@ def normalize_conference_name(name: str, known_mappings: dict | None = None) -> 
     # Remove leading and trailing whitespace
     result = result.strip()
 
-    # Apply known mappings FIRST (mappings may contain unexpanded country codes)
+    # Apply known mappings FIRST (mappings may contain unexpanded country codes).
+    # The reverse mapping also holds accent-free variants, so fall back to the
+    # accent-free form: "PyDay México" finds the "PyDay Mexico" entry.
     if result in known_mappings:
         result = known_mappings[result]
+    elif strip_accents(result) in known_mappings:
+        result = known_mappings[strip_accents(result)]
 
     # Expand country codes to full names AFTER mappings
     # This ensures idempotency: normalize(normalize(x)) == normalize(x)

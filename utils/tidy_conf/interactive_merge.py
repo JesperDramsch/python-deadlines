@@ -372,7 +372,13 @@ def fuzzy_match(
                 logger.debug(
                     f"Exact match: '{conference_name}' -> '{title}' (score: {prob})",
                 )
-                df.at[i, "title_match"] = title
+                if title != conference_name:
+                    # Identical after accent/case folding but spelled differently.
+                    # YAML is the source of truth, so key the remote row by the YAML
+                    # spelling and remember the remote spelling as a variation.
+                    df_remote = df_remote.rename(index={title: conference_name})
+                    new_mappings[conference_name].append(title)
+                df.at[i, "title_match"] = conference_name
                 claimed_titles[title] = conference_name
                 record.match_type = "exact"
                 record.action = "merged"
@@ -680,8 +686,11 @@ def merge_conferences(
                         else:
                             # Check if it's an extension of the deadline and update both
                             if query_yes_no("Is this an extension?"):
-                                rrx, rry = int(rx.replace("-", "").split(" ")[0]), int(
-                                    ry.replace("-", "").split(" ")[0],
+                                rrx, rry = (
+                                    int(rx.replace("-", "").split(" ")[0]),
+                                    int(
+                                        ry.replace("-", "").split(" ")[0],
+                                    ),
                                 )
                                 if rrx < rry:
                                     df_new.loc[i, "cfp"] = rx + cfp_time_x
