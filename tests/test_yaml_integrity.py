@@ -221,6 +221,19 @@ class TestDataConsistency:
         if date_errors:
             pytest.fail("Date format errors:\n" + "\n".join(date_errors[:10]))
 
+    def test_no_nan_deadlines(self, all_conference_data):
+        """No deadline may be the pandas artefact "nan" (use TBA or None instead)."""
+        nan_errors = [
+            f"{file_name}: {conf.get('conference')} {conf.get('year')} has {field}: {conf[field]}"
+            for file_name, file_data in all_conference_data.items()
+            for conf in file_data or []
+            for field in ["cfp", "cfp_ext", "workshop_deadline", "tutorial_deadline"]
+            if field in conf and str(conf[field]).strip().lower() in {"nan", ""}
+        ]
+
+        if nan_errors:
+            pytest.fail("NaN deadlines found:\n" + "\n".join(nan_errors))
+
     def test_geographic_data_consistency(self, all_conference_data):
         """Test geographic data consistency."""
         all_conferences = []

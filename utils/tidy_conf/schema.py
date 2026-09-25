@@ -7,6 +7,7 @@ import pandas as pd
 import yaml
 from pydantic import BaseModel
 from pydantic import HttpUrl
+from pydantic import ValidationInfo
 from pydantic import condate
 from pydantic import confloat
 from pydantic import conint
@@ -105,6 +106,19 @@ class Conference(BaseModel):
         for x in v.split(","):
             if x not in valid_types:
                 raise ValueError("Invalid submission type")
+        return v
+
+    @field_validator("cfp", "cfp_ext", "workshop_deadline", "tutorial_deadline", mode="before")
+    @classmethod
+    def replace_missing_deadline(cls, v: object, info: ValidationInfo) -> object:
+        """Turn pandas missing values (NaN or the string "nan") into TBA for cfp, None otherwise.
+
+        Rejecting them would make sort_yaml drop the whole conference.
+        """
+        if v is None:
+            return v
+        if (isinstance(v, float) and pd.isna(v)) or (isinstance(v, str) and v.strip().lower() in {"nan", ""}):
+            return "TBA" if info.field_name == "cfp" else None
         return v
 
     @field_validator("twitter")

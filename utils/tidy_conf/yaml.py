@@ -220,5 +220,6 @@ def write_df_yaml(df, out_url):
     df["end"] = pd.to_datetime(df["end"]).dt.date
     df["start"] = pd.to_datetime(df["start"]).dt.date
     df["year"] = df["year"].astype(int)
-    df["cfp"] = df["cfp"].astype(str)
+    # astype(str) would turn missing values into the literal string "nan"
+    df["cfp"] = df["cfp"].fillna("TBA").astype(str).replace({"nan": "TBA", "NaN": "TBA", "": "TBA"})
     write_conference_yaml(df, out_url)
