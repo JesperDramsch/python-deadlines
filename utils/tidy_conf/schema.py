@@ -1,5 +1,6 @@
 import re
 from datetime import date
+from datetime import time
 from pathlib import Path
 from typing import Annotated
 
@@ -126,6 +127,16 @@ class Conference(BaseModel):
             return v
         if (isinstance(v, float) and pd.isna(v)) or (isinstance(v, str) and v.strip().lower() in {"nan", ""}):
             return "TBA" if info.field_name == "cfp" else None
+        return v
+
+    @field_validator("cfp", "cfp_ext", "workshop_deadline", "tutorial_deadline")
+    @classmethod
+    def validate_deadline_is_real(cls, v: str | None) -> str | None:
+        """The pattern only checks the digit layout; reject impossible values such as 2026-02-30."""
+        if v and v[:4].isdigit():
+            date.fromisoformat(v[:10])
+            if len(v) > 10:
+                time.fromisoformat(v[11:])
         return v
 
     @field_validator("twitter")

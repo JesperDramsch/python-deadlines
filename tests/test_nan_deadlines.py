@@ -11,9 +11,11 @@ from pathlib import Path
 import pandas as pd
 import pytest
 import yaml
+from pydantic import ValidationError
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
+from tidy_conf.date import clean_dates
 from tidy_conf.schema import Conference
 from tidy_conf.yaml import write_df_yaml
 
@@ -54,3 +56,25 @@ class TestWriteDfYamlNan:
         written = yaml.safe_load(out.read_text(encoding="utf-8"))
         assert [c["cfp"] for c in written] == ["TBA", "TBA", "2025-02-15 23:59:00"]
         assert "nan" not in out.read_text(encoding="utf-8")
+
+
+class TestDeadlineSanity:
+    """Deadlines must be real calendar dates, and blank optional deadlines must not crash the sort."""
+
+    @pytest.mark.parametrize("value", ["2026-02-30", "2026-13-01 23:59:00", "2026-02-15 25:00:00"])
+    def test_impossible_deadline_rejected(self, sample_conference, value):
+        with pytest.raises(ValidationError):
+            Conference(**{**sample_conference, "cfp": value})
+
+    @pytest.mark.parametrize("value", ["2026-02-28", "2024-02-29 23:59:00"])
+    def test_real_deadline_accepted(self, sample_conference, value):
+        assert Conference(**{**sample_conference, "cfp": value}).cfp == value
+
+    def test_clean_dates_skips_blank_optional_deadline(self):
+        """`cfp_ext:` with no value loads as None and previously raised AttributeError."""
+        data = {"start": "2026-06-01", "end": "2026-06-03", "cfp": "2026-02-15", "cfp_ext": None}
+
+        cleaned = clean_dates(data)
+
+        assert cleaned["cfp"] == "2026-02-15 23:59:00"
+        assert cleaned["cfp_ext"] is None
