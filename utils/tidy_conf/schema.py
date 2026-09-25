@@ -1,25 +1,34 @@
 import re
 from datetime import date
+from datetime import time
 from pathlib import Path
 from typing import Annotated
 
 import pandas as pd
 import yaml
 from pydantic import BaseModel
+from pydantic import Field
 from pydantic import HttpUrl
-from pydantic import condate
-from pydantic import confloat
-from pydantic import conint
-from pydantic import constr
+from pydantic import StringConstraints
+from pydantic import ValidationInfo
 from pydantic import field_serializer
 from pydantic import field_validator
 from pydantic import model_validator
 
-DatetimeString = Annotated[str, constr(pattern=r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$")]
-PythonYear = Annotated[int, conint(ge=1989, le=3000)]
-PythonDate = Annotated[date, condate(gt=date.fromisoformat("1989-01-01"))]
-LatitudeFloat = Annotated[float, confloat(ge=-90, le=90)]
-LongitudeFloat = Annotated[float, confloat(ge=-180, le=180)]
+# Constraints must be Annotated metadata (StringConstraints/Field); nesting constr()/conint()
+# inside Annotated is silently ignored by pydantic v2.
+# Date-only deadlines are allowed; sort_yaml appends DEFAULT_CFP_TIME to them.
+DatetimeString = Annotated[str, StringConstraints(pattern=r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?$")]
+# The main CFP also accepts the TBA words sort_yaml.TBA_WORDS understands, in any case.
+# "nan" is excluded on purpose: replace_missing_deadline turns it into "TBA" first.
+CfpString = Annotated[
+    str,
+    StringConstraints(pattern=r"^(\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?|(?i:tba|tbd|cancelled|none|na|n/a|n\.a\.))$"),
+]
+PythonYear = Annotated[int, Field(ge=1989, le=3000)]
+PythonDate = Annotated[date, Field(gt=date.fromisoformat("1989-01-01"))]
+LatitudeFloat = Annotated[float, Field(ge=-90, le=90)]
+LongitudeFloat = Annotated[float, Field(ge=-180, le=180)]
 
 
 class Location(BaseModel):
@@ -58,7 +67,7 @@ class Conference(BaseModel):
     year: PythonYear
     link: HttpUrl
     cfp_link: HttpUrl | None = None
-    cfp: DatetimeString
+    cfp: CfpString
     cfp_ext: DatetimeString | None = None
     workshop_deadline: DatetimeString | None = None
     tutorial_deadline: DatetimeString | None = None
@@ -105,6 +114,29 @@ class Conference(BaseModel):
         for x in v.split(","):
             if x not in valid_types:
                 raise ValueError("Invalid submission type")
+        return v
+
+    @field_validator("cfp", "cfp_ext", "workshop_deadline", "tutorial_deadline", mode="before")
+    @classmethod
+    def replace_missing_deadline(cls, v: object, info: ValidationInfo) -> object:
+        """Turn pandas missing values (NaN or the string "nan") into TBA for cfp, None otherwise.
+
+        Rejecting them would make sort_yaml drop the whole conference.
+        """
+        if v is None:
+            return v
+        if (isinstance(v, float) and pd.isna(v)) or (isinstance(v, str) and v.strip().lower() in {"nan", ""}):
+            return "TBA" if info.field_name == "cfp" else None
+        return v
+
+    @field_validator("cfp", "cfp_ext", "workshop_deadline", "tutorial_deadline")
+    @classmethod
+    def validate_deadline_is_real(cls, v: str | None) -> str | None:
+        """The pattern only checks the digit layout; reject impossible values such as 2026-02-30."""
+        if v and v[:4].isdigit():
+            date.fromisoformat(v[:10])
+            if len(v) > 10:
+                time.fromisoformat(v[11:])
         return v
 
     @field_validator("twitter")

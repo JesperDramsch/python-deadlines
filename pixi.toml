@@ -47,6 +47,9 @@ nodejs = "*"
 pytest = ">=7.4.0,<8.0"
 pytest-cov = ">=4.1.0,<5.0"
 pytest-mock = ">=3.11.0,<4.0"
+freezegun = ">=1.5.5,<2"
+hypothesis = ">=6.168.1,<7"
+responses = ">=0.26.3,<0.27"
 
 
 [feature.all-contrib.tasks]

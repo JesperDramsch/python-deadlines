@@ -160,7 +160,7 @@ def merge_duplicates(data):
     filtered = []
     filtered_reduced = []
     for q in tqdm(data):
-        q_reduced = f'{q.get("conference", None)} {q.get("year", None)} {q.get("place", None)}'
+        q_reduced = f"{q.get('conference', None)} {q.get('year', None)} {q.get('place', None)}"
         if q_reduced not in filtered_reduced:
             filtered.append(q)
             filtered_reduced.append(q_reduced)
@@ -203,7 +203,8 @@ def split_data(data: list[Conference]) -> tuple[list, list, list, list]:
     for q in tqdm(data):
         if q.cfp.lower() not in TBA_WORDS and " " not in q.cfp:
             q.cfp += DEFAULT_CFP_TIME
-        if "cfp_ext" in q and " " not in q.cfp_ext:
+        # `"cfp_ext" in q` is always False on a pydantic model, so check the attribute itself
+        if q.cfp_ext and " " not in q.cfp_ext:
             q.cfp_ext += DEFAULT_CFP_TIME
         date_today = datetime.datetime.now(tz=timezone.utc).replace(microsecond=0).date()
         # if the conference is older than CFP_WARNING_DAYS, it moves off the main page
@@ -332,7 +333,11 @@ def sort_data(base="", prefix="", skip_links=False):
     validation_errors = len(validated) - len(new_data)
 
     if validation_errors > 0:
-        logger.warning(f"⚠️  {validation_errors} conferences failed validation and were skipped")
+        # Writing the remaining entries would silently delete the invalid ones from
+        # the data files, and the automated sort runs commit the result unattended.
+        msg = f"{validation_errors} conferences failed validation; refusing to write data files"
+        logger.error(f"❌ {msg}")
+        raise ValueError(msg)
 
     data = new_data
     logger.info(f"✅ {len(data)} conferences passed validation")

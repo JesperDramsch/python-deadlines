@@ -20,6 +20,7 @@ try:
     from tidy_conf.countries import normalize_place
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_df_names
+    from tidy_conf.utils import fold_name
     from tidy_conf.utils import query_yes_no
     from tidy_conf.validation import MergeRecord
     from tidy_conf.validation import MergeReport
@@ -33,6 +34,7 @@ except ImportError:
     from .countries import normalize_place
     from .schema import get_schema
     from .titles import tidy_df_names
+    from .utils import fold_name
     from .utils import query_yes_no
     from .validation import MergeRecord
     from .validation import MergeReport
@@ -60,7 +62,7 @@ def is_identical_name(s1: str, s2: str) -> bool:
 
     A fuzzy score of 100 does NOT imply identity: token_set_ratio returns 100
     whenever one name's tokens are a subset of the other's (e.g. "PyCon Africa"
-    vs "PyCon South Africa"). Only names that are equal after case and
+    vs "PyCon South Africa"). Only names that are equal after case, accent and
     whitespace normalization may be auto-merged without confirmation.
 
     Parameters
@@ -75,7 +77,7 @@ def is_identical_name(s1: str, s2: str) -> bool:
     bool
         True if the names are identical after normalization
     """
-    return " ".join(s1.lower().split()) == " ".join(s2.lower().split())
+    return fold_name(s1) == fold_name(s2)
 
 
 def is_placeholder_value(value) -> bool:
@@ -182,9 +184,9 @@ def conference_scorer(s1: str, s2: str) -> int:
     int
         Maximum similarity score from all strategies (0-100)
     """
-    # Normalize case for comparison
-    s1_lower = s1.lower().strip()
-    s2_lower = s2.lower().strip()
+    # Normalize case, accents, and whitespace for comparison
+    s1_lower = fold_name(s1)
+    s2_lower = fold_name(s2)
 
     # Calculate different similarity scores
     scores = [
@@ -370,7 +372,13 @@ def fuzzy_match(
                 logger.debug(
                     f"Exact match: '{conference_name}' -> '{title}' (score: {prob})",
                 )
-                df.at[i, "title_match"] = title
+                if title != conference_name:
+                    # Identical after accent/case folding but spelled differently.
+                    # YAML is the source of truth, so key the remote row by the YAML
+                    # spelling and remember the remote spelling as a variation.
+                    df_remote = df_remote.rename(index={title: conference_name})
+                    new_mappings[conference_name].append(title)
+                df.at[i, "title_match"] = conference_name
                 claimed_titles[title] = conference_name
                 record.match_type = "exact"
                 record.action = "merged"
@@ -678,8 +686,11 @@ def merge_conferences(
                         else:
                             # Check if it's an extension of the deadline and update both
                             if query_yes_no("Is this an extension?"):
-                                rrx, rry = int(rx.replace("-", "").split(" ")[0]), int(
-                                    ry.replace("-", "").split(" ")[0],
+                                rrx, rry = (
+                                    int(rx.replace("-", "").split(" ")[0]),
+                                    int(
+                                        ry.replace("-", "").split(" ")[0],
+                                    ),
                                 )
                                 if rrx < rry:
                                     df_new.loc[i, "cfp"] = rx + cfp_time_x

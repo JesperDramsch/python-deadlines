@@ -20,9 +20,12 @@ def clean_dates(data):
             )
 
     # Make deadlines
-    for datetimes in ["cfp", "workshop_deadline", "tutorial_deadline"]:
+    for datetimes in ["cfp", "cfp_ext", "workshop_deadline", "tutorial_deadline"]:
         if datetimes not in data:
             # Check if we have this key
+            continue
+        if data[datetimes] is None:
+            # A blank YAML value (`cfp_ext:`) loads as None; leave it to the schema
             continue
         if isinstance(data[datetimes], datetime.datetime):
             # If it's a datetime make it a string, because of timezones

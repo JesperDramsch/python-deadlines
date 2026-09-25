@@ -50,6 +50,10 @@ def main() -> None:
         total_time = time.time() - start_time
         logger.info(f"🎉 Data processing pipeline completed successfully in {total_time:.2f}s")
 
+    except KeyboardInterrupt:
+        # Not an Exception subclass, so it needs its own handler to be logged
+        logger.error("❌ Pipeline interrupted by user")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"❌ Pipeline failed with error: {e}", exc_info=True)
         sys.exit(1)
