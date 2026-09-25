@@ -38,6 +38,7 @@ def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:
     with Path(url).open(
         "w",
         encoding="utf-8",
+        newline="\n",
     ) as outfile:
         for line in ordered_dump(
             data,
