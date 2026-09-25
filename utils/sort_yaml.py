@@ -160,7 +160,7 @@ def merge_duplicates(data):
     filtered = []
     filtered_reduced = []
     for q in tqdm(data):
-        q_reduced = f'{q.get("conference", None)} {q.get("year", None)} {q.get("place", None)}'
+        q_reduced = f"{q.get('conference', None)} {q.get('year', None)} {q.get('place', None)}"
         if q_reduced not in filtered_reduced:
             filtered.append(q)
             filtered_reduced.append(q_reduced)
@@ -333,7 +333,11 @@ def sort_data(base="", prefix="", skip_links=False):
     validation_errors = len(validated) - len(new_data)
 
     if validation_errors > 0:
-        logger.warning(f"⚠️  {validation_errors} conferences failed validation and were skipped")
+        # Writing the remaining entries would silently delete the invalid ones from
+        # the data files, and the automated sort runs commit the result unattended.
+        msg = f"{validation_errors} conferences failed validation; refusing to write data files"
+        logger.error(f"❌ {msg}")
+        raise ValueError(msg)
 
     data = new_data
     logger.info(f"✅ {len(data)} conferences passed validation")

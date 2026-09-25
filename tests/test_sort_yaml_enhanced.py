@@ -607,9 +607,30 @@ class TestSortDataIntegration:
     def test_sort_data_no_files_exist(self):
         """Test sort_data when no data files exist."""
 
-    @pytest.mark.skip(reason="Test requires complex Path mock with context manager - covered by real integration tests")
-    def test_sort_data_validation_errors(self):
-        """Test sort_data with validation errors."""
+    def test_sort_data_refuses_to_write_on_validation_errors(self, tmp_path):
+        """An entry that fails the schema must abort the run, not be silently dropped.
+
+        The automated sort runs commit whatever is written, so dropping the entry
+        would delete it from the data files unnoticed.
+        """
+        data_dir = tmp_path / "_data"
+        data_dir.mkdir()
+        conferences = data_dir / "conferences.yml"
+        entry = (
+            "- conference: {name}\n  year: {year}\n  link: https://example.com/\n  cfp: '2026-02-15 23:59:00'\n"
+            "  place: Online\n  start: 2026-06-01\n  end: 2026-06-03\n  sub: PY\n"
+        )
+        conferences.write_text(
+            entry.format(name="Valid Conference", year=2026) + entry.format(name="Invalid Conference", year=1988),
+            encoding="utf-8",
+        )
+        before = conferences.read_bytes()
+
+        with pytest.raises(ValueError, match="1 conferences failed validation"):
+            sort_yaml.sort_data(base=str(tmp_path), skip_links=True)
+
+        assert conferences.read_bytes() == before
+        assert not (data_dir / "archive.yml").exists()
 
 
 class TestCommandLineInterface:
