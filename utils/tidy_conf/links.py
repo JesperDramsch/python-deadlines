@@ -79,6 +79,8 @@ def get_cache_location():
     # Check if the URL is cached
     cache_file = Path("utils", "tidy_conf", "data", ".tmp", "no_archive.txt")
     cache_file_archived = Path("utils", "tidy_conf", "data", ".tmp", "archived_links.txt")
+    # The cache directory is gitignored, so it does not exist in a fresh checkout
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
     return cache_file, cache_file_archived
 
 
@@ -236,6 +238,8 @@ def check_mastodon_migration(mastodon_url: str, max_depth: int = 5) -> str | Non
     """Check if a Mastodon account has migrated and return the new URL.
 
     Follows migration chains (A→B→C) until finding the final destination.
+    If the chain loops back to an account already visited (A→B→A), it stops
+    at the last account before the loop.
 
     Args:
         mastodon_url: Full Mastodon profile URL (e.g., https://fosstodon.org/@pycon)

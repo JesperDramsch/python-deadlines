@@ -86,9 +86,12 @@ class TestLinkCheckingWithResponses:
 
         test_start = date(2025, 6, 1)
 
-        with patch("tidy_conf.links.get_cache") as mock_cache, patch(
-            "tidy_conf.links.get_cache_location",
-        ) as mock_cache_location:
+        with (
+            patch("tidy_conf.links.get_cache") as mock_cache,
+            patch(
+                "tidy_conf.links.get_cache_location",
+            ) as mock_cache_location,
+        ):
             mock_cache.return_value = (set(), set())
             mock_cache_file = Mock()
             mock_file_handle = Mock()
@@ -292,13 +295,18 @@ class TestLinkAvailability:
         test_url = "https://example.com/not-found"
         test_start = date(2025, 6, 1)
 
-        with patch("tidy_conf.links.tqdm.write"), patch("tidy_conf.links.attempt_archive_url"), patch(
-            "tidy_conf.links.get_cache",
-        ) as mock_get_cache, patch("tidy_conf.links.get_cache_location") as mock_cache_location, patch(
-            "builtins.open",
-            create=True,
+        with (
+            patch("tidy_conf.links.tqdm.write"),
+            patch("tidy_conf.links.attempt_archive_url"),
+            patch(
+                "tidy_conf.links.get_cache",
+            ) as mock_get_cache,
+            patch("tidy_conf.links.get_cache_location") as mock_cache_location,
+            patch(
+                "builtins.open",
+                create=True,
+            ),
         ):
-
             # Mock cache returns empty sets
             mock_get_cache.return_value = (set(), set())
             # Mock cache file paths with proper context manager support
@@ -382,6 +390,17 @@ class TestCaching:
         assert cache_file.name == "no_archive.txt"
         assert cache_file_archived.name == "archived_links.txt"
 
+    def test_get_cache_creates_missing_directory(self, tmp_path, monkeypatch):
+        """The gitignored .tmp directory is absent in a fresh checkout; get_cache must not crash."""
+        monkeypatch.chdir(tmp_path)
+
+        cache, cache_archived = links.get_cache()
+
+        assert cache == set()
+        assert cache_archived == set()
+        assert (tmp_path / "utils" / "tidy_conf" / "data" / ".tmp" / "no_archive.txt").is_file()
+        assert (tmp_path / "utils" / "tidy_conf" / "data" / ".tmp" / "archived_links.txt").is_file()
+
     @patch("tidy_conf.links.Path.read_text")
     @patch("tidy_conf.links.Path.touch")
     def test_get_cache(self, mock_touch, mock_read_text):
@@ -423,10 +442,13 @@ class TestArchiveAttempt:
 
         test_url = "https://example.com"
 
-        with patch("tidy_conf.links.get_cache_location") as mock_cache_location, patch(
-            "tidy_conf.links.get_cache",
-        ) as mock_get_cache, patch("builtins.open", create=True) as mock_open:
-
+        with (
+            patch("tidy_conf.links.get_cache_location") as mock_cache_location,
+            patch(
+                "tidy_conf.links.get_cache",
+            ) as mock_get_cache,
+            patch("builtins.open", create=True) as mock_open,
+        ):
             # Mock cache file paths with proper context manager support
             mock_cache_file = Mock()
             mock_cache_archived = Mock()
@@ -492,13 +514,17 @@ class TestDateLogic:
         old_start = date(2019, 6, 1)
         test_url = "https://example.com"
 
-        with patch("tidy_conf.links.attempt_archive_url") as mock_archive, patch(
-            "tidy_conf.links.get_cache",
-        ) as mock_get_cache, patch("tidy_conf.links.get_cache_location") as mock_cache_location, patch(
-            "builtins.open",
-            create=True,
+        with (
+            patch("tidy_conf.links.attempt_archive_url") as mock_archive,
+            patch(
+                "tidy_conf.links.get_cache",
+            ) as mock_get_cache,
+            patch("tidy_conf.links.get_cache_location") as mock_cache_location,
+            patch(
+                "builtins.open",
+                create=True,
+            ),
         ):
-
             # Mock cache returns to avoid cache hits
             mock_get_cache.return_value = (set(), set())
             # Mock cache file paths with proper context manager support
