@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 import pytest
 import pytz
+from freezegun import freeze_time
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -173,6 +174,8 @@ class TestSortByDate:
 class TestSortByDatePassed:
     """Test date passed sorting functionality."""
 
+    # Freeze "today" so the 2026 CFP stays in the future regardless of when the suite runs
+    @freeze_time("2026-01-15")
     def test_sort_by_date_passed_future(self):
         """Test date passed sorting for future conferences."""
         conf = Conference(
@@ -405,6 +408,8 @@ class TestTidyDates:
 class TestSplitData:
     """Test data splitting functionality."""
 
+    # Freeze "today" so the 2026 conference is still upcoming regardless of when the suite runs
+    @freeze_time("2026-01-15")
     def test_split_data_basic_categories(self):
         """Test basic data splitting into categories."""
         # Use fixed dates to avoid year boundary issues
@@ -467,7 +472,11 @@ class TestSplitData:
 
         assert "Active Conference" in conf_names
         assert "TBA Conference" in tba_names
+        assert [c.conference for c in expired] == ["Expired Conference"]
+        assert [c.conference for c in legacy] == ["Legacy Conference"]
 
+    # Freeze "today" so the 2026 conference is still upcoming regardless of when the suite runs
+    @freeze_time("2026-01-15")
     def test_split_data_cfp_ext_handling(self):
         """Test handling of extended CFP deadlines."""
         # Use fixed dates in same year to avoid validation issues
@@ -486,13 +495,11 @@ class TestSplitData:
         with patch("tqdm.tqdm", side_effect=lambda x: x):
             result_conf, _, _, _ = sort_yaml.split_data([conf])
 
-        # Should have added time to cfp
+        # Should have added the default time to both deadlines
         assert len(result_conf) == 1
         processed = result_conf[0]
-        assert "23:59:00" in processed.cfp
-        # cfp_ext time handling depends on Conference object attribute check
-        # Just verify the conference was processed correctly
-        assert processed.cfp_ext is not None
+        assert processed.cfp == "2026-02-15 23:59:00"
+        assert processed.cfp_ext == "2026-03-01 23:59:00"
 
     def test_split_data_boundary_dates(self):
         """Test splitting with boundary date conditions."""
