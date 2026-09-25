@@ -841,7 +841,8 @@
     latitude: 52.3730796
     longitude: 4.8924534
 
-- conference: 'PyDay México: CDMX'
+- conference: PyDay Mexico
+  alt_name: 'PyDay México: CDMX'
   year: 2026
   link: https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029
   cfp: TBA
@@ -850,7 +851,7 @@
   end: 2026-10-10
   sub: DAY
   location:
-  - title: 'PyDay México: CDMX 2026'
+  - title: PyDay Mexico 2026
     latitude: 19.3207722
     longitude: -99.1514678
 

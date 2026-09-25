@@ -137,6 +137,13 @@ alt_name:
     variations:
     - PyConf HYD
     - Python Conference Hyderabad
+  PyDay Mexico:
+    variations:
+    - PyDay México
+    - 'PyDay México: CDMX'
+    - 'PyDay Mexico: CDMX'
+    - PyDay CDMX
+    - Python Day Mexico
   PyLadiesCon:
     variations:
     - PyLadies Conference
@@ -150,6 +157,10 @@ alt_name:
   Python Niger:
     variations:
     - Python Niger (Niger)
+  Python Nordeste:
+    variations:
+    - PyNE
+    - Python Nordeste (PyNE)
   Python Pizza:
     global: null
     regexes:
