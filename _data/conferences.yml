@@ -710,6 +710,19 @@
     latitude: 13.7563
     longitude: 100.5018
 
+- conference: PyCon Armenia
+  year: 2027
+  link: https://pycon.am/
+  cfp: TBA
+  place: Yerevan, Armenia
+  start: 2027-06-18
+  end: 2027-06-19
+  sub: PY
+  location:
+  - title: PyCon Armenia 2027
+    latitude: 40.1777112
+    longitude: 44.5126233
+
 - conference: PyCon Angola
   year: 2027
   link: https://ao.pycon.org/
