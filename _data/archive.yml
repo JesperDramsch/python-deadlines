@@ -1,5 +1,51 @@
 ---
 
+- conference: PyCon Japan
+  year: 2026
+  link: https://2026.pycon.jp/
+  cfp_link: https://pretalx.com/pyconjp2026/cfp
+  cfp: '2026-06-01 15:00:00'
+  timezone: Asia/Tokyo
+  place: Hiroshima, Japan
+  start: 2026-08-21
+  end: 2026-08-22
+  sponsor: https://2026.pycon.jp/en/sponsors
+  sub: PY
+  location:
+  - title: PyCon Japan 2026
+    latitude: 34.3917241
+    longitude: 132.4517589
+
+- conference: PyCon Ghana
+  year: 2026
+  link: https://gh.pycon.org/2026/
+  cfp_link: https://gh.pycon.org/2026/talks/submit_talk
+  cfp: '2026-06-06 23:59:00'
+  timezone: Africa/Accra
+  place: Accra, Ghana
+  start: 2026-08-20
+  end: 2026-08-22
+  sponsor: https://gh.pycon.org/2026/sponsors/
+  sub: PY
+  location:
+  - title: PyCon Ghana 2026
+    latitude: 5.5571096
+    longitude: -0.2012376
+
+- conference: PyCon Latin America
+  alt_name: PyCon LatAm
+  year: 2026
+  link: https://www.pylatam.org/
+  cfp: '2026-04-30 23:59:00'
+  place: Turrialba, Costa Rica
+  start: 2026-08-20
+  end: 2026-08-23
+  sub: PY
+  location:
+  - title: PyCon Latam 2026
+    latitude: 9.7843604
+    longitude: -83.4995932
+
 - conference: PyCon South Korea
   alt_name: PyCon.KR
   year: 2026

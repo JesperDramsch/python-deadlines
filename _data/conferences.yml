@@ -94,7 +94,10 @@
   start: 2026-10-22
   end: 2026-10-23
   sponsor: https://pycon.pa/2026/patrocinadores
+  twitter: pythonpanama
   sub: PY
+  note: Free admission with registration. 22 October is hybrid (in person and Google
+    Meet); 23 October is in person only.
   location:
   - title: PyCon Panamá 2026
     latitude: 8.9714493
@@ -277,6 +280,19 @@
     latitude: 37.7681571
     longitude: -122.392929
 
+- conference: Xtreme Python
+  alt_name: XtremePython
+  year: 2026
+  link: https://xtremepython.dev/2026/
+  cfp_link: https://forms.gle/YeeyufwaDYPRMVzv5
+  cfp: '2026-07-10 23:59:00'
+  place: Online
+  start: 2026-11-17
+  end: 2026-11-17
+  sponsor: https://xtremepython.dev/2026/sponsors/
+  twitter: xtremepython
+  sub: PY
+
 - conference: PyCon Hong Kong
   year: 2026
   link: https://www.pycon.hk/
@@ -360,22 +376,6 @@
     latitude: 37.3382082
     longitude: -121.8863286
 
-- conference: PyCon Ghana
-  year: 2026
-  link: https://gh.pycon.org/2026/
-  cfp_link: https://gh.pycon.org/2026/talks/submit_talk
-  cfp: '2026-06-06 23:59:00'
-  timezone: Africa/Accra
-  place: Accra, Ghana
-  start: 2026-08-20
-  end: 2026-08-22
-  sponsor: https://gh.pycon.org/2026/sponsors/
-  sub: PY
-  location:
-  - title: PyCon Ghana 2026
-    latitude: 5.5571096
-    longitude: -0.2012376
-
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
@@ -406,22 +406,6 @@
   - title: PyCon Taiwan 2026
     latitude: 25.033
     longitude: 121.5654
-
-- conference: PyCon Japan
-  year: 2026
-  link: https://2026.pycon.jp/
-  cfp_link: https://pretalx.com/pyconjp2026/cfp
-  cfp: '2026-06-01 15:00:00'
-  timezone: Asia/Tokyo
-  place: Hiroshima, Japan
-  start: 2026-08-21
-  end: 2026-08-22
-  sponsor: https://2026.pycon.jp/en/sponsors
-  sub: PY
-  location:
-  - title: PyCon Japan 2026
-    latitude: 34.3917241
-    longitude: 132.4517589
 
 - conference: Swiss Python Summit
   year: 2026
@@ -512,20 +496,6 @@
   - title: PyCon Portugal 2026
     latitude: 40.63070934919421
     longitude: -8.657472831794745
-
-- conference: PyCon Latin America
-  alt_name: PyCon LatAm
-  year: 2026
-  link: https://www.pylatam.org/
-  cfp: '2026-04-30 23:59:00'
-  place: Turrialba, Costa Rica
-  start: 2026-08-20
-  end: 2026-08-23
-  sub: PY
-  location:
-  - title: PyCon Latam 2026
-    latitude: 9.7843604
-    longitude: -83.4995932
 
 - conference: PyCon Cameroon
   year: 2026
@@ -658,8 +628,9 @@
   start: 2028-04-24
   end: 2028-04-29
   sponsor: https://pycon.de/sponsoring/
+  twitter: PyConDE
   mastodon: https://fosstodon.org/@pyconde
-  sub: PY
+  sub: PY,DATA
   location:
   - title: PyCon Germany 2028
     latitude: 49.4093582
@@ -673,6 +644,7 @@
   place: Gliwice, Poland
   start: 2027-08-26
   end: 2027-08-29
+  twitter: pyconpl
   bluesky: https://bsky.app/profile/pyconpl.bsky.social
   youtube: https://www.youtube.com/user/pyconpl
   sub: PY
@@ -704,6 +676,7 @@
   place: Bangkok, Thailand
   start: 2027-06-18
   end: 2027-06-19
+  twitter: pyconthailand
   sub: PY
   location:
   - title: PyCon Thailand 2027
@@ -766,9 +739,12 @@
   place: Heidelberg, Germany
   start: 2027-04-20
   end: 2027-04-22
-  sponsor: https://2027.pycon.de/sponsoring/
+  sponsor: https://pycon.de/sponsoring/
+  twitter: PyConDE
   mastodon: https://fosstodon.org/@pyconde
+  bluesky: https://bsky.app/profile/pyconde.bsky.social
   sub: PY,DATA
+  note: Call for Proposals opens in November 2026 according to the organizers' timeline.
   location:
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
@@ -816,15 +792,6 @@
     latitude: 55.9533456
     longitude: -3.1883749
 
-- conference: XtremePython
-  year: 2026
-  link: https://xtremepython.dev/
-  cfp: TBA
-  place: Online
-  start: 2026-11-17
-  end: 2026-11-17
-  sub: PY
-
 - conference: PyCon Tanzania
   alt_name: Python Tanzania Conference
   year: 2026
@@ -834,6 +801,7 @@
   start: 2026-11-14
   end: 2026-11-16
   sponsor: https://pycon.or.tz/sponsor/
+  twitter: PyconTanzania
   sub: PY
   location:
   - title: PyCon Tanzania 2026
@@ -896,8 +864,11 @@
   start: 2026-10-06
   end: 2026-10-08
   sponsor: https://earl-conference.com/earl-archive/sponsors/
+  twitter: earlconf
   youtube: https://www.youtube.com/channel/UCytOFkoZJfinB9rdRIOfRow?view_as=subscriber
   sub: BIZ
+  note: Final edition under the EARL name; from 2027 the event becomes the International
+    Data Intelligence Summit (5-7 October 2027, Brighton).
   location:
   - title: EARL 2026
     latitude: 50.8214626
@@ -921,12 +892,14 @@
 - conference: Pythoncamp Rügen
   year: 2026
   link: https://barcamps.eu/pythoncamp-ruegen-2026/
-  cfp: TBA
+  cfp_link: https://barcamps.eu/pythoncamp-ruegen-2026/sessions
+  cfp: None
   timezone: Europe/Berlin
   place: Rügen, Germany
   start: 2026-09-26
   end: 2026-09-27
   sponsor: https://barcamps.eu/pythoncamp-ruegen-2026/sponsoren
+  mastodon: https://ruhr.social/@pythoncamp
   sub: CAMP
   location:
   - title: Pythoncamp Rügen 2026
