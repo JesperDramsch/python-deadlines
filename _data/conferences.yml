@@ -50,6 +50,22 @@
     latitude: 12.9917014
     longitude: 80.2295271
 
+- conference: PyCon Senegambia
+  year: 2026
+  link: https://www.pyconsenegambia.org/
+  cfp: '2026-09-30 23:59:00'
+  timezone: Africa/Dakar
+  place: Dakar, Senegal
+  start: 2026-11-27
+  end: 2026-11-28
+  sponsor: https://www.pyconsenegambia.org/en/sponsorship
+  finaid: https://www.pyconsenegambia.org/en/#diversity
+  sub: PY
+  location:
+  - title: PyCon Senegambia 2026
+    latitude: 14.693425
+    longitude: -17.447938
+
 - conference: PyCon Wroclaw
   year: 2026
   link: https://www.pyconwroclaw.com/
@@ -733,7 +749,6 @@
   alt_name: PyCon Germany
   year: 2027
   link: https://2027.pycon.de/
-  cfp_link: https://pycon.de/
   cfp: TBA
   timezone: Europe/Berlin
   place: Heidelberg, Germany
@@ -744,7 +759,6 @@
   mastodon: https://fosstodon.org/@pyconde
   bluesky: https://bsky.app/profile/pyconde.bsky.social
   sub: PY,DATA
-  note: Call for Proposals opens in November 2026 according to the organizers' timeline.
   location:
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
@@ -753,7 +767,7 @@
 - conference: PyLadiesCon
   year: 2026
   link: https://2026.conference.pyladies.com/en/
-  cfp: TBA
+  cfp: None
   place: Online
   start: 2026-12-05
   end: 2026-12-07
@@ -762,35 +776,6 @@
   bluesky: https://bsky.app/profile/pyladiescon.bsky.social
   youtube: https://www.youtube.com/@PyLadiesGlobal
   sub: PY
-
-- conference: PyCon Senegambia
-  year: 2026
-  link: https://www.pyconsenegambia.org/
-  cfp: TBA
-  timezone: Africa/Dakar
-  place: Dakar, Senegal
-  start: 2026-11-27
-  end: 2026-11-28
-  sponsor: https://www.pyconsenegambia.org/en/sponsorship
-  finaid: https://www.pyconsenegambia.org/en/#diversity
-  sub: PY
-  location:
-  - title: PyCon Senegambia 2026
-    latitude: 14.693425
-    longitude: -17.447938
-
-- conference: Python E-Commerce Forum
-  year: 2026
-  link: https://codehut.co.uk/2026/
-  cfp: TBA
-  place: Edinburgh, UK
-  start: 2026-11-26
-  end: 2026-11-28
-  sub: PY
-  location:
-  - title: Python E-Commerce Forum 2026
-    latitude: 55.9533456
-    longitude: -3.1883749
 
 - conference: PyCon Tanzania
   alt_name: Python Tanzania Conference
@@ -828,7 +813,7 @@
   alt_name: 'PyDay México: CDMX'
   year: 2026
   link: https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029
-  cfp: TBA
+  cfp: None
   place: Ciudad de México, México
   start: 2026-10-10
   end: 2026-10-10
@@ -858,7 +843,7 @@
 - conference: EARL
   year: 2026
   link: https://earl-conference.com/
-  cfp: TBA
+  cfp: None
   timezone: Europe/London
   place: Brighton, UK
   start: 2026-10-06
@@ -877,7 +862,7 @@
 - conference: PyCaxias
   year: 2026
   link: https://pycaxias.com.br/
-  cfp: TBA
+  cfp: None
   timezone: America/Sao_Paulo
   place: Caxias do Sul, Brasil
   start: 2026-09-26
@@ -909,7 +894,7 @@
 - conference: PyDay Boyacá
   year: 2026
   link: https://www.pyday.co/
-  cfp: TBA
+  cfp: None
   place: Sogamoso, Colombia
   start: 2026-09-12
   end: 2026-09-13
@@ -919,17 +904,3 @@
   - title: PyDay Boyacá 2026
     latitude: 5.7148307
     longitude: -72.9279328
-
-- conference: PyHEP
-  year: 2026
-  link: https://indico.cern.ch/category/7971/
-  cfp: TBA
-  timezone: Europe/Zurich
-  place: Geneva, Switzerland
-  start: 2026-09-07
-  end: 2026-09-09
-  sub: PY
-  location:
-  - title: PyHEP 2026
-    latitude: 46.2047169
-    longitude: 6.1423106290939335
