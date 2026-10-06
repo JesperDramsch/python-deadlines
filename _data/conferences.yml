@@ -29,6 +29,20 @@
     latitude: 47.2654296
     longitude: 11.3927685
 
+- conference: PyCascades
+  year: 2027
+  link: https://2027.pycascades.com/
+  cfp_link: https://pretalx.com/pycascades-2027/cfp
+  cfp: '2026-10-26 23:59:00'
+  place: Seattle, USA
+  start: 2027-03-20
+  end: 2027-03-21
+  sub: PY
+  location:
+  - title: PyCascades 2027
+    latitude: 47.6038321
+    longitude: -122.330062
+
 - conference: SciPy India
   year: 2026
   link: https://scipy.in/2026/
