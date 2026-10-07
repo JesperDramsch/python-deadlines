@@ -657,13 +657,13 @@
 
 - conference: PyCon US
   year: 2027
-  link: https://us.pycon.org/
+  link: https://us.pycon.org/2027/
   cfp: TBA
   place: Long Beach, USA
   start: 2027-05-12
   end: 2027-05-18
-  sponsor: https://www.python.org/sponsors/application
-  finaid: https://us.pycon.org/2026/about/diversity/
+  sponsor: https://us.pycon.org/2027/sponsorship/
+  finaid: https://us.pycon.org/2027/about/diversity/
   mastodon: https://fosstodon.org/@pycon
   bluesky: https://bsky.app/profile/pycon.us
   youtube: https://www.youtube.com/c/pyconus
