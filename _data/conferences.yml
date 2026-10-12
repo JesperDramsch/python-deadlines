@@ -581,6 +581,21 @@
     latitude: 49.4093582
     longitude: 8.694724
 
+- conference: DjangoCon US
+  year: 2027
+  link: https://2027.djangocon.us/
+  cfp: TBA
+  timezone: America/Los_Angeles
+  place: Riverside, USA
+  start: 2027-09-13
+  end: 2027-09-17
+  mastodon: https://fosstodon.org/@djangocon
+  sub: WEB
+  location:
+  - title: DjangoCon US 2027
+    latitude: 33.9824949
+    longitude: -117.374238
+
 - conference: PyCon Poland
   year: 2027
   link: https://pl.pycon.org/2027
