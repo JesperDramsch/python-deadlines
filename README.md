@@ -4,6 +4,8 @@
 
 Countdown timers to keep track of a bunch of Python conference deadlines.
 
+This project started as a fork of [ai-deadlines](https://github.com/paperswithcode/ai-deadlines) and has been maintained independently since 2022; the upstream repository has been inactive since 2024.
+
 ## Contributing
 
 Contributions are very welcome!
