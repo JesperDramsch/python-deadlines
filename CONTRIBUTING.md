@@ -112,6 +112,8 @@ bundle install
 bundle exec jekyll serve
 ```
 
+The full build processes every language and the archive. For faster development builds (English only, no archive) see [DEVELOPMENT.md](DEVELOPMENT.md).
+
 ## Making Changes
 
 1. Create a new branch:
