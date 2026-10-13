@@ -100,13 +100,18 @@
     longitude: 17.0326689
 
 - conference: PyCon Namibia
+  alt_name: PyCon NA
   year: 2027
-  link: https://na.pycon.org/
-  cfp: '2026-09-21 01:59:00'
+  link: https://na.pycon.org/2027/
+  cfp_link: https://pretalx.com/pycon-namibia-2027/cfp
+  cfp: '2026-09-21 23:59:00'
   timezone: Africa/Windhoek
   place: Windhoek, Namibia
-  start: 2027-02-19
-  end: 2027-02-25
+  start: 2027-02-26
+  end: 2027-03-04
+  sponsor: https://na.pycon.org/2027/sponsors/prospectus/
+  finaid: https://na.pycon.org/2027/grants/
+  twitter: PyConNA
   mastodon: https://hachyderm.io/@PyConNA
   bluesky: https://bsky.app/profile/pyconna.bsky.social
   sub: PY
@@ -139,10 +144,13 @@
   link: https://wagtail.org/wagtail-space-2026/
   cfp_link: https://pretalx.com/wagtail-space-2026/cfp
   cfp: '2026-09-11 23:59:00'
+  cfp_ext: '2026-09-18 23:59:00'
   timezone: UTC
   place: Online
   start: 2026-11-18
   end: 2026-11-20
+  sponsor: https://wagtail.org/wagtail-space-2026/sponsors/
+  mastodon: https://fosstodon.org/@wagtail
   sub: WEB
 
 - conference: Python Pizza Istanbul
@@ -179,6 +187,26 @@
   - title: PyCon Netherlands 2026
     latitude: 52.090833
     longitude: 5.121667
+
+- conference: PyCon Sweden
+  alt_name: PyCon SE
+  year: 2026
+  link: https://pycon.se/
+  cfp_link: https://pretalx.com/pycon-sweden-2026/
+  cfp: '2026-08-23 23:59:00'
+  cfp_ext: '2026-09-06 23:59:00'
+  timezone: Europe/Stockholm
+  place: Stockholm, Sweden
+  start: 2026-11-19
+  end: 2026-11-20
+  sponsor: https://pycon.se/#sponsorship
+  mastodon: https://fosstodon.org/@pyconsweden
+  youtube: https://www.youtube.com/c/PyConSweden
+  sub: PY
+  location:
+  - title: PyCon Sweden 2026
+    latitude: 59.3251172
+    longitude: 18.0710935
 
 - conference: Django Day Copenhagen
   year: 2026
@@ -280,21 +308,6 @@
     latitude: 43.4711437
     longitude: -1.5527266
 
-- conference: PyCon Ireland
-  year: 2026
-  link: https://2026.pycon.ie/
-  cfp_link: https://sessionize.com/pycon-ireland-2026/
-  cfp: '2026-07-31 23:59:00'
-  cfp_ext: '2026-08-30 23:59:00'
-  place: Dublin, Ireland
-  start: 2026-10-17
-  end: 2026-10-17
-  sub: PY
-  location:
-  - title: PyCon Ireland 2026
-    latitude: 53.3498006
-    longitude: -6.2602964
-
 - conference: PyBay
   year: 2026
   link: https://pybay.org/
@@ -310,6 +323,23 @@
   - title: PyBay 2026
     latitude: 37.7681571
     longitude: -122.392929
+
+- conference: PyCon Ireland
+  alt_name: PyCon IE
+  year: 2026
+  link: https://2026.pycon.ie/
+  cfp_link: https://sessionize.com/pycon-ireland-2026/
+  cfp: '2026-07-31 23:59:00'
+  cfp_ext: '2026-08-30 23:59:00'
+  timezone: Europe/Dublin
+  place: Dublin, Ireland
+  start: 2026-11-21
+  end: 2026-11-21
+  sub: PY
+  location:
+  - title: PyCon Ireland 2026
+    latitude: 53.3498006
+    longitude: -6.2602964
 
 - conference: Xtreme Python
   alt_name: XtremePython
@@ -345,11 +375,12 @@
   link: https://2026.pythonho.com/
   cfp_link: https://sessionize.com/pyho-2026/
   cfp: '2026-06-15 23:59:00'
+  cfp_ext: '2026-07-01 23:59:00'
   timezone: Africa/Accra
   place: Ho, Ghana
   start: 2026-10-23
   end: 2026-10-24
-  sponsor: https://2026.pythonho.com/sponsors
+  sponsor: https://2026.pythonho.com/pages/sponsors.html
   sub: PY
   location:
   - title: Python Ho 2026
@@ -478,25 +509,6 @@
     latitude: 37.9755648
     longitude: 23.7348324
 
-- conference: PyCon Portugal
-  alt_name: PyCon PT
-  year: 2026
-  link: https://2026.pycon.pt/
-  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2026/cfp
-  cfp: '2026-05-01 12:59:00'
-  timezone: Europe/Lisbon
-  place: Aveiro, Portugal
-  start: 2026-09-03
-  end: 2026-09-05
-  sponsor: https://pycon.pt/sponsors/sponsorship/
-  finaid: https://2026.pycon.pt/information/grants/
-  youtube: https://www.youtube.com/@pyconportugal
-  sub: PY
-  location:
-  - title: PyCon Portugal 2026
-    latitude: 40.63070934919421
-    longitude: -8.657472831794745
-
 - conference: PyCon Cameroon
   year: 2026
   link: https://pycon.pythoncameroon.org/
@@ -545,24 +557,6 @@
   - title: PyCon Africa 2026
     latitude: 0.3177137
     longitude: 32.5813539
-
-- conference: PyCon Sweden
-  year: 2026
-  link: https://pycon.se/
-  cfp_link: https://pretalx.com/pycon-sweden-2026/
-  cfp: '2025-08-23 23:59:00'
-  timezone: Europe/Stockholm
-  place: Stockholm, Sweden
-  start: 2026-11-19
-  end: 2026-11-20
-  sponsor: https://pycon.se/#sponsorship
-  mastodon: https://unsplash.com/@micaelwidell?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText
-  youtube: https://www.youtube.com/c/PyConSweden
-  sub: PY
-  location:
-  - title: PyCon Sweden 2026
-    latitude: 59.3251172
-    longitude: 18.0710935
 
 - conference: PyCon Germany
   year: 2028

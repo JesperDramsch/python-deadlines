@@ -1,5 +1,24 @@
 ---
 
+- conference: PyCon Portugal
+  alt_name: PyCon PT
+  year: 2026
+  link: https://2026.pycon.pt/
+  cfp_link: https://pretalx.evolutio.pt/pycon-portugal-2026/cfp
+  cfp: '2026-05-01 12:59:00'
+  timezone: Europe/Lisbon
+  place: Aveiro, Portugal
+  start: 2026-09-03
+  end: 2026-09-05
+  sponsor: https://pycon.pt/sponsors/sponsorship/
+  finaid: https://2026.pycon.pt/information/grants/
+  youtube: https://www.youtube.com/@pyconportugal
+  sub: PY
+  location:
+  - title: PyCon Portugal 2026
+    latitude: 40.63070934919421
+    longitude: -8.657472831794745
+
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
@@ -200,11 +219,13 @@
   year: 2026
   link: https://www.pyohio.org/2026/
   cfp_link: https://pretalx.com/pyohio-2026/cfp
-  cfp: '2026-04-20 23:59:00'
+  cfp: '2026-04-20 08:00:00'
+  timezone: America/New_York
   place: Cleveland, USA
   start: 2026-07-25
   end: 2026-07-26
   sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
+  mastodon: https://fosstodon.org/@pyohio
   sub: PY
   location:
   - title: PyOhio 2026
@@ -226,13 +247,16 @@
     longitude: -81.6936772
 
 - conference: PyCon Armenia
+  alt_name: PyData PyCon Yerevan
   year: 2026
   link: https://pycon.am/
   cfp: TBA
+  timezone: Asia/Yerevan
   place: Yerevan, Armenia
   start: 2026-07-24
-  end: 2026-07-26
-  sub: PY
+  end: 2026-07-25
+  sponsor: https://pycon.am/#sponsors
+  sub: PY,DATA
   location:
   - title: PyCon Armenia 2026
     latitude: 40.1777112
@@ -242,11 +266,14 @@
   year: 2026
   link: https://2026.pycon.co/
   cfp_link: https://2026.pycon.co/#/call-for-proposals
-  cfp: '2026-05-12 23:59:00'
+  cfp: '2026-04-28 23:59:00'
+  cfp_ext: '2026-05-12 23:59:00'
+  timezone: America/Bogota
   place: Medellín, Colombia
   start: 2026-07-24
   end: 2026-07-26
-  sponsor: https://2026.pycon.co/#/sponsors
+  sponsor: https://2026.pycon.co/#sponsors
+  finaid: https://2026.pycon.co/scholarships
   sub: PY
   location:
   - title: PyCon Colombia 2026
@@ -266,11 +293,29 @@
     latitude: -22.9110137
     longitude: -43.2093727
 
+- conference: PyCon Russia
+  year: 2026
+  link: https://www.pycon.ru/
+  cfp_link: https://www.pycon.ru/cfp
+  cfp: '2026-05-15 23:59:00'
+  timezone: Europe/Moscow
+  place: Moscow, Russia
+  start: 2026-07-24
+  end: 2026-07-25
+  sponsor: https://www.pycon.ru/partneram
+  sub: PY
+  location:
+  - title: PyCon Russia 2026
+    latitude: 55.7558
+    longitude: 37.6173
+
 - conference: EuroSciPy
   year: 2026
   link: https://euroscipy.org/
   cfp_link: https://euroscipy.org/call-for-proposals/
   cfp: '2026-02-22 23:59:00'
+  cfp_ext: '2026-03-01 23:59:00'
+  timezone: Europe/Warsaw
   place: Kraków, Poland
   start: 2026-07-18
   end: 2026-07-23
@@ -525,7 +570,8 @@
   place: Petaluma, USA
   start: 2026-04-25
   end: 2026-04-26
-  mastodon: https://bsky.app/profile/NorthBayPython.org
+  mastodon: https://social.northbaypython.org/@NorthBayPython
+  bluesky: https://bsky.app/profile/northbaypython.org
   sub: PY
   location:
   - title: North Bay Python 2026
@@ -1715,7 +1761,7 @@
 
 - conference: PyCon Somalia
   year: 2025
-  link: https://pycon.org.so/
+  link: https://web.archive.org/web/20250812200136/https://pycon.org.so/
   cfp: None
   place: Mogadishu, Somalia
   start: 2025-08-13
@@ -3222,7 +3268,7 @@
 
 - conference: PyCon Somalia
   year: 2024
-  link: https://pycon.org.so/
+  link: https://web.archive.org/web/20240825204436/https://pycon.org.so/
   cfp: '2024-07-25 23:59:00'
   place: Mogadishu, Somalia
   start: 2024-08-28
@@ -8916,7 +8962,7 @@
   place: Nashville, USA
   start: 2019-02-09
   end: 2019-02-10
-  sponsor: https://pytennessee.org/prospectus
+  sponsor: https://web.archive.org/web/20191121093517/https://2019.pytennessee.org/prospectus
   sub: PY
   location:
   - title: PyTennessee 2019
