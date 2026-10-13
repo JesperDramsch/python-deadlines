@@ -105,7 +105,7 @@ page_gen:
 
 Then use it:
 ```bash
-bundler exec jekyll serve --config _config.yml,_config.custom.yml
+bundle exec jekyll serve --config _config.yml,_config.custom.yml
 ```
 
 ### Troubleshooting
