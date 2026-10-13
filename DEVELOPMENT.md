@@ -39,7 +39,7 @@ pixi run serve-fast
 
 Jekyll allows layering configurations using the `--config` flag:
 ```bash
-jekyll serve --config _config.yml,_config.dev.yml
+bundle exec jekyll serve --config _config.yml,_config.dev.yml
 ```
 
 Later configs override earlier ones, so `_config.dev.yml` overrides specific settings from `_config.yml`.
