@@ -23,4 +23,5 @@ There is no `pixi` in the Routine sandbox, so run the same checks through `uv`, 
 
 - Data: `uv run --python 3.11 --with "pandas<2.3",pyyaml,pydantic,pytz,thefuzz,iso3166,icalendar,tqdm,requests python utils/sort_yaml.py --skip_links`, then `git diff --stat -- _data`. A non-zero exit is a finding; a diff is the rewrite the post-merge sort will do, not a finding.
 - Python, when `utils/` or `tests/` change: `uv run --python 3.11 --with "pandas<2.3",pytest,pytest-mock,freezegun,hypothesis,responses,pyyaml,pydantic,pytz,thefuzz,iso3166,icalendar,tqdm,requests pytest tests/ -q -x -p no:cacheprovider`.
+- Lint, when Python changes: `uvx ruff@0.4.4 check utils tests`, the version `.pre-commit-config.yaml` pins (a newer ruff reports dozens of pre-existing errors). The rest of the pre-commit set is the `pre-commit.ci - pr` status on the PR: quote it, do not rerun it.
 - JavaScript, when `static/js/` or `tests/frontend/` change: `npm ci && npm test`.
