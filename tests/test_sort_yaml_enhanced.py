@@ -358,6 +358,18 @@ class TestMergeDuplicates:
         assert len(result) == 1
         assert result[0]["note"] == "Much longer note"
 
+    @pytest.mark.parametrize("empty", [None, ""])
+    def test_merge_duplicates_empty_value_adds_no_field(self, empty):
+        """An empty value of a later duplicate adds no field to the first entry."""
+        data = [
+            {"conference": "PyData London", "year": 2025, "place": "London, UK"},
+            {"conference": "PyData London", "year": 2025, "place": "London, United Kingdom", "cfp_ext": empty},
+        ]
+
+        result = sort_yaml.merge_duplicates(data)
+
+        assert result == [{"conference": "PyData London", "year": 2025, "place": "London, UK"}]
+
 
 class TestTidyDates:
     """Test date cleaning functionality."""

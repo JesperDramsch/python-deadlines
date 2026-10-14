@@ -518,7 +518,10 @@ def add_items(
         _write_file(path, document)
 
     kept_ids = {
-        (f"queue/{path.name}", item.get("id")) for path, document in documents.items() for item in document["items"]
+        (f"queue/{path.name}", item.get("id"))
+        for path, document in documents.items()
+        for item in document["items"]
+        if isinstance(item, dict)
     }
     for result in results:
         if result.get("status") == "added" and (result["file"], result["id"]) not in kept_ids:

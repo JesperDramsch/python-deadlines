@@ -15,7 +15,11 @@ on:
     - cron: '0 6 * * *'  # Daily 6 AM UTC
 
 # One group with canonical-source-update.yml: both write to the accumulator
-# branch, so their runs queue behind each other instead of racing.
+# branch, so their runs queue behind each other instead of racing. A group
+# keeps one pending run, which a newer run of either workflow replaces: the
+# enrich run that canonical-source-update.yml starts at its end can replace a
+# pending canonical run, and a later canonical run can replace a pending
+# enrich run. Both daily crons limit the loss.
 concurrency:
   group: auto-conference-updates
   cancel-in-progress: false

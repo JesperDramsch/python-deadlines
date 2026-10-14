@@ -331,7 +331,7 @@ class TestSnooze:
         assert lead["id"] not in {item["id"] for item in items}
 
     @pytest.mark.parametrize(("now", "kept"), [("2026-10-31 23:30:00", True), ("2026-11-01 00:30:00", False)])
-    def test_trimming_reads_today_as_the_utc_date(self, tmp_path, now, kept):
+    def test_trimming_defaults_today_to_the_current_date(self, tmp_path, now, kept):
         lead, newer = self.snooze_an_old_lead(tmp_path)
 
         with freeze_time(now):
@@ -418,6 +418,15 @@ class TestBrokenFile:
         results = add_items(tmp_path, [signal()], NOW)
         assert "no items list" in results[0]["error"]
         assert results[1]["status"] == "added"
+
+    def test_item_that_is_not_an_object_is_kept(self, tmp_path):
+        (tmp_path / "queue").mkdir()
+        path = tmp_path / "queue" / "pycon-greece.json"
+        path.write_text('{"handled": [], "items": ["stray"], "series": "PyCon Greece"}', encoding="utf-8")
+        (result,) = add_items(tmp_path, [signal()], NOW)
+        assert result["status"] == "added"
+        stray, item = read(path)["items"]
+        assert (stray, item["id"]) == ("stray", result["id"])
 
 
 class TestInit:
