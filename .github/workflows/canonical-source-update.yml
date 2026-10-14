@@ -5,6 +5,10 @@ on:
   repository_dispatch:
     types: [canonical-source-update]
 
+  # Daily as well, so an update still lands when the webhooks stay quiet
+  schedule:
+    - cron: '37 5 * * *'
+
   # Manual trigger for testing
   workflow_dispatch:
     inputs:
@@ -66,6 +70,9 @@ jobs:
             # Webhook trigger - get source from payload
             SOURCE="${PAYLOAD_SOURCE:-all}"
             echo "Triggered by webhook for source: $SOURCE"
+          elif [ "$EVENT_NAME" = "schedule" ]; then
+            SOURCE="all"
+            echo "Scheduled run for source: $SOURCE"
           else
             # Manual trigger
             SOURCE="${INPUT_SOURCE:-all}"
