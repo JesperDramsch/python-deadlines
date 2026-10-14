@@ -14,7 +14,7 @@ reject:
 - domain: scientificmeditech.com
   reason: medical, science and technology events from one organiser; home page reads "arranging logical gatherings"
 - domain: vividglobalsummits.com
-  reason: home page title names another event ("AGSLOP2025 | Optics Conferences | Lasers Conferences")
+  reason: energy, optics, nanotechnology, food science and public health summits from one organiser, three on the same dates and city (15-17 September 2025, Bern); no Python content
 - domain: thesciencequest.org
   reason: conferences and journal publishing across diverse disciplines from one company; footer "Organized By" left empty
 - domain: bitcongress.com
@@ -24,7 +24,7 @@ reject:
 - domain: icraias2027.com
   reason: home page is an empty shell (title only); single-edition domain registered 2026-04-29
 - domain: codeuk.net
-  reason: serves a challenge page (HTTP 403) instead of content
+  reason: a deals and voucher site; its "Python Forum 2025" page names no speakers or organiser and shows shop brands (Dunelm, Smashburger) as partners
 - domain: codehut.co.uk
   reason: domain does not resolve (no address record); registered 2026-06-03
 review:
