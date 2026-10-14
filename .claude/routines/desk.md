@@ -78,9 +78,9 @@ Done when: the PR body starts with this run's "Desk last ran" line, or the new `
 
 ### 8. Clean the queue
 
-In QUEUE, remove every queue item whose worklist item ended `actioned` or `dismissed`, or `deferred` as a needs-maintainer result or verdict or a legacy suspect: those wait on the maintainer, whose answer on the PR comes back through step 5. Use `python utils/desk_queue.py` (see its `--help`) or edit the JSON as `QUEUE/README.md` describes, and delete each file left with no items. Leads, items whose subagent failed and items not reached stay queued. Write `ledger/pending.md` from step 7, or delete it once its text is in the PR. Commit these changes as one commit and push them following "Pushing" with `git -C QUEUE push origin HEAD:desk-queue`.
+In QUEUE, remove every queue item whose worklist item ended `actioned` or `dismissed`, or `deferred` as a needs-maintainer result or verdict or a legacy suspect: those wait on the maintainer, whose answer on the PR comes back through step 5. Remove them with `python utils/desk_queue.py remove QUEUE <id> ...`, which also records each id as handled, so the writers do not queue the same finding again. Leads, items whose subagent failed and items not reached stay queued. Write `ledger/pending.md` from step 7, or delete it once its text is in the PR. Commit these changes as one commit and push them following "Pushing" with `git -C QUEUE push origin HEAD:desk-queue`.
 
-Done when: after `git -C QUEUE fetch origin desk-queue`, `origin/desk-queue` holds none of the removed item ids and its `ledger/pending.md` matches step 7.
+Done when: after `git -C QUEUE fetch origin desk-queue`, no `items` list on `origin/desk-queue` holds a removed id, each removed id is in its file's `handled` list, and `ledger/pending.md` matches step 7.
 
 ### 9. Report
 

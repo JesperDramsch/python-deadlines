@@ -129,6 +129,22 @@ class TestMergeQuestions:
         assert payload["source_name"] == "python.org"
         assert questions[0]["url"] == "https://example-conf.org/"
 
+    def test_conflicting_cfp_is_queued_once(self, no_terminal, mock_title_mappings):
+        """The follow-up extension question adds nothing the desk needs, so only the cfp one is queued."""
+        df_yml = frame("Example Summit", "Vienna, Austria")
+        df_remote = frame("Example Summit", "Vienna, Austria")
+        df_remote["cfp"] = ["2027-01-20 23:59:00"]
+        df_matched, df_remote_processed, _ = fuzzy_match(df_yml, df_remote, source_name="python.org")
+        with pytest.MonkeyPatch.context() as patcher:
+            patcher.setattr("tidy_conf.interactive_merge.get_schema", lambda: pd.DataFrame(columns=SCHEMA))
+            result = merge_conferences(df_matched, df_remote_processed, source_name="python.org")
+
+        assert result["cfp"].iloc[0] == "2027-01-06 23:59:00"
+        (record,) = read_lines(no_terminal)
+        assert record["payload"]["field"] == "cfp"
+        assert record["payload"]["yaml_value"] == "2027-01-06 23:59:00"
+        assert record["payload"]["remote_value"] == "2027-01-20 23:59:00"
+
     def test_fuzzy_match_question_is_queued(self, no_terminal, mock_title_mappings):
         df_yml = frame("Example Python Summit", "Vienna, Austria")
         df_remote = frame("Example Python Sumit", "Vienna, Austria")

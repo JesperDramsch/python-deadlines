@@ -7,7 +7,9 @@ name: Redirect Scan
 # lychee in link-check.yml cannot tell the two apart.
 #
 # Nothing is committed here. The link check's other edits (archived copies of
-# dead links, same-site redirects) stay with the data writers.
+# dead links, same-site redirects) stay with the data writers. As it always
+# does, the check also asks the Wayback Machine to save the pages of upcoming
+# conferences.
 
 on:
   schedule:
@@ -33,7 +35,9 @@ jobs:
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.10.2
 
+      # Below the job timeout, so a slow scan still queues what it found.
       - name: Check links
+        timeout-minutes: 150
         env:
           DESK_QUEUE_OUT: ${{ runner.temp }}/desk-records.jsonl
         run: pixi run links

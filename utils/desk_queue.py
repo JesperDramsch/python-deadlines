@@ -37,6 +37,8 @@ from datetime import datetime
 from datetime import timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
 
 SOURCES = (
     "changedetection",
@@ -50,6 +52,7 @@ SOURCES = (
 )
 KINDS = ("signal", "question", "redirect", "candidate", "drift", "registry")
 MAX_ITEMS_PER_FILE = 50
+MAX_HANDLED_PER_FILE = 500
 MAX_STRING_LENGTH = 20_000
 RECEIVED_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 RECEIVED = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
@@ -80,6 +83,7 @@ UTF-8 JSON, two-space indent, keys sorted:
 
 ```json
 {
+  "handled": ["<ids the desk has handled>"],
   "items": [
     {
       "id": "<sha1 of source, kind, url and payload>",
@@ -97,9 +101,14 @@ UTF-8 JSON, two-space indent, keys sorted:
 ```
 
 `year` is the edition year when known, else `null`. Adding an item whose id
-is already in the file changes nothing. A file keeps at most 50 items, the
-newest by `received`. A payload string longer than 20,000 characters is cut
-there, and the payload gets `"truncated": true`.
+is already in the file, as an item or as handled, changes nothing: the same
+finding is queued once, and a finding the desk has handled stays handled
+until something about it changes. For a redirect the id leaves out the status
+and the final URL's query and fragment. A file keeps at most 50 items, the
+newest by `received`, and the 500 latest handled ids. A payload string longer
+than 20,000 characters is cut there, and the payload gets `"truncated": true`.
+A file that cannot be read is moved to `<key>.json.bad` when a writer next
+adds to it.
 
 ## Sources and kinds
 
@@ -235,7 +244,15 @@ def item_id(source: str, kind: str, url: str, payload: dict) -> str:
     -------
     str
         SHA-1 hex of the four, so the same finding always gets the same id.
+        For a redirect, the status and the final URL's query and fragment are
+        left out: they can change from one check to the next while the
+        finding, a link that lands on another site, stays the same.
     """
+    if kind == "redirect":
+        payload = {key: value for key, value in payload.items() if key != "status"}
+        if isinstance(payload.get("final_url"), str):
+            parts = urlsplit(payload["final_url"])
+            payload["final_url"] = urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
     payload_text = json.dumps(payload, sort_keys=True, ensure_ascii=False)
     digest = hashlib.sha1(payload_text.encode("utf-8"), usedforsecurity=False).hexdigest()
     return hashlib.sha1(f"{source}|{kind}|{url}|{digest}".encode(), usedforsecurity=False).hexdigest()
@@ -308,14 +325,51 @@ def queue_root(queue_dir: Path) -> Path:
     return Path(queue_dir) / "queue"
 
 
-def _read_file(path: Path, series: str) -> dict:
-    """Read a queue file, or start one for the series."""
-    if not path.exists():
-        return {"items": [], "series": series}
+def _read_file(path: Path) -> dict:
+    """Read a queue file.
+
+    Raises
+    ------
+    ValueError
+        When the file is not valid JSON or has no items list.
+    """
     document = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(document, dict) or not isinstance(document.get("items"), list):
-        raise ValueError(f"{path} has no items list")
+        raise ValueError("no items list")
+    if not isinstance(document.get("handled", []), list):
+        raise ValueError("handled is not a list")
     return document
+
+
+def _open_file(path: Path, series: str) -> tuple[dict, str | None]:
+    """Read a queue file for adding, or start one for the series.
+
+    A file that cannot be read is moved to <name>.bad and a new one started,
+    so one broken file never stops the writers; the text is kept for a person.
+
+    Parameters
+    ----------
+    path : Path
+        The queue file.
+    series : str
+        Series name for a new file.
+
+    Returns
+    -------
+    tuple[dict, str | None]
+        The document, and a message when the file had to be moved aside.
+    """
+    if not path.exists():
+        return {"handled": [], "items": [], "series": series}, None
+    try:
+        document = _read_file(path)
+    except ValueError as error:
+        bad = path.with_name(path.name + ".bad")
+        path.replace(bad)
+        message = f"queue/{path.name} unreadable ({error}), moved to queue/{bad.name}"
+        return {"handled": [], "items": [], "series": series}, message
+    document.setdefault("handled", [])
+    return document, None
 
 
 def _write_file(path: Path, document: dict) -> None:
@@ -355,8 +409,9 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
     -------
     list[dict]
         One result per record, in order: {"file", "id", "status"} with status
-        "added", "exists", or "dropped" (older than the 50 items its file
-        keeps), or {"error"} for a record that failed its checks.
+        "added", "exists", "handled" (the desk has handled this finding), or
+        "dropped" (older than the 50 items its file keeps), or {"error"} for a
+        record that failed its checks. A file moved aside adds an {"error"}.
     """
     results = []
     documents: dict[Path, dict] = {}
@@ -364,22 +419,28 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
         try:
             item = normalise_record(record, now)
         except ValueError as error:
-            results.append({"error": str(error)})
+            results.append({"error": f"record rejected: {error}"})
             continue
         names = record_names(item)
         series = names[0] if names else item["title"]
         path = queue_root(queue_dir) / f"{slugify(series)}.json"
         if path not in documents:
-            documents[path] = _read_file(path, series)
-        items = documents[path]["items"]
+            documents[path], moved = _open_file(path, series)
+            if moved:
+                results.append({"error": moved})
+        document = documents[path]
         relative = f"queue/{path.name}"
-        if any(isinstance(existing, dict) and existing.get("id") == item["id"] for existing in items):
+        if item["id"] in document["handled"]:
+            results.append({"file": relative, "id": item["id"], "status": "handled"})
+            continue
+        if any(isinstance(existing, dict) and existing.get("id") == item["id"] for existing in document["items"]):
             results.append({"file": relative, "id": item["id"], "status": "exists"})
             continue
-        items.append(item)
+        document["items"].append(item)
         results.append({"file": relative, "id": item["id"], "status": "added"})
 
     for path, document in documents.items():
+        document["handled"] = document["handled"][-MAX_HANDLED_PER_FILE:]
         items = document["items"]
         if len(items) > MAX_ITEMS_PER_FILE:
             newest = sorted(items, key=lambda entry: str(entry.get("received", "")), reverse=True)
@@ -396,8 +457,29 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
     return results
 
 
+def _read_or_report(path: Path) -> dict | None:
+    """Read a queue file, or report on stderr why it cannot be read."""
+    try:
+        return _read_file(path)
+    except ValueError as error:
+        print(f"desk_queue: skipping queue/{path.name}: {error}", file=sys.stderr)
+        return None
+
+
+def _readable_files(queue_dir: Path) -> Iterable[tuple[Path, dict]]:
+    """Yield each readable queue file with its document, skipping broken ones."""
+    for path in sorted(queue_root(queue_dir).glob("*.json")):
+        document = _read_or_report(path)
+        if document is not None:
+            yield path, document
+
+
 def remove_items(queue_dir: Path, ids: Iterable[str]) -> set[str]:
-    """Remove items by id, deleting files left with no items.
+    """Remove handled items, remembering their ids.
+
+    A removed id is kept in its file's "handled" list, so a writer that finds
+    the same thing again does not queue it again. The desk removes every item
+    it has decided; items it has not reached stay.
 
     Parameters
     ----------
@@ -413,18 +495,17 @@ def remove_items(queue_dir: Path, ids: Iterable[str]) -> set[str]:
     """
     wanted = set(ids)
     removed: set[str] = set()
-    for path in sorted(queue_root(queue_dir).glob("*.json")):
-        document = json.loads(path.read_text(encoding="utf-8"))
-        items = document.get("items", [])
-        kept = [item for item in items if not (isinstance(item, dict) and item.get("id") in wanted)]
-        if len(kept) == len(items):
+    for path, document in _readable_files(queue_dir):
+        items = document["items"]
+        found = [item["id"] for item in items if isinstance(item, dict) and item.get("id") in wanted]
+        if not found:
             continue
-        removed.update(item["id"] for item in items if isinstance(item, dict) and item.get("id") in wanted)
-        if kept:
-            document["items"] = kept
-            _write_file(path, document)
-        else:
-            path.unlink()
+        removed.update(found)
+        document["items"] = [item for item in items if not (isinstance(item, dict) and item.get("id") in wanted)]
+        handled = document.setdefault("handled", [])
+        handled.extend(item_id for item_id in found if item_id not in handled)
+        document["handled"] = handled[-MAX_HANDLED_PER_FILE:]
+        _write_file(path, document)
     return removed
 
 
@@ -442,11 +523,10 @@ def list_items(queue_dir: Path) -> list[dict]:
         {"file", "id", "source", "kind", "received", "title"} per item, by file and received.
     """
     rows = []
-    for path in sorted(queue_root(queue_dir).glob("*.json")):
-        document = json.loads(path.read_text(encoding="utf-8"))
+    for path, document in _readable_files(queue_dir):
         rows.extend(
             {"file": f"queue/{path.name}", **{key: item.get(key) for key in LIST_FIELDS}}
-            for item in document.get("items", [])
+            for item in document["items"]
             if isinstance(item, dict)
         )
     return sorted(rows, key=lambda row: (row["file"], str(row["received"]), str(row["id"])))
@@ -484,7 +564,7 @@ def main(argv: list[str] | None = None) -> int:
     add_parser.add_argument("--year", type=int)
     add_parser.add_argument("--payload", help="file holding the payload JSON object ('-' for stdin)")
 
-    remove_parser = commands.add_parser("remove", help="remove items by id")
+    remove_parser = commands.add_parser("remove", help="remove handled items by id, remembering the ids")
     remove_parser.add_argument("queue_dir", type=Path)
     remove_parser.add_argument("ids", nargs="+")
 
@@ -533,12 +613,12 @@ def main(argv: list[str] | None = None) -> int:
 
     parsed = [record for record in records if not isinstance(record, ValueError)]
     for bad in (record for record in records if isinstance(record, ValueError)):
-        print(f"desk_queue: skipped a record: {bad}", file=sys.stderr)
+        print(f"desk_queue: record rejected: {bad}", file=sys.stderr)
     init_queue(args.queue_dir)
     results = add_items(args.queue_dir, parsed)
     for result in results:
         if "error" in result:
-            print(f"desk_queue: skipped a record: {result['error']}", file=sys.stderr)
+            print(f"desk_queue: {result['error']}", file=sys.stderr)
         else:
             print(f"{result['status']} {result['file']} {result['id']}")
     return 0
