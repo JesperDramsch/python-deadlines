@@ -18,6 +18,7 @@ try:
     from tidy_conf import merge_conferences
     from tidy_conf.date import create_nice_date
     from tidy_conf.deduplicate import deduplicate
+    from tidy_conf.denylist import drop_denied
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import fill_missing_required
     from tidy_conf.yaml import load_title_mappings
@@ -29,6 +30,7 @@ except ImportError:
     from .tidy_conf import merge_conferences
     from .tidy_conf.date import create_nice_date
     from .tidy_conf.deduplicate import deduplicate
+    from .tidy_conf.denylist import drop_denied
     from .tidy_conf.titles import tidy_df_names
     from .tidy_conf.utils import fill_missing_required
     from .tidy_conf.yaml import load_title_mappings
@@ -314,6 +316,9 @@ def main(year=None, base="") -> bool:
         filtered_count = initial_count - len(df_ics)
         if filtered_count > 0:
             logger.info(f"Filtered out {filtered_count} entries without valid links")
+
+        # Fake events and event farms reach the calendar too
+        df_ics = drop_denied(df_ics, SOURCE_NAME)
 
         if df_ics.empty:
             logger.warning("No conferences with valid links after filtering")

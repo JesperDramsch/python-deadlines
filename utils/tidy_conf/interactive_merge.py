@@ -19,6 +19,7 @@ try:
     from tidy_conf.countries import COUNTRY_NORMALIZATION
     from tidy_conf.countries import normalize_place
     from tidy_conf.schema import get_schema
+    from tidy_conf.titles import normalize_conference_name
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import fold_name
     from tidy_conf.utils import query_yes_no
@@ -33,6 +34,7 @@ except ImportError:
     from .countries import COUNTRY_NORMALIZATION
     from .countries import normalize_place
     from .schema import get_schema
+    from .titles import normalize_conference_name
     from .titles import tidy_df_names
     from .utils import fold_name
     from .utils import query_yes_no
@@ -134,6 +136,52 @@ def _question_context(row, conference, field, yaml_value, remote_value, source_n
         "source_name": source_name,
         "url": _row_link(row),
     }
+
+
+def apply_alt_names(df_yml: pd.DataFrame, df_remote: pd.DataFrame) -> pd.DataFrame:
+    """Give remote rows named by a YAML entry's alt_name that entry's name.
+
+    A remote source may use a series' alternative name ("XtremePython" for the
+    entry "Xtreme Python" with that alt_name). Matching on conference names
+    alone would then add the edition a second time under the other name.
+    An alt_name shared by entries with different names is ambiguous and left
+    to the usual matching, as is a remote name that is itself a YAML name.
+
+    Parameters
+    ----------
+    df_yml : pd.DataFrame
+        YAML rows, with "conference" and optionally "alt_name"
+    df_remote : pd.DataFrame
+        Remote rows, with "conference"
+
+    Returns
+    -------
+    pd.DataFrame
+        A copy of df_remote with the matching names replaced
+    """
+    if "alt_name" not in df_yml.columns or df_yml.empty or df_remote.empty:
+        return df_remote
+    _, known_mappings = load_title_mappings(reverse=True)
+    yaml_names = {fold_name(name) for name in df_yml["conference"] if isinstance(name, str)}
+    by_alt: dict[str, set[str]] = defaultdict(set)
+    for name, alt in zip(df_yml["conference"], df_yml["alt_name"], strict=False):
+        if not (isinstance(name, str) and isinstance(alt, str) and alt.strip()):
+            continue
+        by_alt[fold_name(alt)].add(name)
+        by_alt[fold_name(normalize_conference_name(alt, known_mappings))].add(name)
+
+    def rename(remote_name):
+        if not isinstance(remote_name, str):
+            return remote_name
+        key = fold_name(remote_name)
+        names = by_alt.get(key, set())
+        if key in yaml_names or len(names) != 1:
+            return remote_name
+        return next(iter(names))
+
+    df_remote = df_remote.copy()
+    df_remote["conference"] = df_remote["conference"].apply(rename)
+    return df_remote
 
 
 def resolve_conflict(
@@ -291,6 +339,7 @@ def fuzzy_match(
     # Tidy conference names
     df_yml = tidy_df_names(df_yml)
     df_remote = tidy_df_names(df_remote)
+    df_remote = apply_alt_names(df_yml, df_remote)
 
     # Log state after tidying
     log_dataframe_state(df_yml, "df_yml after tidy_df_names")
