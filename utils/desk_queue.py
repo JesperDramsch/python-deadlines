@@ -57,7 +57,7 @@ MAX_STRING_LENGTH = 20_000
 RECEIVED_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 RECEIVED = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-LIST_FIELDS = ("id", "source", "kind", "received", "title")
+LIST_FIELDS = ("id", "source", "kind", "received", "next_check", "title")
 
 WATCH_PREFIX = re.compile(r"^\s*\[conference\]\s*", re.IGNORECASE)
 WATCH_SUFFIX = re.compile(r"\s+(?:(?P<year>\d{4})\s+)?-\s+(?:main|cfp)\s*$", re.IGNORECASE)
@@ -106,9 +106,9 @@ is already in the file, as an item or as handled, changes nothing: the same
 finding is queued once, and a finding the desk has handled stays handled
 until something about it changes. For a redirect the id leaves out the status
 and the final URL's query and fragment; for a candidate, its `matched` entry.
-A file keeps at most 50 items, the newest by `received`, and the 500 latest
-handled ids. A payload string longer than 20,000 characters is cut there, and
-the payload gets `"truncated": true`.
+A file keeps at most 50 items, snoozed ones first and then the newest by
+`received`, and the 500 latest handled ids. A payload string longer than
+20,000 characters is cut there, and the payload gets `"truncated": true`.
 A file that cannot be read is moved to `<key>.json.bad` when a writer next
 adds to it.
 
@@ -116,7 +116,10 @@ An item can also hold `next_check`, a `YYYY-MM-DD` date that
 `desk_queue.py snooze` sets on a lead the desk could not settle. The worklist
 leaves the item out until that day, so the lead is not researched again every
 day. `next_check` is not part of the id: adding the finding again keeps the
-item and its date. A missing or invalid `next_check` means the item is due.
+item and its date. A snoozed item, one whose `next_check` is after today,
+survives the 50-item cap ahead of the items that are due, so it is not
+trimmed and then queued again as due. A missing or invalid `next_check`
+means the item is due.
 
 ## Sources and kinds
 
@@ -416,7 +419,47 @@ def init_queue(queue_dir: Path) -> None:
     (Path(queue_dir) / "README.md").write_text(README, encoding="utf-8", newline="\n")
 
 
-def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = None) -> list[dict]:
+def _snoozed(item: dict, today: date) -> bool:
+    """Return True when a queue item's next_check is a date after today.
+
+    The same test as the worklist's: a missing or invalid next_check means
+    the item is due.
+    """
+    value = item.get("next_check")
+    if not isinstance(value, str) or not DATE.match(value):
+        return False
+    try:
+        return date.fromisoformat(value) > today
+    except ValueError:
+        return False
+
+
+def _trim_items(items: list, today: date) -> list:
+    """Return at most MAX_ITEMS_PER_FILE items, in their order.
+
+    Snoozed items are kept first, then the newest by "received". A re-found
+    finding keeps its first "received", so a lead snoozed for long is among
+    the oldest items; trimming it would queue the finding again as due.
+    """
+    if len(items) <= MAX_ITEMS_PER_FILE:
+        return items
+
+    def rank(entry: Any) -> tuple[bool, str]:
+        if not isinstance(entry, dict):
+            return False, ""
+        return _snoozed(entry, today), str(entry.get("received", ""))
+
+    ranked = sorted(items, key=rank, reverse=True)
+    keep = {id(entry) for entry in ranked[:MAX_ITEMS_PER_FILE]}
+    return [entry for entry in items if id(entry) in keep]
+
+
+def add_items(
+    queue_dir: Path,
+    records: Iterable[Any],
+    now: datetime | None = None,
+    today: date | None = None,
+) -> list[dict]:
     """Add records to the queue.
 
     Parameters
@@ -427,6 +470,9 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
         Records as normalise_record takes them.
     now : datetime | None
         Time for records without "received" (default: now, UTC).
+    today : date | None
+        Day against which "next_check" is read when a file is trimmed to its
+        50 items (default: the current UTC date).
 
     Returns
     -------
@@ -434,9 +480,12 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
         One result per record, in order: {"file", "id", "status"} with status
         "added", "exists" (the item is kept as it is, with any
         "next_check"), "handled" (the desk has handled this finding), or
-        "dropped" (older than the 50 items its file keeps), or {"error"} for a
-        record that failed its checks. A file moved aside adds an {"error"}.
+        "dropped" (trimmed: a file keeps its snoozed items first, then the
+        newest, up to 50), or {"error"} for a record that failed its checks.
+        A file moved aside adds an {"error"}.
     """
+    if today is None:
+        today = datetime.now(tz=timezone.utc).date()
     results = []
     documents: dict[Path, dict] = {}
     for record in records:
@@ -465,11 +514,7 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
 
     for path, document in documents.items():
         document["handled"] = document["handled"][-MAX_HANDLED_PER_FILE:]
-        items = document["items"]
-        if len(items) > MAX_ITEMS_PER_FILE:
-            newest = sorted(items, key=lambda entry: str(entry.get("received", "")), reverse=True)
-            keep = {id(entry) for entry in newest[:MAX_ITEMS_PER_FILE]}
-            document["items"] = [entry for entry in items if id(entry) in keep]
+        document["items"] = _trim_items(document["items"], today)
         _write_file(path, document)
 
     kept_ids = {
@@ -619,7 +664,8 @@ def list_items(queue_dir: Path) -> list[dict]:
     Returns
     -------
     list[dict]
-        {"file", "id", "source", "kind", "received", "title"} per item, by file and received.
+        {"file", "id", "source", "kind", "received", "next_check", "title"}
+        per item, by file and received; "next_check" is None when unset.
     """
     rows = []
     for path, document in _readable_files(queue_dir):

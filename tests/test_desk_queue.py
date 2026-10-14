@@ -8,6 +8,7 @@ from datetime import timezone
 from pathlib import Path
 
 import pytest
+from freezegun import freeze_time
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -293,6 +294,52 @@ class TestSnooze:
         assert changed["status"] == "added"
         assert "next_check" not in items[changed["id"]]
 
+    @staticmethod
+    def snooze_an_old_lead(tmp_path):
+        """Queue a lead received long ago, snooze it to 1 November, and return it with 50 newer findings."""
+        (lead,) = add_items(tmp_path, [signal(diff="lead", received="2026-09-01T06:00:00Z")], NOW)
+        snooze_items(tmp_path, [lead["id"]], "2026-11-01")
+        newer = [
+            signal(diff=f"change {n}", received=f"2026-10-{1 + n // 24:02d}T{n % 24:02d}:00:00Z")
+            for n in range(MAX_ITEMS_PER_FILE)
+        ]
+        return lead, newer
+
+    def test_trimming_keeps_a_snoozed_lead(self, tmp_path):
+        lead, newer = self.snooze_an_old_lead(tmp_path)
+
+        results = add_items(tmp_path, newer, NOW, today=date(2026, 10, 31))
+
+        assert [result["status"] for result in results] == ["dropped"] + ["added"] * (MAX_ITEMS_PER_FILE - 1)
+        items = read(tmp_path / "queue" / "pycon-greece.json")["items"]
+        assert len(items) == MAX_ITEMS_PER_FILE
+        assert (items[0]["id"], items[0]["next_check"]) == (lead["id"], "2026-11-01")
+        assert "change 0" not in {item["payload"]["diff"] for item in items}
+
+        (again,) = add_items(tmp_path, [signal(diff="lead", received="2026-10-21T06:00:00Z")], NOW)
+        assert again["status"] == "exists"
+        assert read(tmp_path / "queue" / "pycon-greece.json")["items"][0]["next_check"] == "2026-11-01"
+
+    @pytest.mark.parametrize("today", [date(2026, 11, 1), date(2026, 11, 2)])
+    def test_trimming_treats_a_lapsed_snooze_as_due(self, tmp_path, today):
+        lead, newer = self.snooze_an_old_lead(tmp_path)
+
+        results = add_items(tmp_path, newer, NOW, today=today)
+
+        assert [result["status"] for result in results] == ["added"] * MAX_ITEMS_PER_FILE
+        items = read(tmp_path / "queue" / "pycon-greece.json")["items"]
+        assert lead["id"] not in {item["id"] for item in items}
+
+    @pytest.mark.parametrize(("now", "kept"), [("2026-10-31 23:30:00", True), ("2026-11-01 00:30:00", False)])
+    def test_trimming_reads_today_as_the_utc_date(self, tmp_path, now, kept):
+        lead, newer = self.snooze_an_old_lead(tmp_path)
+
+        with freeze_time(now):
+            add_items(tmp_path, newer, NOW)
+
+        items = read(tmp_path / "queue" / "pycon-greece.json")["items"]
+        assert (lead["id"] in {item["id"] for item in items}) is kept
+
     def test_removing_a_snoozed_item_still_remembers_it(self, tmp_path):
         (first,) = add_items(tmp_path, [signal()], NOW)
         snooze_items(tmp_path, [first["id"]], "2026-11-01")
@@ -487,15 +534,25 @@ class TestCli:
             main(["add", str(tmp_path), "--jsonl", "-", "--title", "x"])
 
     def test_remove_and_list(self, tmp_path, capsys):
-        first, _ = add_items(tmp_path, [signal(), signal(diff="other")], NOW)
+        first, second, third = add_items(tmp_path, [signal(), signal(diff="other"), signal(diff="third")], NOW)
         assert main(["remove", str(tmp_path), first["id"], "nope"]) == 0
         captured = capsys.readouterr()
         assert "removed 1" in captured.out
         assert "no item nope" in captured.err
+        snooze_items(tmp_path, [third["id"]], "2026-11-01")
         assert main(["list", str(tmp_path)]) == 0
-        rows = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
-        assert len(rows) == 1
-        assert rows[0]["file"] == "queue/pycon-greece.json"
+        rows = {row["id"]: row for row in map(json.loads, capsys.readouterr().out.splitlines())}
+        assert sorted(rows) == sorted([second["id"], third["id"]])
+        assert rows[third["id"]] == {
+            "file": "queue/pycon-greece.json",
+            "id": third["id"],
+            "source": "changedetection",
+            "kind": "signal",
+            "received": "2026-10-14T06:00:00Z",
+            "next_check": "2026-11-01",
+            "title": "PyCon Greece 2027 - Main",
+        }
+        assert rows[second["id"]]["next_check"] is None
 
     def test_snooze(self, tmp_path, capsys):
         first, second = add_items(tmp_path, [signal(), signal(diff="other")], NOW)
