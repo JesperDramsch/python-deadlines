@@ -114,27 +114,85 @@ def assert_allowed(outcome):
         "git push --repo=origin main",
         "GIT_TRACE=1 git push origin main",
         "git status && git push origin main",
-        "git -C {repo} push origin main",
+        "git -C <repo> push origin main",
         "bash -c 'git push origin main'",
         "echo $(git push origin main)",
+        # globs, shorthand destinations and the matching refspec
+        "git push origin 'refs/heads/*:refs/heads/*'",
+        "git push origin '*:*'",
+        "git push origin HEAD:heads/main",
+        "git push origin heads/main",
+        "git push origin :",
+        "git push --tags origin main",
+        "git push origin tag v1 main",
+        # compound commands: the retry loop of desk.md "Pushing" and its relatives
+        "for i in 1 2 3 4 5; do git push origin main && break; git fetch origin main; done",
+        "if git fetch origin; then git push origin main; fi",
+        "if ! git push origin main; then git pull --rebase; fi",
+        "until git push origin main; do sleep 1; done",
+        "while true; do git push origin main; done",
+        "true && { git push origin main; }",
+        "! git push origin main",
+        "function retry { git push origin main; }",
+        # wrappers that take arguments before the command
+        "timeout 120 git push origin main",
+        "timeout -s KILL 120 git push origin main",
+        "sudo -u bob git push origin main",
+        "sudo -Eu bob -- git push origin main",
+        "env -u GIT_DIR git push origin main",
+        "/usr/bin/env GIT_TRACE=1 git push origin main",
+        "nice -n 10 git push origin main",
+        "flock /tmp/push.lock git push origin main",
+        "echo main | xargs -n 1 git push origin main",
     ],
 )
 def test_push_targeting_main_is_blocked(run_hook, make_repo, command):
     repo = make_repo("feature")
-    outcome = run_hook("Bash", {"command": command.format(repo=repo)}, cwd=repo)
+    outcome = run_hook("Bash", {"command": command.replace("<repo>", str(repo))}, cwd=repo)
     assert_blocked(outcome, "git push")
 
 
 @pytest.mark.parametrize("branch", ["main", "master"])
-@pytest.mark.parametrize("command", ["git push", "git push origin", "git push -u origin", "git push origin HEAD"])
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git push",
+        "git push origin",
+        "git push -u origin",
+        "git push origin HEAD",
+        "git push --follow-tags",
+        "for i in 1 2 3; do git push && break; done",
+        "timeout 120 git push",
+    ],
+)
 def test_push_without_refspec_from_main_is_blocked(run_hook, make_repo, branch, command):
     repo = make_repo(branch)
     assert_blocked(run_hook("Bash", {"command": command}, cwd=repo), branch)
 
 
-def test_push_after_cd_into_a_repository_on_main_is_blocked(run_hook, make_repo, tmp_path):
+@pytest.mark.parametrize(
+    "command",
+    ["cd <repo> && git push", "env -C <repo> git push", "env --chdir=<repo> git push", "sudo -D <repo> git push"],
+)
+def test_push_after_moving_into_a_repository_on_main_is_blocked(run_hook, make_repo, tmp_path, command):
     repo = make_repo("main")
-    assert_blocked(run_hook("Bash", {"command": f"cd {repo} && git push"}, cwd=tmp_path), "main")
+    assert_blocked(run_hook("Bash", {"command": command.replace("<repo>", str(repo))}, cwd=tmp_path), "main")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git push --tags",
+        "git push origin --tags",
+        "git push --tags origin",
+        "git push --dry-run",
+        "git push -n origin main",
+        "git push --dry-run --all origin",
+    ],
+)
+def test_push_that_sends_no_branch_from_main_is_allowed(run_hook, make_repo, command):
+    repo = make_repo("main")
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo))
 
 
 def test_push_from_a_worktree_on_main_is_blocked(run_hook, make_repo, git, tmp_path):
@@ -161,6 +219,13 @@ def test_push_from_a_worktree_on_main_is_blocked(run_hook, make_repo, git, tmp_p
         "git commit -m 'never git push origin main'",
         "echo git push origin main",
         "cat > notes.md <<'EOF'\ngit push origin main\nEOF",
+        "git push origin 'refs/tags/*:refs/tags/*'",
+        "git push origin 'refs/heads/feature/*:refs/heads/feature/*'",
+        "git push origin tag main",
+        "for i in 1 2 3 4 5; do git push origin HEAD:desk-queue && break; git fetch origin desk-queue; done",
+        "timeout 120 git push origin HEAD",
+        "sudo -u bob git push origin HEAD",
+        "if true; then echo git push origin main; fi",
     ],
 )
 def test_push_to_another_branch_is_allowed(run_hook, make_repo, command):
@@ -213,11 +278,32 @@ def test_github_edit_on_another_branch_outside_desk_runs_is_allowed(run_hook, ma
     assert_allowed(run_hook("Edit", github_edit("Edit", repo / ".github" / "workflows" / "ci.yml"), cwd=repo))
 
 
-@pytest.mark.parametrize("relative", ["_data/conferences.yml", "docs/github/notes.md", ".github-notes/todo.md"])
+def test_github_edit_through_dot_dot_on_the_rolling_branch_is_blocked(run_hook, make_repo):
+    repo = make_repo(ROLLING)
+    outcome = run_hook("Write", github_edit("Write", repo / "docs" / ".." / ".github" / "ci.yml"), cwd=repo)
+    assert_blocked(outcome, ".github/")
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        "_data/conferences.yml",
+        "docs/github/notes.md",
+        ".github-notes/todo.md",
+        "node_modules/pkg/.github/workflows/a.yml",
+        "docs/.github",
+    ],
+)
 @pytest.mark.parametrize("desk", [False, True])
 def test_edit_outside_github_is_allowed(run_hook, make_repo, relative, desk):
     repo = make_repo(ROLLING)
     assert_allowed(run_hook("Write", github_edit("Write", repo / relative), cwd=repo, desk=desk))
+
+
+def test_github_edit_outside_any_repository_is_allowed(run_hook, make_repo, tmp_path):
+    repo = make_repo(ROLLING)
+    elsewhere = tmp_path / "elsewhere" / ".github" / "workflows" / "ci.yml"
+    assert_allowed(run_hook("Write", github_edit("Write", elsewhere), cwd=repo, desk=True))
 
 
 def test_bash_writing_under_github_is_not_inspected(run_hook, make_repo):
