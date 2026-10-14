@@ -15,6 +15,8 @@ try:
     from tidy_conf.countries import get_country_alpha3
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.denylist import drop_denied
+    from tidy_conf.queue_out import append_queue_record
+    from tidy_conf.queue_out import utc_now
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import normalize_conference_name
     from tidy_conf.utils import fill_missing_required
@@ -27,6 +29,8 @@ except ImportError:
     from .tidy_conf.countries import get_country_alpha3
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.denylist import drop_denied
+    from .tidy_conf.queue_out import append_queue_record
+    from .tidy_conf.queue_out import utc_now
     from .tidy_conf.schema import get_schema
     from .tidy_conf.titles import normalize_conference_name
     from .tidy_conf.utils import fill_missing_required
@@ -43,7 +47,8 @@ def drop_rows_without_link(df: pd.DataFrame) -> pd.DataFrame:
     Without a terminal no one can supply a missing link, and an entry without
     one fails validation, which stops the sort writing anything. Entries from
     the YAML always have a link, so only rows that the sheet alone has, with
-    no website, are left out.
+    no website, are left out. Each is handed to the desk queue as a candidate
+    (see tidy_conf/queue_out.py), so the desk can look for a website.
 
     Parameters
     ----------
@@ -60,8 +65,30 @@ def drop_rows_without_link(df: pd.DataFrame) -> pd.DataFrame:
     logger = get_tqdm_logger(__name__)
     has_link = df["link"].apply(lambda value: isinstance(value, str) and bool(value.strip()))
     for _, row in df[~has_link].iterrows():
-        year = int(row["year"]) if pd.notna(row["year"]) else ""
-        logger.warning(f"Skipping {row['conference']} {year}: no website in {SOURCE_NAME}")
+        year = int(row["year"]) if pd.notna(row["year"]) else None
+        logger.warning(f"Skipping {row['conference']} {year or ''}: no website in {SOURCE_NAME}")
+        fields = {"conference": row["conference"], "year": year}
+        for column in ("place", "start", "end"):
+            value = row.get(column)
+            fields[column] = str(value) if value is not None and not pd.isna(value) else None
+        append_queue_record(
+            {
+                "source": "canonical-import",
+                "kind": "candidate",
+                "received": utc_now(),
+                "title": f"{row['conference']} {year}" if year else str(row["conference"]),
+                "url": "",
+                "year": year,
+                "payload": {
+                    "classification": "MAYBE",
+                    "fields": fields,
+                    "source_id": SOURCE_NAME,
+                    "evidence_url": "https://github.com/python-organizers/conferences",
+                    "matched": None,
+                    "flags": ["no-website"],
+                },
+            },
+        )
     return df[has_link]
 
 
@@ -350,7 +377,12 @@ def main(year: int | None = None, base: str = "") -> None:
             f"Year {y}: df_yml_year shape: {df_yml_year.shape}, df_csv_year shape: {df_csv_year.shape}",
         )
 
-        df_merged, df_remote, merge_report = fuzzy_match(df_yml_year, df_csv_year, source_name=SOURCE_NAME)
+        df_merged, df_remote, merge_report = fuzzy_match(
+            df_yml_year,
+            df_csv_year,
+            source_name=SOURCE_NAME,
+            known_names=df_yml["conference"],
+        )
         logger.info(
             f"Merge report: {merge_report.exact_matches} exact, "
             f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",

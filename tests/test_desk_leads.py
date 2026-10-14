@@ -379,7 +379,7 @@ class TestDriftRecord:
                 "diffs": {
                     "cfp": {
                         "data": "2026-10-26 23:59:00 AoE",
-                        "source": "Submissions close on 2026-10-26 05:00 (America/Los_Angeles)",
+                        "source": "2026-10-26 05:00 (America/Los_Angeles)",
                     },
                 },
             },
@@ -415,8 +415,18 @@ class TestDriftRecord:
         record = drift_record(namibia, "u", parse_submissions(NAMIBIA_CLOSED))
         assert record["payload"]["diffs"]["cfp"] == {
             "data": "2026-10-05 23:59:00 Africa/Windhoek (cfp_ext)",
-            "source": "Submissions closed on 2026-10-13 14:00 (Africa/Windhoek)",
+            "source": "2026-10-13 14:00 (Africa/Windhoek)",
         }
+
+    def test_seconds_the_page_cannot_show_are_not_drift(self):
+        pytexas = {**dataset()["conferences"][1], "cfp": "2026-12-11 17:00:59", "timezone": "America/Chicago"}
+        assert drift_record(pytexas, "u", parse_submissions(PYTEXAS_OPEN)) is None
+
+    def test_closing_does_not_change_the_record(self):
+        conference = dataset()["conferences"][0]
+        open_page = parse_submissions(PYCASCADES_OPEN)
+        closed_page = parse_submissions(PYCASCADES_OPEN.replace("Submissions close on", "Submissions closed on"))
+        assert drift_record(conference, "u", open_page) == drift_record(conference, "u", closed_page)
 
     def test_unknown_page_zone_is_not_drift(self):
         page = parse_submissions("Submissions close on 2026-12-11 17:00 (Mars/Olympus)")
@@ -522,6 +532,13 @@ class TestPretalxDrift:
         assert "pycascades-2027/cfp: connection reset" in err
         assert "pytexas-2027/cfp returned 404" in err
         assert not pages.all_failed()
+
+    def test_a_blocked_job_fails_as_a_whole(self, web, sleeps):
+        for slug in ("pycascades-2027", "pytexas-2027", "wagtail-space-2026"):
+            web.add(responses.GET, f"https://pretalx.com/{slug}/cfp", status=403)
+        pages = PageFetcher()
+        assert pretalx_drift(dataset()["conferences"], TODAY, pages) == []
+        assert pages.all_failed()
 
 
 class TestPretalxProbe:
@@ -668,6 +685,17 @@ class TestDevelopersEvents:
             ("PyCon Greece 2027", "MISSING_EDITION"),
             ("Python Hellas Summit 2027", "MAYBE"),
         ]
+
+    @pytest.mark.parametrize(
+        "name",
+        ["EuroPython 2027", "EuroSciPy 2027", "DjangoCon US 2027", "JupyterCon 2027", "GeoPython 2027", "PyData Oslo"],
+    )
+    def test_python_words_inside_longer_names(self, name):
+        assert desk_leads.is_python_event({"name": name})
+
+    @pytest.mark.parametrize("name", ["Craft Conf 2027", "Happy Devs Summit", "Spyware Days", "SQLSaturday Oslo"])
+    def test_other_names(self, name):
+        assert not desk_leads.is_python_event({"name": name})
 
     def test_a_python_tag_alone_is_not_enough(self, index):
         assert "Snakes & Data Summit 2027" not in [record["title"] for record in self.records(index)]

@@ -10,6 +10,7 @@ Merge Strategy:
 import contextlib
 import logging
 from collections import defaultdict
+from collections.abc import Iterable
 
 import pandas as pd
 from thefuzz import fuzz
@@ -138,14 +139,21 @@ def _question_context(row, conference, field, yaml_value, remote_value, source_n
     }
 
 
-def apply_alt_names(df_yml: pd.DataFrame, df_remote: pd.DataFrame) -> pd.DataFrame:
+def apply_alt_names(
+    df_yml: pd.DataFrame,
+    df_remote: pd.DataFrame,
+    known_names: Iterable[str] | None = None,
+) -> pd.DataFrame:
     """Give remote rows named by a YAML entry's alt_name that entry's name.
 
     A remote source may use a series' alternative name ("XtremePython" for the
     entry "Xtreme Python" with that alt_name). Matching on conference names
     alone would then add the edition a second time under the other name.
     An alt_name shared by entries with different names is ambiguous and left
-    to the usual matching, as is a remote name that is itself a YAML name.
+    to the usual matching. A remote name that is itself the name of a series
+    in any year ("PyHEP" is a series of its own as well as the alt_name of
+    PyHEP.dev) is renamed only when the row starts on the same day as the
+    entry with that alt_name, which makes it the same edition.
 
     Parameters
     ----------
@@ -153,6 +161,8 @@ def apply_alt_names(df_yml: pd.DataFrame, df_remote: pd.DataFrame) -> pd.DataFra
         YAML rows, with "conference" and optionally "alt_name"
     df_remote : pd.DataFrame
         Remote rows, with "conference"
+    known_names : Iterable[str], optional
+        Series names from every year of the data, when df_yml holds only one
 
     Returns
     -------
@@ -162,25 +172,38 @@ def apply_alt_names(df_yml: pd.DataFrame, df_remote: pd.DataFrame) -> pd.DataFra
     if "alt_name" not in df_yml.columns or df_yml.empty or df_remote.empty:
         return df_remote
     _, known_mappings = load_title_mappings(reverse=True)
-    yaml_names = {fold_name(name) for name in df_yml["conference"] if isinstance(name, str)}
+    extra = [] if known_names is None else list(known_names)
+    names = [name for name in [*df_yml["conference"], *extra] if isinstance(name, str)]
+    yaml_names = {fold_name(name) for name in names}
+    yaml_names |= {fold_name(normalize_conference_name(name, known_mappings)) for name in names}
     by_alt: dict[str, set[str]] = defaultdict(set)
-    for name, alt in zip(df_yml["conference"], df_yml["alt_name"], strict=False):
+    starts: dict[str, set[str]] = defaultdict(set)
+    yaml_starts = df_yml["start"] if "start" in df_yml.columns else [None] * len(df_yml)
+    for name, alt, start in zip(df_yml["conference"], df_yml["alt_name"], yaml_starts, strict=False):
         if not (isinstance(name, str) and isinstance(alt, str) and alt.strip()):
             continue
         by_alt[fold_name(alt)].add(name)
         by_alt[fold_name(normalize_conference_name(alt, known_mappings))].add(name)
+        if start is not None and not pd.isna(start):
+            starts[name].add(str(start)[:10])
 
-    def rename(remote_name):
+    def rename(row):
+        remote_name = row["conference"]
         if not isinstance(remote_name, str):
             return remote_name
         key = fold_name(remote_name)
         names = by_alt.get(key, set())
-        if key in yaml_names or len(names) != 1:
+        if len(names) != 1:
             return remote_name
-        return next(iter(names))
+        name = next(iter(names))
+        if key in yaml_names:
+            start = row.get("start")
+            if start is None or pd.isna(start) or str(start)[:10] not in starts[name]:
+                return remote_name
+        return name
 
     df_remote = df_remote.copy()
-    df_remote["conference"] = df_remote["conference"].apply(rename)
+    df_remote["conference"] = df_remote.apply(rename, axis=1)
     return df_remote
 
 
@@ -290,6 +313,7 @@ def fuzzy_match(
     df_remote: pd.DataFrame,
     report: MergeReport | None = None,
     source_name: str | None = None,
+    known_names: Iterable[str] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, MergeReport]:
     """Fuzzy merge conferences from two pandas dataframes on title.
 
@@ -311,6 +335,9 @@ def fuzzy_match(
     source_name : str, optional
         Name of the remote source, recorded with questions asked where no
         one can answer them
+    known_names : Iterable[str], optional
+        Series names from every year of the data, so a remote name that is
+        a series of its own is never taken for another series' alt_name
 
     Returns
     -------
@@ -339,7 +366,7 @@ def fuzzy_match(
     # Tidy conference names
     df_yml = tidy_df_names(df_yml)
     df_remote = tidy_df_names(df_remote)
-    df_remote = apply_alt_names(df_yml, df_remote)
+    df_remote = apply_alt_names(df_yml, df_remote, known_names)
 
     # Log state after tidying
     log_dataframe_state(df_yml, "df_yml after tidy_df_names")

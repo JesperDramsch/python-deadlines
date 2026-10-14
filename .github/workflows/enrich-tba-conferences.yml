@@ -53,18 +53,15 @@ jobs:
             git fetch origin $UPDATE_BRANCH
             git checkout $UPDATE_BRANCH
 
-            # Sync with main - try rebase first, then merge. A merge conflict
-            # fails the job: resolving it in favour of main would silently drop
-            # the changes already on this branch.
-            if ! git rebase origin/main; then
-              echo "::warning title=Rebase Failed::Attempting merge instead"
-              git rebase --abort 2>/dev/null || true
-              if ! git merge origin/main --no-edit; then
-                CONFLICTS=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
-                git merge --abort 2>/dev/null || true
-                echo "::error title=Branch Sync Conflict::${CONFLICTS:-git merge origin/main failed with no conflicted files}"
-                exit 1
-              fi
+            # Sync with main by merging, never rebasing: the desk pushes to this
+            # branch too, and a rebase would rewrite its commits. A merge
+            # conflict fails the job: resolving it in favour of main would
+            # silently drop the changes already on this branch.
+            if ! git merge origin/main --no-edit; then
+              CONFLICTS=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
+              git merge --abort 2>/dev/null || true
+              echo "::error title=Branch Sync Conflict::${CONFLICTS:-git merge origin/main failed with no conflicted files}"
+              exit 1
             fi
           else
             echo "::notice title=Branch::Creating new accumulator branch"
@@ -168,7 +165,7 @@ jobs:
           COMMIT_MSG="chore: enrich TBA conferences with links"
 
           git commit -m "$COMMIT_MSG" -m "Triggered: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push origin $UPDATE_BRANCH --force-with-lease
+          git push origin "HEAD:$UPDATE_BRANCH"
 
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
           echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT

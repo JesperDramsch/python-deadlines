@@ -389,6 +389,7 @@ def main(year=None, base="") -> bool:
                 df_yml[df_yml["year"] == y],
                 df_ics.loc[df_ics["year"] == y],
                 source_name=SOURCE_NAME,
+                known_names=df_yml["conference"],
             )
             logger.info(
                 f"Merge report: {merge_report.exact_matches} exact, "

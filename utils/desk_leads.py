@@ -103,10 +103,8 @@ PRETALX_SLUG = re.compile(r"^https?://(?:www\.)?pretalx\.com/([A-Za-z0-9][A-Za-z
 PRETALX_RESERVED = {"api", "download", "locale", "me", "media", "orga", "p", "redirect", "static"}
 SUBMISSIONS = re.compile(r"Submissions (close|closed) on (\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) \(([^()<>\s]+)\)")
 PROPOSALS_CLOSED = "Proposals are closed"
-PYTHON_NAME = re.compile(
-    r"\b(py\w*|python|django|flask|fastapi|pydata|scipy|jupyter|wagtail|plone|pyladies|pytorch)\b",
-    re.IGNORECASE,
-)
+# Inside longer words too: EuroPython, EuroSciPy, DjangoCon, JupyterCon, FlaskCon
+PYTHON_NAME = re.compile(r"\bpy|python|django|flask|fastapi|scipy|jupyter|wagtail|plone", re.IGNORECASE)
 EXCLUDED_NAME = re.compile(r"financial aid|hatchery|sprint", re.IGNORECASE)
 REGISTRY_PATH = re.compile(r"^/_(?:national|regional)/[^/]+\.yml$")
 FRONT_MATTER = re.compile(r"\A\s*---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", re.DOTALL)
@@ -620,7 +618,7 @@ class PageFetcher:
         -------
         requests.Response | None
             The response, or None when the request failed or the server
-            answered 5xx or 429 (reported on stderr).
+            answered 5xx, 401, 403, 429 or 451 (reported on stderr).
         """
         if url in self.pages:
             return self.pages[url]
@@ -633,7 +631,9 @@ class PageFetcher:
         except requests.RequestException as error:
             report(f"pretalx: {url}: {first_line(error)}, skipped")
         else:
-            if response.status_code >= 500 or response.status_code == 429:
+            # A refusal (401, 403, 451) counts as a failure, so a blocked job
+            # fails as a whole instead of finding nothing; a 404 does not
+            if response.status_code >= 500 or response.status_code in (401, 403, 429, 451):
                 report(f"pretalx: {url} returned {response.status_code}, skipped")
                 response = None
         if response is None:
@@ -811,7 +811,8 @@ def drift_record(entry: dict, page_url: str, page: dict) -> dict | None:
     if deadline is None:
         return None
     data_text, moment = deadline
-    if moment is not None and (page["moment"] is None or page["moment"] == moment):
+    # pretalx shows minutes only: 23:59:59 in the data is its 23:59
+    if moment is not None and (page["moment"] is None or page["moment"] == moment.replace(second=0, microsecond=0)):
         return None
     year = as_year(entry.get("year"))
     return {
@@ -823,7 +824,9 @@ def drift_record(entry: dict, page_url: str, page: dict) -> dict | None:
         "payload": {
             "conference": entry.get("conference"),
             "year": year,
-            "diffs": {"cfp": {"data": data_text, "source": page["sentence"]}},
+            # The time and zone only: the sentence turns from "close" to
+            # "closed" when the deadline passes, which would change the id
+            "diffs": {"cfp": {"data": data_text, "source": f"{page['cfp'][:16]} ({page['timezone']})"}},
         },
     }
 

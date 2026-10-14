@@ -73,6 +73,18 @@ class TestAltNames:
         df_yml = self.yaml(("PyData Berlin", "PyCon Berlin"), ("PyCon Berlin", None))
         assert apply_alt_names(df_yml, rows(("PyCon Berlin", 2026)))["conference"].tolist() == ["PyCon Berlin"]
 
+    def test_a_series_of_its_own_is_renamed_only_on_the_same_dates(self, mock_title_mappings):
+        """PyHEP is the alt_name of PyHEP.dev 2026 and a series of its own in earlier years."""
+        df_yml = self.yaml(("PyHEP.dev", "PyHEP"))
+        df_yml["start"] = ["2026-09-07"]
+        known = pd.Series(["PyHEP.dev", "PyHEP", "PyHEP"])  # the importers pass the data's column
+        remote = rows(
+            ("PyHEP", 2026, "u", "TBA", "Geneva, Switzerland", "2026-09-07"),  # the sheet's row for PyHEP.dev 2026
+            ("PyHEP", 2026, "u", "TBA", "Online", "2026-10-26"),  # a PyHEP workshop of its own
+        )
+        df_remote = apply_alt_names(df_yml, remote, known_names=known)
+        assert df_remote["conference"].tolist() == ["PyHEP.dev", "PyHEP"]
+
     def test_without_alt_names_nothing_changes(self, mock_title_mappings):
         df_remote = rows(("XtremePython", 2026))
         assert apply_alt_names(pd.DataFrame({"conference": ["Xtreme Python"]}), df_remote) is df_remote
@@ -119,6 +131,8 @@ class TestDenylist:
             ("https://EVENTS.codehut.co.uk/x", ("reject", "codehut.co.uk", "domain does not resolve")),
             ("https://pyconf.org/", ("review", "pyconf.org", "domain registered after the claimed CfP")),
             ("https://notcodehut.co.uk/", None),
+            ("www.codehut.co.uk/2026/", ("reject", "codehut.co.uk", "domain does not resolve")),
+            ("https://codehut.co.uk.evil.example/", None),
             ("https://pycon.org/", None),
             ("", None),
             (float("nan"), None),
@@ -150,12 +164,35 @@ class TestDenylist:
         df["cfp_link"] = ["https://forms.codehut.co.uk/cfp"]
         assert drop_denied(df, "python.org", DENYLIST).empty
 
+    def test_review_record_names_the_denied_link(self, monkeypatch, tmp_path):
+        out = tmp_path / "records.jsonl"
+        monkeypatch.setenv("DESK_QUEUE_OUT", str(out))
+        df = rows(("Some Summit", 2026, "https://summit.example/"))
+        df["cfp_link"] = ["https://pyconf.org/cfp"]
+        drop_denied(df, "python.org", DENYLIST)
+        record = json.loads(out.read_text(encoding="utf-8"))
+        assert record["url"] == record["payload"]["evidence_url"] == "https://pyconf.org/cfp"
+
 
 class TestRowsWithoutLink:
-    def test_left_out(self, capsys):
+    def test_left_out_and_queued(self, monkeypatch, tmp_path):
+        out = tmp_path / "records.jsonl"
+        monkeypatch.setenv("DESK_QUEUE_OUT", str(out))
         df = rows(
-            ("PyDay Chile Santiago", 2026.0, float("nan")),
+            ("PyDay Chile Santiago", 2026.0, float("nan"), "TBA", "Santiago, Chile", "2026-06-06", "2026-06-06"),
             ("PyDay Chile Rancagua", 2026.0, ""),
             ("PyDay Chile Valparaiso", 2026.0, "https://pyday.cl/valparaiso"),
         )
         assert drop_rows_without_link(df)["conference"].tolist() == ["PyDay Chile Valparaiso"]
+        records = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+        assert [record["title"] for record in records] == ["PyDay Chile Santiago 2026", "PyDay Chile Rancagua 2026"]
+        first = records[0]["payload"]
+        assert first["flags"] == ["no-website"]
+        assert first["fields"] == {
+            "conference": "PyDay Chile Santiago",
+            "year": 2026,
+            "place": "Santiago, Chile",
+            "start": "2026-06-06",
+            "end": "2026-06-06",
+        }
+        assert all(normalise_record(record)["id"] for record in records)

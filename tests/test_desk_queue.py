@@ -108,6 +108,18 @@ class TestNormaliseRecord:
     def test_id_depends_on_the_payload(self):
         assert normalise_record(signal(diff="a"), NOW)["id"] != normalise_record(signal(diff="b"), NOW)["id"]
 
+    def test_candidate_id_ignores_the_matched_entry(self):
+        def candidate(matched):
+            payload = {"classification": "MISSING_EDITION", "fields": {"conference": "PyCon Greece", "year": 2027}}
+            payload["matched"] = matched
+            record = {"source": "developers-events", "kind": "candidate", "title": "PyCon Greece 2027", "url": "u"}
+            return normalise_record({**record, "payload": payload}, NOW)
+
+        upcoming = candidate({"conference": "PyCon Greece", "file": "conferences", "year": 2026, "score": 100})
+        archived = candidate({"conference": "PyCon Greece", "file": "archive", "year": 2026, "score": 100})
+        assert upcoming["id"] == archived["id"]
+        assert archived["payload"]["matched"]["file"] == "archive"
+
     def test_redirect_id_ignores_status_and_query(self):
         def redirect(final_url, status):
             payload = {"conference": "PyTennessee", "year": 2019, "field": "sponsor"}

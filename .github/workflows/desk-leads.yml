@@ -163,3 +163,13 @@ jobs:
             echo ""
             echo "- New in the desk queue: ${ADDED:-0}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # After the queue write, so a source that failed still turns the run red.
+      - name: Fail when a source failed
+        if: ${{ !cancelled() }}
+        env:
+          STATUSES: ${{ steps.pretalx.outputs.status }} ${{ steps.developers_events.outputs.status }} ${{ steps.registry.outputs.status }}
+        run: |
+          case " $STATUSES " in
+            *" failed "*) echo "::error title=Desk leads::a source failed, see the warnings above"; exit 1 ;;
+          esac

@@ -70,7 +70,10 @@ def denied(url: object, denylist: dict[str, dict[str, str]]) -> tuple[str, str, 
     """
     if not isinstance(url, str) or not url.strip():
         return None
-    host = (urlsplit(url.strip()).hostname or "").lower().rstrip(".")
+    url = url.strip()
+    if "://" not in url:
+        url = "//" + url  # "www.example.org/x" still names its host
+    host = (urlsplit(url).hostname or "").lower().rstrip(".")
     if not host:
         return None
     for verdict in VERDICTS:
@@ -117,16 +120,20 @@ def drop_denied(
     keep = []
     for _, row in df.iterrows():
         hit = next(
-            (found for column in LINK_COLUMNS if column in row.index and (found := denied(row[column], denylist))),
+            (
+                (column, found)
+                for column in LINK_COLUMNS
+                if column in row.index and (found := denied(row[column], denylist))
+            ),
             None,
         )
         keep.append(hit is None)
         if hit is None:
             continue
-        verdict, domain, reason = hit
+        column, (verdict, domain, reason) = hit
         conference = row.get("conference")
         year = _year(row.get("year"))
-        link = row.get("link") if isinstance(row.get("link"), str) else ""
+        link = row[column] if isinstance(row[column], str) else ""
         logger.warning(f"Skipping {conference} {year or ''}: {domain} is on the denylist ({verdict}: {reason})")
         if verdict == "review":
             append_queue_record(

@@ -102,9 +102,10 @@ UTF-8 JSON, two-space indent, keys sorted:
 is already in the file, as an item or as handled, changes nothing: the same
 finding is queued once, and a finding the desk has handled stays handled
 until something about it changes. For a redirect the id leaves out the status
-and the final URL's query and fragment. A file keeps at most 50 items, the
-newest by `received`, and the 500 latest handled ids. A payload string longer
-than 20,000 characters is cut there, and the payload gets `"truncated": true`.
+and the final URL's query and fragment; for a candidate, its `matched` entry.
+A file keeps at most 50 items, the newest by `received`, and the 500 latest
+handled ids. A payload string longer than 20,000 characters is cut there, and
+the payload gets `"truncated": true`.
 A file that cannot be read is moved to `<key>.json.bad` when a writer next
 adds to it.
 
@@ -253,8 +254,12 @@ def item_id(source: str, kind: str, url: str, payload: dict) -> str:
         SHA-1 hex of the four, so the same finding always gets the same id.
         For a redirect, the status and the final URL's query and fragment are
         left out: they can change from one check to the next while the
-        finding, a link that lands on another site, stays the same.
+        finding, a link that lands on another site, stays the same. For a
+        candidate, "matched" is left out: it describes the data (which file
+        holds the matched entry), not the finding.
     """
+    if kind == "candidate":
+        payload = {key: value for key, value in payload.items() if key != "matched"}
     if kind == "redirect":
         payload = {key: value for key, value in payload.items() if key != "status"}
         if isinstance(payload.get("final_url"), str):
