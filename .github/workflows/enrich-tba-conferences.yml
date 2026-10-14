@@ -182,6 +182,13 @@ jobs:
           # The PR row links this commit, not a merge the retries below may add
           COMMIT_SHA=$(git rev-parse HEAD)
 
+          # A tracked file a script above changed and this job does not stage,
+          # such as utils/tidy_conf/data/titles.yml or rejections.yml, makes a
+          # retry merge below refuse to run when the fetched branch changed it
+          # too. Drop every such change now the data is committed. The review
+          # file is untracked and stays.
+          git checkout -- .
+
           # Merging the rolling PR deletes this branch, and a push after that
           # would recreate it from this run's old history. Stop instead when
           # the branch existed at setup and is now gone, or no longer holds the

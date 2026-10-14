@@ -28,7 +28,9 @@ on:
         default: false
 
 # One group with enrich-tba-conferences.yml: both write to the accumulator
-# branch, so their runs queue behind each other instead of racing.
+# branch, so their runs queue behind each other instead of racing. A group
+# keeps one pending run and a newer run replaces it, so a later canonical run
+# can cancel a queued enrich run. The daily enrich cron limits the loss.
 concurrency:
   group: auto-conference-updates
   cancel-in-progress: false
@@ -247,6 +249,12 @@ jobs:
           git commit -m "$COMMIT_MSG" -m "Source: canonical-$SOURCE" -m "Triggered: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           # The PR row links this commit, not a merge the retries below may add
           COMMIT_SHA=$(git rev-parse HEAD)
+
+          # The merge can change utils/tidy_conf/data/titles.yml and
+          # rejections.yml, which this job does not stage. A retry merge below
+          # refuses to run when the fetched branch changed them too, so drop
+          # every unstaged change to a tracked file now the data is committed.
+          git checkout -- .
 
           # Merging the rolling PR deletes this branch, and a push after that
           # would recreate it from this run's old history. Stop instead when

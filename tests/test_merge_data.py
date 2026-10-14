@@ -256,11 +256,20 @@ class TestMergeEntries:
             Conflict(("PyData Amsterdam", 2026), "timezone", "Europe/Amsterdam", MISSING, NO_ENTRY),
         ]
 
-    def test_repeated_key_on_any_side_is_an_error(self):
-        with pytest.raises(DataError, match="theirs: PyData Amsterdam 2026 appears more than once"):
+    def test_place_repeated_within_a_pair_on_one_side_is_an_error(self):
+        with pytest.raises(
+            DataError,
+            match=re.escape("theirs: PyData Amsterdam 2026 (Amsterdam, Netherlands) appears more than once"),
+        ):
             merge_entries([entry()], [entry()], [entry(), entry()])
-        with pytest.raises(DataError, match="ours: PyData Amsterdam 2026 appears more than once"):
-            merge_entries([], [entry(), entry(place="Online")], [])
+
+    def test_places_that_differ_only_in_the_country_spelling_are_repeated(self):
+        """The sort folds these two into one entry, so the merge must not keep both."""
+        with pytest.raises(
+            DataError,
+            match=re.escape("ours: PyData Amsterdam 2026 (London, UK) appears more than once"),
+        ):
+            merge_entries([], [entry(place="London, United Kingdom"), entry(place="London, UK")], [])
 
     def test_pair_the_base_repeats_with_the_same_place_is_an_error(self):
         with pytest.raises(
@@ -270,11 +279,48 @@ class TestMergeEntries:
             merge_entries([entry(), entry()], [entry()], [entry()])
 
 
-class TestPairsTheBaseRepeats:
-    """Old editions held in several cities share (conference, year), such as PyCon China 2023."""
+class TestRepeatedPairs:
+    """Editions held in several cities share (conference, year), such as PyCon China 2023."""
 
     beijing = entry("PyCon China", 2023, place="Beijing, China", start=date(2023, 12, 2), end=date(2023, 12, 2))
     chengdu = entry("PyCon China", 2023, place="Chengdu, China", start=date(2023, 12, 17), end=date(2023, 12, 17))
+
+    def test_a_pair_only_ours_repeats_is_told_apart_by_place(self):
+        ours = [{**self.beijing, "twitter": "pyconchina"}, self.chengdu]
+        theirs = [{**self.beijing, "cfp": "2023-11-01 23:59:00"}]
+        result = merge_entries([self.beijing], ours, theirs)
+        assert result.conflicts == []
+        assert result.entries == [{**self.beijing, "twitter": "pyconchina", "cfp": "2023-11-01 23:59:00"}, self.chengdu]
+        assert (result.added_ours, result.added_theirs) == (1, 0)
+
+    def test_a_pair_only_theirs_repeats_is_told_apart_by_place(self):
+        ours = [{**self.beijing, "twitter": "pyconchina"}]
+        theirs = [self.beijing, self.chengdu]
+        result = merge_entries([self.beijing], ours, theirs)
+        assert result.conflicts == []
+        assert result.entries == [{**self.beijing, "twitter": "pyconchina"}, self.chengdu]
+        assert (result.added_ours, result.added_theirs) == (0, 1)
+
+    def test_places_are_keyed_with_the_country_normalised(self):
+        """One side writes "London, UK" where the others have "London, United Kingdom": the same edition."""
+        london = entry(place="London, United Kingdom")
+        paris = entry(place="Paris, France")
+        result = merge_entries(
+            [london],
+            [{**london, "place": "London, UK"}, paris],
+            [{**london, "cfp": "2026-05-18 23:59:00"}],
+        )
+        assert result.conflicts == []
+        assert result.entries == [{**london, "place": "London, UK", "cfp": "2026-05-18 23:59:00"}, paris]
+
+    def test_conflict_names_the_normalised_place(self):
+        london = entry(place="London, United Kingdom")
+        result = merge_entries(
+            [london, entry(place="Paris, France")],
+            [{**london, "cfp": "2026-05-18 23:59:00"}, entry(place="Paris, France")],
+            [{**london, "cfp": "2026-05-25 23:59:00"}, entry(place="Paris, France")],
+        )
+        assert [conflict.key for conflict in result.conflicts] == [("PyData Amsterdam", 2026, "London, UK")]
 
     def test_entries_are_told_apart_by_place(self):
         ours = [{**self.beijing, "twitter": "pyconchina"}, self.chengdu]
@@ -521,6 +567,69 @@ class TestSortConflictEndToEnd:
         ]
         assert [(e["conference"], e["year"]) for e in load(CONFERENCES)] == [("PyData Amsterdam", 2026)]
 
+    def test_a_second_city_added_on_main_merges_by_place(self, repo):
+        """Main respells the country and adds a second city for the edition; the rolling branch adds finaid."""
+        london = entry(place="London, United Kingdom")
+        paris = entry(
+            place="Paris, France",
+            link="https://paris.pydata.org/",
+            location=[{"title": "PyData Amsterdam 2026", "latitude": 48.8566, "longitude": 2.3522}],
+        )
+        code = start_conflict(
+            {CONFERENCES: [london]},
+            {CONFERENCES: [{**london, "finaid": FINAID}]},
+            {CONFERENCES: [{**london, "place": "London, UK", "twitter": "pydataams"}, paris]},
+        )
+        assert code != 0
+        assert conflicted() == [CONFERENCES]
+
+        with frozen_on("2026-10-14"):
+            assert merge_data.main([]) == 0
+
+        assert conflicted() == []
+        assert {e["place"]: e for e in load(CONFERENCES)} == {
+            "London, UK": {**london, "place": "London, UK", "finaid": FINAID, "twitter": "pydataams"},
+            "Paris, France": paris,
+        }
+
+
+class TestCheckAfterTheSort:
+    """write_and_sort compares the keys before and after the sort, places of a repeated pair normalised."""
+
+    london = entry(place="London, UK")
+    paris = entry(place="Paris, France")
+
+    @pytest.fixture()
+    def root(self, tmp_path):
+        """A repository root whose data files hold one entry each, to check what a failure restores."""
+        (tmp_path / "_data").mkdir()
+        for year, path in zip((2026, 2025, 2019), DATA_FILES, strict=True):
+            write(str(tmp_path / path), [entry(year=year)])
+        return tmp_path
+
+    def test_a_country_the_sort_spells_differently_is_the_same_entry(self, root, monkeypatch):
+        def respelling_sort(base, **kwargs):
+            write(str(Path(base, CONFERENCES)), [{**self.london, "place": "London, United Kingdom"}, self.paris])
+
+        monkeypatch.setattr(merge_data, "sort_data", respelling_sort)
+
+        merge_data.write_and_sort([self.london, self.paris], root)
+
+        assert [e["place"] for e in load(root / CONFERENCES)] == ["London, United Kingdom", "Paris, France"]
+
+    def test_an_entry_the_sort_folds_into_another_is_lost(self, root, monkeypatch):
+        before = {path: (root / path).read_bytes() for path in DATA_FILES}
+
+        def folding_sort(base, **kwargs):
+            write(str(Path(base, CONFERENCES)), [self.london])
+
+        monkeypatch.setattr(merge_data, "sort_data", folding_sort)
+
+        with pytest.raises(DataError, match=re.escape("lost: PyData Amsterdam 2026 (Paris, France); gained: none")):
+            merge_data.write_and_sort([self.london, self.paris], root)
+
+        assert {path: (root / path).read_bytes() for path in DATA_FILES} == before
+
 
 @needs_git
 class TestCommandLineRefusals:
@@ -607,7 +716,9 @@ class TestCommandLineRefusals:
         assert merge_data.main([]) == 1
 
         assert snapshot() == before
-        assert "theirs: PyData Amsterdam 2026 appears more than once" in capsys.readouterr().err
+        assert (
+            "theirs: PyData Amsterdam 2026 (Amsterdam, Netherlands) appears more than once" in capsys.readouterr().err
+        )
 
     def test_failed_sort_restores_the_files(self, resolvable, monkeypatch, capsys):
         def failing_sort(**kwargs):

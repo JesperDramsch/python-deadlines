@@ -9,7 +9,7 @@ sorted an entry the rolling branch edited, a plain ``git merge`` conflicts in
 
 Run this while ``git merge`` is stopped on conflicts. It keys every entry on
 (conference, year) across the three files, so a move between files does not
-matter (``merge_entries`` says how it tells apart the few old pairs that
+matter (``merge_entries`` says how it tells apart the pairs that
 repeat), and merges the merge base, HEAD (ours) and MERGE_HEAD (theirs) field by
 field. When no field changed differently on both sides, it writes the result,
 sorts it back into place with ``sort_yaml.sort_data``, checks that no entry was
@@ -45,14 +45,17 @@ import yaml
 
 try:
     from sort_yaml import sort_data
+    from tidy_conf.countries import normalize_place
     from tidy_conf.yaml import write_conference_yaml
 except ImportError:
     from .sort_yaml import sort_data
+    from .tidy_conf.countries import normalize_place
     from .tidy_conf.yaml import write_conference_yaml
 
 DATA_FILES = ("_data/conferences.yml", "_data/archive.yml", "_data/legacy.yml")
 
-# (conference, year), or (conference, year, place) for a pair the merge base already repeats
+# (conference, year), or (conference, year, place) for a pair some side repeats,
+# with the place's country normalised as the sort's merge_duplicates does
 Key = tuple[Any, ...]
 
 
@@ -230,6 +233,30 @@ def repeated_pairs(entries: list) -> set[Key]:
     return {pair for pair, number in pairs.items() if number > 1}
 
 
+def entry_key(entry: dict, by_place: set[Key] | frozenset = frozenset()) -> Key:
+    """Return an entry's key: (conference, year), with the place added for the pairs in ``by_place``.
+
+    The place's country is normalised, as the sort's ``merge_duplicates``
+    does, so "London, United Kingdom" and "London, UK" give the same key.
+
+    Parameters
+    ----------
+    entry : dict
+        A conference entry.
+    by_place : set[Key] | frozenset, optional
+        (conference, year) pairs whose entries are told apart by place, by default none.
+
+    Returns
+    -------
+    Key
+        (conference, year), or (conference, year, normalised place).
+    """
+    pair = (entry.get("conference"), entry.get("year"))
+    if pair in by_place:
+        return (*pair, normalize_place(entry.get("place")))
+    return pair
+
+
 def index_entries(entries: list, side: str, by_place: set[Key] | frozenset = frozenset()) -> dict[Key, dict]:
     """Key one side's entries on (conference, year), or on (conference, year, place) for the pairs in ``by_place``.
 
@@ -251,17 +278,16 @@ def index_entries(entries: list, side: str, by_place: set[Key] | frozenset = fro
     ------
     DataError
         When an entry is not a mapping, lacks its conference or year, or
-        repeats a key already seen on this side.
+        repeats a key already seen on this side. Two places that differ only
+        in the country's spelling are the same key.
     """
     index: dict[Key, dict] = {}
     for entry in entries:
         if not isinstance(entry, dict):
             raise DataError(f"{side}: an entry is not a mapping: {show(entry)}")
-        key: Key = (entry.get("conference"), entry.get("year"))
+        key = entry_key(entry, by_place)
         if key[0] is None or key[1] is None:
             raise DataError(f"{side}: an entry has no conference or no year: {show(entry)}")
-        if key in by_place:
-            key = (*key, entry.get("place"))
         if key in index:
             raise DataError(f"{side}: {describe_key(key)} appears more than once")
         index[key] = entry
@@ -344,11 +370,12 @@ def merge_entries(base: list, ours: list, theirs: list) -> MergeResult:
 
     Each version is the entries of conferences.yml, archive.yml and legacy.yml
     together, so an entry moved between files is the same entry. Entries are
-    keyed on (conference, year). A few old pairs repeat at the merge base,
-    such as a PyCon China held in several cities in one year, so the entries
-    of a pair the base repeats are told apart by place on every side. Any
-    other repeated key is an error. A field missing from an entry counts as
-    deleted there.
+    keyed on (conference, year). A few pairs repeat, such as a PyCon China
+    held in several cities in one year, so the entries of a pair that any
+    side repeats are told apart by place on every side, with the place's
+    country normalised. Any other repeated key is an error, a place repeated
+    within one pair on one side included. A field missing from an entry
+    counts as deleted there.
 
     - A field both sides agree on is kept.
     - A field one side changed while the other left it as base takes the change.
@@ -379,7 +406,7 @@ def merge_entries(base: list, ours: list, theirs: list) -> MergeResult:
     DataError
         When an entry is not a mapping or lacks its key, or a key repeats within one side.
     """
-    by_place = repeated_pairs(base)
+    by_place = repeated_pairs(base) | repeated_pairs(ours) | repeated_pairs(theirs)
     base_index = index_entries(base, "base", by_place)
     ours_index = index_entries(ours, "ours", by_place)
     theirs_index = index_entries(theirs, "theirs", by_place)
@@ -528,35 +555,37 @@ def read_side(rev: str, cwd: Path) -> list:
     return entries
 
 
-def read_worktree_keys(root: Path) -> list[Key]:
-    """List the (conference, year) key of every entry in the working tree's data files.
+def read_worktree_keys(root: Path, by_place: set[Key] | frozenset = frozenset()) -> list[Key]:
+    """List the key of every entry in the working tree's data files, as ``entry_key`` gives it.
 
     Parameters
     ----------
     root : Path
         The repository root.
+    by_place : set[Key] | frozenset, optional
+        (conference, year) pairs whose entries are told apart by place, by default none.
 
     Returns
     -------
     list[Key]
-        One key per entry, repeats included.
+        One key per entry, repeats included. An entry that is not a mapping is (None, None).
     """
     keys = []
     for path in DATA_FILES:
         file = root / path
         if not file.exists():
             continue
-        for entry in load_yaml_list(file.read_text(encoding="utf-8"), path):
-            if isinstance(entry, dict):
-                keys.append((entry.get("conference"), entry.get("year")))
-            else:
-                keys.append((None, None))
+        entries = load_yaml_list(file.read_text(encoding="utf-8"), path)
+        keys.extend(entry_key(entry, by_place) if isinstance(entry, dict) else (None, None) for entry in entries)
     return keys
 
 
 def write_and_sort(entries: list[dict], root: Path) -> None:
     """Write the merged entries, sort them into place and check that none was lost.
 
+    The check compares keys as ``entry_key`` gives them, so the entries of
+    a pair the merged entries repeat are compared by normalised place: the
+    sort folds entries whose places differ only in the country's spelling.
     When anything fails, the data files get back the content git left in them.
 
     Parameters
@@ -579,11 +608,12 @@ def write_and_sort(entries: list[dict], root: Path) -> None:
             write_conference_yaml([], str(root / path))
         sort_data(base=str(root), skip_links=True)
 
-        expected = Counter((entry["conference"], entry["year"]) for entry in entries)
-        found = Counter(read_worktree_keys(root))
+        by_place = repeated_pairs(entries)
+        expected = Counter(entry_key(entry, by_place) for entry in entries)
+        found = Counter(read_worktree_keys(root, by_place))
         if found != expected:
-            lost = sorted(f"{conference} {year}" for conference, year in expected - found)
-            gained = sorted(f"{conference} {year}" for conference, year in found - expected)
+            lost = sorted(map(describe_key, expected - found))
+            gained = sorted(map(describe_key, found - expected))
             raise DataError(
                 "the sort changed the set of entries; "
                 f"lost: {', '.join(lost) or 'none'}; gained: {', '.join(gained) or 'none'}",

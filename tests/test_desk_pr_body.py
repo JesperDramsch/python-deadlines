@@ -1,5 +1,6 @@
 """Tests for desk_pr_body: the desk's write of the rolling PR body, which keeps the writers' part."""
 
+import os
 import sys
 from pathlib import Path
 
@@ -11,8 +12,12 @@ sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
 import desk_pr_body
 from desk_pr_body import MARKER
+from desk_pr_body import reserved_in
 from desk_pr_body import splice
 from desk_pr_body import writers_part
+
+END_UPDATES = "<!-- END_UPDATES -->"
+REVIEW_ITEMS = "<!-- REVIEW_ITEMS -->"
 
 DESK = "Desk last ran: 2026-10-14 06:00 UTC, model claude-opus-5-5, 3 checked, 1 changed\n\n### Evidence\n"
 WRITERS = (
@@ -87,6 +92,17 @@ class TestSplice:
         with pytest.raises(ValueError, match="DESK_END"):
             splice(f"desk\n{MARKER}\n", body())
 
+    @pytest.mark.parametrize("marker", [END_UPDATES, REVIEW_ITEMS])
+    def test_refuses_a_desk_part_with_a_marker_the_writers_add_rows_at(self, marker):
+        """A writer adds at the first such marker, which would be in the desk's part, and the next splice drops it."""
+        with pytest.raises(ValueError, match=f"the desk part contains {marker}"):
+            splice(f"ledger\n{marker}\n", body())
+
+    def test_reserved_in_names_every_marker_found(self):
+        assert reserved_in(DESK) == []
+        assert reserved_in(f"{REVIEW_ITEMS} {MARKER} {END_UPDATES}") == [MARKER, END_UPDATES, REVIEW_ITEMS]
+        assert reserved_in("<!-- END_REVIEW_ITEMS -->") == []
+
     def test_is_idempotent(self):
         once = splice(DESK, body(desk="old"))
         assert splice(DESK, once) == once
@@ -96,7 +112,7 @@ class TestSplice:
         assert splice("second", first) == f"second\n{MARKER}\n{WRITERS}"
 
     @given(
-        desk=st.text().filter(lambda text: MARKER not in text),
+        desk=st.text().filter(lambda text: not reserved_in(text)),
         before=st.text().filter(lambda text: MARKER not in text),
         writers=st.text(),
     )
@@ -106,7 +122,7 @@ class TestSplice:
         assert result == f"{desk.rstrip()}\n{MARKER}\n{writers}"
         assert writers_part(result) == writers
 
-    @given(desk=st.text().filter(lambda text: MARKER not in text), current=st.text())
+    @given(desk=st.text().filter(lambda text: not reserved_in(text)), current=st.text())
     def test_result_always_starts_with_the_desk_part_and_one_marker_line(self, desk, current):
         result = splice(desk, current)
         head = f"{desk.rstrip()}\n{MARKER}\n"
@@ -116,29 +132,38 @@ class TestSplice:
 
 
 class FakeGh:
-    """Stand in for subprocess.run, answering the body read and recording the PATCH."""
+    """Stand in for subprocess.run, answering the body read and recording the PATCH.
+
+    Like subprocess.run without text mode, it returns bytes: ``body_output``
+    is encoded as UTF-8 unless it is bytes already.
+    """
 
     def __init__(self, body_output="", read_code=0, patch_code=0):
         self.body_output = body_output
         self.read_code = read_code
         self.patch_code = patch_code
+        self.stderr = b"HTTP 404: Not Found"
         self.calls = []
+        self.options = []
         self.patched = None
         self.patch_file = None
 
     def __call__(self, args, **kwargs):
         self.calls.append(args)
+        self.options.append(kwargs)
         if "PATCH" in args:
             field = args[-1]
             assert field.startswith("body=@")
             self.patch_file = Path(field.removeprefix("body=@"))
             self.patched = self.patch_file.read_bytes().decode("utf-8")
-            code, stdout = self.patch_code, '{"number": 7}'
+            code, stdout = self.patch_code, b'{"number": 7}'
         else:
             code, stdout = self.read_code, self.body_output
+        if isinstance(stdout, str):
+            stdout = stdout.encode("utf-8")
         if code:
-            raise desk_pr_body.subprocess.CalledProcessError(code, args, output="", stderr="HTTP 404: Not Found")
-        return desk_pr_body.subprocess.CompletedProcess(args, 0, stdout=stdout, stderr="")
+            raise desk_pr_body.subprocess.CalledProcessError(code, args, output=b"", stderr=self.stderr)
+        return desk_pr_body.subprocess.CompletedProcess(args, 0, stdout=stdout, stderr=b"")
 
 
 @pytest.fixture()
@@ -176,6 +201,38 @@ class TestCommandLine:
         assert gh.patched == body()
         assert not gh.patch_file.exists()
         assert "updated the body of JesperDramsch/python-deadlines#7" in capsys.readouterr().out
+
+    def test_runs_gh_without_text_mode(self, gh, desk_file):
+        """Text mode would turn the CRLF line ends of a body edited on GitHub into LF."""
+        gh.body_output = "\n"
+        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
+        for options in gh.options:
+            assert not {"text", "encoding", "errors", "universal_newlines"} & options.keys()
+
+    def test_keeps_carriage_returns_in_the_writers_part(self, gh, desk_file):
+        writers = "| row |\r\n| lone \r return |\r\n<!-- END_UPDATES -->\r\n"
+        gh.body_output = f"old\r\n{MARKER}\r\n{writers}\n"
+        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
+        assert gh.patch_file is not None
+        assert gh.patched == f"{DESK.rstrip()}\n{MARKER}\n{writers}"
+
+    def test_print_keeps_carriage_returns(self, gh, desk_file, capsysbinary):
+        writers = "| row |\r\n<!-- END_UPDATES -->\r\n"
+        gh.body_output = f"old\r\n{MARKER}\r\n{writers}\n"
+        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file), "--print"]) == 0
+        assert capsysbinary.readouterr().out == f"{DESK.rstrip()}\n{MARKER}\n{writers}".encode()
+
+    def test_output_that_is_not_utf8_exits_1_and_does_not_patch(self, gh, desk_file, capsys):
+        gh.body_output = b"old\n\xff\n"
+        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 1
+        assert len(gh.calls) == 1
+        assert "not UTF-8" in capsys.readouterr().err
+
+    def test_stderr_that_is_not_utf8_still_reports(self, gh, desk_file, capsys):
+        gh.read_code = 1
+        gh.stderr = b"HTTP 502: \xff Bad Gateway"
+        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 1
+        assert "HTTP 502: � Bad Gateway" in capsys.readouterr().err
 
     def test_strips_only_the_newline_gh_adds(self, gh, desk_file):
         gh.body_output = f"old\n{MARKER}\nrows\n\n" + "\n"
@@ -215,6 +272,16 @@ class TestCommandLine:
         assert gh.calls == []
         assert "refusing" in capsys.readouterr().err
 
+    @pytest.mark.parametrize("marker", [END_UPDATES, REVIEW_ITEMS])
+    def test_refuses_a_desk_file_with_a_marker_the_writers_add_rows_at(self, gh, tmp_path, capsys, marker):
+        path = tmp_path / "desk.md"
+        path.write_text(f"ledger\n{marker}\n", encoding="utf-8")
+
+        assert desk_pr_body.main(["--pr", "7", "--desk", str(path)]) == 2
+
+        assert gh.calls == []
+        assert f"refusing {path}: it contains {marker}" in capsys.readouterr().err
+
     def test_missing_desk_file(self, gh, tmp_path, capsys):
         assert desk_pr_body.main(["--pr", "7", "--desk", str(tmp_path / "absent.md")]) == 2
         assert gh.calls == []
@@ -251,3 +318,35 @@ class TestCommandLine:
         gh.body_output = f"old\n{MARKER}\n| 📊 python-organizers | x | 2026-10-14 |\n" + "\n"
         assert desk_pr_body.main(["--pr", "7", "--desk", str(path)]) == 0
         assert gh.patched == f"PyCon México: cfp_ext\n{MARKER}\n| 📊 python-organizers | x | 2026-10-14 |\n"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="the fake gh is a script run through its shebang line")
+class TestWithAGhOnPath:
+    """Run the CLI against a gh script on PATH, so the real subprocess.run reads its output."""
+
+    def test_crlf_body_keeps_the_writers_part_byte_for_byte(self, tmp_path, monkeypatch, desk_file):
+        """GitHub stores a body edited in the web UI with CRLF line ends, and a lone CR can occur too."""
+        writers = "## 🐍 Updates\r\n\r\n| row |\r\n| lone \r return |\r\n<!-- END_UPDATES -->\r\n".encode()
+        printed = f"old ledger\r\n{MARKER}\r\n".encode() + writers + b"\n"
+        sent = tmp_path / "sent.md"
+        bin_dir = tmp_path / "bin"
+        bin_dir.mkdir()
+        script = bin_dir / "gh"
+        script.write_text(
+            f"#!{sys.executable}\n"
+            "import shutil\n"
+            "import sys\n"
+            "args = sys.argv[1:]\n"
+            "if 'PATCH' in args:\n"
+            f"    shutil.copyfile(args[-1].removeprefix('body=@'), {str(sent)!r})\n"
+            "    sys.stdout.write('{\"number\": 7}')\n"
+            "else:\n"
+            f"    sys.stdout.buffer.write({printed!r})\n",
+            encoding="utf-8",
+        )
+        script.chmod(0o755)
+        monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}")
+
+        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
+
+        assert sent.read_bytes() == f"{DESK.rstrip()}\n{MARKER}\n".encode() + writers

@@ -15,6 +15,11 @@ Usage::
     python utils/desk_pr_body.py --pr 512 --desk desk-part.md
     python utils/desk_pr_body.py --pr 512 --desk desk-part.md --print
 
+The desk's part must not contain ``<!-- DESK_END -->``,
+``<!-- END_UPDATES -->`` or ``<!-- REVIEW_ITEMS -->``. The writers add their
+rows at the first of the last two, so in the desk's part either would put
+the rows above the marker, where the next splice drops them.
+
 Exit codes: 0 when the body was written (or printed), 1 when ``gh`` failed,
 2 when the arguments or the desk file are not usable.
 """
@@ -27,6 +32,8 @@ import tempfile
 from pathlib import Path
 
 MARKER = "<!-- DESK_END -->"
+# The marker and the two markers the writers add rows at: none may be in the desk's part.
+RESERVED = (MARKER, "<!-- END_UPDATES -->", "<!-- REVIEW_ITEMS -->")
 DEFAULT_REPO = "JesperDramsch/python-deadlines"
 
 
@@ -62,6 +69,22 @@ def writers_part(body: str) -> str | None:
         start = end + 1
 
 
+def reserved_in(desk_part: str) -> list[str]:
+    """List the markers of ``RESERVED`` that the desk's part contains.
+
+    Parameters
+    ----------
+    desk_part : str
+        The desk's part of the body.
+
+    Returns
+    -------
+    list[str]
+        The markers found anywhere in ``desk_part``, in the order of ``RESERVED``.
+    """
+    return [marker for marker in RESERVED if marker in desk_part]
+
+
 def splice(desk_part: str, current_body: str) -> str:
     """Join the desk's new part to the writers' part of the current body.
 
@@ -83,10 +106,11 @@ def splice(desk_part: str, current_body: str) -> str:
     ------
     ValueError
         When ``desk_part`` contains the marker, which would hide the writers'
-        part from the next splice.
+        part from the next splice, or a marker the writers add rows at.
     """
-    if MARKER in desk_part:
-        raise ValueError(f"the desk part contains {MARKER}")
+    found = reserved_in(desk_part)
+    if found:
+        raise ValueError(f"the desk part contains {', '.join(found)}")
     rest = writers_part(current_body)
     if rest is None:
         rest = current_body
@@ -96,6 +120,9 @@ def splice(desk_part: str, current_body: str) -> str:
 def run_gh(args: list[str]) -> str:
     """Run a ``gh`` command and return its standard output.
 
+    The output is read as bytes and decoded here: text mode would turn the
+    CRLF line ends of a body edited on GitHub into LF.
+
     Parameters
     ----------
     args : list[str]
@@ -104,12 +131,12 @@ def run_gh(args: list[str]) -> str:
     Returns
     -------
     str
-        The command's standard output.
+        The command's standard output, decoded as UTF-8, carriage returns kept.
 
     Raises
     ------
     GhError
-        When ``gh`` is not on PATH or exits non-zero.
+        When ``gh`` is not on PATH, exits non-zero or writes output that is not UTF-8.
     """
     executable = shutil.which("gh")
     if executable is None:
@@ -118,13 +145,15 @@ def run_gh(args: list[str]) -> str:
         result = subprocess.run(
             [executable, *args],  # noqa: S603
             capture_output=True,
-            text=True,
-            encoding="utf-8",
             check=True,
         )
     except subprocess.CalledProcessError as error:
-        raise GhError(f"gh {' '.join(args)} failed: {(error.stderr or '').strip()}") from error
-    return result.stdout
+        message = (error.stderr or b"").decode("utf-8", errors="replace").strip()
+        raise GhError(f"gh {' '.join(args)} failed: {message}") from error
+    try:
+        return result.stdout.decode("utf-8")
+    except UnicodeDecodeError as error:
+        raise GhError(f"gh {' '.join(args)} wrote output that is not UTF-8: {error}") from error
 
 
 def read_body(repo: str, pr: int) -> str:
@@ -161,6 +190,7 @@ def write_body(repo: str, pr: int, body: str) -> None:
     """
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory, "body.md")
+        # Bytes, so that no line end is translated on the way to gh
         path.write_bytes(body.encode("utf-8"))
         run_gh(["api", "-X", "PATCH", f"repos/{repo}/pulls/{pr}", "-F", f"body=@{path}"])
 
@@ -195,14 +225,18 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, UnicodeDecodeError) as error:
         print(f"desk_pr_body: cannot read {args.desk}: {error}", file=sys.stderr)
         return 2
-    if MARKER in desk_part:
-        print(f"desk_pr_body: refusing {args.desk}: it contains {MARKER}", file=sys.stderr)
+    found = reserved_in(desk_part)
+    if found:
+        print(f"desk_pr_body: refusing {args.desk}: it contains {', '.join(found)}", file=sys.stderr)
         return 2
 
     try:
         body = splice(desk_part, read_body(args.repo, args.pr))
         if args.print:
-            sys.stdout.write(body)
+            # Bytes here too, so the body shows as it would be written
+            sys.stdout.flush()
+            sys.stdout.buffer.write(body.encode("utf-8"))
+            sys.stdout.buffer.flush()
             return 0
         write_body(args.repo, args.pr, body)
     except GhError as error:
