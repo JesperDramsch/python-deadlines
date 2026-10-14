@@ -92,13 +92,18 @@ jobs:
 
           name, year = clean_watch_title(title)
           name = " ".join(name.split())  # one line, for the step output
+          payload = {"diff": diff, "watch_uuid": watch_uuid, "trigger": trigger}
+          if event_name == "workflow_dispatch":
+              # The run id gives each manual request its own queue id, so
+              # asking again with the same inputs is not taken as handled.
+              payload["requested"] = os.environ["GITHUB_RUN_ID"]
           record = {
               "source": "changedetection",
               "kind": "signal",
               "title": title.strip(),
               "url": url.strip(),
               "year": year,
-              "payload": {"diff": diff, "watch_uuid": watch_uuid, "trigger": trigger},
+              "payload": payload,
           }
           with open(os.environ["RECORDS"], "w", encoding="utf-8") as f:
               f.write(json.dumps(record, ensure_ascii=False) + "\n")

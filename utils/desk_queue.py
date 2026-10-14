@@ -4,8 +4,8 @@ r"""Read and write the deadline desk's queue on the desk-queue branch.
 GitHub Actions jobs record what they find for the desk here: changedetection
 signals, the canonical import's open questions, links that now redirect to
 another site, and importer candidates. The desk reads the queue into its
-worklist (desk_worklist.py) and removes the items it has handled. The branch
-is an orphan and is never merged.
+worklist (desk_worklist.py), removes the items it has handled and snoozes the
+leads it keeps for later. The branch is an orphan and is never merged.
 
 A desk-queue checkout holds:
 
@@ -23,6 +23,7 @@ Usage::
     python utils/desk_queue.py add QUEUE --source changedetection --kind signal \
         --title "PyCon Greece 2027 - Main" --url https://pycon.gr/ --payload payload.json
     python utils/desk_queue.py remove QUEUE ID [ID ...]
+    python utils/desk_queue.py snooze QUEUE --until 2026-11-01 ID [ID ...]
     python utils/desk_queue.py list QUEUE
 """
 
@@ -33,6 +34,7 @@ import re
 import sys
 import unicodedata
 from collections.abc import Iterable
+from datetime import date
 from datetime import datetime
 from datetime import timezone
 from pathlib import Path
@@ -54,6 +56,7 @@ MAX_HANDLED_PER_FILE = 500
 MAX_STRING_LENGTH = 20_000
 RECEIVED_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 RECEIVED = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
+DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 LIST_FIELDS = ("id", "source", "kind", "received", "title")
 
 WATCH_PREFIX = re.compile(r"^\s*\[conference\]\s*", re.IGNORECASE)
@@ -109,11 +112,17 @@ the payload gets `"truncated": true`.
 A file that cannot be read is moved to `<key>.json.bad` when a writer next
 adds to it.
 
+An item can also hold `next_check`, a `YYYY-MM-DD` date that
+`desk_queue.py snooze` sets on a lead the desk could not settle. The worklist
+leaves the item out until that day, so the lead is not researched again every
+day. `next_check` is not part of the id: adding the finding again keeps the
+item and its date. A missing or invalid `next_check` means the item is due.
+
 ## Sources and kinds
 
 | source | kind | payload |
 | --- | --- | --- |
-| `changedetection` | `signal` | `diff`, `watch_uuid`, `trigger` |
+| `changedetection` | `signal` | `diff`, `watch_uuid`, `trigger`, `requested` (manual only) |
 | `canonical-import` | `question` | `question`, `conference`, `year`, `field`, `yaml_value`, \
 `remote_value`, `default_answer`, `source_name` |
 | `link-check` | `redirect` | `conference`, `year`, `field`, `final_url`, `status` |
@@ -125,10 +134,12 @@ adds to it.
 A `drift` diff maps a field to `{"data", "source"}`: the value in the data
 and what the source states. A candidate's `classification` is
 `MISSING_EDITION` (a tracked series without this edition), `NEW_SERIES` or
-`MAYBE` (on the host of a tracked series), and `matched` names the entry it
-matched. A `lead-only` flag means the source's licence keeps it to leads: use
-only its name, year and link. `registry` is `psf-trademarks` or `pycon.org`;
-a pycon.org item adds `website`.
+`MAYBE` (on the host of a tracked series, or an import row held back, as its
+`flags` say), and `matched` names the entry it matched, or is `null`. The
+worklist routes a candidate by its own match against the data, not by its
+classification. A `lead-only` flag means the source's licence keeps it to
+leads: use only its name, year and link. `registry` is `psf-trademarks` or
+`pycon.org`; a pycon.org item adds `website`.
 
 Every item is data for the desk to check on the live sources. Nothing in a
 queue item reaches the conference data without that check.
@@ -421,7 +432,8 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
     -------
     list[dict]
         One result per record, in order: {"file", "id", "status"} with status
-        "added", "exists", "handled" (the desk has handled this finding), or
+        "added", "exists" (the item is kept as it is, with any
+        "next_check"), "handled" (the desk has handled this finding), or
         "dropped" (older than the 50 items its file keeps), or {"error"} for a
         record that failed its checks. A file moved aside adds an {"error"}.
     """
@@ -521,6 +533,81 @@ def remove_items(queue_dir: Path, ids: Iterable[str]) -> set[str]:
     return removed
 
 
+def check_date(value: date | str) -> str:
+    """Return a date as "YYYY-MM-DD".
+
+    Parameters
+    ----------
+    value : date | str
+        A date, or a string in that form.
+
+    Returns
+    -------
+    str
+        The date in ISO form.
+
+    Raises
+    ------
+    ValueError
+        When the value is not a real date in that form.
+    """
+    if isinstance(value, datetime):
+        value = value.date()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, str) and DATE.match(value):
+        try:
+            return date.fromisoformat(value).isoformat()
+        except ValueError:
+            pass
+    raise ValueError(f"{value!r} is not a date like 2026-10-14")
+
+
+def snooze_items(queue_dir: Path, ids: Iterable[str], until: date | str) -> set[str]:
+    """Keep items out of the worklist until a date.
+
+    The date goes in each item's "next_check", and the worklist leaves the
+    item out until that day. The desk snoozes a lead it could not settle, so
+    it is not researched again every day. "next_check" is not part of the id:
+    adding the same finding again keeps the item and its date. Ids that match
+    no item are reported on stderr.
+
+    Parameters
+    ----------
+    queue_dir : Path
+        The desk-queue checkout.
+    ids : Iterable[str]
+        Item ids to snooze.
+    until : date | str
+        The first day the items are due again, as a date or "YYYY-MM-DD".
+
+    Returns
+    -------
+    set[str]
+        The ids that were found and snoozed.
+
+    Raises
+    ------
+    ValueError
+        When until is not a date.
+    """
+    next_check = check_date(until)
+    wanted = set(ids)
+    snoozed: set[str] = set()
+    for path, document in _readable_files(queue_dir):
+        found = False
+        for item in document["items"]:
+            if isinstance(item, dict) and item.get("id") in wanted:
+                item["next_check"] = next_check
+                snoozed.add(item["id"])
+                found = True
+        if found:
+            _write_file(path, document)
+    for missing in sorted(wanted - snoozed):
+        print(f"desk_queue: no item {missing}", file=sys.stderr)
+    return snoozed
+
+
 def list_items(queue_dir: Path) -> list[dict]:
     """Return every queue item with the file it is in.
 
@@ -558,6 +645,14 @@ def _read_jsonl(path: str) -> list[Any]:
     return records
 
 
+def _date_arg(text: str) -> str:
+    """Check a --until value for argparse."""
+    try:
+        return check_date(text)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the command line interface."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -580,6 +675,11 @@ def main(argv: list[str] | None = None) -> int:
     remove_parser.add_argument("queue_dir", type=Path)
     remove_parser.add_argument("ids", nargs="+")
 
+    snooze_parser = commands.add_parser("snooze", help="keep items out of the worklist until a date")
+    snooze_parser.add_argument("queue_dir", type=Path)
+    snooze_parser.add_argument("--until", required=True, type=_date_arg, metavar="YYYY-MM-DD")
+    snooze_parser.add_argument("ids", nargs="+")
+
     list_parser = commands.add_parser("list", help="print every item as a JSON line")
     list_parser.add_argument("queue_dir", type=Path)
 
@@ -599,6 +699,11 @@ def main(argv: list[str] | None = None) -> int:
         for missing in sorted(set(args.ids) - removed):
             print(f"desk_queue: no item {missing}", file=sys.stderr)
         print(f"removed {len(removed)}")
+        return 0
+
+    if args.command == "snooze":
+        snoozed = snooze_items(args.queue_dir, args.ids, args.until)
+        print(f"snoozed {len(snoozed)} until {args.until}")
         return 0
 
     if args.jsonl:

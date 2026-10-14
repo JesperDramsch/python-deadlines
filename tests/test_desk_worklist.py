@@ -345,42 +345,6 @@ class TestKindOverrides:
 
         assert item["skill"] == "enricher"
 
-    def test_missing_edition_goes_to_new_year_checker(self):
-        data = dataset([conf("PyCon Example", 2026)], [conf("PyCon Example", 2023)])
-        candidate = queue_item(
-            "candidate",
-            "PyCon Exmple 2027",
-            source="pretalx",
-            payload={
-                "classification": "MISSING_EDITION",
-                "fields": {"conference": "PyCon Exmple", "year": 2027},
-                "matched": {"conference": "PyCon Example", "file": "_data/conferences.yml", "year": 2026, "score": 92},
-                "flags": [],
-            },
-        )
-
-        item = only(build(data, [candidate]))
-
-        assert item["skill"] == "new-year-checker"
-        assert item["reasons"] == ["candidate"]
-        assert item["conference"] == "PyCon Example"
-        assert item["year"] == 2027
-        assert item["latest_edition"]["year"] == 2026
-
-    @pytest.mark.parametrize("classification", ["NEW_SERIES", "MAYBE"])
-    def test_new_series_and_maybe_go_to_scouter(self, classification):
-        data = dataset([conf("PyCon Example", 2026)])
-        candidate = queue_item(
-            "candidate",
-            "PyCon Example",
-            payload={"classification": classification, "fields": {"conference": "PyCon Example"}, "matched": None},
-        )
-
-        item = only(build(data, [candidate]))
-
-        assert item["skill"] == "scouter"
-        assert item["entry"] is None
-
     def test_registry_goes_to_scouter(self):
         data = dataset([conf("PyCon Example", 2026)])
         registry = queue_item(
@@ -398,6 +362,174 @@ class TestKindOverrides:
         item = only(build(dataset([conf("PyCon Example", 2026)]), [queue_item("mystery", "PyCon Example")]))
 
         assert (item["skill"], item["reasons"]) == ("enricher", ["signal"])
+
+
+def candidate_item(name, year, classification, *, matched=None, flags=(), source="pretalx"):
+    """Build a candidate queue item as the lead importers and the canonical import write them."""
+    return queue_item(
+        "candidate",
+        f"{name} {year}" if year else name,
+        source=source,
+        year=year,
+        payload={
+            "classification": classification,
+            "fields": {"conference": name, "year": year},
+            "matched": matched,
+            "flags": list(flags),
+        },
+    )
+
+
+CLASSIFICATIONS = ["MISSING_EDITION", "NEW_SERIES", "MAYBE"]
+
+
+class TestCandidateRouting:
+    """The worklist routes a candidate by its own match, whatever the writer classified it as."""
+
+    def test_missing_edition_while_an_earlier_edition_is_upcoming(self):
+        data = dataset([conf("PyCon Example", 2026)], [conf("PyCon Example", 2023)])
+        matched = {"conference": "PyCon Example", "file": "conferences", "year": 2026, "score": 100}
+        candidate = candidate_item("PyCon Exmple", 2027, "MISSING_EDITION", matched=matched)
+
+        item = only(build(data, [candidate]))
+
+        assert (item["skill"], item["reasons"], item["conference"]) == (
+            "new-year-checker",
+            ["candidate"],
+            "PyCon Example",
+        )
+        assert (item["year"], item["context"], item["entry"]) == (2027, {}, None)
+        assert item["latest_edition"]["year"] == 2026
+
+    @pytest.mark.parametrize("classification", CLASSIFICATIONS)
+    def test_upcoming_edition_goes_to_enricher(self, classification):
+        data = dataset([conf("PyCon Example", 2026), conf("PyCon Example", 2027)])
+        matched = {"conference": "PyCon Example", "file": "conferences", "year": 2026, "score": 100}
+        candidate = candidate_item("PyCon Example", 2027, classification, matched=matched)
+
+        item = only(build(data, [candidate]))
+
+        assert (item["skill"], item["reasons"], item["conference"], item["year"]) == (
+            "enricher",
+            ["candidate"],
+            "PyCon Example",
+            2027,
+        )
+        assert item["entry"]["year"] == 2027
+        assert (item["latest_edition"], item["context"]) == (None, {})
+        assert item["queue_refs"] == [{"file": "queue/example.json", "id": candidate["id"]}]
+
+    @pytest.mark.parametrize("flag", ["no-website", "denylist-review: casino.example: gambling"])
+    def test_maybe_for_a_tracked_series(self, flag):
+        """The canonical import's held-back rows are MAYBE with matched null."""
+        data = dataset([conf("PyCon Example", 2026)])
+        upcoming = candidate_item("PyCon Example", 2026, "MAYBE", flags=[flag], source="canonical-import")
+        next_year = candidate_item("PyCon Example", 2027, "MAYBE", flags=[flag], source="canonical-import")
+
+        enricher = only(build(data, [upcoming]))
+        checker = only(build(data, [next_year]))
+
+        assert (enricher["skill"], enricher["year"], enricher["entry"]["year"]) == ("enricher", 2026, 2026)
+        assert (checker["skill"], checker["year"], checker["latest_edition"]["year"]) == (
+            "new-year-checker",
+            2027,
+            2026,
+        )
+
+    @pytest.mark.parametrize("file", ["archive", "legacy"])
+    def test_past_edition_goes_to_enricher(self, file):
+        """The enricher fills empty fields of past editions too."""
+        data = dataset([conf("PyCon Example", 2026)], **{file: [conf("PyCon Example", 2019, link="https://old/")]})
+
+        item = only(build(data, [candidate_item("PyCon Example", 2019, "MISSING_EDITION")]))
+
+        assert (item["skill"], item["year"], item["latest_edition"]) == ("enricher", 2019, None)
+        assert item["entry"]["link"] == "https://old/"
+
+    @pytest.mark.parametrize("classification", CLASSIFICATIONS)
+    def test_without_a_year_goes_to_new_year_checker(self, classification):
+        data = dataset([conf("PyCon Example", 2026)])
+
+        item = only(build(data, [candidate_item("PyCon Example", None, classification)]))
+
+        assert (item["skill"], item["year"], item["entry"]) == ("new-year-checker", None, None)
+        assert item["latest_edition"]["year"] == 2026
+
+    def test_missing_year_before_the_latest_edition_is_moved_to_context(self):
+        data = dataset(archive=[conf("PyCon Example", 2023), conf("PyCon Example", 2025)])
+
+        item = only(build(data, [candidate_item("PyCon Example", 2024, "MISSING_EDITION")]))
+
+        assert (item["skill"], item["year"], item["context"]) == ("new-year-checker", None, {"queue_year": 2024})
+        assert item["latest_edition"]["year"] == 2025
+
+    @pytest.mark.parametrize("classification", CLASSIFICATIONS)
+    def test_untracked_series_goes_to_scouter(self, classification):
+        data = dataset([conf("PyCon Example", 2026)])
+
+        item = only(build(data, [candidate_item("PyCon Nowhere", 2027, classification)]))
+
+        assert (item["skill"], item["conference"], item["year"]) == ("scouter", "PyCon Nowhere", 2027)
+        assert (item["entry"], item["latest_edition"]) == (None, None)
+
+    @pytest.mark.parametrize(
+        ("classification", "skill"),
+        [("MISSING_EDITION", "new-year-checker"), ("NEW_SERIES", "scouter"), ("MAYBE", "scouter")],
+    )
+    def test_ambiguous_match_follows_the_classification(self, classification, skill):
+        data = dataset([conf("PyHEP.dev", 2026, alt_name="PyHEP")], [conf("PyHEP", 2023)])
+
+        item = only(build(data, [candidate_item("PyHEP", 2026, classification)]))
+
+        assert (item["skill"], item["year"], item["entry"]) == (skill, 2026, None)
+        assert [match["conference"] for match in item["ambiguous_matches"]] == ["PyHEP", "PyHEP.dev"]
+
+    def test_merges_into_the_deadline_check(self):
+        data = dataset([conf("PyCon Example", 2026, cfp=days_ago(1))])
+
+        item = only(build(data, [candidate_item("PyCon Example", 2026, "MAYBE", source="canonical-import")]))
+
+        assert (item["skill"], item["reasons"]) == ("enricher", ["deadline-check", "candidate"])
+
+
+class TestSnoozedItems:
+    """A queue item whose next_check is after today is left out until that date."""
+
+    def snoozed(self, next_check):
+        item = queue_item(title="PyCon Example")
+        item["next_check"] = next_check
+        return item
+
+    @pytest.mark.parametrize("days", [1, 30])
+    def test_left_out_before_the_date(self, days):
+        data = dataset([conf("PyCon Example", 2026)])
+
+        assert items(build(data, [self.snoozed(str(TODAY + timedelta(days=days)))])) == []
+
+    @pytest.mark.parametrize("days", [0, -1])
+    def test_included_from_the_date(self, days):
+        data = dataset([conf("PyCon Example", 2026)])
+        item = self.snoozed(str(TODAY + timedelta(days=days)))
+
+        assert only(build(data, [item]))["queue_refs"] == [{"file": "queue/example.json", "id": item["id"]}]
+
+    @pytest.mark.parametrize("value", [None, "", "soon", "2026-13-01", "2026-10-15T00:00:00Z", 20261015, ["x"]])
+    def test_missing_or_invalid_date_is_due(self, value):
+        data = dataset([conf("PyCon Example", 2026)])
+
+        assert only(build(data, [self.snoozed(value)]))["skill"] == "enricher"
+
+    def test_other_items_of_the_series_still_come_through(self):
+        data = dataset([conf("PyCon Example", 2026)])
+        waiting = self.snoozed(str(TODAY + timedelta(days=7)))
+        due = queue_item("question", "PyCon Example")
+
+        item = only(build(data, [waiting, due]))
+
+        assert (item["reasons"], item["queue_refs"]) == (
+            ["question"],
+            [{"file": "queue/example.json", "id": due["id"]}],
+        )
 
 
 class TestAmbiguousMatches:

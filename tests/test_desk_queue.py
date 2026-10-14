@@ -24,6 +24,7 @@ from desk_queue import normalise_record
 from desk_queue import record_names
 from desk_queue import remove_items
 from desk_queue import slugify
+from desk_queue import snooze_items
 from desk_worklist import build_worklist
 from desk_worklist import load_queue
 
@@ -224,6 +225,80 @@ class TestAddItems:
         add_items(tmp_path, [record], NOW)
         assert read(tmp_path / "queue" / "some-brand-new-conf.json")["series"] == "Some Brand New Conf"
 
+    def test_manual_requests_are_queued_each_time(self, tmp_path):
+        """A manual request carries its run id, so asking again is not taken as handled."""
+
+        def manual(run_id):
+            return signal(payload={"diff": "", "watch_uuid": None, "trigger": "manual", "requested": run_id})
+
+        (first,) = add_items(tmp_path, [manual("101")], NOW)
+        remove_items(tmp_path, [first["id"]])
+        (again,) = add_items(tmp_path, [manual("102")], NOW)
+        assert again["status"] == "added"
+        assert again["id"] != first["id"]
+
+
+class TestSnooze:
+    def test_sets_next_check_on_the_items(self, tmp_path, capsys):
+        italia = signal(title="PyCon Italia 2027 - Main", url="https://pycon.it/")
+        first, _, third = add_items(tmp_path, [signal(), signal(diff="other"), italia], NOW)
+
+        snoozed = snooze_items(tmp_path, [first["id"], third["id"], "missing"], "2026-11-01")
+
+        assert snoozed == {first["id"], third["id"]}
+        greece = read(tmp_path / "queue" / "pycon-greece.json")["items"]
+        assert [item.get("next_check") for item in greece] == ["2026-11-01", None]
+        assert read(tmp_path / "queue" / "pycon-italia.json")["items"][0]["next_check"] == "2026-11-01"
+        assert capsys.readouterr().err == "desk_queue: no item missing\n"
+
+    def test_takes_a_date(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+
+        assert snooze_items(tmp_path, [first["id"]], date(2027, 1, 5)) == {first["id"]}
+        assert read(tmp_path / "queue" / "pycon-greece.json")["items"][0]["next_check"] == "2027-01-05"
+
+    def test_snoozing_again_moves_the_date(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+        snooze_items(tmp_path, [first["id"]], "2026-11-01")
+        snooze_items(tmp_path, [first["id"]], "2026-12-01")
+        assert read(tmp_path / "queue" / "pycon-greece.json")["items"][0]["next_check"] == "2026-12-01"
+
+    @pytest.mark.parametrize("until", ["2026-13-01", "1 November", "20261101", "", None])
+    def test_rejects_a_bad_date(self, tmp_path, until):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+        with pytest.raises(ValueError, match="not a date"):
+            snooze_items(tmp_path, [first["id"]], until)
+        assert "next_check" not in read(tmp_path / "queue" / "pycon-greece.json")["items"][0]
+
+    def test_next_check_is_not_part_of_the_id(self):
+        assert normalise_record(signal(next_check="2027-01-01"), NOW)["id"] == normalise_record(signal(), NOW)["id"]
+
+    def test_adding_the_finding_again_keeps_the_date(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+        snooze_items(tmp_path, [first["id"]], "2026-11-01")
+
+        (again,) = add_items(tmp_path, [signal(received="2026-10-21T06:00:00Z")], NOW)
+
+        assert again == {"file": "queue/pycon-greece.json", "id": first["id"], "status": "exists"}
+        (item,) = read(tmp_path / "queue" / "pycon-greece.json")["items"]
+        assert (item["next_check"], item["received"]) == ("2026-11-01", "2026-10-14T06:00:00Z")
+
+    def test_a_changed_finding_is_due(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+        snooze_items(tmp_path, [first["id"]], "2026-11-01")
+
+        (changed,) = add_items(tmp_path, [signal(diff="CfP extended to 15 March")], NOW)
+
+        items = {item["id"]: item for item in read(tmp_path / "queue" / "pycon-greece.json")["items"]}
+        assert changed["status"] == "added"
+        assert "next_check" not in items[changed["id"]]
+
+    def test_removing_a_snoozed_item_still_remembers_it(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+        snooze_items(tmp_path, [first["id"]], "2026-11-01")
+        assert remove_items(tmp_path, [first["id"]]) == {first["id"]}
+        assert read(tmp_path / "queue" / "pycon-greece.json")["handled"] == [first["id"]]
+
 
 class TestRemoveItems:
     def test_removes_and_remembers(self, tmp_path):
@@ -336,6 +411,20 @@ class TestWorklistRoundTrip:
         ]
         assert worklist["items"][0]["queue_refs"] == [{"file": "queue/pycon-greece.json", "id": queue_items[0]["id"]}]
 
+    def test_snoozed_item_waits_for_its_date(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal(title="[Conference] PyCon Greece 2027 - Main")], NOW)
+        assert snooze_items(tmp_path, [first["id"]], "2026-10-20") == {first["id"]}
+        data = {"conferences": [], "archive": [], "legacy": []}
+
+        def queued(today):
+            worklist = build_worklist(data, load_queue(tmp_path), today, scout=False)
+            return [ref["id"] for item in worklist["items"] for ref in item["queue_refs"]]
+
+        assert queued(date(2026, 10, 14)) == []
+        assert queued(date(2026, 10, 19)) == []
+        assert queued(date(2026, 10, 20)) == [first["id"]]
+        assert queued(date(2026, 10, 21)) == [first["id"]]
+
     def test_redirect_record_from_the_link_checker(self, tmp_path, monkeypatch):
         from tidy_conf import links
 
@@ -407,3 +496,17 @@ class TestCli:
         rows = [json.loads(line) for line in capsys.readouterr().out.splitlines()]
         assert len(rows) == 1
         assert rows[0]["file"] == "queue/pycon-greece.json"
+
+    def test_snooze(self, tmp_path, capsys):
+        first, second = add_items(tmp_path, [signal(), signal(diff="other")], NOW)
+        assert main(["snooze", str(tmp_path), "--until", "2026-11-01", first["id"], "nope"]) == 0
+        captured = capsys.readouterr()
+        assert captured.out == "snoozed 1 until 2026-11-01\n"
+        assert captured.err == "desk_queue: no item nope\n"
+        items = read(tmp_path / "queue" / "pycon-greece.json")["items"]
+        assert {item["id"]: item.get("next_check") for item in items} == {first["id"]: "2026-11-01", second["id"]: None}
+
+    @pytest.mark.parametrize("argv", [["--until", "1 November", "x"], ["--until", "2026-02-30", "x"], ["x"]])
+    def test_snooze_needs_a_date(self, tmp_path, argv):
+        with pytest.raises(SystemExit):
+            main(["snooze", str(tmp_path), *argv])

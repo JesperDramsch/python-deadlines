@@ -943,18 +943,48 @@ class TestQueueRoundTrip:
 
         worklist = build_worklist(data, load_queue(tmp_path), TODAY, scout=False)
         routed = {
-            (tuple(item["reasons"]), item["conference"]): item["skill"]
+            (tuple(item["reasons"]), item["conference"], item["year"]): item["skill"]
+            for item in worklist["items"]
+            if item["queue_refs"]
+        }
+        # A candidate is routed by the worklist's own match: a tracked series
+        # without the edition goes to the new-year-checker with the find's
+        # year, and a series the data does not track goes to the scouter. The
+        # MAYBE on pycon.gr names no tracked series, so it is a scouter item.
+        assert routed == {
+            (("drift",), "PyCascades", 2027): "enricher",
+            (("drift",), "Wagtail Space", 2026): "enricher",
+            (("candidate",), "PyCon Namibia", 2027): "new-year-checker",
+            (("candidate",), "PyCon Greece", 2027): "new-year-checker",
+            (("candidate",), "PyData Lagos", 2027): "scouter",
+            (("candidate",), "Python Hellas Summit", 2027): "scouter",
+            (("registry",), "PyCon Nepal", None): "scouter",
+            (("registry",), "PyCon Venezuela", None): "scouter",
+            (("registry",), "PyGotham", None): "scouter",
+        }
+
+    def test_candidates_follow_the_data_the_worklist_reads(self, tmp_path, web, sleeps):
+        """An edition added after the find was queued sends the candidate to the enricher."""
+        pretalx_web(web)
+        web.add(responses.GET, desk_leads.DEVELOPERS_EVENTS, json=list(TestDevelopersEvents.EVENTS))
+        data = dataset()
+        index = TrackingIndex.from_data(data)
+        records = [*desk_leads.collect("pretalx", data, index, TODAY)]
+        records.extend(desk_leads.collect("developers-events", data, index, TODAY))
+        add_items(tmp_path, [record for record in records if record["kind"] == "candidate"], NOW)
+
+        data["conferences"].append(
+            entry("PyCon Greece", 2027, link="https://2027.pycon.gr/", start=date(2027, 6, 11), end=date(2027, 6, 12)),
+        )
+        worklist = build_worklist(data, load_queue(tmp_path), TODAY, scout=False)
+        routed = {
+            (item["conference"], item["year"]): (item["skill"], (item["entry"] or {}).get("link"))
             for item in worklist["items"]
             if item["queue_refs"]
         }
         assert routed == {
-            (("drift",), "PyCascades"): "enricher",
-            (("drift",), "Wagtail Space"): "enricher",
-            (("candidate",), "PyCon Namibia"): "new-year-checker",
-            (("candidate",), "PyCon Greece"): "new-year-checker",
-            (("candidate",), "PyData Lagos"): "scouter",
-            (("candidate",), "Python Hellas Summit"): "scouter",
-            (("registry",), "PyCon Nepal"): "scouter",
-            (("registry",), "PyCon Venezuela"): "scouter",
-            (("registry",), "PyGotham"): "scouter",
+            ("PyCon Namibia", 2027): ("new-year-checker", None),
+            ("PyCon Greece", 2027): ("enricher", "https://2027.pycon.gr/"),
+            ("PyData Lagos", 2027): ("scouter", None),
+            ("Python Hellas Summit", 2027): ("scouter", None),
         }
