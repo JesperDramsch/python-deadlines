@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""Enrich TBA conferences with CFP data from their websites.
+"""Enrich TBA conferences with links found on their websites.
 
-This module provides two enrichment modes:
-- Quick: Deterministic extraction only (no API) - finds social links, sponsor/finaid URLs
-- Full: Deterministic + Claude API - also extracts CFP dates, deadlines, and timezones
+The enrichment is deterministic. It lists the links on each conference's
+homepage with lynx and matches them against known patterns:
 
-The deterministic extraction handles:
 - Bluesky profiles (bsky.app/profile/...)
+- YouTube channels (youtube.com and youtu.be links)
 - Mastodon profiles (/@username patterns)
-- Sponsor pages (URLs with sponsor keywords)
-- Financial aid pages (URLs with finaid/scholarship keywords)
-- CFP links (URLs with cfp/submit/proposal keywords)
+- Sponsor pages (same-domain URLs with sponsor keywords)
+- Financial aid pages (same-domain URLs with finaid or scholarship keywords)
 
-The Claude API extraction handles:
-- CFP deadlines (date parsing from various formats)
-- Workshop/tutorial deadlines
-- Conference timezones (IANA format)
+A found link fills a field that is empty or TBA. A link that differs from a
+value already set becomes a review item, and the existing value is kept.
 """
 
 from __future__ import annotations
@@ -24,16 +20,14 @@ import argparse
 import json
 import re
 import shutil
-import subprocess  # noqa: S404 - subprocess is required for lynx text extraction
+import subprocess  # noqa: S404 - subprocess is required for lynx link extraction
 import sys
-import zoneinfo
 from dataclasses import dataclass
 from dataclasses import field
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-import requests
 import yaml
 
 try:
@@ -44,23 +38,9 @@ except ImportError:
 
 # Constants
 TBA_WORDS = ["tba", "tbd", "cancelled", "none", "na", "n/a", "nan", "n.a."]
-CONFIDENCE_THRESHOLD_AUTO = 0.8
-CONFIDENCE_THRESHOLD_REVIEW = 0.5
-ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
-MAX_CONTENT_LENGTH = 15000  # Max characters per conference website
 
 # Field type categorization for validation
-URL_FIELDS = {"sponsor", "finaid", "mastodon", "bluesky", "youtube", "cfp_link"}
-DATE_FIELDS = {"cfp", "workshop_deadline", "tutorial_deadline"}
-TIMEZONE_FIELD = "timezone"
-
-
-@dataclass
-class FieldUpdate:
-    """Represents a single field update with confidence."""
-
-    value: str
-    confidence: float
+URL_FIELDS = {"sponsor", "finaid", "mastodon", "bluesky", "youtube"}
 
 
 @dataclass
@@ -69,18 +49,14 @@ class ConferenceUpdate:
 
     conference: str
     year: int
-    status: str  # found | partial | not_announced | error
-    confidence: float
-    fields: dict[str, FieldUpdate] = field(default_factory=dict)
-    notes: str = ""
+    fields: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
 class EnrichmentResult:
-    """Complete enrichment result from Claude API."""
+    """Enrichment results for all conferences."""
 
     conferences: list[ConferenceUpdate] = field(default_factory=list)
-    summary: dict[str, int] = field(default_factory=dict)
 
 
 def validate_field_value(field_name: str, value: str) -> tuple[bool, str]:
@@ -107,21 +83,6 @@ def validate_field_value(field_name: str, value: str) -> tuple[bool, str]:
         if not value.startswith(("https://", "http://")):
             return False, f"URL must start with https:// or http://, got: {value[:50]}"
         return True, ""
-
-    if field_name in DATE_FIELDS:
-        if not re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", value):
-            return False, f"Date must be YYYY-MM-DD HH:mm:ss format, got: {value}"
-        return True, ""
-
-    if field_name == TIMEZONE_FIELD:
-        # Must be valid IANA timezone with slash (reject abbreviations)
-        if "/" not in value:
-            return False, f"Timezone must be IANA format with slash (e.g., America/Chicago), got: {value}"
-        try:
-            zoneinfo.ZoneInfo(value)
-            return True, ""
-        except zoneinfo.ZoneInfoNotFoundError:
-            return False, f"Invalid IANA timezone: {value}"
 
     # Unknown field type - allow it
     return True, ""
@@ -161,63 +122,6 @@ def find_tba_conferences(data_path: Path | None = None) -> list[dict[str, Any]]:
 
     logger.info(f"Found {len(tba_conferences)} conferences with TBA CFP")
     return tba_conferences
-
-
-def prefetch_website(url: str, timeout: int = 30) -> str:
-    """Fetch website content as clean text.
-
-    Parameters
-    ----------
-    url : str
-        Conference website URL
-    timeout : int
-        Request timeout in seconds
-
-    Returns
-    -------
-    str
-        Cleaned text content from the website
-    """
-    logger = get_logger()
-
-    # Validate URL before processing
-    parsed = urlparse(url)
-    if parsed.scheme not in ("http", "https") or not parsed.netloc:
-        logger.warning(f"Invalid URL scheme or missing host: {url}")
-        return f"Invalid URL: {url}"
-
-    # Try using lynx for clean text extraction (if available)
-    lynx_path = shutil.which("lynx")
-    if lynx_path:
-        try:
-            result = subprocess.run(
-                [lynx_path, "-dump", "-nolist", "-nonumbers", "-width=200", url],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-            )
-            if result.returncode == 0 and result.stdout.strip():
-                return result.stdout[:MAX_CONTENT_LENGTH]
-        except subprocess.TimeoutExpired:
-            pass
-
-    # Fallback to requests + basic HTML stripping
-    try:
-        response = requests.get(url, timeout=timeout, headers={"User-Agent": "python-deadlines-bot/1.0"})
-        response.raise_for_status()
-
-        # Basic HTML to text conversion
-        import re
-
-        text = response.text
-        text = re.sub(r"<script\b[^>]*>.*?</\s*script[^>]*>", "", text, flags=re.DOTALL | re.IGNORECASE)
-        text = re.sub(r"<style\b[^>]*>.*?</\s*style[^>]*>", "", text, flags=re.DOTALL | re.IGNORECASE)
-        text = re.sub(r"<[^>]+>", " ", text)
-        text = re.sub(r"\s+", " ", text)
-        return text.strip()[:MAX_CONTENT_LENGTH]
-    except requests.RequestException as e:
-        logger.warning(f"Failed to fetch {url}: {e}")
-        return f"Error fetching website: {e}"
 
 
 def get_all_links(url: str) -> list[str]:
@@ -297,8 +201,8 @@ MASTODON_INSTANCES = {
 def extract_links_from_url(url: str) -> dict[str, str]:
     """Extract known field values from page links deterministically.
 
-    This function finds social media links, sponsor pages, financial aid pages,
-    and CFP links without using any AI - purely pattern matching.
+    This function finds social media links, sponsor pages and financial aid
+    pages by pattern matching.
 
     Parameters
     ----------
@@ -403,8 +307,8 @@ def extract_links_from_url(url: str) -> dict[str, str]:
 def run_deterministic_extraction(conferences: list[dict[str, Any]]) -> EnrichmentResult:
     """Run deterministic link extraction on all conferences.
 
-    This extracts social media links and sponsor/finaid pages without using AI -
-    purely pattern matching. CFP links are validated by Claude in full mode.
+    This extracts social media links and sponsor and financial aid pages by
+    pattern matching.
 
     Parameters
     ----------
@@ -414,7 +318,7 @@ def run_deterministic_extraction(conferences: list[dict[str, Any]]) -> Enrichmen
     Returns
     -------
     EnrichmentResult
-        Result with deterministically-found fields (confidence 1.0)
+        Result with the fields found for each conference
     """
     logger = get_logger()
     result = EnrichmentResult()
@@ -430,578 +334,15 @@ def run_deterministic_extraction(conferences: list[dict[str, Any]]) -> Enrichmen
         logger.debug(f"Deterministic extraction for {name} {year}")
         extracted = extract_links_from_url(url)
 
-        # Note: cfp_link is validated by Claude in full mode, not here
-
         if extracted:
-            # Create ConferenceUpdate with deterministic fields
-            fields = {field_name: FieldUpdate(value=value, confidence=1.0) for field_name, value in extracted.items()}
-
             update = ConferenceUpdate(
                 conference=name,
                 year=year,
-                status="found" if fields else "not_announced",
-                confidence=1.0,
-                fields=fields,
-                notes="Deterministic extraction (no AI)",
+                fields=extracted,
             )
             result.conferences.append(update)
             logger.info(f"  {name} {year}: found {list(extracted.keys())}")
 
-    return result
-
-
-def merge_enrichment_results(deterministic: EnrichmentResult, ai_result: EnrichmentResult) -> EnrichmentResult:
-    """Merge deterministic results with AI results.
-
-    Deterministic results take precedence since they're more reliable.
-
-    Parameters
-    ----------
-    deterministic : EnrichmentResult
-        Results from deterministic extraction
-    ai_result : EnrichmentResult
-        Results from Claude API
-
-    Returns
-    -------
-    EnrichmentResult
-        Merged results
-    """
-    # Create lookup for deterministic results
-    det_lookup: dict[str, ConferenceUpdate] = {}
-    for conf in deterministic.conferences:
-        key = f"{conf.conference}_{conf.year}"
-        det_lookup[key] = conf
-
-    # Merge AI results with deterministic
-    merged_conferences = []
-
-    for ai_conf in ai_result.conferences:
-        key = f"{ai_conf.conference}_{ai_conf.year}"
-        det_conf = det_lookup.pop(key, None)
-
-        if det_conf:
-            # Merge fields - deterministic takes precedence for same field
-            merged_fields = dict(ai_conf.fields)
-            for field_name, field_update in det_conf.fields.items():
-                # Only add deterministic if AI didn't find it or has lower confidence
-                if field_name not in merged_fields or merged_fields[field_name].confidence < 1.0:
-                    merged_fields[field_name] = field_update
-
-            merged_conf = ConferenceUpdate(
-                conference=ai_conf.conference,
-                year=ai_conf.year,
-                status=ai_conf.status,
-                confidence=ai_conf.confidence,
-                fields=merged_fields,
-                notes=ai_conf.notes,
-            )
-            merged_conferences.append(merged_conf)
-        else:
-            merged_conferences.append(ai_conf)
-
-    # Add any remaining deterministic-only results
-    merged_conferences.extend(det_lookup.values())
-
-    return EnrichmentResult(conferences=merged_conferences, summary=ai_result.summary)
-
-
-def find_cfp_links(url: str) -> list[str]:
-    """Find CFP-related links on a page using lynx.
-
-    Parameters
-    ----------
-    url : str
-        URL to extract links from
-
-    Returns
-    -------
-    list[str]
-        List of absolute URLs to CFP-related pages
-    """
-    # Keywords that suggest a CFP/speaker page (multilingual)
-    cfp_keywords = [
-        # English - core
-        "cfp",
-        "call-for",
-        "callfor",
-        "call_for",
-        "speaker",
-        "proposal",
-        "submit",
-        "submission",
-        "contribute",
-        "talk",
-        "present",
-        # English - academic/extended
-        "abstract",
-        "paper",
-        "papers",
-        "apply",
-        "application",
-        "participate",
-        "deadline",
-        "deadlines",
-        "important-dates",
-        "dates",
-        "lightning",
-        "poster",
-        "tutorial",
-        "workshop",
-        "session",
-        # Spanish (convocatoria=call, ponente=speaker, propuesta=proposal, enviar=submit,
-        #          fechas=dates, participar=participate)
-        "convocatoria",
-        "ponente",
-        "propuesta",
-        "enviar",
-        "fechas",
-        "participar",
-        # German (einreichung=submission, vortrag=talk, sprecher=speaker, beitrag=contribution,
-        #         aufruf=call, teilnehmen=participate, termine=dates, wichtige-termine=important-dates)
-        "einreichung",
-        "vortrag",
-        "sprecher",
-        "beitrag",
-        "aufruf",
-        "teilnehmen",
-        "termine",
-        "wichtige-termine",
-        # Portuguese (chamada=call, palestrante=speaker, proposta=proposal,
-        #             submissão=submission, participar=participate, datas=dates)
-        "chamada",
-        "palestrante",
-        "proposta",
-        "submissao",
-        "submissão",
-        "participar",
-        "datas",
-        # French (appel=call, orateur=speaker, soumission=submission, conférencier=lecturer,
-        #         participer=participate, dates-importantes=important-dates)
-        "appel",
-        "orateur",
-        "soumission",
-        "conferencier",
-        "conférencier",
-        "participer",
-        "dates-importantes",
-        # Japanese romanized (happyo=発表=presentation, oubo=応募=application,
-        #                     teishutsu=提出=submission, kouen=講演=lecture, boshu=募集=recruitment)
-        "happyo",
-        "oubo",
-        "teishutsu",
-        "kouen",
-        "boshu",
-        # Chinese romanized (zhenggao=征稿=call-for-papers, yanjiang=演讲=speech,
-        #                    tijiao=提交=submit, tougao=投稿=contribute)
-        "zhenggao",
-        "yanjiang",
-        "tijiao",
-        "tougao",
-        # Dutch (inzending=submission, spreker=speaker, voorstel=proposal, deelnemen=participate)
-        "inzending",
-        "spreker",
-        "voorstel",
-        "deelnemen",
-        # Italian (proposta=proposal, relatore=speaker, invio=submission, partecipare=participate)
-        "proposta",
-        "relatore",
-        "invio",
-        "partecipare",
-        # Polish (zgłoszenie=submission, prelegent=speaker, referat=paper, wystąpienie=presentation)
-        "zgloszenie",
-        "prelegent",
-        "referat",
-        "wystapienie",
-        # Russian romanized (doklad=доклад=report/talk, zayavka=заявка=application,
-        #                    vystuplenie=выступление=presentation, uchastie=участие=participation)
-        "doklad",
-        "zayavka",
-        "vystuplenie",
-        "uchastie",
-    ]
-
-    links = get_all_links(url)
-    if not links:
-        return []
-
-    cfp_links = []
-    seen = set()
-
-    for link in links:
-        link_lower = link.lower()
-
-        # Check if link contains CFP-related keywords and not already seen
-        if any(kw in link_lower for kw in cfp_keywords) and link not in seen:
-            seen.add(link)
-            cfp_links.append(link)
-
-    return cfp_links[:3]  # Limit to 3 CFP pages max
-
-
-def prefetch_websites(
-    conferences: list[dict[str, Any]],
-) -> tuple[dict[str, str], dict[str, str]]:
-    """Pre-fetch website content for multiple conferences.
-
-    Also fetches CFP-related subpages if found on the main page, and tracks
-    which cfp_link was used for each conference (for validation).
-
-    Parameters
-    ----------
-    conferences : list[dict[str, Any]]
-        List of conference dicts
-
-    Returns
-    -------
-    tuple[dict[str, str], dict[str, str]]
-        Tuple of (content_map, cfp_link_map):
-        - content_map: Dict mapping conference key (name_year) to website content
-        - cfp_link_map: Dict mapping conference key to the cfp_link URL that was fetched
-    """
-    logger = get_logger()
-    content_map: dict[str, str] = {}
-    cfp_link_map: dict[str, str] = {}
-
-    for conf in conferences:
-        name = conf.get("conference", "Unknown")
-        year = conf.get("year", 0)
-        url = conf.get("link", "")
-        cfp_link = conf.get("cfp_link", "")  # Use explicit cfp_link if available
-        key = f"{name}_{year}"
-
-        if not url:
-            logger.warning(f"No URL for {key}")
-            content_map[key] = "No website URL available"
-            continue
-
-        logger.info(f"Fetching: {url}")
-
-        # Get main page content (uses lynx)
-        main_content = prefetch_website(url)
-
-        # Find and fetch CFP-related subpages
-        additional_content = []
-
-        # If cfp_link is explicitly set, prioritize it
-        cfp_links_to_fetch = []
-        if cfp_link:
-            cfp_links_to_fetch.append(cfp_link)
-
-        # Also look for CFP links using lynx -listonly
-        found_links = find_cfp_links(url)
-        for link in found_links:
-            if link not in cfp_links_to_fetch and link != url:
-                cfp_links_to_fetch.append(link)
-
-        # Track the first valid cfp_link we fetch (for later validation)
-        fetched_cfp_link = None
-
-        # Fetch CFP subpages (limit to 2 to avoid too much content)
-        for cfp_url in cfp_links_to_fetch[:2]:
-            logger.debug(f"  Also fetching CFP page: {cfp_url}")
-            cfp_content = prefetch_website(cfp_url)
-            if cfp_content and not cfp_content.startswith("Error"):
-                additional_content.append(f"\n\n--- CFP Page ({cfp_url}) ---\n{cfp_content}")
-                # Track the first successfully fetched cfp_link
-                if fetched_cfp_link is None:
-                    fetched_cfp_link = cfp_url
-
-        # Store the cfp_link that was fetched (if any)
-        if fetched_cfp_link:
-            cfp_link_map[key] = fetched_cfp_link
-
-        # Combine all content
-        combined = main_content + "".join(additional_content)
-        content_map[key] = combined[:MAX_CONTENT_LENGTH]
-
-    return content_map, cfp_link_map
-
-
-def build_enrichment_prompt(
-    conferences: list[dict[str, Any]],
-    content_map: dict[str, str],
-) -> str:
-    """Build the Claude API prompt for CFP data extraction.
-
-    Note: URL fields (bluesky, mastodon, sponsor, finaid) are handled
-    deterministically. cfp_link is validated implicitly - if Claude finds
-    a CFP deadline in content that includes cfp_link content, that link is valid.
-
-    Parameters
-    ----------
-    conferences : list[dict[str, Any]]
-        List of conference dicts with TBA CFP
-    content_map : dict[str, str]
-        Dict mapping conference key to website content
-
-    Returns
-    -------
-    str
-        Formatted prompt string for Claude API
-    """
-    fields_to_extract = [
-        "cfp",
-        "workshop_deadline",
-        "tutorial_deadline",
-        "timezone",
-    ]
-    field_instructions = """
-Extract the following fields if found:
-- cfp: MAIN CFP CLOSING deadline for talks/papers/proposals - the date submissions CLOSE
-  (MUST be format 'YYYY-MM-DD HH:mm:ss', use 23:59:00 if no time)
-- workshop_deadline: Workshop submission CLOSING deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
-- tutorial_deadline: Tutorial submission CLOSING deadline (MUST be format 'YYYY-MM-DD HH:mm:ss')
-- timezone: Conference timezone (MUST be IANA format with slash, e.g., 'America/Chicago', 'Europe/Berlin')
-  - NEVER use abbreviations like EST, CEST, PST, UTC - ONLY full IANA names with slash
-
-CRITICAL RULES:
-- cfp MUST be the MAIN Call for Papers/Proposals CLOSING deadline (when submissions end)
-- cfp MUST NOT be the date the CFP OPENS / starts / launches - only when it CLOSES
-- cfp MUST NOT be: sponsors, volunteers, specialist tracks, financial aid, grants, reviewers
-- If only "Call for Sponsors/Volunteers/Tracks" found, set status to "not_announced"
-- If only the CFP OPENING date is announced (e.g., "CFP opens on X", "CFP will open",
-  "submissions open on X", "proposals open on X") with no closing date, set status to
-  "not_announced" and DO NOT populate cfp
-- Date fields: MUST be exactly 'YYYY-MM-DD HH:mm:ss' format
-- Timezone: MUST be IANA format with slash (America/New_York), NEVER abbreviations (EST, CEST)
-- Leave field EMPTY if not found on the page
-
-Opening-vs-closing examples (DO NOT treat opening dates as deadlines):
-- "CFP will open on February 1, 2026" → status "not_announced", cfp EMPTY
-- "Call for Proposals opens March 15" → status "not_announced", cfp EMPTY
-- "Submissions open: Feb 1 — Submissions close: Mar 15" → cfp="2026-03-15 23:59:00"
-- "Deadline: March 15, 2026" → cfp="2026-03-15 23:59:00"
-- "Submit proposals by March 15, 2026" → cfp="2026-03-15 23:59:00"
-
-Date conversion examples:
-- "February 8, 2026" → "2026-02-08 23:59:00"
-- "8th of February 2026 at 23:59 CET" → "2026-02-08 23:59:00"
-- "Feb 8" (current year context) → "2026-02-08 23:59:00"
-"""
-
-    conference_sections = []
-    for conf in conferences:
-        name = conf.get("conference", "Unknown")
-        year = conf.get("year", 0)
-        url = conf.get("link", "")
-        key = f"{name}_{year}"
-        content = content_map.get(key, "No content available")
-
-        conference_sections.append(
-            f"""
-### {name} {year}
-URL: {url}
-
-Website Content:
-```
-{content[:8000]}
-```
-""",
-        )
-
-    prompt = f"""You are an expert at extracting conference information from websites.
-Analyze the following Python conference websites and extract CFP (Call for Proposals) information.
-
-{field_instructions}
-
-IMPORTANT RULES:
-1. Only extract dates that are EXPLICITLY stated on the website
-2. Do NOT guess or approximate dates - if unsure, set status to "not_announced"
-3. If a deadline says "TBA", "coming soon", or is not found, set status to "not_announced"
-4. If only a CFP OPENING date is listed (no closing deadline yet), set status to
-   "not_announced" - an opening date is NOT a submission deadline
-5. Use status "found" when you have extracted all requested date fields with clear values
-6. Use status "partial" ONLY when some fields are found but others are missing
-7. CONFIDENCE SCORING:
-   - 0.9-1.0: Date is clearly and unambiguously stated (even if in human-readable format)
-   - 0.7-0.9: Date is stated but requires interpretation (e.g., relative dates)
-   - 0.5-0.7: Date is implied or uncertain
-   - Below 0.5: Do not include - set status to "not_announced" instead
-8. For URLs, only include if they appear to be valid absolute URLs
-
-Fields to extract: {', '.join(fields_to_extract)}
-
-CONFERENCES TO ANALYZE:
-{''.join(conference_sections)}
-
-Respond with ONLY valid JSON in this exact format:
-{{
-  "conferences": [
-    {{
-      "conference": "Conference Name",
-      "year": 2026,
-      "status": "found | partial | not_announced | error",
-      "confidence": 0.0-1.0,
-      "fields": {{
-        "cfp": {{ "value": "2026-02-15 23:59:00", "confidence": 0.95 }},
-        ... other fields as applicable
-      }},
-      "notes": "Optional notes about what was found"
-    }}
-  ],
-  "summary": {{
-    "total": 5,
-    "found": 3,
-    "partial": 1,
-    "not_announced": 1,
-    "errors": 0
-  }}
-}}
-"""
-    return prompt
-
-
-def call_claude_api(
-    prompt: str,
-    api_key: str,
-    model: str = "claude-haiku-4-5-20251001",
-    max_tokens: int = 4096,
-) -> dict[str, Any] | None:
-    """Call Claude API with the enrichment prompt.
-
-    Parameters
-    ----------
-    prompt : str
-        The formatted prompt
-    api_key : str
-        Anthropic API key
-    model : str
-        Model to use
-    max_tokens : int
-        Maximum tokens in response
-
-    Returns
-    -------
-    dict[str, Any] | None
-        Parsed JSON response or None on error
-    """
-    logger = get_logger()
-
-    headers = {
-        "x-api-key": api_key,
-        "content-type": "application/json",
-        "anthropic-version": "2023-06-01",
-    }
-
-    payload = {
-        "model": model,
-        "max_tokens": max_tokens,
-        "messages": [{"role": "user", "content": prompt}],
-    }
-
-    for attempt in range(3):
-        try:
-            response = requests.post(
-                ANTHROPIC_API_URL,
-                headers=headers,
-                json=payload,
-                timeout=120,
-            )
-
-            if response.status_code == 200:
-                result = response.json()
-                content = result.get("content", [{}])[0].get("text", "")
-
-                # Debug: Log the raw API response
-                logger.debug("=" * 80)
-                logger.debug("RAW CLAUDE API RESPONSE:")
-                logger.debug("=" * 80)
-                logger.debug(content)
-                logger.debug("=" * 80)
-
-                # Log token usage
-                usage = result.get("usage", {})
-                logger.info(
-                    f"API usage - Input: {usage.get('input_tokens', 0)}, Output: {usage.get('output_tokens', 0)}",
-                )
-
-                # Parse JSON from response
-                try:
-                    # Try to find JSON in the response
-                    json_start = content.find("{")
-                    json_end = content.rfind("}") + 1
-                    if json_start >= 0 and json_end > json_start:
-                        parsed_json = json.loads(content[json_start:json_end])
-                        logger.debug("Successfully parsed JSON from response")
-                        return parsed_json
-                    logger.error("No valid JSON found in response")
-                    return None
-                except json.JSONDecodeError as e:
-                    logger.error(f"Failed to parse JSON response: {e}")
-                    return None
-
-            if response.status_code in (429, 529):
-                logger.warning(f"Rate limited (HTTP {response.status_code}), attempt {attempt + 1}/3")
-                import time
-
-                time.sleep((attempt + 1) * 5)
-                continue
-
-            logger.error(f"API error: HTTP {response.status_code} - {response.text}")
-            return None
-
-        except requests.RequestException as e:
-            logger.error(f"Request error: {e}")
-            return None
-
-    return None
-
-
-def parse_response(response: dict[str, Any]) -> EnrichmentResult:
-    """Parse Claude API response into structured result.
-
-    Parameters
-    ----------
-    response : dict[str, Any]
-        Raw JSON response from Claude API
-
-    Returns
-    -------
-    EnrichmentResult
-        EnrichmentResult with parsed updates
-    """
-    logger = get_logger()
-    result = EnrichmentResult()
-
-    if not response:
-        logger.debug("Empty response received")
-        return result
-
-    result.summary = response.get("summary", {})
-    logger.debug(f"Response summary: {result.summary}")
-
-    for conf_data in response.get("conferences", []):
-        conf_name = conf_data.get("conference", "")
-        conf_year = conf_data.get("year", 0)
-        conf_status = conf_data.get("status", "error")
-
-        logger.debug(f"Parsing conference: {conf_name} {conf_year} (status: {conf_status})")
-
-        fields = {}
-        for field_name, field_data in conf_data.get("fields", {}).items():
-            if isinstance(field_data, dict):
-                field_value = field_data.get("value", "")
-                field_confidence = field_data.get("confidence", 0.0)
-                fields[field_name] = FieldUpdate(
-                    value=field_value,
-                    confidence=field_confidence,
-                )
-                logger.debug(
-                    f"  Parsed field: {field_name} = '{field_value}' (confidence: {field_confidence:.2f})",
-                )
-
-        update = ConferenceUpdate(
-            conference=conf_name,
-            year=conf_year,
-            status=conf_status,
-            confidence=conf_data.get("confidence", 0.0),
-            fields=fields,
-            notes=conf_data.get("notes", ""),
-        )
-        result.conferences.append(update)
-
-    logger.debug(f"Parsed {len(result.conferences)} conferences from response")
     return result
 
 
@@ -1010,7 +351,7 @@ def apply_updates(
     updates: EnrichmentResult,
     dry_run: bool = False,
 ) -> tuple[int, list[str]]:
-    """Apply high-confidence updates to conferences.yml.
+    """Apply found links to empty or TBA fields in conferences.yml.
 
     Parameters
     ----------
@@ -1035,15 +376,10 @@ def apply_updates(
     review_items = []
 
     for update in updates.conferences:
-        if update.status not in ("found", "partial"):
-            continue
-
-        # Find matching conference (strip year suffix if Claude included it)
+        # Find matching conference
         matching = None
-        update_name = update.conference.lower().replace(str(update.year), "").strip()
         for i, conf in enumerate(conferences):
-            conf_name = conf.get("conference", "").lower()
-            if (conf_name == update_name or conf_name == update.conference.lower()) and conf.get("year") == update.year:
+            if conf.get("conference") == update.conference and conf.get("year") == update.year:
                 matching = i
                 break
 
@@ -1056,13 +392,13 @@ def apply_updates(
 
         logger.debug(f"Processing updates for: {update.conference} {update.year}")
 
-        for field_name, field_update in update.fields.items():
-            if not field_update.value:
+        for field_name, value in update.fields.items():
+            if not value:
                 logger.debug(f"  Skipping {field_name}: empty value")
                 continue
 
             # Validate field value before applying
-            is_valid, validation_reason = validate_field_value(field_name, field_update.value)
+            is_valid, validation_reason = validate_field_value(field_name, value)
             if not is_valid:
                 logger.warning(
                     f"  REJECTED {field_name} for {update.conference} {update.year}: "
@@ -1070,55 +406,33 @@ def apply_updates(
                 )
                 continue
 
-            logger.debug(
-                f"  Field {field_name}: value='{field_update.value}', "
-                f"confidence={field_update.confidence:.2f}, valid={is_valid}",
-            )
+            # Apply only if the field is empty or TBA
+            old_value = conf.get(field_name)
+            old_value_str = str(old_value).lower().strip() if old_value else ""
 
-            if field_update.confidence >= CONFIDENCE_THRESHOLD_AUTO:
-                # Auto-apply high confidence updates - but ONLY if field is empty/TBA
-                old_value = conf.get(field_name)
-                old_value_str = str(old_value).lower().strip() if old_value else ""
-
-                # Skip if field already has a valid (non-TBA) value
-                if old_value and old_value_str not in TBA_WORDS and old_value_str != "":
-                    # Add to review if the values differ - might be worth checking
-                    if old_value != field_update.value:
-                        review_items.append(
-                            f"⚠️ {update.conference} {update.year}: {field_name} - "
-                            f"existing='{old_value}' vs found='{field_update.value}' "
-                            f"(kept existing, confidence: {field_update.confidence:.2f})",
-                        )
-                        logger.info(
-                            f"  REVIEW {field_name} for {update.conference} {update.year}: "
-                            f"kept '{old_value}', found '{field_update.value}'",
-                        )
-                    else:
-                        logger.debug(
-                            f"  Skipping {field_name}: already has matching value '{old_value}'",
-                        )
-                    continue
-
-                if old_value != field_update.value:
-                    conf[field_name] = field_update.value
-                    changes_made.append(f"{field_name}: {old_value} -> {field_update.value}")
+            # Skip if field already has a valid (non-TBA) value
+            if old_value and old_value_str not in TBA_WORDS and old_value_str != "":
+                # Add to review if the values differ - might be worth checking
+                if old_value != value:
+                    review_items.append(
+                        f"⚠️ {update.conference} {update.year}: {field_name} - "
+                        f"existing='{old_value}' vs found='{value}' (kept existing)",
+                    )
                     logger.info(
-                        f"APPLIED {field_name} for {update.conference} {update.year}: "
-                        f"'{old_value}' -> '{field_update.value}' "
-                        f"(confidence: {field_update.confidence:.2f})",
+                        f"  REVIEW {field_name} for {update.conference} {update.year}: "
+                        f"kept '{old_value}', found '{value}'",
                     )
                 else:
-                    logger.debug(f"  Skipping {field_name}: value unchanged")
-            elif field_update.confidence >= CONFIDENCE_THRESHOLD_REVIEW:
-                # Add to review list
-                logger.debug(f"  Adding {field_name} to review list (confidence below auto threshold)")
-                review_items.append(
-                    f"{update.conference} {update.year}: "
-                    f"{field_name}={field_update.value} "
-                    f"(confidence: {field_update.confidence:.2f})",
-                )
-            else:
-                logger.debug(f"  Skipping {field_name}: confidence {field_update.confidence:.2f} too low")
+                    logger.debug(
+                        f"  Skipping {field_name}: already has matching value '{old_value}'",
+                    )
+                continue
+
+            conf[field_name] = value
+            changes_made.append(f"{field_name}: {old_value} -> {value}")
+            logger.info(
+                f"APPLIED {field_name} for {update.conference} {update.year}: '{old_value}' -> '{value}'",
+            )
 
         if changes_made:
             conferences[matching] = conf
@@ -1135,24 +449,17 @@ def apply_updates(
 
 
 def enrich_tba_conferences(
-    enrichment_level: str = "full",
-    api_key: str | None = None,
     dry_run: bool = False,
     data_path: Path | None = None,
 ) -> bool:
     """Main function to enrich TBA conferences.
 
+    Finds the conferences with a TBA CFP, extracts social links and sponsor
+    and financial aid pages from their websites, and fills the fields that
+    are empty or TBA.
+
     Parameters
     ----------
-    enrichment_level : str
-        Enrichment level:
-        - 'quick': Deterministic only (no API call) - extracts social links,
-          sponsor/finaid URLs via pattern matching. Fast and free.
-        - 'full': Deterministic + Claude API - also extracts CFP dates,
-          workshop/tutorial deadlines, and timezones from page content.
-    api_key : str | None
-        Anthropic API key (defaults to ANTHROPIC_API_KEY env var).
-        Only required for 'full' enrichment level.
     dry_run : bool
         If True, don't write changes
     data_path : Path | None
@@ -1178,70 +485,13 @@ def enrich_tba_conferences(
         logger.info("No TBA conferences found")
         return True
 
-    # Step 2: Run deterministic extraction (no AI needed - always runs)
+    # Step 2: Extract links from the conference websites
     logger.info("Running deterministic link extraction...")
-    deterministic_result = run_deterministic_extraction(tba_conferences)
-    det_count = len([c for c in deterministic_result.conferences if c.fields])
+    result = run_deterministic_extraction(tba_conferences)
+    det_count = len([c for c in result.conferences if c.fields])
     logger.info(f"Deterministic: found links for {det_count} conferences")
 
-    # Step 3: If quick mode, skip AI and just use deterministic results
-    if enrichment_level == "quick":
-        logger.info("Quick mode - skipping Claude API, using deterministic results only")
-        result = deterministic_result
-    else:
-        # Full mode: also call Claude for dates/timezone
-        if api_key is None:
-            api_key = os.environ.get("ANTHROPIC_API_KEY")
-            if not api_key:
-                logger.error("ANTHROPIC_API_KEY not set (required for full enrichment)")
-                return False
-
-        # Pre-fetch websites for AI processing
-        logger.info("Pre-fetching conference websites...")
-        content_map, cfp_link_map = prefetch_websites(tba_conferences)
-
-        # Build and send prompt to Claude for date/timezone extraction
-        logger.info("Calling Claude API for date/timezone extraction...")
-        prompt = build_enrichment_prompt(tba_conferences, content_map)
-
-        # Debug: Log the full prompt for debugging
-        logger.debug("=" * 80)
-        logger.debug("FULL PROMPT SENT TO CLAUDE API:")
-        logger.debug("=" * 80)
-        logger.debug(prompt)
-        logger.debug("=" * 80)
-
-        response = call_claude_api(prompt, api_key)
-
-        if not response:
-            logger.error("Failed to get response from Claude API")
-            return False
-
-        # Parse response
-        logger.info("Parsing response...")
-        ai_result = parse_response(response)
-
-        logger.info(
-            f"AI Results: {ai_result.summary.get('found', 0)} found, "
-            f"{ai_result.summary.get('partial', 0)} partial, "
-            f"{ai_result.summary.get('not_announced', 0)} not announced",
-        )
-
-        # Add cfp_link to conferences where Claude found a CFP deadline
-        # This validates the cfp_link - if Claude found CFP info in the content
-        # that includes the cfp_link page, that link is valid
-        for conf_update in ai_result.conferences:
-            key = f"{conf_update.conference}_{conf_update.year}"
-            if "cfp" in conf_update.fields and key in cfp_link_map:
-                cfp_link_url = cfp_link_map[key]
-                conf_update.fields["cfp_link"] = FieldUpdate(value=cfp_link_url, confidence=1.0)
-                logger.info(f"  {key}: validated cfp_link {cfp_link_url}")
-
-        # Merge deterministic and AI results
-        logger.info("Merging deterministic and AI results...")
-        result = merge_enrichment_results(deterministic_result, ai_result)
-
-    # Step 4: Apply updates
+    # Step 3: Apply updates
     if dry_run:
         logger.info("Dry run - not applying changes")
 
@@ -1257,7 +507,7 @@ def enrich_tba_conferences(
 
         # Build markdown content for PR description
         review_md = "## 👀 Items for Manual Review\n\n"
-        review_md += "The following items had moderate confidence and need verification:\n\n"
+        review_md += "The following links differ from values already set. The existing values were kept:\n\n"
         for item in review_items:
             review_md += f"- [ ] {item}\n"
         review_md += "\nPlease verify these values before merging.\n"
@@ -1289,13 +539,7 @@ def enrich_tba_conferences(
 
 def main() -> None:
     """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Enrich TBA conferences with CFP data")
-    parser.add_argument(
-        "--level",
-        choices=["quick", "full"],
-        default="full",
-        help="quick=deterministic links only (no API), full=links + dates via Claude API",
-    )
+    parser = argparse.ArgumentParser(description="Enrich TBA conferences with links from their websites")
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -1322,7 +566,6 @@ def main() -> None:
     setup_logging(level=args.log_level)
 
     success = enrich_tba_conferences(
-        enrichment_level=args.level,
         dry_run=args.dry_run,
         data_path=args.data_path,
     )
