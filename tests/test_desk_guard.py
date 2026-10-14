@@ -6,7 +6,8 @@ for branch and repository detection. HOME holds an empty .desk-guard.json unless
 it, since a desk run without one blocks every call. pytester runs the subprocesses, with a timeout and
 captured exit code and stderr. The push spellings the hook blocks are also run with real git against a local
 bare remote, to show that git reads them as the options they abbreviate, and so are an alias set inside an
-alias, a tag fetch and a ``git config`` call whose ``--file`` takes ``--get`` as its value.
+alias, a tag fetch, a ``git config`` call whose ``--file`` takes ``--get`` as its value and ``GIT_CONFIG*``
+variables that bash sets with ``printf -v`` and exports by name.
 """
 
 import ast
@@ -28,6 +29,7 @@ ROLLING = "auto/conference-updates"
 REPO = "JesperDramsch/python-deadlines"
 SUBAGENT = {"agent_id": "agent-1", "agent_type": "general-purpose"}
 GIT = shutil.which("git")
+BASH = shutil.which("bash")
 
 pytestmark = pytest.mark.skipif(GIT is None, reason="git builds the test repositories")
 
@@ -202,6 +204,9 @@ def assert_allowed(outcome):
         "timeout -s KILL 120 git push origin main",
         "sudo -u bob git push origin main",
         "sudo -Eu bob -- git push origin main",
+        "sudo -uroot git push origin main",
+        "timeout -k5s 120 git push origin main",
+        "env -uS git push origin main",
         "env -u GIT_DIR git push origin main",
         "/usr/bin/env GIT_TRACE=1 git push origin main",
         "nice -n 10 git push origin main",
@@ -805,6 +810,10 @@ DESK_CONFIG_CHANGES = [
     "git config -f --list probe.key value",
     "git config --fil --get probe.key value",
     "git config --type --get probe.key value",
+    # the read subcommands of newer git
+    "git config get user.name",
+    "git config list",
+    "git config get --all remote.origin.fetch",
     # GIT_CONFIG* environment variables
     "GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=alias.p GIT_CONFIG_VALUE_0=push git p origin HEAD:auto/conference-updates",
     "GIT_CONFIG_PARAMETERS=\"'push.default'='matching'\" git push origin HEAD:auto/conference-updates",
@@ -829,15 +838,23 @@ DESK_CONFIG_CHANGES = [
     "bash -c 'GIT_CONFIG_COUNT=1 git status'",
     "eval export GIT_CONFIG_GLOBAL=/tmp/extra.cfg",
     "for i in 1; do GIT_CONFIG_COUNT=1 git status; done",
+    # an exported name, whose value another command set
+    "export GIT_CONFIG_COUNT",
+    "printf -v GIT_CONFIG_COUNT 1; export GIT_CONFIG_COUNT",
+    "read GIT_CONFIG_KEY_0 <<< alias.p && export GIT_CONFIG_KEY_0",
+    "export -- GIT_CONFIG_VALUE_0",
+    "declare -x GIT_CONFIG_PARAMETERS",
+    "typeset -x GIT_CONFIG_GLOBAL",
+    "f() { local GIT_CONFIG_NOSYSTEM; }; f",
 ]
 
 
 @pytest.mark.parametrize("command", DESK_CONFIG_CHANGES)
-@pytest.mark.parametrize("fields", [{}, SUBAGENT])
-def test_desk_git_config_changes_are_blocked(run_hook, make_repo, queue_repo, command, fields):
+@pytest.mark.parametrize(("fields", "scope"), [({}, "in desk runs"), (SUBAGENT, "for subagents in desk runs")])
+def test_desk_git_config_changes_are_blocked(run_hook, make_repo, queue_repo, command, fields, scope):
     repo = make_repo(ROLLING)
     command = command.replace("<queue>", str(queue_repo))
-    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields), "config", "desk runs")
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields), "config", scope)
 
 
 @pytest.mark.parametrize(
@@ -882,6 +899,37 @@ def test_git_config_file_option_takes_the_read_option_as_its_value_with_real_git
     result = pytester.run(GIT, "-C", str(clone), *shlex.split(command)[1:], timeout=30)
     assert result.ret == 0, result.errlines
     assert "probe" in (clone / "--get").read_text(encoding="utf-8")
+
+
+@pytest.mark.skipif(BASH is None, reason="bash runs the command")
+def test_git_config_variables_exported_by_name_push_main_with_real_git(run_hook, pytester, remote_clone, git_ref):
+    remote, clone = remote_clone
+    command = (
+        "printf -v GIT_CONFIG_COUNT 1; printf -v GIT_CONFIG_KEY_0 alias.p; printf -v GIT_CONFIG_VALUE_0 push; "
+        "export GIT_CONFIG_COUNT GIT_CONFIG_KEY_0 GIT_CONFIG_VALUE_0; git p origin HEAD:main"
+    )
+    outcome = run_hook("Bash", {"command": command}, cwd=clone, desk=True)
+    assert_blocked(outcome, "export GIT_CONFIG_COUNT", "desk runs")
+    assert git_ref(remote, "refs/heads/main") != git_ref(clone, "HEAD")
+    result = pytester.run(BASH, "-c", f"cd {shlex.quote(str(clone))} && {command}", timeout=30)
+    assert result.ret == 0, result.errlines
+    assert git_ref(remote, "refs/heads/main") == git_ref(clone, "HEAD")
+
+
+@pytest.mark.parametrize(
+    ("command", "named"),
+    [
+        ("read GIT_CONFIG_COUNT <<< 1", "``read``"),
+        ("printf -v GIT_CONFIG_COUNT 1", "``printf -v``"),
+        ("set -a; printf -v GIT_CONFIG_COUNT 1", "``set -a``"),
+        ("env -S 'GIT_TRACE=1 GIT_CONFIG_COUNT=1' git status", "``env -S``"),
+        ("env -S 'git push origin HEAD:main'", "``env -S``"),
+    ],
+)
+def test_routes_the_docstring_names_as_limits_are_not_inspected(run_hook, make_repo, command, named):
+    docstring = " ".join(ast.get_docstring(ast.parse(HOOK.read_text(encoding="utf-8"))).split())
+    assert named in docstring
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=make_repo(ROLLING), desk=True))
 
 
 # --- subagents in a desk run ---
