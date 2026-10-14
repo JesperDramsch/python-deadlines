@@ -667,8 +667,10 @@ class TestDevelopersEvents:
             ("PyData Lagos 2027", "NEW_SERIES"),
             ("PyCon Greece 2027", "MISSING_EDITION"),
             ("Python Hellas Summit 2027", "MAYBE"),
-            ("Snakes & Data Summit 2027", "NEW_SERIES"),
         ]
+
+    def test_a_python_tag_alone_is_not_enough(self, index):
+        assert "Snakes & Data Summit 2027" not in [record["title"] for record in self.records(index)]
 
     def test_records_carry_only_name_year_and_link(self, index):
         record = self.records(index)[0]
@@ -924,7 +926,6 @@ class TestQueueRoundTrip:
             (("candidate",), "PyCon Greece"): "new-year-checker",
             (("candidate",), "PyData Lagos"): "scouter",
             (("candidate",), "Python Hellas Summit"): "scouter",
-            (("candidate",), "Snakes & Data Summit"): "scouter",
             (("registry",), "PyCon Nepal"): "scouter",
             (("registry",), "PyCon Venezuela"): "scouter",
             (("registry",), "PyGotham"): "scouter",

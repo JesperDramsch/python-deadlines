@@ -108,7 +108,6 @@ PYTHON_NAME = re.compile(
     re.IGNORECASE,
 )
 EXCLUDED_NAME = re.compile(r"financial aid|hatchery|sprint", re.IGNORECASE)
-PYTHON_TAGS = ("python", "django")
 REGISTRY_PATH = re.compile(r"^/_(?:national|regional)/[^/]+\.yml$")
 FRONT_MATTER = re.compile(r"\A\s*---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", re.DOTALL)
 
@@ -1004,15 +1003,14 @@ def is_python_event(event: dict) -> bool:
     Returns
     -------
     bool
-        True for a python or django tag, or a Python word in the name, unless
-        the name is a financial aid programme, a hatchery or a sprint.
+        True for a Python word in the name, unless the name is a financial aid
+        programme, a hatchery or a sprint. A "python" tag alone is not enough:
+        it marks general events with a Python talk (DevFests, SQLSaturdays),
+        which AGENTS.md leaves out.
     """
     name = event.get("name")
     if not isinstance(name, str) or EXCLUDED_NAME.search(name):
         return False
-    tags = event.get("tags") if isinstance(event.get("tags"), list) else []
-    if any(isinstance(tag, dict) and str(tag.get("value", "")).lower() in PYTHON_TAGS for tag in tags):
-        return True
     return bool(PYTHON_NAME.search(name))
 
 
