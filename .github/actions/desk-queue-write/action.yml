@@ -48,7 +48,7 @@ runs:
           git worktree prune
           git branch -D "$INIT_BRANCH" 2>/dev/null || true
 
-          if git ls-remote --exit-code --heads origin "$BRANCH" > /dev/null; then
+          if git ls-remote --exit-code origin "refs/heads/$BRANCH" > /dev/null; then
             git fetch --quiet --depth=1 origin "$BRANCH"
             git worktree add --quiet --detach "$QUEUE" FETCH_HEAD
           else
@@ -58,10 +58,13 @@ runs:
             git -C "$QUEUE" rm -rfq .
           fi
 
-          python3 "$SCRIPT" add "$QUEUE" --jsonl "$RECORDS" | tee "$RESULTS"
+          # Rejected records and broken queue files are reported as warnings;
+          # the valid records are still written.
+          python3 "$SCRIPT" add "$QUEUE" --jsonl "$RECORDS" \
+            2> >(sed 's/^desk_queue: /::warning title=Desk queue::/' >&2) | tee "$RESULTS"
           git -C "$QUEUE" add -A
           if git -C "$QUEUE" diff --cached --quiet; then
-            echo "Every record is already queued"
+            echo "Nothing new to queue"
             echo "added=0" >> "$GITHUB_OUTPUT"
             exit 0
           fi

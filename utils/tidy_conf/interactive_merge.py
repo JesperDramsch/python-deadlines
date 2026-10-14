@@ -738,17 +738,9 @@ def merge_conferences(
                             df_new.loc[i, column] = ry + cfp_time_y
                         else:
                             # Check if it's an extension of the deadline and update both
-                            if query_yes_no(
-                                "Is this an extension?",
-                                context=_question_context(
-                                    row,
-                                    conference_name,
-                                    "cfp_ext",
-                                    rx + cfp_time_x,
-                                    ry + cfp_time_y,
-                                    source_name,
-                                ),
-                            ):
+                            # No context: the cfp question above already queued
+                            # both deadlines for the desk.
+                            if query_yes_no("Is this an extension?"):
                                 rrx, rry = (
                                     int(rx.replace("-", "").split(" ")[0]),
                                     int(
