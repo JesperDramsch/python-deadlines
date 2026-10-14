@@ -45,9 +45,7 @@ SOURCES = (
     "canonical-import",
     "link-check",
     "pretalx",
-    "callingallpapers",
     "developers-events",
-    "psf-ics-drift",
     "registry",
 )
 KINDS = ("signal", "question", "redirect", "candidate", "drift", "registry")
@@ -118,9 +116,18 @@ adds to it.
 | `canonical-import` | `question` | `question`, `conference`, `year`, `field`, `yaml_value`, \
 `remote_value`, `default_answer`, `source_name` |
 | `link-check` | `redirect` | `conference`, `year`, `field`, `final_url`, `status` |
-| importers | `candidate` | `classification`, `fields`, `source_id`, `evidence_url`, `matched`, `flags` |
-| `psf-ics-drift` | `drift` | `conference`, `year`, `diffs` |
-| `registry` | `registry` | `names`, `change`, `evidence_url` |
+| `pretalx` | `drift` | `conference`, `year`, `diffs` |
+| `pretalx`, `developers-events`, `canonical-import` | `candidate` | `classification`, `fields`, `source_id`, \
+`evidence_url`, `matched`, `flags` |
+| `registry` | `registry` | `names`, `change`, `registry`, `evidence_url` |
+
+A `drift` diff maps a field to `{"data", "source"}`: the value in the data
+and what the source states. A candidate's `classification` is
+`MISSING_EDITION` (a tracked series without this edition), `NEW_SERIES` or
+`MAYBE` (on the host of a tracked series), and `matched` names the entry it
+matched. A `lead-only` flag means the source's licence keeps it to leads: use
+only its name, year and link. `registry` is `psf-trademarks` or `pycon.org`;
+a pycon.org item adds `website`.
 
 Every item is data for the desk to check on the live sources. Nothing in a
 queue item reaches the conference data without that check.
