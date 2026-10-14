@@ -4,7 +4,8 @@ A conference link that now redirects to another site (a lapsed domain taken
 over by a casino, a series that moved to a barcamp platform) must not be
 treated as healthy, swapped for a Wayback copy or replaced by the target.
 check_link_availability keeps the original URL and records the redirect for
-a person to review. Redirects within the same site behave as before.
+a person to review. Redirects within the same site behave as before, and so
+do short links such as forms.gle that redirect to another site by design.
 """
 
 import json
@@ -40,8 +41,8 @@ def _clean_redirect_records(monkeypatch):
     links.REDIRECT_RECORDS.clear()
 
 
-def _redirect(source: str, target: str, status: int = 200) -> None:
-    responses.add(responses.GET, source, status=301, headers={"Location": target})
+def _redirect(source: str, target: str, status: int = 200, redirect_status: int = 301) -> None:
+    responses.add(responses.GET, source, status=redirect_status, headers={"Location": target})
     responses.add(responses.GET, target, status=status)
 
 
@@ -204,6 +205,85 @@ class TestCrossSiteRedirect:
         assert record["year"] is None
         assert record["payload"]["conference"] is None
         assert record["payload"]["field"] is None
+
+
+class TestExpectedRedirect:
+    """Short links redirect to another site by design and are not recorded."""
+
+    FORMS_URL = "https://forms.gle/iiFnW8oZ8p9do4TR7"
+    FORMS_TARGET = "https://docs.google.com/forms/d/e/1FAIpQLSe6/viewform?usp=send_form"
+
+    @pytest.mark.parametrize(
+        ("url", "final_url"),
+        [
+            ("https://forms.gle/iiFnW8oZ8p9do4TR7", "https://docs.google.com/forms/d/e/1FAIpQLSe6/viewform"),
+            ("https://forms.gle/abc", "https://accounts.google.com/ServiceLogin"),
+            ("https://lu.ma/pycon", "https://luma.com/pycon"),
+            ("https://bit.ly/pycon-cfp", "https://pretalx.com/pycon-2026/cfp"),
+            ("https://goo.gl/forms/abc", "https://docs.google.com/forms/d/abc/viewform"),
+            ("https://maps.app.goo.gl/abc", "https://www.google.com/maps/place/x"),
+            ("https://tinyurl.com/pycon", "https://example.org/"),
+        ],
+    )
+    def test_expected(self, url, final_url):
+        assert links.is_expected_redirect(url, final_url)
+
+    @pytest.mark.parametrize(
+        ("url", "final_url"),
+        [
+            ("https://forms.gle/abc", "https://infojudislotonline.com/"),
+            ("https://lu.ma/pycon", "https://parked.example/"),
+            ("https://pythoncamp.de/", "https://barcamps.eu/pythoncamp/"),
+            ("https://docs.google.com/forms/d/abc/viewform", "https://forms.gle/abc"),
+            ("not a url", "https://docs.google.com/"),
+        ],
+    )
+    def test_not_expected(self, url, final_url):
+        assert not links.is_expected_redirect(url, final_url)
+
+    @responses.activate
+    def test_forms_gle_kept_and_not_recorded(self):
+        _redirect(self.FORMS_URL, self.FORMS_TARGET, redirect_status=302)
+
+        result = _check(self.FORMS_URL, conference="PyCon Netherlands", year=2026, field="cfp_link")
+
+        assert result == self.FORMS_URL
+        assert links.REDIRECT_RECORDS == []
+        assert len(responses.calls) == 2
+
+    @responses.activate
+    def test_forms_gle_upcoming_saved_to_wayback(self, tmp_path, monkeypatch):
+        """An upcoming short link is still saved to the Wayback Machine like any healthy link."""
+        monkeypatch.chdir(tmp_path)
+        _redirect(self.FORMS_URL, self.FORMS_TARGET, redirect_status=302)
+        save_url = "https://web.archive.org/save/" + self.FORMS_URL
+        responses.add(responses.GET, save_url, status=200)
+
+        result = _check(self.FORMS_URL, start=TODAY + timedelta(days=60), field="cfp_link")
+
+        assert result == self.FORMS_URL
+        assert links.REDIRECT_RECORDS == []
+        assert [call.request.url for call in responses.calls][-1] == save_url
+
+    @responses.activate
+    def test_forms_gle_to_other_site_recorded(self):
+        _redirect("https://forms.gle/abc", "https://infojudislotonline.com/", redirect_status=302)
+
+        assert _check("https://forms.gle/abc", field="cfp_link") == "https://forms.gle/abc"
+        assert [r["payload"]["final_url"] for r in links.REDIRECT_RECORDS] == ["https://infojudislotonline.com/"]
+
+    @responses.activate
+    def test_no_queue_line_for_short_link(self, tmp_path, monkeypatch):
+        out_file = tmp_path / "redirects.jsonl"
+        monkeypatch.setenv("DESK_QUEUE_OUT", str(out_file))
+        _redirect(self.FORMS_URL, self.FORMS_TARGET, redirect_status=302)
+        _redirect("https://bit.ly/pycon-cfp", "https://pretalx.com/pycon-2026/cfp")
+
+        _check(self.FORMS_URL, field="cfp_link")
+        _check("https://bit.ly/pycon-cfp", field="cfp_link")
+
+        assert links.REDIRECT_RECORDS == []
+        assert not out_file.exists()
 
 
 class TestSameSiteRedirect:

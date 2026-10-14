@@ -53,6 +53,19 @@ TWO_LEVEL_PUBLIC_SUFFIXES = frozenset(
     },
 )
 
+# Hosts whose links always redirect to another site, mapped to the registrable
+# domains those redirects are expected to land on. forms.gle is the Google
+# Forms short link (it lands on docs.google.com) and lu.ma is the old Luma
+# domain, which now redirects to luma.com.
+EXPECTED_REDIRECT_TARGETS = {
+    "forms.gle": frozenset({"google.com"}),
+    "lu.ma": frozenset({"luma.com"}),
+}
+
+# General URL shorteners. A short link lands wherever it was made to point, so
+# a redirect from one to another site says nothing about the link.
+URL_SHORTENERS = frozenset({"bit.ly", "goo.gl", "tinyurl.com"})
+
 # Redirects to a different site found by check_link_availability. A link that
 # now lands on another site (a lapsed domain, a parked page, a new home for
 # the series) needs a person to look at it, so the link is kept as it is and
@@ -174,6 +187,34 @@ def is_different_site(url: str, other: str) -> bool:
     if is_parent_domain(host, other_host) or is_parent_domain(other_host, host):
         return False
     return registrable_domain(host) != registrable_domain(other_host)
+
+
+def is_expected_redirect(url: str, final_url: str) -> bool:
+    """Check whether a redirect to another site is what the link is for.
+
+    A link on a general URL shortener (see ``URL_SHORTENERS``) may land
+    anywhere. A link on a host listed in ``EXPECTED_REDIRECT_TARGETS`` must
+    land on one of the registrable domains listed for it: ``forms.gle`` on
+    ``google.com``, ``lu.ma`` on ``luma.com``. Any other redirect is not
+    expected.
+
+    Parameters
+    ----------
+    url : str
+        URL as stored in the data
+    final_url : str
+        URL the redirect chain ended on
+
+    Returns
+    -------
+    bool
+        True when the redirect is one the link is expected to make
+    """
+    origin = registrable_domain(site_host(url))
+    if origin in URL_SHORTENERS:
+        return True
+    targets = EXPECTED_REDIRECT_TARGETS.get(origin, frozenset())
+    return registrable_domain(site_host(final_url)) in targets
 
 
 def record_redirect(
@@ -370,6 +411,10 @@ def check_link_availability(
     A redirect that ends on a different site (see ``is_different_site``) is not
     treated as healthy: the original URL is returned unchanged, with no Wayback
     lookup, and the redirect is recorded with ``record_redirect`` for review.
+    A short link that lands where it is expected to (see ``is_expected_redirect``),
+    such as forms.gle on docs.google.com, is not recorded: it is checked like
+    any other link, so on a 200 the original URL is kept and, when the
+    conference is still to come, saved to the Wayback Machine.
 
     Automatically caches old (5+ years) URLs.
 
@@ -418,8 +463,9 @@ def check_link_availability(
             response = requests.get(url, allow_redirects=True, timeout=10)
             final_url = response.url
             # A redirect to another site is not a healthy link: keep the URL as it
-            # is and leave the decision to a person.
-            if is_different_site(url, final_url):
+            # is and leave the decision to a person. Short links such as
+            # forms.gle redirect to another site by design and are left out.
+            if is_different_site(url, final_url) and not is_expected_redirect(url, final_url):
                 tqdm.write(
                     f"URL {url} was redirected to a different site: {final_url} "
                     f"(status code: {response.status_code}). Keeping the original URL for review.",
