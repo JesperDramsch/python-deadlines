@@ -4,12 +4,14 @@ Each test runs the hook as a subprocess, the way Claude Code runs it: a crafted 
 (with ``agent_id`` for a subagent's call), DESK_ROUTINE and HOME set per test, and temporary git repositories
 for branch and repository detection. HOME holds an empty .desk-guard.json unless a test replaces or removes
 it, since a desk run without one blocks every call. pytester runs the subprocesses, with a timeout and
-captured exit code and stderr.
+captured exit code and stderr. The push spellings the hook blocks are also run with real git against a local
+bare remote, to show that git reads them as the options they abbreviate.
 """
 
 import ast
 import json
 import re
+import shlex
 import shutil
 import sys
 from pathlib import Path
@@ -72,6 +74,46 @@ def queue_repo(git, tmp_path):
     git("-C", str(repo), "commit", "-q", "--allow-empty", "-m", "init")
     git("-C", str(repo), "checkout", "-q", "--detach")
     return repo
+
+
+@pytest.fixture()
+def git_ref(pytester):
+    """Return the object a ref names in a repository, or None when the ref does not exist."""
+
+    def resolve(repo, ref):
+        result = pytester.run(GIT, "-C", str(repo), "rev-parse", "--verify", "--quiet", ref, timeout=30)
+        return result.outlines[0] if result.ret == 0 else None
+
+    return resolve
+
+
+@pytest.fixture()
+def remote_clone(git, tmp_path):
+    """Create a bare remote and a clone whose branches have moved on, and return both.
+
+    The remote has main, desk-queue and old/stale at commit A, and auto/conference-updates at R, a child of
+    A. The clone has auto/conference-updates checked out at L, another child of A that carries the annotated
+    tag v2, and main at M, a third child of A. Pushing L to desk-queue is a fast-forward; pushing it to
+    auto/conference-updates needs a force.
+    """
+    seed, remote, clone = tmp_path / "seed", tmp_path / "remote.git", tmp_path / "clone"
+    git("init", "-q", str(seed))
+    git("-C", str(seed), "symbolic-ref", "HEAD", "refs/heads/main")
+    git("-C", str(seed), "commit", "-q", "--allow-empty", "-m", "A")
+    git("-C", str(seed), "branch", "desk-queue")
+    git("-C", str(seed), "branch", "old/stale")
+    git("-C", str(seed), "checkout", "-q", "-b", ROLLING)
+    git("-C", str(seed), "commit", "-q", "--allow-empty", "-m", "R")
+    git("-C", str(seed), "checkout", "-q", "main")
+    git("clone", "-q", "--bare", str(seed), str(remote))
+    git("clone", "-q", str(remote), str(clone))
+    git("-C", str(clone), "checkout", "-q", "--no-track", "-b", ROLLING, "origin/main")
+    git("-C", str(clone), "commit", "-q", "--allow-empty", "-m", "L")
+    git("-C", str(clone), "tag", "-a", "v2", "-m", "v2")
+    git("-C", str(clone), "checkout", "-q", "main")
+    git("-C", str(clone), "commit", "-q", "--allow-empty", "-m", "M")
+    git("-C", str(clone), "checkout", "-q", ROLLING)
+    return remote, clone
 
 
 @pytest.fixture()
@@ -164,6 +206,24 @@ def assert_allowed(outcome):
         "nice -n 10 git push origin main",
         "flock /tmp/push.lock git push origin main",
         "echo main | xargs -n 1 git push origin main",
+        # abbreviations git reads as the option they start, and a dry run undone later
+        "git push --mirr origin",
+        "git push --al origin",
+        "git push --bra origin",
+        "git push --mirror=x origin",
+        "git push --dry-run --no-dry-run --all origin",
+        "git push -n --no-dry --mirror origin",
+        # aliases set on the command line, and the dashed programs
+        "git -c alias.p=push p origin main",
+        "git -c Alias.P=push P origin HEAD:main",
+        "git -c 'alias.p=push origin' p main",
+        "git -c alias.p=q -c alias.q=push p origin main",
+        "git -C <repo> -c alias.p=push p origin main",
+        "git -c 'alias.p=!git push origin main' p",
+        "git -c 'alias.p=!git push' p origin HEAD:main",
+        "git -c alias.push=status push origin main",
+        "git-push origin main",
+        "/usr/lib/git-core/git-push --force origin HEAD:main",
     ],
 )
 def test_push_targeting_main_is_blocked(run_hook, make_repo, command):
@@ -183,6 +243,13 @@ def test_push_targeting_main_is_blocked(run_hook, make_repo, command):
         "git push --follow-tags",
         "for i in 1 2 3; do git push && break; done",
         "timeout 120 git push",
+        "git push --tags --no-tags",
+        "git push --tags --no-t origin",
+        "git push --push-o ci.skip origin",
+        "git push --recurse-submodules check origin",
+        "git -c alias.p=push p",
+        "git -c 'alias.p=!git push' p origin",
+        "git-push origin",
     ],
 )
 def test_push_without_refspec_from_main_is_blocked(run_hook, make_repo, branch, command):
@@ -208,6 +275,8 @@ def test_push_after_moving_into_a_repository_on_main_is_blocked(run_hook, make_r
         "git push --dry-run",
         "git push -n origin main",
         "git push --dry-run --all origin",
+        "git push --dry-run --no-verify --all origin",
+        "git push --tags --no-verify origin",
     ],
 )
 def test_push_that_sends_no_branch_from_main_is_allowed(run_hook, make_repo, command):
@@ -246,6 +315,13 @@ def test_push_from_a_worktree_on_main_is_blocked(run_hook, make_repo, git, tmp_p
         "timeout 120 git push origin HEAD",
         "sudo -u bob git push origin HEAD",
         "if true; then echo git push origin main; fi",
+        "git push --force-w origin HEAD:feature",
+        "git push --recurse-submodules check origin HEAD:feature",
+        "git -c alias.p=push p origin HEAD:feature",
+        "git -c alias.st=status st",
+        "git -c 'alias.p=!echo git push origin main' p",
+        "git -c alias.p=q -c alias.q=p p origin main",
+        "git-push origin HEAD:feature",
     ],
 )
 def test_push_to_another_branch_is_allowed(run_hook, make_repo, command):
@@ -421,6 +497,26 @@ DESK_PUSHES = [
         ("timeout 120 git push --force origin HEAD:auto/conference-updates", "--force"),
         ("bash -c 'git push -f origin HEAD:desk-queue'", "-f"),
         ("for i in 1 2 3; do git push --force origin HEAD:desk-queue && break; done", "--force"),
+        # abbreviations git reads as the option they start, with and without a value
+        ("git push --force-w origin HEAD:auto/conference-updates", "--force-with-lease"),
+        ("git push --force-with origin HEAD:auto/conference-updates", "--force-with-lease"),
+        ("git push --force-w=auto/conference-updates origin HEAD:auto/conference-updates", "--force-with-lease"),
+        ("git push --forc origin HEAD:auto/conference-updates", "--force"),
+        ("git push --del origin desk-queue", "--delete"),
+        ("git push --pru origin HEAD:auto/conference-updates", "--prune"),
+        ("git push --tag origin HEAD:auto/conference-updates", "--tags"),
+        ("git push --follow-t origin HEAD:auto/conference-updates", "--follow-tags"),
+        ("git push --mirr origin", "--mirror"),
+        ("git push --al origin", "--all"),
+        ("git push --bra origin", "--branches"),
+        # --recurse-submodules with any value
+        ("git push --recurse-submodules=check origin HEAD:auto/conference-updates", "--recurse-submodules"),
+        ("git push --recurse-submodules on-demand origin HEAD:auto/conference-updates", "--recurse-submodules"),
+        ("git push --recurse-submodules=no origin HEAD:auto/conference-updates", "--recurse-submodules"),
+        ("git push --recurse-sub=only origin HEAD:desk-queue", "--recurse-submodules"),
+        # the dashed program
+        ("/usr/lib/git-core/git-push --force origin HEAD:auto/conference-updates", "--force"),
+        ("git-push origin HEAD:feature", "'HEAD:feature'"),
     ],
 )
 def test_desk_push_outside_the_desk_branches_is_blocked(run_hook, make_repo, queue_repo, command, fragment):
@@ -445,6 +541,48 @@ def test_desk_push_outside_the_desk_branches_is_blocked(run_hook, make_repo, que
 def test_push_rules_outside_desk_runs_stay_as_they_were(run_hook, make_repo, queue_repo, command):
     repo = make_repo(ROLLING)
     assert_allowed(run_hook("Bash", {"command": command.replace("<queue>", str(queue_repo))}, cwd=repo))
+
+
+# Push spellings the hook blocks, whether it blocks them in desk runs only, the reason's fragment, and the
+# remote ref git then changes with the clone's ref it ends up at (None: git deletes it)
+HARMFUL_PUSHES = [
+    ("--force-w origin HEAD:auto/conference-updates", True, "--force-with-lease", f"refs/heads/{ROLLING}", "HEAD"),
+    ("--force-with origin HEAD:auto/conference-updates", True, "--force-with-lease", f"refs/heads/{ROLLING}", "HEAD"),
+    (
+        "--force-w=auto/conference-updates origin HEAD:auto/conference-updates",
+        True,
+        "--force-with-lease",
+        f"refs/heads/{ROLLING}",
+        "HEAD",
+    ),
+    ("--del origin desk-queue", True, "--delete", "refs/heads/desk-queue", None),
+    ("--pru origin 'refs/heads/old/*:refs/heads/old/*'", True, "--prune", "refs/heads/old/stale", None),
+    ("--tag origin HEAD:desk-queue", True, "--tags", "refs/tags/v2", "v2"),
+    ("--follow-t origin HEAD:desk-queue", True, "--follow-tags", "refs/tags/v2", "v2"),
+    ("--mirr origin", False, "--mirror", "refs/heads/main", "main"),
+    ("--al origin", False, "--all", "refs/heads/main", "main"),
+]
+
+
+@pytest.mark.parametrize(("arguments", "desk", "fragment", "ref", "target"), HARMFUL_PUSHES)
+def test_blocked_push_spellings_do_harm_with_real_git(
+    run_hook,
+    pytester,
+    remote_clone,
+    git_ref,
+    arguments,
+    desk,
+    fragment,
+    ref,
+    target,
+):
+    remote, clone = remote_clone
+    assert_blocked(run_hook("Bash", {"command": f"git push {arguments}"}, cwd=clone, desk=desk), "git push", fragment)
+    expected = git_ref(clone, target) if target else None
+    assert git_ref(remote, ref) != expected
+    # The exit code is left alone: --al also tries the diverged branch, which the remote rejects
+    pytester.run(GIT, "-C", str(clone), "push", *shlex.split(arguments), timeout=30)
+    assert git_ref(remote, ref) == expected
 
 
 # --- gh in a desk run ---
@@ -532,6 +670,14 @@ DESK_SCRIPTS = [
     "./utils/sort_yaml.py --skip_links",
     "cd utils && python sort_yaml.py --skip_links",
     "python -m utils.sort_yaml",
+    "python -mutils.sort_yaml",
+    "python3 -Im utils.merge_data",
+    "uv run -m utils.sort_yaml --skip_links",
+    "python utils/main.py",
+    "python ./utils/main.py",
+    "cd utils && python main.py",
+    "python -m utils.main",
+    "pixi run merge",
     "pixi run sort",
     "pixi run -e default links",
     "timeout 600 python utils/merge_data.py",
@@ -584,6 +730,48 @@ def test_desk_data_edit_is_allowed(run_hook, make_repo):
     assert_allowed(outcome)
 
 
+# --- git aliases in a desk run ---
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git -c alias.p=push p --force origin HEAD:main",
+        "git -c alias.p=push p origin HEAD:auto/conference-updates",
+        "git -c ALIAS.P=push P origin HEAD:auto/conference-updates",
+        "git -c 'alias.c=!git commit' c -m x",
+        "git --config-env=alias.p=PUSH p origin HEAD:auto/conference-updates",
+        "git --config-env alias.p=PUSH p origin HEAD:auto/conference-updates",
+        "git config alias.p push",
+        "git config --global alias.p push",
+        "git config --add Alias.p push",
+        "git config --file .git/config alias.p 'push --force'",
+        "git config set alias.p push",
+        "git config --rename-section old alias",
+        "git config alias.p push && git p origin HEAD:auto/conference-updates",
+        "/usr/lib/git-core/git-config alias.p push",
+    ],
+)
+@pytest.mark.parametrize("fields", [{}, SUBAGENT])
+def test_desk_git_aliases_are_blocked(run_hook, make_repo, command, fields):
+    repo = make_repo(ROLLING)
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields), "git", "alias")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git config --get alias.p",
+        "git config user.email desk@example.com",
+        "git -c user.name=Desk commit -m x",
+        "git -c core.quotepath=off status --short",
+    ],
+)
+def test_desk_git_config_outside_alias_keys_is_allowed(run_hook, make_repo, command):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True))
+
+
 # --- subagents in a desk run ---
 
 
@@ -607,9 +795,19 @@ SUBAGENT_GIT_READS = [
     "git for-each-ref refs/heads",
     "git show-ref",
     "git config --get remote.origin.url",
+    "git config --global --get user.name",
+    "git config --get user.name --get",
+    "git fetch --depth 1 origin main",
+    "git fetch --depth=1 origin refs/heads/main",
+    "git fetch -j 2 origin main",
+    "git fetch --shallow-since 2026-01-01T00:00:00 origin main",
+    f"git fetch https://github.com/{REPO}.git main",
+    "git fetch --multiple origin upstream",
     "git -C <repo> log -1",
     "git --no-pager log -1",
     "git --version",
+    "/usr/lib/git-core/git-log -1",
+    "git-status --short",
 ]
 SUBAGENT_OTHER_READS = [
     "python utils/desk_queue.py list <queue>",
@@ -620,6 +818,9 @@ SUBAGENT_OTHER_READS = [
     "uv run pytest tests/test_sort_yaml.py -q",
     "grep -rn 'PyCon Greece' _data/conferences.yml _data/archive.yml _data/legacy.yml",
     "curl -sSL https://2027.pycon.gr/cfp/",
+    "python /tmp/scratch/main.py",
+    "python -m main",
+    "python -m json.tool /tmp/scratch/change-set.json",
 ]
 
 
@@ -661,6 +862,24 @@ def test_subagent_reads_are_allowed(run_hook, make_repo, queue_repo, command):
         "git status && git commit -am x",
         "bash -c 'git commit -m x'",
         "for i in 1 2; do git push origin HEAD:desk-queue; done",
+        # a --get after the key is the value git config writes
+        "git config user.name --get",
+        "git config --global user.name --get",
+        "git config -- user.name --get",
+        # the dashed programs
+        "/usr/lib/git-core/git-commit -m x",
+        "git-add _data/conferences.yml",
+        # fetches that write local refs
+        "git fetch origin main:main",
+        "git fetch origin +main",
+        "git fetch origin +refs/heads/main:refs/heads/auto/conference-updates",
+        "git fetch origin HEAD:scratch",
+        "git fetch --depth 1 origin main:main",
+        "git -C <queue> fetch origin +desk-queue:desk-queue",
+        "git fetch origin -- main:main",
+        "git fetch --stdin origin",
+        "git fetch --refmap=+refs/heads/*:refs/heads/* origin main",
+        "git fetch --refm '+refs/heads/*:refs/heads/*' origin main",
     ],
 )
 def test_subagent_git_writes_are_blocked(run_hook, make_repo, queue_repo, command):

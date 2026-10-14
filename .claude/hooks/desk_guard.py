@@ -14,7 +14,9 @@ Rules for every session:
    the branch (``main``, ``HEAD:main``, ``:main``, ``refs/heads/main``, ``heads/main``, ``--delete main``) or a
    glob that covers it (``refs/heads/*:refs/heads/*``), the matching refspec ``:``, ``--all``, ``--mirror`` or
    ``--branches``, or a push without refspecs while the current branch is ``main`` or ``master``. A
-   ``--dry-run`` push and a push of ``--tags`` alone send no branch and pass.
+   ``--dry-run`` push and a push of ``--tags`` alone send no branch and pass, unless ``--no-dry-run`` or
+   ``--no-tags`` undoes the option. A long option counts in any abbreviation git accepts (``--mirr``,
+   ``--al``).
 2. On branch ``auto/conference-updates``, Edit, Write, MultiEdit and NotebookEdit on a path under a
    repository's own ``.github/`` directory are blocked. Bash commands that write there are not inspected.
 3. When ``~/.desk-guard.json`` exists, its optional regular-expression lists ``deny_bash``, ``deny_tools``,
@@ -32,8 +34,11 @@ Rules for desk runs, on top of those:
 6. Rule 2 holds on every branch.
 7. ``git push`` must name the remote ``origin`` and at least one refspec, and every refspec must write
    ``auto/conference-updates`` or ``desk-queue``. ``--force``, ``--force-with-lease``, ``-f``, ``--delete``,
-   ``-d``, ``--mirror``, ``--all``, ``--branches``, ``--tags``, ``--follow-tags`` and ``--prune`` are blocked,
-   alone or bundled (``-fu``), and so is a refspec that starts with ``+`` or ``:``. Dry runs get no exemption.
+   ``-d``, ``--mirror``, ``--all``, ``--branches``, ``--tags``, ``--follow-tags``, ``--prune`` and
+   ``--recurse-submodules`` (with any value) are blocked, alone, bundled (``-fu``) or abbreviated
+   (``--force-w``, ``--del``), and so is a refspec that starts with ``+`` or ``:``. Dry runs get no exemption.
+   Since an alias can stand in for any git command, a ``-c`` or ``--config-env`` setting of an ``alias.*`` key
+   is blocked, and so is a ``git config`` call that names one, unless it is a ``--get`` read.
 8. ``gh`` runs only as ``gh api``. A request is a write when ``-X`` or ``--method`` sets a method other than
    GET, or when it passes ``-f``, ``-F``, ``--field``, ``--raw-field`` or ``--input``. The only writes allowed
    go to ``repos/JesperDramsch/python-deadlines``: POST ``pulls``, PATCH ``pulls/<n>``, POST
@@ -44,22 +49,34 @@ Rules for subagents in desk runs, on top of those:
 
 9. ``git`` runs only status, log, show, diff, grep, ls-files, ls-remote, ls-tree, rev-parse, rev-list,
    merge-base, blame, cat-file, fetch, describe, shortlog, for-each-ref, show-ref and ``config --get``, or
-   with no subcommand at all (``git --version``).
+   with no subcommand at all (``git --version``). ``--get`` must come before the first word that is not an
+   option, since git config reads a later one as a value to write. A ``fetch`` refspec after the remote that
+   contains ``:`` or starts with ``+`` writes a local ref and is blocked, and so are ``--refmap`` and
+   ``--stdin``, which set refspecs.
 10. ``gh`` runs only as a ``gh api`` read.
 11. A command that runs ``utils/desk_queue.py`` add, remove, snooze or init, ``utils/desk_pr_body.py``,
-    ``utils/merge_data.py`` or ``utils/sort_yaml.py`` is blocked. A script counts as run when it is the
-    program, when a Python interpreter or a runner such as ``uv`` or ``pixi`` is the program and names the
-    script (or its module after ``-m``), or as the ``pixi run sort`` and ``pixi run links`` tasks.
+    ``utils/merge_data.py``, ``utils/sort_yaml.py`` or ``utils/main.py`` (the importers and the sort) is
+    blocked. A script counts as run when it is the program, when a Python interpreter or a runner such as
+    ``uv`` or ``pixi`` is the program and names the script (or its module after ``-m``, also attached as in
+    ``-mutils.sort_yaml``), or as the ``pixi run sort``, ``pixi run links`` and ``pixi run merge`` tasks.
+    ``main.py`` counts only in a folder named ``utils``.
 12. Edit, Write, MultiEdit and NotebookEdit are blocked on any path inside a repository: the one that holds
     ``cwd`` or the one that holds the path, with symlinks resolved. Paths outside, such as ``/tmp``, are
-    allowed.
+    allowed. Bash commands that write into the repository are not inspected, apart from the git and script
+    calls of rules 9 and 11.
 
 Commands are pattern matched, never run: the script splits the command line into simple commands, steps over
 shell reserved words (``do``, ``then``, ``!``, ``{``), variable assignments and wrappers with their options
 (``sudo -u bob``, ``timeout 120``, ``env -C dir``), follows ``cd``, ``sh -c`` and ``eval``, and reads the
-``git`` (with ``-C``), ``gh`` and script invocations. Code a program runs on its own, such as ``python -c`` or
-a script file, is not inspected. The current branch comes from the repository's ``HEAD`` file. Unreadable hook
-input and internal errors block in a desk run and pass elsewhere. Only the Python standard library is used.
+``git`` (with ``-C``), ``gh`` and script invocations. A program named ``git-<sub>`` in any folder, such as
+``/usr/lib/git-core/git-push``, counts as ``git <sub>``. Outside desk runs, an alias set with
+``git -c alias.<name>=<value>`` is expanded before the rules apply, a shell alias (``!...``) included.
+Aliases from config files, from ``--config-env`` or from ``GIT_CONFIG_*`` variables are not expanded, and
+commands git runs from its config, such as hooks, ``core.pager`` and ``core.sshCommand``, are not inspected.
+Programs other than ``git`` and ``gh``, such as ``curl``, are not inspected beyond rules 3 and 11, and neither
+is code a program runs on its own, such as ``python -c`` or a script file. The current branch comes from the
+repository's ``HEAD`` file. Unreadable hook input and internal errors block in a desk run and pass elsewhere.
+Only the Python standard library is used.
 """
 
 import fnmatch
@@ -82,21 +99,34 @@ SCHEDULING_TOOLS = frozenset({"CronCreate", "CronDelete", "CronList", "RemoteTri
 DENY_LIST_NAME = ".desk-guard.json"
 DENY_LIST_KEYS = ("deny_bash", "deny_tools", "deny_paths", "deny_urls")
 
-# git options that take the next word as their value, before and after the "push" subcommand
+# git options that take the next word as their value, before and after the "push" subcommand. No push
+# switch is a prefix of a push option here, so an abbreviation of one of these takes a value too.
 GIT_OPTIONS_WITH_VALUE = frozenset({"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--config-env"})
-PUSH_OPTIONS_WITH_VALUE = frozenset({"--repo", "-o", "--push-option", "--receive-pack", "--exec"})
+PUSH_OPTIONS_WITH_VALUE = frozenset(
+    {"--repo", "-o", "--push-option", "--receive-pack", "--exec", "--recurse-submodules"},
+)
+# git options that set a config value for one call ("-c alias.p=push"), and a key in the alias section
+GIT_CONFIG_OPTIONS = frozenset({"-c", "--config-env"})
+ALIAS_KEY = re.compile(r"alias(?:\.|$)", re.IGNORECASE)
 PUSH_EVERY_BRANCH = frozenset({"--all", "--mirror", "--branches"})
 PUSH_DRY_RUN = frozenset({"--dry-run", "-n"})
 # Push options a desk run may not use: they force, delete or send more than the named branch
 DESK_PUSH_FORBIDDEN = frozenset(
     {"--all", "--branches", "--delete", "--follow-tags", "--force", "--force-with-lease", "--mirror", "--prune"}
-    | {"--tags", "-d", "-f"},
+    | {"--recurse-submodules", "--tags", "-d", "-f"},
 )
 # git subcommands a subagent may run in a desk run; "config" is allowed with --get only
 SUBAGENT_GIT_SUBCOMMANDS = frozenset(
     {"status", "log", "show", "diff", "grep", "ls-files", "ls-remote", "ls-tree", "rev-parse", "rev-list"}
     | {"merge-base", "blame", "cat-file", "fetch", "describe", "shortlog", "for-each-ref", "show-ref"},
 )
+# git fetch options that take the next word as their value, matched in full only, and the options that set
+# a refspec of their own, matched in any abbreviation
+FETCH_OPTIONS_WITH_VALUE = frozenset(
+    {"--deepen", "--depth", "--filter", "--jobs", "--negotiation-tip", "--server-option", "--shallow-exclude"}
+    | {"--shallow-since", "--upload-pack", "-j", "-o"},
+)
+FETCH_REFSPEC_OPTIONS = frozenset({"--refmap", "--stdin"})
 
 # gh api options that take a value, and what the value sets
 GH_API_OPTIONS_WITH_VALUE = {
@@ -132,14 +162,20 @@ DESK_API_WRITES = (
 DESK_SCRIPTS: dict[str, frozenset[str] | None] = {
     "desk_pr_body.py": None,
     "desk_queue.py": frozenset({"add", "init", "remove", "snooze"}),
+    "main.py": None,
     "merge_data.py": None,
     "sort_yaml.py": None,
 }
+# Scripts with a common name, which count only in a folder named utils
+UTILS_ONLY_SCRIPTS = frozenset({"main.py"})
 # pixi.toml tasks that run one of them, and the pixi run options that take a value
-PIXI_TASKS = {"sort": "sort_yaml.py", "links": "sort_yaml.py"}
+PIXI_TASKS = {"sort": "sort_yaml.py", "links": "sort_yaml.py", "merge": "main.py"}
 PIXI_RUN_OPTIONS_WITH_VALUE = frozenset({"-e", "--environment", "--manifest-path"})
 # Programs that run a script named among their arguments
 SCRIPT_RUNNER = re.compile(r"(?:python|pypy)[0-9.]*|uvx?|pixi|poetry|pipenv|pdm|hatch|rye|conda|mamba|micromamba")
+# The -m option of a Python interpreter, alone or after other switches, with the module attached or not:
+# "-m", "-Im", "-mutils.sort_yaml"
+MODULE_OPTION = re.compile(r"-[bBdEhiIOPqRsSuvVx]*m(.*)")
 
 # Shell reserved words that can stand before a command: "do git push", "if ! git push", "{ git push; }"
 RESERVED_WORDS = frozenset({"!", "{", "}", "if", "then", "elif", "else", "do", "while", "until", "coproc"})
@@ -186,6 +222,14 @@ class BlockError(Exception):
 
 class BadInputError(ValueError):
     """Raised when the hook input is not a PreToolUse JSON object."""
+
+
+class GitCommand(NamedTuple):
+    """Where the subcommand of a ``git`` call starts, the directory git works in and its config settings."""
+
+    index: int
+    directory: str
+    settings: list[tuple[str, str]]  # (option, value) for each -c and --config-env
 
 
 class PushArguments(NamedTuple):
@@ -430,7 +474,7 @@ def simple_commands(command: str, cwd: str, depth: int = 0) -> list[tuple[list[s
     return found
 
 
-def git_subcommand(args: list[str], directory: str) -> tuple[int, str]:
+def git_subcommand(args: list[str], directory: str) -> GitCommand:
     """Find the subcommand of a ``git`` invocation behind its global options.
 
     Parameters
@@ -442,16 +486,104 @@ def git_subcommand(args: list[str], directory: str) -> tuple[int, str]:
 
     Returns
     -------
-    tuple[int, str]
-        The index of the subcommand in ``args`` (``len(args)`` when there is none) and the directory git
-        works in, which ``-C`` changes.
+    GitCommand
+        The index of the subcommand in ``args`` (``len(args)`` when there is none), the directory git
+        works in, which ``-C`` changes, and the values of ``-c`` and ``--config-env``.
     """
     index = 0
+    settings: list[tuple[str, str]] = []
     while index < len(args) and args[index].startswith("-"):
-        if args[index] == "-C" and index + 1 < len(args):
-            directory = str(Path(directory, Path(args[index + 1]).expanduser()))
-        index += 2 if args[index] in GIT_OPTIONS_WITH_VALUE else 1
-    return min(index, len(args)), directory
+        option = args[index]
+        value = args[index + 1] if option in GIT_OPTIONS_WITH_VALUE and index + 1 < len(args) else None
+        if option == "-C" and value is not None:
+            directory = str(Path(directory, Path(value).expanduser()))
+        elif option in GIT_CONFIG_OPTIONS and value is not None:
+            settings.append((option, value))
+        elif option.startswith("--config-env="):
+            settings.append(("--config-env", option.removeprefix("--config-env=")))
+        index += 2 if option in GIT_OPTIONS_WITH_VALUE else 1
+    return GitCommand(min(index, len(args)), directory, settings)
+
+
+def git_aliases(settings: list[tuple[str, str]]) -> dict[str, str]:
+    """Return the aliases that ``-c alias.<name>=<value>`` settings define.
+
+    Parameters
+    ----------
+    settings : list[tuple[str, str]]
+        The ``-c`` and ``--config-env`` values of a git call. A ``--config-env`` value names an environment
+        variable, not the alias, so it is left out.
+
+    Returns
+    -------
+    dict[str, str]
+        Each alias name in lower case, as git matches it, and the last value set for it.
+    """
+    aliases = {}
+    for option, setting in settings:
+        key, equals, value = setting.partition("=")
+        section, dot, name = key.partition(".")
+        if option == "-c" and equals and dot and section.lower() == "alias":
+            aliases[name.lower()] = value
+    return aliases
+
+
+def split_alias(value: str) -> list[str]:
+    """Split an alias value into words the way git does, falling back to whitespace on unbalanced quotes."""
+    try:
+        return shlex.split(value)
+    except ValueError:
+        return value.split()
+
+
+def long_option(word: str, options: frozenset[str]) -> str | None:
+    """Return the long option of ``options`` that ``word`` names, written out or abbreviated.
+
+    git reads any unambiguous prefix of a long option as that option (``--force-w`` is
+    ``--force-with-lease``), with or without ``=value``. A prefix that fits several options makes git fail,
+    so counting it as the first of them blocks nothing git would run.
+
+    Parameters
+    ----------
+    word : str
+        An argument, such as ``--mirr`` or ``--force-w=main:abc``.
+    options : frozenset[str]
+        The option names to look for; short options among them never match.
+
+    Returns
+    -------
+    str | None
+        The option, or None when ``word`` is not a long option or names none of them.
+    """
+    name = word.partition("=")[0]
+    if not name.startswith("--"):
+        return None
+    if name in options:
+        return name
+    return next((option for option in sorted(options) if option.startswith(name)), None)
+
+
+def named_options(flags: frozenset[str], options: frozenset[str]) -> list[str]:
+    """Return the flags that name one of ``options``, each with the option it stands for when abbreviated.
+
+    Parameters
+    ----------
+    flags : frozenset[str]
+        Option names from a command line, such as ``-f`` or ``--del``.
+    options : frozenset[str]
+        The options to look for.
+
+    Returns
+    -------
+    list[str]
+        Sorted descriptions such as ``-f``, ``--delete`` or ``--del (--delete)``.
+    """
+    found = []
+    for flag in sorted(flags):
+        option = flag if flag in options else long_option(flag, options)
+        if option is not None:
+            found.append(flag if option == flag else f"{flag} ({option})")
+    return found
 
 
 def parse_push(args: list[str]) -> PushArguments:
@@ -465,8 +597,8 @@ def parse_push(args: list[str]) -> PushArguments:
     Returns
     -------
     PushArguments
-        The positionals, the option names (a bundle such as ``-fu`` gives ``-f`` and ``-u``) and the
-        ``--repo`` value.
+        The positionals, the option names as written (a bundle such as ``-fu`` gives ``-f`` and ``-u``) and
+        the ``--repo`` value. An abbreviated long option takes a value as the option it stands for does.
     """
     positionals: list[str] = []
     flags: set[str] = set()
@@ -481,10 +613,10 @@ def parse_push(args: list[str]) -> PushArguments:
         if arg.startswith("--"):
             name, equals, value = arg.partition("=")
             flags.add(name)
-            if name in PUSH_OPTIONS_WITH_VALUE and not equals:
+            if long_option(name, PUSH_OPTIONS_WITH_VALUE) and not equals:
                 value = args[index] if index < len(args) else ""
                 index += 1
-            if name == "--repo":
+            if long_option(name, frozenset({"--repo"})):
                 repo_option = value
         elif arg.startswith("-") and arg != "-":
             for position, char in enumerate(arg[1:], start=2):
@@ -562,9 +694,10 @@ def push_reason(push: PushArguments, directory: str) -> str | None:
     str | None
         The block reason, or None.
     """
-    if push.flags & PUSH_DRY_RUN:
+    # A later --no-dry-run or --no-tags undoes the option, so either one in any spelling ends the exemption
+    if push.flags & PUSH_DRY_RUN and not named_options(push.flags, frozenset({"--no-dry-run"})):
         return None
-    every_branch = sorted(push.flags & PUSH_EVERY_BRANCH)
+    every_branch = named_options(push.flags, PUSH_EVERY_BRANCH)
     if every_branch:
         return f"git push {every_branch[0]} also pushes main"
 
@@ -572,7 +705,7 @@ def push_reason(push: PushArguments, directory: str) -> str | None:
     # this blocks at least what git would push to main.
     refspecs = push.positionals if push.repo_option is not None else push.positionals[1:]
     if not refspecs:
-        if "--tags" in push.flags and "--follow-tags" not in push.flags:
+        if "--tags" in push.flags and not named_options(push.flags, frozenset({"--follow-tags", "--no-tags"})):
             return None  # pushes refs/tags/* only
         branch = current_branch(directory)
         if branch in PROTECTED_BRANCHES:
@@ -607,7 +740,7 @@ def desk_push_reason(push: PushArguments, directory: str) -> str | None:
     str | None
         The block reason, or None.
     """
-    forbidden = sorted(push.flags & DESK_PUSH_FORBIDDEN)
+    forbidden = named_options(push.flags, DESK_PUSH_FORBIDDEN)
     if forbidden:
         return f"git push {forbidden[0]} is off limits in desk runs"
     # git reads the first positional as the remote, even after --repo
@@ -625,7 +758,72 @@ def desk_push_reason(push: PushArguments, directory: str) -> str | None:
     return None
 
 
-def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool) -> str | None:
+def config_reads(args: list[str]) -> bool:
+    """Return True when ``git config`` only reads: ``--get`` comes before the first word that is not an option.
+
+    git config stops reading options at that word, so a later ``--get`` is a value it writes
+    (``git config user.name --get``).
+
+    Parameters
+    ----------
+    args : list[str]
+        Words after ``config``.
+
+    Returns
+    -------
+    bool
+        Whether the call is a ``--get`` read.
+    """
+    for word in args:
+        if word == "--get":
+            return True
+        if word == "--" or not word.startswith("-"):
+            return False
+    return False
+
+
+def fetch_reason(args: list[str]) -> str | None:
+    """Return why a subagent's ``git fetch`` sets a refspec that writes local refs, or None.
+
+    Parameters
+    ----------
+    args : list[str]
+        Words after ``fetch``.
+
+    Returns
+    -------
+    str | None
+        The block reason, or None.
+    """
+    positionals: list[str] = []
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        index += 1
+        if arg == "--":
+            positionals.extend(args[index:])
+            break
+        if arg.startswith("--"):
+            name, equals, _ = arg.partition("=")
+            option = named_options(frozenset({name}), FETCH_REFSPEC_OPTIONS)
+            if option:
+                return f"git fetch {option[0]} sets a refspec, which subagents in desk runs may not do"
+            index += 1 if name in FETCH_OPTIONS_WITH_VALUE and not equals else 0
+        elif arg.startswith("-") and arg != "-":
+            for position, char in enumerate(arg[1:], start=2):
+                if f"-{char}" in FETCH_OPTIONS_WITH_VALUE:
+                    index += 1 if position == len(arg) else 0  # the value is attached or the next word
+                    break
+        else:
+            positionals.append(arg)
+    # The first positional is the remote; a refspec with a destination or a "+" writes a local ref
+    for refspec in positionals[1:]:
+        if ":" in refspec or refspec.startswith("+"):
+            return f"git fetch refspec {refspec!r} writes a local ref, which subagents in desk runs may not do"
+    return None
+
+
+def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool, depth: int = 0) -> str | None:
     """Return why a ``git`` invocation is blocked, or None.
 
     Parameters
@@ -638,13 +836,35 @@ def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool) -
         Whether this is a desk run.
     subagent : bool
         Whether a subagent of a desk run makes the call.
+    depth : int
+        Nesting level of shell strings already unwrapped, which a shell alias adds to.
 
     Returns
     -------
     str | None
         The block reason, or None.
     """
-    index, git_directory = git_subcommand(args, directory)
+    command = git_subcommand(args, directory)
+    if desk:
+        for option, setting in command.settings:
+            if ALIAS_KEY.match(setting):
+                return f"git {option} {setting} is off limits in desk runs: an alias can stand in for any git command"
+
+    # Outside desk runs, expand the aliases the call sets. git ignores an alias that hides one of its own
+    # commands, so none stands in for push itself; each alias is expanded once, as git stops at a loop.
+    aliases = {} if desk else git_aliases(command.settings)
+    while command.index < len(args) and args[command.index] != "push" and args[command.index].lower() in aliases:
+        value, rest = aliases.pop(args[command.index].lower()), args[command.index + 1 :]
+        if value.startswith("!"):
+            # A shell alias runs its command with the remaining words appended
+            if depth >= MAX_NESTING:
+                return None
+            shell_command = " ".join([value[1:], *(shlex.quote(word) for word in rest)])
+            return bash_reason(shell_command, command.directory, desk=desk, subagent=subagent, depth=depth + 1)
+        args = [*args[: command.index], *split_alias(value), *rest]
+        command = git_subcommand(args, directory)
+
+    index, git_directory = command.index, command.directory
     if index == len(args):
         return None
     subcommand, rest = args[index], args[index + 1 :]
@@ -657,7 +877,12 @@ def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool) -
             reason = desk_push_reason(push, git_directory)
             if reason:
                 return reason
-    if subagent and subcommand not in SUBAGENT_GIT_SUBCOMMANDS and not (subcommand == "config" and "--get" in rest):
+    reads = subcommand == "config" and config_reads(rest)
+    if desk and subcommand == "config" and not reads and any(ALIAS_KEY.match(word) for word in rest):
+        return "git config writes to alias keys are off limits in desk runs: an alias can stand in for any git command"
+    if subagent and subcommand == "fetch":
+        return fetch_reason(rest)
+    if subagent and subcommand not in SUBAGENT_GIT_SUBCOMMANDS and not reads:
         return f"git {subcommand} is off limits for subagents in desk runs; return a change set to the desk"
     return None
 
@@ -755,13 +980,45 @@ def gh_reason(args: list[str], *, desk: bool, subagent: bool) -> str | None:
     return f"gh api {method} {endpoint} is not a write desk runs may make"
 
 
-def desk_script(words: list[str]) -> str | None:
+def module_argument(words: list[str], index: int) -> str | None:
+    """Return the module that ``words[index]`` names after ``-m`` or ``--module``, or None.
+
+    Parameters
+    ----------
+    words : list[str]
+        The words of a simple command from the program on.
+    index : int
+        The word to look at.
+
+    Returns
+    -------
+    str | None
+        The module: the word itself after ``-m``, ``-Im`` or ``--module``, the part after ``-m`` in
+        ``-mutils.sort_yaml`` or after ``--module=``, or None.
+    """
+    word = words[index]
+    if word.startswith("--module="):
+        return word.removeprefix("--module=")
+    attached = MODULE_OPTION.fullmatch(word)
+    if attached and attached.group(1):
+        return attached.group(1)
+    if index > 0:
+        previous = words[index - 1]
+        before = MODULE_OPTION.fullmatch(previous)
+        if previous == "--module" or (before and not before.group(1)):
+            return word
+    return None
+
+
+def desk_script(words: list[str], directory: str) -> str | None:
     """Return the desk script a simple command runs, or None.
 
     Parameters
     ----------
     words : list[str]
         The words of a simple command from the program on.
+    directory : str
+        Directory the command runs in, which places a script named without a folder.
 
     Returns
     -------
@@ -772,10 +1029,14 @@ def desk_script(words: list[str]) -> str | None:
     if program not in DESK_SCRIPTS and not SCRIPT_RUNNER.fullmatch(program):
         return None
     for index, word in enumerate(words):
-        name = Path(word).name
-        if index > 0 and words[index - 1] == "-m":
-            name = word.rpartition(".")[2] + ".py"  # python -m utils.sort_yaml
-        if name not in DESK_SCRIPTS:
+        module = module_argument(words, index) if index > 0 else None
+        if module is not None:
+            # python -m utils.sort_yaml, or python -m main inside utils
+            package, _, leaf = module.rpartition(".")
+            name, folder = leaf + ".py", package.rpartition(".")[2] if package else Path(directory).name
+        else:
+            name, folder = Path(word).name, Path(directory, word).parent.name
+        if name not in DESK_SCRIPTS or (name in UTILS_ONLY_SCRIPTS and folder != "utils"):
             continue
         subcommands = DESK_SCRIPTS[name]
         if subcommands is None:
@@ -793,7 +1054,7 @@ def desk_script(words: list[str]) -> str | None:
     return None
 
 
-def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool) -> str | None:
+def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: int = 0) -> str | None:
     """Return why a Bash command is blocked, or None when no rule covers it.
 
     Parameters
@@ -806,21 +1067,26 @@ def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool) -> str | 
         Whether this is a desk run.
     subagent : bool
         Whether a subagent of a desk run makes the call.
+    depth : int
+        Nesting level of shell strings already unwrapped, such as the command of a git shell alias.
 
     Returns
     -------
     str | None
         The block reason, or None.
     """
-    for words, directory in simple_commands(command, cwd):
+    for words, directory in simple_commands(command, cwd, depth):
         program, rest = Path(words[0]).name, words[1:]
+        if program.startswith("git-") and len(program) > len("git-"):
+            # The dashed programs in git's exec path, such as git-push, run as the subcommand
+            program, rest = "git", [program.removeprefix("git-"), *rest]
         reason = None
         if program == "git":
-            reason = git_reason(rest, directory, desk=desk, subagent=subagent)
+            reason = git_reason(rest, directory, desk=desk, subagent=subagent, depth=depth)
         elif program == "gh":
             reason = gh_reason(rest, desk=desk, subagent=subagent)
         if reason is None and subagent:
-            script = desk_script(words)
+            script = desk_script(words, directory)
             if script:
                 reason = f"{script} is off limits for subagents in desk runs; return a change set to the desk"
         if reason:
