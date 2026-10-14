@@ -1,15 +1,18 @@
 ---
 name: new-year-checker
-description: Looks for an edition of a tracked conference series that the data lacks (the year the worklist item names, or the next one) and returns a new entry, a lead or a legacy suspect. Use when the desk hands over a worklist item whose skill is new-year-checker (stale series, missing editions, signals about archived series, maintainer requests for a new edition).
+description: Looks for an edition of a tracked conference series that the data lacks (the year the worklist item or its queue year names, or the next one) and returns a new entry, a lead or a legacy suspect. Use when the desk hands over a worklist item whose skill is new-year-checker (stale series, missing editions, signals about archived series, maintainer requests for a new edition).
 ---
 
 # New-year checker
 
-The desk hands you one tracked series and the edition it lacks: the item's `year`, or, when `year` is null, the edition after `latest_edition`, the newest in the data. The queue items that point at it come along. Find that edition and return change sets in the shape AGENTS.md "Change sets" gives. You research; the desk edits the data. Field, name and evidence rules are in AGENTS.md.
+The desk hands you one tracked series and the edition it lacks, which step 1 settles from the item's `year` and `context`. The queue items that point at it come along, and `latest_edition` is the newest edition in the data. Find that edition and return change sets in the shape AGENTS.md "Change sets" gives. You research; the desk edits the data. Field, name and evidence rules are in AGENTS.md.
 
 ## Steps
 
-1. **Load** every edition of the series from all three data files, by `conference` and `alt_name`. Return `no-change` naming the edition only when the data already holds the edition for the item's `year` or, when `year` is null, an edition that has not ended. Otherwise look for the edition the item names.
+1. **Load** every edition of the series from all three data files, by `conference` and `alt_name`, and settle the edition you look for:
+   - `year` is set: that edition. Return `no-change` naming it when the data holds it.
+   - `year` is null and `context.queue_year` names an edition the data lacks: that edition, since past editions are recorded too (AGENTS.md "Complete data").
+   - otherwise: the edition after `latest_edition`. Return `no-change` naming the edition when the data holds one that has not ended.
    Done when: you know which edition you are looking for, and the latest edition's year, `link`, `cfp_link`, CfP platform slug and socials.
 2. **Search**, starting from the queue items, then cheapest first, noting each outcome:
    - the queue items' URLs and payload fields (a candidate's `fields` and `evidence_url`), and the URLs a `maintainer-request` comment gives. Cite that comment, which passed the desk's maintainer check (desk.md step 5), for what no page states; never cite any other comment. A candidate's `flags`:

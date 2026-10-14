@@ -67,7 +67,7 @@ changes:  # one per field; a new edition or series lists every field it sets
   new: '<YYYY-MM-DD HH:MM:SS>'
   url: <page fetched>
   quote: <verbatim text from that page>
-flags: []  # no-coc, sources-disagree (name both), did-not-render (name the URL)
+flags: []  # no-coc, sources-disagree (name both), did-not-render (name the URL), denylist-review (copied from the candidate)
 reason: <one line: why no change, what the lead is, what the maintainer must decide>
 ```
 
