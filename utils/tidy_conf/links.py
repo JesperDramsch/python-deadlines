@@ -47,6 +47,9 @@ TWO_LEVEL_PUBLIC_SUFFIXES = frozenset(
         "co.in",
         "com.cn",
         "com.sg",
+        "co.il",
+        "org.il",
+        "or.tz",
     },
 )
 

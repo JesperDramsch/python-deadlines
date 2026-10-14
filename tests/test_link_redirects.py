@@ -63,6 +63,9 @@ class TestRegistrableDomain:
             ("pyconuk.co.uk", "pyconuk.co.uk"),
             ("www.pydata.co.uk", "pydata.co.uk"),
             ("pycon.jp", "pycon.jp"),
+            ("pycon.or.tz", "pycon.or.tz"),
+            ("cfp.pycon.org.il", "pycon.org.il"),
+            ("example.co.il", "example.co.il"),
         ],
     )
     def test_registrable_domain(self, host, expected):
@@ -92,6 +95,9 @@ class TestRegistrableDomain:
             "co.in",
             "com.cn",
             "com.sg",
+            "co.il",
+            "org.il",
+            "or.tz",
         }
         assert required <= links.TWO_LEVEL_PUBLIC_SUFFIXES
 
@@ -106,6 +112,12 @@ class TestIsDifferentSite:
             ("https://pytennessee.org/", "https://infojudislotonline.com/"),
             ("https://example.co.uk/", "https://other.co.uk/"),
             ("https://pycon.org.au/", "https://pyconau.org.au/"),
+            # Two-level suffixes used by current entries: a lapsed domain that
+            # lands on another site under the same suffix is a different site.
+            ("https://pycon.or.tz/", "https://squatter.or.tz/"),
+            ("https://pycon.org.il/", "https://parked.org.il/"),
+            ("https://cfp.pycon.org.il/", "https://parked.org.il/"),
+            ("https://example.co.il/", "https://other.co.il/"),
         ],
     )
     def test_different_sites(self, url, other):
@@ -122,6 +134,7 @@ class TestIsDifferentSite:
             ("https://ug.pycon.org/", "https://africa.pycon.org/"),
             ("https://a.example.co.uk/", "https://b.example.co.uk/"),
             ("https://2026.pycon.org.au/", "https://pycon.org.au/"),
+            ("https://cfp.pycon.org.il/", "https://pycon.org.il/"),
         ],
     )
     def test_same_site(self, url, other):
