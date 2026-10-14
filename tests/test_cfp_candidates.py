@@ -145,9 +145,24 @@ class TestFindCandidates:
         assert find_candidates([edition("Kiwi PyCon", 2026)], [edition("PyCon NZ", 2025)], current_year=2026) == []
 
     def test_any_archived_alt_name_counts(self):
+        """The alt_name of an older edition still tracks the series, so a rename is not lost."""
         archive = [edition("PyCon Old Name", 2024, alt_name="PyCon New Name"), edition("PyCon Old Name", 2025)]
         current = [edition("PyCon New Name", 2026)]
         assert find_candidates(current, archive, current_year=2026) == []
+
+    def test_host_alt_name_hides_the_series(self):
+        """Known cost of the rule above: an old edition named after its host hides the series.
+
+        The 2023 edition was hosted by PyCon Japan and carries it as alt_name, so the
+        upcoming PyCon Japan tracks PyCon Asia Pacific although it has no entry of its own.
+        """
+        archive = [
+            edition("PyCon Asia Pacific", 2025, alt_name="PyCon Philippines"),
+            edition("PyCon Asia Pacific", 2023, alt_name="PyCon Japan"),
+        ]
+        current = [edition("PyCon Japan", 2027)]
+        assert find_candidates(current, archive, current_year=2026) == []
+        assert names(find_candidates(current, archive[:1], current_year=2026)) == ["PyCon Asia Pacific"]
 
     def test_spellings_grouped_into_one_series(self):
         archive = [edition("PyCon Mini Tokai", 2024), edition("PyCon mini Tokai", 2025)]

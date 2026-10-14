@@ -12,7 +12,10 @@ ignoring case, accents and whitespace, so "Xtreme Python" and "XtremePython"
 are the same series.
 
 Intended for the cfp-scout routine: run once at session start, then work
-from the JSON instead of re-reading the data files.
+from the JSON instead of re-reading the data files. It needs the same
+packages as sort_yaml.py (the pixi or uv environment), not PyYAML alone:
+the title normalisation in tidy_conf imports pandas, pydantic, thefuzz and
+tqdm.
 """
 
 import argparse
@@ -189,6 +192,10 @@ def find_candidates(
         if not isinstance(name, str) or not name.strip():
             continue
         info = series.setdefault(series_key(name, known_mappings), {"keys": set(), "latest": None})
+        # The names of every archived edition count, not only the latest one's, so a
+        # renamed series stays tracked under its old name. The known cost: an edition
+        # whose alt_name is its host conference (a regional event run by one national
+        # PyCon) hides the whole series for as long as the host has an entry.
         info["keys"] |= entry_keys(conf, known_mappings)
         if info["latest"] is None or (conf.get("year") or 0) > (info["latest"].get("year") or 0):
             info["latest"] = conf
