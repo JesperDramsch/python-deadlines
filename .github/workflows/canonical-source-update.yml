@@ -27,9 +27,10 @@ on:
         type: boolean
         default: false
 
-# Prevent concurrent runs to avoid merge conflicts on the accumulator branch
+# One group with enrich-tba-conferences.yml: both write to the accumulator
+# branch, so their runs queue behind each other instead of racing.
 concurrency:
-  group: canonical-source-update
+  group: auto-conference-updates
   cancel-in-progress: false
 
 permissions:
@@ -94,20 +95,30 @@ jobs:
           echo "- **Event:** $EVENT_NAME" >> $GITHUB_STEP_SUMMARY
           echo "- **Source:** $SOURCE" >> $GITHUB_STEP_SUMMARY
 
+      # Before the branch setup, which runs utils/merge_data.py on a conflict
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.10.2
+
       - name: Setup accumulator branch
+        id: setup
         run: |
           git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
 
-          if git ls-remote --heads origin $UPDATE_BRANCH | grep -q $UPDATE_BRANCH; then
+          if git ls-remote --heads origin "$UPDATE_BRANCH" | grep -q "$UPDATE_BRANCH"; then
             echo "::notice title=Branch::Checking out existing accumulator branch"
-            git fetch origin $UPDATE_BRANCH
-            git checkout $UPDATE_BRANCH
+            git fetch origin "$UPDATE_BRANCH"
+            git checkout "$UPDATE_BRANCH"
+            echo "existed=true" >> "$GITHUB_OUTPUT"
+            echo "tip=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
             # Sync with main by merging, never rebasing: the desk pushes to this
-            # branch too, and a rebase would rewrite its commits. A merge
-            # conflict fails the job: resolving it in favour of main would
+            # branch too, and a rebase would rewrite its commits. Once both
+            # sides have sorted the data, git conflicts in _data even where no
+            # field changed on both sides, so merge_data.py merges the entries
+            # field by field. Any other conflict, or a field both sides
+            # changed, fails the job: resolving it in favour of main would
             # silently drop the changes already on this branch.
-            if ! git merge origin/main --no-edit; then
+            if ! { git merge origin/main --no-edit || { pixi run python utils/merge_data.py && git commit --no-edit; }; }; then
               CONFLICTS=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
               git merge --abort 2>/dev/null || true
               echo "::error title=Branch Sync Conflict::${CONFLICTS:-git merge origin/main failed with no conflicted files}"
@@ -115,7 +126,8 @@ jobs:
             fi
           else
             echo "::notice title=Branch::Creating new accumulator branch"
-            git checkout -b $UPDATE_BRANCH
+            git checkout -b "$UPDATE_BRANCH"
+            echo "existed=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Snapshot data files
@@ -123,9 +135,6 @@ jobs:
           cp _data/conferences.yml /tmp/conferences_before.yml
           cp _data/archive.yml /tmp/archive_before.yml 2>/dev/null || true
           cp _data/legacy.yml /tmp/legacy_before.yml 2>/dev/null || true
-
-      - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.10.2
 
       - name: Run merge scripts
         id: merge
@@ -214,6 +223,8 @@ jobs:
         id: commit
         env:
           SOURCE: ${{ steps.source.outputs.source }}
+          BRANCH_EXISTED: ${{ steps.setup.outputs.existed }}
+          SETUP_TIP: ${{ steps.setup.outputs.tip }}
         run: |
           git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
 
@@ -234,10 +245,63 @@ jobs:
           esac
 
           git commit -m "$COMMIT_MSG" -m "Source: canonical-$SOURCE" -m "Triggered: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push origin "HEAD:$UPDATE_BRANCH"
+          # The PR row links this commit, not a merge the retries below may add
+          COMMIT_SHA=$(git rev-parse HEAD)
 
-          echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          # Merging the rolling PR deletes this branch, and a push after that
+          # would recreate it from this run's old history. Stop instead when
+          # the branch existed at setup and is now gone, or no longer holds the
+          # commit this run started from. The next run starts fresh from main.
+          stop_if_rolling_pr_merged() {
+            [ "$BRANCH_EXISTED" = "true" ] || return 0
+            REMOTE_STATUS=0
+            REMOTE=$(git ls-remote --exit-code origin "refs/heads/$UPDATE_BRANCH") || REMOTE_STATUS=$?
+            if [ "$REMOTE_STATUS" = 2 ]; then
+              echo "::error title=Rolling PR Merged::$UPDATE_BRANCH was deleted on origin after this run started: the rolling PR was merged or closed. Not recreating it from old history: the next run starts fresh from main."
+              exit 1
+            fi
+            REMOTE_TIP=${REMOTE%%[[:space:]]*}
+            if [ "$REMOTE_STATUS" = 0 ] && git cat-file -e "$REMOTE_TIP^{commit}" 2>/dev/null \
+              && ! git merge-base --is-ancestor "$SETUP_TIP" "$REMOTE_TIP"; then
+              echo "::error title=Rolling PR Merged::$UPDATE_BRANCH on origin no longer holds the commit this run started from: the rolling PR was merged or closed and the branch started again. Not pushing old history to it: the next run starts fresh from main."
+              exit 1
+            fi
+          }
+
+          # The desk pushes to this branch too. A rejected push fetches the
+          # branch, merges it (data conflicts through merge_data.py) and tries
+          # again, up to five times. Never force.
+          PUSHED=false
+          for ATTEMPT in 1 2 3 4 5; do
+            stop_if_rolling_pr_merged
+            if git push origin "HEAD:$UPDATE_BRANCH"; then
+              PUSHED=true
+              break
+            fi
+            echo "::warning title=Push Rejected::Push $ATTEMPT of 5 to $UPDATE_BRANCH failed"
+            if [ "$ATTEMPT" = 5 ]; then
+              break
+            fi
+            if ! git fetch origin "$UPDATE_BRANCH"; then
+              sleep $((ATTEMPT * 10))
+              continue
+            fi
+            stop_if_rolling_pr_merged
+            if ! { git merge "origin/$UPDATE_BRANCH" --no-edit || { pixi run python utils/merge_data.py && git commit --no-edit; }; }; then
+              CONFLICTS=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
+              git merge --abort 2>/dev/null || true
+              echo "::error title=Push Merge Conflict::${CONFLICTS:-git merge origin/$UPDATE_BRANCH failed with no conflicted files}"
+              exit 1
+            fi
+          done
+
+          if [ "$PUSHED" != "true" ]; then
+            echo "::error title=Push Failed::Could not push to $UPDATE_BRANCH after 5 attempts"
+            exit 1
+          fi
+
+          echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+          echo "commit_msg=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
 
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
