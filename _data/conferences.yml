@@ -840,8 +840,10 @@
   place: Bologna, Italy
   start: 2027-06-02
   end: 2027-06-05
+  sponsor: https://2027.pycon.it/en/sponsor
   twitter: PyConIT
   mastodon: https://social.python.it/@pycon
+  youtube: https://www.youtube.com/playlist?list=PLUWPlMGp2t18
   sub: PY
   location:
   - title: PyCon Italy 2027
@@ -952,6 +954,7 @@
   place: Beijing, China
   start: 2026-12-12
   end: 2026-12-12
+  youtube: https://www.youtube.com/pytorch
   sub: DATA,DAY
   location:
   - title: Pytorch Day China 2026
