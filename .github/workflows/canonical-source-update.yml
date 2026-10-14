@@ -29,6 +29,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  # actions: write lets the job start the TBA enrichment run
+  actions: write
   contents: write
   pull-requests: write
 
@@ -153,8 +155,10 @@ jobs:
           # Capture which source was processed for commit message
           echo "source_label=$SOURCE" >> $GITHUB_OUTPUT
 
+      # A queue problem must not hold back the data merge.
       - name: Queue the merge's open questions for the desk
         if: inputs.dry_run != true
+        continue-on-error: true
         uses: ./.github/actions/desk-queue-write
         with:
           records: ${{ runner.temp }}/desk-records.jsonl

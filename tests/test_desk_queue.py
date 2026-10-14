@@ -11,6 +11,7 @@ import pytest
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
+from desk_queue import MAX_HANDLED_PER_FILE
 from desk_queue import MAX_ITEMS_PER_FILE
 from desk_queue import MAX_STRING_LENGTH
 from desk_queue import README
@@ -107,6 +108,24 @@ class TestNormaliseRecord:
     def test_id_depends_on_the_payload(self):
         assert normalise_record(signal(diff="a"), NOW)["id"] != normalise_record(signal(diff="b"), NOW)["id"]
 
+    def test_redirect_id_ignores_status_and_query(self):
+        def redirect(final_url, status):
+            payload = {"conference": "PyTennessee", "year": 2019, "field": "sponsor"}
+            payload.update(final_url=final_url, status=status)
+            record = {
+                "source": "link-check",
+                "kind": "redirect",
+                "title": "PyTennessee",
+                "url": "https://pytennessee.org/p",
+            }
+            return normalise_record({**record, "payload": payload}, NOW)
+
+        first = redirect("https://casino.example/landing?session=1#top", 200)
+        second = redirect("https://casino.example/landing?session=2", 403)
+        assert first["id"] == second["id"]
+        assert first["payload"]["final_url"] == "https://casino.example/landing?session=1#top"
+        assert redirect("https://other.example/landing", 200)["id"] != first["id"]
+
     def test_long_strings_are_cut_and_flagged(self):
         item = normalise_record(signal(diff="x" * (MAX_STRING_LENGTH + 5)), NOW)
         assert len(item["payload"]["diff"]) == MAX_STRING_LENGTH
@@ -195,14 +214,40 @@ class TestAddItems:
 
 
 class TestRemoveItems:
-    def test_removes_and_deletes_empty_files(self, tmp_path):
+    def test_removes_and_remembers(self, tmp_path):
         italia = signal(title="PyCon Italia 2027 - Main", url="https://pycon.it/")
         first, second = add_items(tmp_path, [signal(), italia], NOW)
         removed = remove_items(tmp_path, [first["id"], "missing"])
         assert removed == {first["id"]}
-        assert not (tmp_path / "queue" / "pycon-greece.json").exists()
-        assert (tmp_path / "queue" / "pycon-italia.json").exists()
+        document = read(tmp_path / "queue" / "pycon-greece.json")
+        assert document["items"] == []
+        assert document["handled"] == [first["id"]]
+        assert read(tmp_path / "queue" / "pycon-italia.json")["handled"] == []
         assert [row["id"] for row in list_items(tmp_path)] == [second["id"]]
+
+    def test_handled_finding_is_not_queued_again(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+        remove_items(tmp_path, [first["id"]])
+        (again,) = add_items(tmp_path, [signal(received="2026-10-21T06:00:00Z")], NOW)
+        assert again == {"file": "queue/pycon-greece.json", "id": first["id"], "status": "handled"}
+        assert read(tmp_path / "queue" / "pycon-greece.json")["items"] == []
+
+    def test_changed_finding_is_queued(self, tmp_path):
+        (first,) = add_items(tmp_path, [signal()], NOW)
+        remove_items(tmp_path, [first["id"]])
+        (changed,) = add_items(tmp_path, [signal(diff="CfP extended to 15 March")], NOW)
+        assert changed["status"] == "added"
+
+    def test_keeps_the_latest_handled_ids(self, tmp_path):
+        ids = []
+        for batch in range(0, MAX_HANDLED_PER_FILE + 3, 40):
+            records = [signal(diff=f"change {n}") for n in range(batch, min(batch + 40, MAX_HANDLED_PER_FILE + 3))]
+            added = [result["id"] for result in add_items(tmp_path, records, NOW)]
+            remove_items(tmp_path, added)
+            ids.extend(added)
+        handled = read(tmp_path / "queue" / "pycon-greece.json")["handled"]
+        assert len(ids) == MAX_HANDLED_PER_FILE + 3
+        assert handled == ids[-MAX_HANDLED_PER_FILE:]
 
     def test_keeps_other_items_in_the_file(self, tmp_path):
         first, second = add_items(tmp_path, [signal(), signal(diff="other")], NOW)
@@ -212,6 +257,33 @@ class TestRemoveItems:
     def test_no_queue_directory(self, tmp_path):
         assert remove_items(tmp_path, ["x"]) == set()
         assert list_items(tmp_path) == []
+
+    def test_broken_files_are_skipped(self, tmp_path, capsys):
+        (first,) = add_items(tmp_path, [signal(title="PyCon Italia 2027 - Main", url="https://pycon.it/")], NOW)
+        (tmp_path / "queue" / "pycon-greece.json").write_text('{"items": [},', encoding="utf-8")
+        assert [row["id"] for row in list_items(tmp_path)] == [first["id"]]
+        assert remove_items(tmp_path, [first["id"]]) == {first["id"]}
+        assert "skipping queue/pycon-greece.json" in capsys.readouterr().err
+
+
+class TestBrokenFile:
+    def test_moved_aside_and_writers_carry_on(self, tmp_path):
+        add_items(tmp_path, [signal()], NOW)
+        broken = tmp_path / "queue" / "pycon-greece.json"
+        broken.write_text('{"items": [},', encoding="utf-8")
+        italia = signal(title="PyCon Italia 2027 - Main", url="https://pycon.it/")
+        results = add_items(tmp_path, [signal(diff="new"), italia], NOW)
+        assert "moved to queue/pycon-greece.json.bad" in results[0]["error"]
+        assert [result.get("status") for result in results[1:]] == ["added", "added"]
+        assert (tmp_path / "queue" / "pycon-greece.json.bad").read_text(encoding="utf-8") == '{"items": [},'
+        assert [item["payload"]["diff"] for item in read(broken)["items"]] == ["new"]
+
+    def test_file_without_items_list(self, tmp_path):
+        (tmp_path / "queue").mkdir()
+        (tmp_path / "queue" / "pycon-greece.json").write_text('{"series": "PyCon Greece"}', encoding="utf-8")
+        results = add_items(tmp_path, [signal()], NOW)
+        assert "no items list" in results[0]["error"]
+        assert results[1]["status"] == "added"
 
 
 class TestInit:
@@ -280,7 +352,7 @@ class TestCli:
         assert main(["add", str(tmp_path / "q"), "--jsonl", str(records)]) == 0
         captured = capsys.readouterr()
         assert captured.out.startswith("added queue/pycon-greece.json ")
-        assert captured.err.count("skipped a record") == 2
+        assert captured.err.count("desk_queue: record rejected: ") == 2
         assert (tmp_path / "q" / "README.md").exists()
 
     def test_add_from_options(self, tmp_path, capsys):
