@@ -138,8 +138,8 @@ class TestAltNames:
 class TestDenylist:
     def test_repository_list_loads(self):
         denylist = load_denylist()
-        assert "codehut.co.uk" in denylist["reject"]
-        assert "pyconf.org" in denylist["review"]
+        assert denylist["reject"]["codehut.co.uk"]
+        assert denylist["review"]["pyconf.org"]
 
     @pytest.mark.parametrize(
         ("url", "expected"),
