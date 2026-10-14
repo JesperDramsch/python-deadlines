@@ -1,0 +1,32 @@
+# Domains the critic checks every proposed new series against (.claude/skills/critic/SKILL.md).
+# A domain also covers its subdomains. Each reason records what was observed on 2026-10-14.
+# reject: the critic rejects a find on the domain and cites the reason.
+# review: the critic returns needs-maintainer for a find on the domain.
+reject:
+- domain: novelticsconferences.com
+  reason: redirects to noveltics.org (see its entry)
+- domain: noveltics.org
+  reason: preventive medicine, dentistry, data science and psychology events on the same dates and city (19-20 October 2026, Rome)
+- domain: averconferences.com
+  reason: AI, nursing, dentistry and neurology events from one organiser; home page carries template text about infrastructure monitoring
+- domain: vartusconferences.com
+  reason: medicine, science and technology events from one organiser; claims "years of expertise", domain registered 2025-05-17
+- domain: scientificmeditech.com
+  reason: medical, science and technology events from one organiser; home page reads "arranging logical gatherings"
+- domain: vividglobalsummits.com
+  reason: home page title names another event ("AGSLOP2025 | Optics Conferences | Lasers Conferences")
+- domain: thesciencequest.org
+  reason: conferences and journal publishing across diverse disciplines from one company; footer "Organized By" left empty
+- domain: bitcongress.com
+  reason: congresses across unrelated fields (life sciences, medicine, IT, ocean technology, finance) from one organiser
+- domain: cyberfuture2027.com
+  reason: single-edition domain registered 2026-08-24; organiser named only as "Alliance"; no Python content
+- domain: icraias2027.com
+  reason: home page is an empty shell (title only); single-edition domain registered 2026-04-29
+- domain: codeuk.net
+  reason: serves a challenge page (HTTP 403) instead of content
+- domain: codehut.co.uk
+  reason: domain does not resolve (no address record); registered 2026-06-03
+review:
+- domain: pyconf.org
+  reason: domain registered 2026-10-08 while claiming a CfP that closed 2026-08-31
