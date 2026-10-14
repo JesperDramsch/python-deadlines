@@ -80,6 +80,7 @@ You can enhance your entry with these optional fields:
 -   `timezone`: IANA timezone (defaults to AoE if omitted)
 -   `sponsor`: Sponsorship page URL
 -   `finaid`: Financial aid information URL
+-   `coc`: Code of Conduct URL
 -   `twitter`: Conference Twitter handle
 -   `mastodon`: Conference Mastodon URL
 -   `note`: Additional important information

@@ -15,6 +15,7 @@
   end: YYYY-MM-DD # End date of conference for calendar
   sponsor: link-to-sponsor.page # URL to Sponsorship page (Optional)
   finaid: link-to-finaid.page # URL to Financial Aid page (Optional)
+  coc: link-to-coc.page # URL to Code of Conduct (Optional)
   twitter: BestConfEver # Twitter handle of conference (Optional)
   mastodon: https://mastodon.social/@bconf # Mastodon handle of conference (Optional)
   bluesky: https://bsky.app/@bconf # Bluesky handle of conference (Optional)

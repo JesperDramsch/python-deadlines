@@ -78,6 +78,7 @@ class Conference(BaseModel):
     end: PythonDate
     sponsor: HttpUrl | None = None
     finaid: HttpUrl | None = None
+    coc: HttpUrl | None = None
     twitter: str | None = None
     mastodon: HttpUrl | None = None
     bluesky: str | None = None
@@ -154,7 +155,7 @@ class Conference(BaseModel):
             return re.sub(r"\b(19|20)\d{2}\b", "", v).strip()
         return v
 
-    @field_serializer("link", "cfp_link", "sponsor", "finaid", "mastodon", "youtube")
+    @field_serializer("link", "cfp_link", "sponsor", "finaid", "coc", "mastodon", "youtube")
     def ser_url(self, value):
         return str(value)
 
