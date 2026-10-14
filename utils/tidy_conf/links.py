@@ -58,6 +58,15 @@ TWO_LEVEL_PUBLIC_SUFFIXES = frozenset(
         "co.il",
         "org.il",
         "or.tz",
+        "org.pl",
+        # Shared hosts, where each tenant is a site of its own:
+        # pyconx.github.io and squatter.github.io are different sites.
+        "github.io",
+        "gitlab.io",
+        "netlify.app",
+        "pages.dev",
+        "vercel.app",
+        "readthedocs.io",
     },
 )
 
@@ -128,7 +137,8 @@ def site_host(url: str) -> str:
 def is_parent_domain(parent: str, host: str) -> bool:
     """Check whether ``parent`` is a parent domain of ``host``.
 
-    A public suffix such as ``de`` or ``co.uk`` does not count as a parent.
+    A public suffix such as ``de``, ``co.uk`` or ``github.io`` does not count
+    as a parent.
 
     Parameters
     ----------

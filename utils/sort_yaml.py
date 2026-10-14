@@ -164,8 +164,10 @@ def merge_duplicates(data: list[dict]) -> list[dict]:
     the place. Places are compared with their country normalised, since the
     importers write a copy of an archived edition with "London, UK" where the
     stored entry has "London, United Kingdom". The first entry keeps its
-    stored place, so no stored data is rewritten. Every other field takes
-    the longer of the two values.
+    place and the place of a later duplicate is dropped. The entries of
+    conferences.yml come first, so the first entry is usually the importer's
+    copy, and its normalised spelling replaces the one the archive stored.
+    Every other field takes the longer of the two values.
 
     Parameters
     ----------

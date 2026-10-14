@@ -67,6 +67,10 @@ class TestRegistrableDomain:
             ("pycon.or.tz", "pycon.or.tz"),
             ("cfp.pycon.org.il", "pycon.org.il"),
             ("example.co.il", "example.co.il"),
+            ("pycon.org.pl", "pycon.org.pl"),
+            ("pyconx.github.io", "pyconx.github.io"),
+            ("docs.pyconx.github.io", "pyconx.github.io"),
+            ("pyconx.readthedocs.io", "pyconx.readthedocs.io"),
         ],
     )
     def test_registrable_domain(self, host, expected):
@@ -99,8 +103,21 @@ class TestRegistrableDomain:
             "co.il",
             "org.il",
             "or.tz",
+            "org.pl",
         }
         assert required <= links.TWO_LEVEL_PUBLIC_SUFFIXES
+
+    def test_shared_hosting_suffixes_present(self):
+        """Each tenant of a shared host is a site of its own."""
+        shared_hosts = {
+            "github.io",
+            "gitlab.io",
+            "netlify.app",
+            "pages.dev",
+            "vercel.app",
+            "readthedocs.io",
+        }
+        assert shared_hosts <= links.TWO_LEVEL_PUBLIC_SUFFIXES
 
 
 class TestIsDifferentSite:
@@ -119,6 +136,14 @@ class TestIsDifferentSite:
             ("https://pycon.org.il/", "https://parked.org.il/"),
             ("https://cfp.pycon.org.il/", "https://parked.org.il/"),
             ("https://example.co.il/", "https://other.co.il/"),
+            ("https://pycon.org.pl/", "https://casino.org.pl/"),
+            # Tenants of a shared host are different sites.
+            ("https://pyconx.github.io/2026/", "https://squatter.github.io/"),
+            ("https://pyconx.gitlab.io/", "https://squatter.gitlab.io/"),
+            ("https://pyconx.netlify.app/", "https://squatter.netlify.app/"),
+            ("https://pyconx.pages.dev/", "https://squatter.pages.dev/"),
+            ("https://pyconx.vercel.app/", "https://squatter.vercel.app/"),
+            ("https://pyconx.readthedocs.io/", "https://squatter.readthedocs.io/"),
         ],
     )
     def test_different_sites(self, url, other):
@@ -136,6 +161,8 @@ class TestIsDifferentSite:
             ("https://a.example.co.uk/", "https://b.example.co.uk/"),
             ("https://2026.pycon.org.au/", "https://pycon.org.au/"),
             ("https://cfp.pycon.org.il/", "https://pycon.org.il/"),
+            ("https://pyconx.github.io/2026/", "https://pyconx.github.io/2027/"),
+            ("https://cfp.pycon.org.pl/", "https://pycon.org.pl/"),
         ],
     )
     def test_same_site(self, url, other):
@@ -180,6 +207,17 @@ class TestCrossSiteRedirect:
 
         assert result == url
         assert [r["payload"]["final_url"] for r in links.REDIRECT_RECORDS] == ["https://infojudislotonline.com/"]
+
+    @responses.activate
+    def test_shared_host_tenant_to_another_tenant_kept_and_recorded(self):
+        """A github.io site that lands on another github.io tenant has moved to a different site."""
+        url = "https://pyconx.github.io/2026/"
+        _redirect(url, "https://squatter.github.io/")
+
+        result = _check(url, conference="PyCon X", year=2026, field="link")
+
+        assert result == url
+        assert [r["payload"]["final_url"] for r in links.REDIRECT_RECORDS] == ["https://squatter.github.io/"]
 
     @responses.activate
     def test_no_wayback_lookup_or_save(self):

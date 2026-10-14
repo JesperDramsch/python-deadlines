@@ -50,6 +50,23 @@ class TestBrackets:
     def test_year_removal_leaves_tidy_brackets(self, name, expected):
         assert normalize_conference_name(name) == expected
 
+    @pytest.mark.parametrize(
+        ("name", "expected"),
+        [
+            # The bracket tidy runs after "+" becomes a space, so "0+)" does
+            # not give "0 )" on the first pass and "0)" on the second.
+            ("0+)", "0)"),
+            ("X ( 2026 )", "X"),
+            ("A+(B)", "A (B)"),
+            # Removing the inner pair empties the outer one.
+            ("X (( ))", "X"),
+        ],
+    )
+    def test_bracket_tidy_is_idempotent(self, name, expected):
+        once = normalize_conference_name(name, {})
+        assert once == expected
+        assert normalize_conference_name(once, {}) == once
+
 
 class TestAltNames:
     def yaml(self, *entries):

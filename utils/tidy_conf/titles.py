@@ -121,12 +121,6 @@ def normalize_conference_name(name: str, known_mappings: dict | None = None) -> 
     # Remove years from conference names (replace with space to avoid concatenation)
     result = regex_year.sub(" ", result)
 
-    # Tidy brackets the year removal can leave: "Python Nordeste (PyNE 2026)"
-    # becomes "Python Nordeste (PyNE)", and an emptied "( )" goes
-    result = re.sub(r"\(\s+", "(", result)
-    result = re.sub(r"\s+\)", ")", result)
-    result = re.sub(r"\(\)", " ", result)
-
     # Add a space after Python or PyCon
     result = regex_py.sub(r" \1 ", result)
 
@@ -137,6 +131,17 @@ def normalize_conference_name(name: str, known_mappings: dict | None = None) -> 
     result = re.sub(r"\bConf\b", "Conference", result)
 
     # Remove extra spaces
+    result = re.sub(r"\s+", " ", result)
+
+    # Tidy brackets the year removal can leave: "Python Nordeste (PyNE 2026)"
+    # becomes "Python Nordeste (PyNE)", and an emptied "( )" goes. This runs
+    # after every step that adds spaces, so a second pass finds nothing to
+    # tidy. Emptied brackets are removed until none are left, since removing
+    # the inner pair of "(( ))" empties the outer one.
+    while re.search(r"\(\s*\)", result):
+        result = re.sub(r"\(\s*\)", " ", result)
+    result = re.sub(r"\(\s+", "(", result)
+    result = re.sub(r"\s+\)", ")", result)
     result = re.sub(r"\s+", " ", result)
 
     # Remove leading and trailing whitespace
