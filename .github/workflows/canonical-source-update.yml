@@ -302,7 +302,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "::notice title=Triggering TBA Enrichment::Starting TBA conference enrichment workflow"
-          gh workflow run enrich-tba-conferences.yml -f enrichment_level=full || {
+          gh workflow run enrich-tba-conferences.yml || {
             echo "::warning title=Trigger Failed::Could not trigger TBA enrichment workflow"
           }
 

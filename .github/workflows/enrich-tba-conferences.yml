@@ -4,18 +4,13 @@ on:
   # Manual trigger or called by canonical-source-update
   workflow_dispatch:
     inputs:
-      enrichment_level:
-        description: 'quick=deterministic links only (no API), full=links + dates via Claude'
-        type: choice
-        options: ['full', 'quick']
-        default: 'full'
       dry_run:
         description: 'Dry run (no commit/PR)'
         required: false
         type: boolean
         default: false
 
-  # Daily run - quick mode, except Tuesday which does full (with Claude API)
+  # Daily run
   schedule:
     - cron: '0 6 * * *'  # Daily 6 AM UTC
 
@@ -37,29 +32,6 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Determine enrichment level
-        id: config
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_LEVEL: ${{ inputs.enrichment_level }}
-        run: |
-          if [ "$EVENT_NAME" = "schedule" ]; then
-            DAY_OF_WEEK=$(date -u +%u)  # 1=Monday, 2=Tuesday, ...
-
-            if [ "$DAY_OF_WEEK" = "2" ]; then
-              # Tuesday = weekly full run with Claude API
-              echo "level=full" >> $GITHUB_OUTPUT
-              echo "::notice title=Tuesday Full Run::Using full enrichment mode (with Claude API)"
-            else
-              # Other days = quick deterministic run
-              echo "level=quick" >> $GITHUB_OUTPUT
-              echo "::notice title=Daily Quick Run::Using quick enrichment mode (deterministic only)"
-            fi
-          else
-            echo "level=${INPUT_LEVEL:-full}" >> $GITHUB_OUTPUT
-            echo "::notice title=Manual Run::Using ${INPUT_LEVEL:-full} enrichment mode"
-          fi
-
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
@@ -106,7 +78,7 @@ jobs:
       - name: Setup Pixi
         uses: prefix-dev/setup-pixi@v0.10.2
 
-      - name: Install lynx for text extraction
+      - name: Install lynx for link extraction
         run: sudo apt-get install -qq -y lynx > /dev/null 2>&1 || true
 
       - name: Find TBA conferences
@@ -140,14 +112,12 @@ jobs:
         id: enrich
         if: steps.find-tba.outputs.tba_count != '0'
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ENRICHMENT_LEVEL: ${{ steps.config.outputs.level }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
           echo "::group::Running enrichment"
 
           # Build command
-          CMD="pixi run python utils/enrich_tba.py --level $ENRICHMENT_LEVEL"
+          CMD="pixi run python utils/enrich_tba.py"
           if [ "$DRY_RUN" = "true" ]; then
             CMD="$CMD --dry-run"
           fi
@@ -178,7 +148,7 @@ jobs:
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "::notice title=No Changes::No updates from TBA enrichment"
             echo "## No Changes" >> $GITHUB_STEP_SUMMARY
-            echo "TBA enrichment did not find any new CFP data to update." >> $GITHUB_STEP_SUMMARY
+            echo "TBA enrichment did not find any new links to add." >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Validate and sort
@@ -188,8 +158,6 @@ jobs:
       - name: Commit and push
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
         id: commit
-        env:
-          ENRICHMENT_LEVEL: ${{ steps.config.outputs.level }}
         run: |
           git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
 
@@ -197,9 +165,9 @@ jobs:
           git add _data/conferences.yml _data/archive.yml _data/legacy.yml 2>/dev/null || git add _data/conferences.yml
 
           # Create descriptive commit message
-          COMMIT_MSG="chore: enrich TBA conferences with CFP data"
+          COMMIT_MSG="chore: enrich TBA conferences with links"
 
-          git commit -m "$COMMIT_MSG" -m "Enrichment level: $ENRICHMENT_LEVEL" -m "Triggered: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git commit -m "$COMMIT_MSG" -m "Triggered: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push origin $UPDATE_BRANCH --force-with-lease
 
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
@@ -224,14 +192,12 @@ jobs:
         env:
           UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
-          ENRICHMENT_LEVEL: ${{ steps.config.outputs.level }}
           HAS_REVIEW: ${{ steps.review.outputs.has_review }}
           REVIEW_CONTENT: ${{ steps.review.outputs.review_content }}
         with:
           script: |
             const branch = process.env.UPDATE_BRANCH;
             const sha = process.env.COMMIT_SHA.substring(0, 7);
-            const level = process.env.ENRICHMENT_LEVEL;
             const date = new Date().toISOString().split('T')[0];
             const hasReview = process.env.HAS_REVIEW === 'true';
             const reviewContent = process.env.REVIEW_CONTENT || '';
@@ -245,7 +211,7 @@ jobs:
             });
 
             // Use same table format as other workflows
-            const entry = `| TBA Enrichment (${level}) | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
+            const entry = `| TBA Enrichment | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
 
             if (prs.length > 0) {
               // Update existing PR - append to table
@@ -317,7 +283,6 @@ jobs:
           TBA_COUNT: ${{ steps.find-tba.outputs.tba_count }}
           CHANGED: ${{ steps.check_changes.outputs.changed }}
           DRY_RUN: ${{ inputs.dry_run }}
-          LEVEL: ${{ steps.config.outputs.level }}
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Result" >> $GITHUB_STEP_SUMMARY
@@ -331,8 +296,7 @@ jobs:
               echo "- Status: Changes committed and PR updated" >> $GITHUB_STEP_SUMMARY
             fi
           else
-            echo "- Status: No new CFP data found" >> $GITHUB_STEP_SUMMARY
+            echo "- Status: No new links found" >> $GITHUB_STEP_SUMMARY
           fi
 
-          echo "- Enrichment level: $LEVEL" >> $GITHUB_STEP_SUMMARY
           echo "- TBA conferences scanned: $TBA_COUNT" >> $GITHUB_STEP_SUMMARY
