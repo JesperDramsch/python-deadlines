@@ -17,7 +17,7 @@ REPO below stands for `JesperDramsch/python-deadlines`.
 
 ### 1. Orient
 
-Run `date -u` and note the start time in UTC and your model id (from your system prompt). Fetch the branches one at a time, since a missing branch fails the whole fetch: `git fetch origin main`, `git fetch origin auto/conference-updates`, `git fetch origin desk-queue`. A fetch that fails because the branch is not on origin keeps any old `origin/<branch>` ref: delete it with `git update-ref -d refs/remotes/origin/<branch>`, so that `git rev-parse -q --verify origin/<branch>` tells which branches exist. A fetch that fails for another reason, such as the network, says nothing about the branch: keep its ref and run the fetch again.
+Run `date -u` and note the start time in UTC and your model id (from your system prompt). Fetch the branches one at a time, since a missing branch fails the whole fetch: `git fetch origin main`, `git fetch origin auto/conference-updates`, `git fetch origin desk-queue`. A fetch that fails because the branch is not on origin keeps any old `origin/<branch>` ref: delete it with `git update-ref -d refs/remotes/origin/<branch>`, so that `git rev-parse -q --verify origin/<branch>` tells which branches exist. A fetch that fails for another reason, such as the network, says nothing about the branch: keep its ref and run the fetch again, up to five tries; then stop and report.
 
 Done when: you have the start time and the model id, and `git rev-parse -q --verify origin/<branch>` prints a commit for each branch on origin and nothing for each branch not on origin.
 

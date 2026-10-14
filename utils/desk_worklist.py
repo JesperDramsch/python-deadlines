@@ -18,10 +18,13 @@ in the output:
 2. Queue items read from a checkout of the desk-queue branch, matched to a
    series by name the way cfp_candidates.py matches: after
    normalize_conference_name and the titles.yml mappings, ignoring case,
-   accents and whitespace. A matched item takes the year of the entry it is
-   bound to: the entry for its own year, else the next edition that has not
-   ended. A differing queue year is kept in context["queue_year"]. Items
-   whose next_check is a date after today are left out until that date.
+   accents and whitespace. An enricher item takes the year of the entry it
+   is bound to: the entry for its own year, else the next edition that has
+   not ended. For the new-year-checker, year is the edition the data lacks,
+   and null means the next one, so a queue year naming an edition the data
+   holds gives a null year. A queue year that differs from the item's year
+   is kept in context["queue_year"]. Items whose next_check is a date after
+   today are left out until that date.
 3. Rotations: entries with a TBA cfp and stale series from cfp_candidates.py,
    each picked on one weekday in seven by a hash of its name.
 4. One open-ended scouting item, unless --no-scout is given.
@@ -491,9 +494,15 @@ def _edition_for(editions: list[tuple[str, dict]], year: int | None) -> dict | N
 def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: dict, today: date) -> dict:
     """Turn one queue item into a worklist item.
 
-    A matched item takes its year from the entry it is bound to. Watch titles keep the year
-    of the edition they were created for, so a queue year that names no upcoming entry, or
-    an edition the new-year-checker already has, is moved to context["queue_year"].
+    An enricher item takes its year from the entry it is bound to. Watch titles keep the year
+    of the edition they were created for, so a queue year that names no upcoming entry is
+    moved to context["queue_year"].
+
+    For the new-year-checker, year is the edition the data lacks, and null means the next
+    one. A queue year naming an edition no data file holds stays the item's year, past
+    editions included, so each missing edition is its own item and never merges with the
+    series' stale-series item. A queue year naming an edition the data holds is moved to
+    context["queue_year"] with a null year, so the item merges with the stale-series item.
 
     A candidate is routed by this match, whatever its classification: to the enricher with
     the edition for its year when any data file holds it, else to the new-year-checker, and
@@ -550,7 +559,7 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
         return _new_item(skill, reason, conference, entry_year, entry=chosen, queue_refs=refs, context=context)
     if skill == "new-year-checker":
         context = {}
-        if year is not None and year <= (_as_year(latest.get("year")) or 0):
+        if _edition_for(editions[key], year) is not None:
             context, year = {"queue_year": year}, None
         return _new_item(skill, reason, conference, year, latest_edition=latest, queue_refs=refs, context=context)
     return _new_item(skill, reason, conference, year, queue_refs=refs)

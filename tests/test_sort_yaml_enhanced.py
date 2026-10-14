@@ -370,6 +370,32 @@ class TestMergeDuplicates:
 
         assert result == [{"conference": "PyData London", "year": 2025, "place": "London, UK"}]
 
+    @pytest.mark.parametrize("empty", [None, ""])
+    @pytest.mark.parametrize(("key", "value"), [("timezone", "UTC"), ("sub", "PY")])
+    def test_merge_duplicates_empty_value_keeps_a_short_value(self, key, value, empty):
+        """A later empty value replaces nothing: a blank timezone must not turn UTC into AoE."""
+        data = [
+            {"conference": "PyData London", "year": 2025, "place": "London, UK", key: value},
+            {"conference": "PyData London", "year": 2025, "place": "London, United Kingdom", key: empty},
+        ]
+
+        result = sort_yaml.merge_duplicates(data)
+
+        assert result == [{"conference": "PyData London", "year": 2025, "place": "London, UK", key: value}]
+
+    @pytest.mark.parametrize("empty", [None, ""])
+    @pytest.mark.parametrize(("key", "value"), [("timezone", "UTC"), ("sub", "PY")])
+    def test_merge_duplicates_value_replaces_an_empty_one(self, key, value, empty):
+        """A later value replaces an empty one, however short it is."""
+        data = [
+            {"conference": "PyData London", "year": 2025, "place": "London, UK", key: empty},
+            {"conference": "PyData London", "year": 2025, "place": "London, United Kingdom", key: value},
+        ]
+
+        result = sort_yaml.merge_duplicates(data)
+
+        assert result == [{"conference": "PyData London", "year": 2025, "place": "London, UK", key: value}]
+
 
 class TestTidyDates:
     """Test date cleaning functionality."""

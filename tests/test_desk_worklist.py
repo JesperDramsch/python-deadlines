@@ -455,12 +455,12 @@ class TestCandidateRouting:
         assert (item["skill"], item["year"], item["entry"]) == ("new-year-checker", None, None)
         assert item["latest_edition"]["year"] == 2026
 
-    def test_missing_year_before_the_latest_edition_is_moved_to_context(self):
+    def test_missing_year_before_the_latest_edition_is_kept(self):
         data = dataset(archive=[conf("PyCon Example", 2023), conf("PyCon Example", 2025)])
 
         item = only(build(data, [candidate_item("PyCon Example", 2024, "MISSING_EDITION")]))
 
-        assert (item["skill"], item["year"], item["context"]) == ("new-year-checker", None, {"queue_year": 2024})
+        assert (item["skill"], item["year"], item["context"]) == ("new-year-checker", 2024, {})
         assert item["latest_edition"]["year"] == 2025
 
     @pytest.mark.parametrize("classification", CLASSIFICATIONS)
@@ -490,6 +490,64 @@ class TestCandidateRouting:
         item = only(build(data, [candidate_item("PyCon Example", 2026, "MAYBE", source="canonical-import")]))
 
         assert (item["skill"], item["reasons"]) == ("enricher", ["deadline-check", "candidate"])
+
+
+class TestMissingEditions:
+    """For the new-year-checker, year is the edition the data lacks, and null means the next one."""
+
+    def summary(self, worklist):
+        return [(item["skill"], item["reasons"], item["year"], item["context"]) for item in items(worklist)]
+
+    @pytest.mark.parametrize("kind", ["candidate", "signal"])
+    def test_each_missing_past_edition_is_its_own_item(self, kind):
+        name = name_in_slot("PyCon Example", (TODAY.weekday() + 1) % 7)
+        data = dataset(archive=[conf(name, 2021), conf(name, 2024), conf(name, 2025)])
+        if kind == "candidate":
+            queue = [candidate_item(name, year, "MISSING_EDITION") for year in (2023, 2022)]
+        else:
+            queue = [queue_item(title=f"[Conference] {name} {year} - Main", year=year) for year in (2023, 2022)]
+        queue[0]["received"], queue[1]["received"] = "2026-10-12T06:00:00Z", "2026-10-13T06:00:00Z"
+
+        worklist = build(data, queue)
+
+        assert self.summary(worklist) == [
+            ("new-year-checker", [kind], 2023, {}),
+            ("new-year-checker", [kind], 2022, {}),
+        ]
+        for item, queued in zip(items(worklist), queue, strict=True):
+            assert item["latest_edition"]["year"] == 2025
+            assert item["queue_refs"] == [{"file": "queue/example.json", "id": queued["id"]}]
+        assert len({item["id"] for item in items(worklist)}) == 2
+
+    def test_held_year_signal_and_missing_year_candidate_stay_apart(self):
+        """A signal for a held edition, received first, does not hide the candidate for 2023."""
+        name = name_in_slot("PyCon Example", (TODAY.weekday() + 1) % 7)
+        data = dataset(archive=[conf(name, 2022), conf(name, 2024), conf(name, 2025)])
+        signal = queue_item(title=f"[Conference] {name} 2025 - Main", year=2025, received="2026-10-12T06:00:00Z")
+        candidate = candidate_item(name, 2023, "MISSING_EDITION")
+
+        worklist = build(data, [signal, candidate])
+
+        assert self.summary(worklist) == [
+            ("new-year-checker", ["signal"], None, {"queue_year": 2025}),
+            ("new-year-checker", ["candidate"], 2023, {}),
+        ]
+        assert [item["queue_refs"][0]["id"] for item in items(worklist)] == [signal["id"], candidate["id"]]
+
+    def test_missing_year_candidate_does_not_merge_with_stale_series(self):
+        name = name_in_slot("PyCon Stale", TODAY.weekday())
+        data = dataset(archive=[conf(name, 2022), conf(name, 2024), conf(name, 2025)])
+        candidate = candidate_item(name, 2023, "MISSING_EDITION")
+
+        worklist = build(data, [candidate])
+
+        assert self.summary(worklist) == [
+            ("new-year-checker", ["candidate"], 2023, {}),
+            ("new-year-checker", ["stale-series"], None, {"latest_year": 2025}),
+        ]
+        missing, stale = items(worklist)
+        assert missing["queue_refs"] == [{"file": "queue/example.json", "id": candidate["id"]}]
+        assert stale["queue_refs"] == []
 
 
 class TestSnoozedItems:

@@ -17,11 +17,16 @@ Usage::
 
 The desk's part must not contain ``<!-- DESK_END -->``,
 ``<!-- END_UPDATES -->`` or ``<!-- REVIEW_ITEMS -->``. The writers add their
-rows before the first ``<!-- END_UPDATES -->``, and the enrich writer
-replaces the section from the first ``<!-- REVIEW_ITEMS -->`` to the next
-``<!-- END_REVIEW_ITEMS -->``. Either marker in the desk's part puts their
-writes above the ``<!-- DESK_END -->`` line, where the next splice drops
-them, or makes them delete that line.
+rows before the first ``<!-- END_UPDATES -->``. The enrich writer replaces
+the section from the first ``<!-- REVIEW_ITEMS -->`` to the next
+``<!-- END_REVIEW_ITEMS -->``, and inserts a new section before
+``<!-- END_UPDATES -->`` only when the body has no ``<!-- REVIEW_ITEMS -->``.
+Either marker in the desk's part puts their writes above the
+``<!-- DESK_END -->`` line, where the next splice drops them, or makes them
+delete that line. When the desk's part holds ``<!-- REVIEW_ITEMS -->`` and
+the writers' part has no review section yet, the enrich writer writes no
+review section at all: the body has the marker, so it skips the insert, and
+the replace finds no ``<!-- END_REVIEW_ITEMS -->`` after it.
 
 Exit codes: 0 when the body was written (or printed), 1 when ``gh`` failed,
 2 when the arguments or the desk file are not usable.
@@ -36,7 +41,8 @@ from pathlib import Path
 
 MARKER = "<!-- DESK_END -->"
 # The marker and the two markers the writers look for first: none may be in the desk's part.
-# There, either of the two would put what the writers add above the marker or make them delete it.
+# There, either of the two would put what the writers add above the marker or make them delete it,
+# and REVIEW_ITEMS with no review section in the writers' part makes the enrich writer write none.
 RESERVED = (MARKER, "<!-- END_UPDATES -->", "<!-- REVIEW_ITEMS -->")
 DEFAULT_REPO = "JesperDramsch/python-deadlines"
 

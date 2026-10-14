@@ -167,8 +167,9 @@ def merge_duplicates(data: list[dict]) -> list[dict]:
     place and the place of a later duplicate is dropped. The entries of
     conferences.yml come first, so the first entry is usually the importer's
     copy, and its normalised spelling replaces the one the archive stored.
-    Every other field takes the longer of the two values. A field only a
-    later duplicate has is added unless its value is empty.
+    Every other field takes the longer of the two values, except that an
+    empty value (None or "") counts as no value: a later one replaces
+    nothing and adds no field, and any later value replaces it.
 
     Parameters
     ----------
@@ -190,13 +191,11 @@ def merge_duplicates(data: list[dict]) -> list[dict]:
         else:
             index = seen[q_reduced]
             for key, value in q.items():
-                if key == "place":
+                # An empty value (None or "") replaces nothing and adds no field
+                if key == "place" or not value:
                     continue
-                if key not in filtered[index]:
-                    # An empty value (None or "") adds no field
-                    if value:
-                        filtered[index][key] = value
-                elif len(str(value)) > len(str(filtered[index][key])):
+                existing = filtered[index].get(key)
+                if not existing or len(str(value)) > len(str(existing)):
                     filtered[index][key] = value
     return filtered
 
