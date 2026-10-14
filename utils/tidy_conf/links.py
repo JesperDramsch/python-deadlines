@@ -73,7 +73,10 @@ URL_SHORTENERS = frozenset({"bit.ly", "goo.gl", "tinyurl.com"})
 REDIRECT_RECORDS: list[dict] = []
 
 # When this environment variable names a file, every redirect record is also
-# appended to it as one JSON object per line, for a later job to pick up.
+# appended to it as one JSON object per line, for a later job to pick up. The
+# lines are not complete queue items: the queue writer assigns each item its
+# "id" and the series key of the file it goes in when it adds the line, so
+# both are defined in one place.
 REDIRECT_RECORDS_ENV = "DESK_QUEUE_OUT"
 
 
@@ -229,8 +232,10 @@ def record_redirect(
 
     The record is appended to ``REDIRECT_RECORDS`` and, when the
     ``DESK_QUEUE_OUT`` environment variable names a file, written to that
-    file as one JSON line. Its shape is a queue item with source
-    "link-check" and kind "redirect".
+    file as one JSON line. It holds the fields of a queue item with source
+    "link-check" and kind "redirect", except "id": the queue writer assigns
+    the id, and the series key of the file the item goes in, when it adds
+    the line.
 
     Parameters
     ----------
