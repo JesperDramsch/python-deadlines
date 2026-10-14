@@ -1,12 +1,15 @@
 """Tests for .claude/hooks/desk_guard.py, the PreToolUse guard registered in .claude/settings.json.
 
-Each test runs the hook as a subprocess, the way Claude Code runs it: a crafted PreToolUse payload on stdin,
-DESK_ROUTINE and HOME set per test (HOME with or without .desk-guard.json), and a temporary git repository
-for branch detection. pytester runs the subprocesses, with a timeout and captured exit code and stderr.
+Each test runs the hook as a subprocess, the way Claude Code runs it: a crafted PreToolUse payload on stdin
+(with ``agent_id`` for a subagent's call), DESK_ROUTINE and HOME set per test, and temporary git repositories
+for branch and repository detection. HOME holds an empty .desk-guard.json unless a test replaces or removes
+it, since a desk run without one blocks every call. pytester runs the subprocesses, with a timeout and
+captured exit code and stderr.
 """
 
 import ast
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -19,6 +22,8 @@ ROOT = Path(__file__).resolve().parents[1]
 HOOK = ROOT / ".claude" / "hooks" / "desk_guard.py"
 SETTINGS = ROOT / ".claude" / "settings.json"
 ROLLING = "auto/conference-updates"
+REPO = "JesperDramsch/python-deadlines"
+SUBAGENT = {"agent_id": "agent-1", "agent_type": "general-purpose"}
 GIT = shutil.which("git")
 
 pytestmark = pytest.mark.skipif(GIT is None, reason="git builds the test repositories")
@@ -26,9 +31,10 @@ pytestmark = pytest.mark.skipif(GIT is None, reason="git builds the test reposit
 
 @pytest.fixture()
 def home(pytester, tmp_path, monkeypatch):
-    """Point HOME at an empty directory, after pytester has set its own HOME."""
+    """Point HOME at a directory with an empty deny-list, after pytester has set its own HOME."""
     path = tmp_path / "home"
     path.mkdir()
+    (path / ".desk-guard.json").write_text("{}", encoding="utf-8")
     monkeypatch.setenv("HOME", str(path))
     monkeypatch.delenv("DESK_ROUTINE", raising=False)
     return path
@@ -59,10 +65,23 @@ def make_repo(git, tmp_path):
 
 
 @pytest.fixture()
-def run_hook(pytester, home, monkeypatch):
-    """Run the hook with a PreToolUse payload and return (exit code, stderr lines)."""
+def queue_repo(git, tmp_path):
+    """Create a repository with a detached HEAD, like the desk's desk-queue worktree."""
+    repo = tmp_path / "queue"
+    git("init", "-q", str(repo))
+    git("-C", str(repo), "commit", "-q", "--allow-empty", "-m", "init")
+    git("-C", str(repo), "checkout", "-q", "--detach")
+    return repo
 
-    def run(tool_name, tool_input, *, cwd, desk=False, raw=None):
+
+@pytest.fixture()
+def run_hook(pytester, home, monkeypatch):
+    """Run the hook with a PreToolUse payload and return (exit code, stderr lines).
+
+    Keyword arguments other than ``cwd``, ``desk`` and ``raw`` go into the payload, such as ``agent_id``.
+    """
+
+    def run(tool_name, tool_input, *, cwd, desk=False, raw=None, **fields):
         if desk:
             monkeypatch.setenv("DESK_ROUTINE", "1")
         else:
@@ -73,6 +92,7 @@ def run_hook(pytester, home, monkeypatch):
             "hook_event_name": "PreToolUse",
             "tool_name": tool_name,
             "tool_input": tool_input,
+            **fields,
         }
         stdin = raw if raw is not None else json.dumps(payload).encode()
         result = pytester.run(sys.executable, str(HOOK), stdin=stdin, timeout=30)
@@ -312,16 +332,426 @@ def test_bash_writing_under_github_is_not_inspected(run_hook, make_repo):
     assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True))
 
 
-# --- claude-code-remote tools (desk run) ---
+# --- MCP and scheduling tools (desk run) ---
 
 
-@pytest.mark.parametrize("tool", ["mcp__claude-code-remote__send_message", "mcp__claude-code-remote__create_trigger"])
-def test_remote_tools_in_a_desk_run_are_blocked(run_hook, tmp_path, tool):
-    assert_blocked(run_hook(tool, {}, cwd=tmp_path, desk=True), tool)
+GUARDED_TOOLS = [
+    "mcp__github__merge_pull_request",
+    "mcp__github__create_or_update_file",
+    "mcp__github__push_files",
+    "mcp__github__delete_file",
+    "mcp__claude-code-remote__send_message",
+    "mcp__claude-code-remote__create_trigger",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "RemoteTrigger",
+    "ScheduleWakeup",
+]
 
 
-def test_remote_tools_outside_desk_runs_are_allowed(run_hook, tmp_path):
-    assert_allowed(run_hook("mcp__claude-code-remote__send_message", {"message": "hi"}, cwd=tmp_path))
+@pytest.mark.parametrize("tool", GUARDED_TOOLS)
+@pytest.mark.parametrize("fields", [{}, SUBAGENT])
+def test_mcp_and_scheduling_tools_in_a_desk_run_are_blocked(run_hook, tmp_path, tool, fields):
+    assert_blocked(run_hook(tool, {}, cwd=tmp_path, desk=True, **fields), tool, "desk runs")
+
+
+@pytest.mark.parametrize("tool", GUARDED_TOOLS)
+def test_mcp_and_scheduling_tools_outside_desk_runs_are_allowed(run_hook, tmp_path, tool):
+    assert_allowed(run_hook(tool, {"message": "hi"}, cwd=tmp_path))
+
+
+# --- pushes in a desk run ---
+
+
+DESK_PUSHES = [
+    "git push origin HEAD:auto/conference-updates",
+    "git push origin HEAD:refs/heads/auto/conference-updates",
+    "git push -u origin HEAD:auto/conference-updates",
+    "git push --no-verify -o ci.skip origin HEAD:auto/conference-updates",
+    "git push origin auto/conference-updates",
+    "git push origin HEAD",
+    "git -C <queue> push origin HEAD:desk-queue",
+    "git -C <queue> push origin HEAD:refs/heads/desk-queue",
+    "cd <queue> && git push origin HEAD:desk-queue",
+    # the retry loops of desk.md "Pushing"
+    "for i in 1 2 3 4 5; do git push origin HEAD:auto/conference-updates && break; "
+    "git fetch origin auto/conference-updates; git rebase origin/auto/conference-updates; done",
+    "for i in 1 2 3 4 5; do git -C <queue> push origin HEAD:desk-queue && break; "
+    "git -C <queue> fetch origin desk-queue; git -C <queue> reset --hard origin/desk-queue; done",
+]
+
+
+@pytest.mark.parametrize(
+    ("command", "fragment"),
+    [
+        ("git push", "default remote"),
+        ("git push origin", "without a refspec"),
+        ("git push -u origin", "without a refspec"),
+        ("git push upstream HEAD:auto/conference-updates", "origin"),
+        (f"git push https://github.com/{REPO}.git HEAD:auto/conference-updates", "origin"),
+        ("git push --repo=upstream HEAD:auto/conference-updates", "origin"),
+        ("git push origin HEAD:feature", "'HEAD:feature'"),
+        ("git push origin feature", "'feature'"),
+        ("git push origin HEAD:auto/conference-updates HEAD:feature", "'HEAD:feature'"),
+        ("git push origin HEAD:refs/tags/v1", "refs/tags/v1"),
+        ("git push origin tag v1", "'tag'"),
+        ("git push --dry-run origin HEAD:feature", "'HEAD:feature'"),
+        ("git push --force origin HEAD:auto/conference-updates", "--force"),
+        ("git push --force-with-lease origin HEAD:auto/conference-updates", "--force-with-lease"),
+        ("git push --force-with-lease=auto/conference-updates:abc origin HEAD:auto/conference-updates", "--force"),
+        ("git push -f origin HEAD:auto/conference-updates", "-f"),
+        ("git push -fu origin HEAD:auto/conference-updates", "-f"),
+        ("git push -uf origin HEAD:auto/conference-updates", "-f"),
+        ("git push -o ci.skip -f origin HEAD:auto/conference-updates", "-f"),
+        ("git push --delete origin desk-queue", "--delete"),
+        ("git push -d origin desk-queue", "-d"),
+        ("git push --mirror origin", "--mirror"),
+        ("git push --all origin", "--all"),
+        ("git push --tags origin HEAD:auto/conference-updates", "--tags"),
+        ("git push --follow-tags origin HEAD:auto/conference-updates", "--follow-tags"),
+        ("git push --prune origin HEAD:auto/conference-updates", "--prune"),
+        ("git push origin +HEAD:auto/conference-updates", "'+HEAD:auto/conference-updates'"),
+        ("git push origin :desk-queue", "':desk-queue'"),
+        ("git -C <queue> push origin HEAD", "'HEAD'"),
+        ("git -C <queue> push --force origin HEAD:desk-queue", "--force"),
+        ("git -C <queue> push -fu origin HEAD:desk-queue", "-f"),
+        ("git -C <queue> push origin +HEAD:desk-queue", "'+HEAD:desk-queue'"),
+        ("git -C <queue> push origin :desk-queue", "':desk-queue'"),
+        ("timeout 120 git push --force origin HEAD:auto/conference-updates", "--force"),
+        ("bash -c 'git push -f origin HEAD:desk-queue'", "-f"),
+        ("for i in 1 2 3; do git push --force origin HEAD:desk-queue && break; done", "--force"),
+    ],
+)
+def test_desk_push_outside_the_desk_branches_is_blocked(run_hook, make_repo, queue_repo, command, fragment):
+    repo = make_repo(ROLLING)
+    outcome = run_hook("Bash", {"command": command.replace("<queue>", str(queue_repo))}, cwd=repo, desk=True)
+    assert_blocked(outcome, "git push", fragment)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git push",
+        "git push upstream feature",
+        "git push --force origin HEAD:feature",
+        "git push -fu origin feature",
+        "git push origin +HEAD:feature",
+        "git push origin :old-feature",
+        "git push --tags origin",
+        "git -C <queue> push --force origin HEAD:desk-queue",
+    ],
+)
+def test_push_rules_outside_desk_runs_stay_as_they_were(run_hook, make_repo, queue_repo, command):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook("Bash", {"command": command.replace("<queue>", str(queue_repo))}, cwd=repo))
+
+
+# --- gh in a desk run ---
+
+
+GH_READS = [
+    f'gh api --paginate "repos/{REPO}/issues/12/comments?per_page=100&since=2026-10-01T06:00:00Z"',
+    f'gh api --paginate "repos/{REPO}/pulls/12/comments?per_page=100&since=2026-10-01T06:00:00Z"',
+    f'gh api --paginate "repos/{REPO}/pulls/12/reviews?per_page=100" '
+    "--jq '.[] | select(.submitted_at > \"2026-10-01T06:00:00Z\")'",
+    f"gh api repos/{REPO}/issues/comments/99 --jq .user.id",
+    f"gh api repos/{REPO}/pulls/comments/99 --jq .user.id",
+    f"gh api repos/{REPO}/pulls/12/reviews/99 --jq .user.id",
+    f"gh api \"repos/{REPO}/pulls?head=JesperDramsch:auto/conference-updates&state=open\" --jq '.[0].number // empty'",
+    f"gh api repos/{REPO}/pulls/12 --jq .body",
+    f"gh api -X GET repos/{REPO}/pulls/12",
+    f"gh api --method get /repos/{REPO}/issues/12/labels -H 'Accept: application/vnd.github+json'",
+    "gh api repos/python/cpython/pulls --jq '.[].number'",
+]
+GH_WRITES = [
+    f"gh api repos/{REPO}/issues/12/comments -f body='Desk: this request stays with the maintainer'",
+    f'gh api repos/{REPO}/pulls -f title="🐍 Conference updates" -f head=auto/conference-updates -f base=main '
+    "-F draft=true -F body=@/tmp/body.md",
+    f'gh api repos/{REPO}/issues/12/labels -f "labels[]=automated" -f "labels[]=conference-update"',
+    f"gh api -X PATCH repos/{REPO}/pulls/12 -F body=@/tmp/body.md",
+    f"gh api --method PATCH /repos/{REPO}/pulls/12 --input /tmp/body.json",
+    f"gh api -XPATCH https://api.github.com/repos/{REPO}/pulls/12 -F body=@/tmp/body.md",
+    f"gh api --method=POST repos/{REPO}/issues/12/comments --raw-field body=x",
+    f"gh api -X post /repos/{REPO}/issues/12/labels --field 'labels[]=automated'",
+]
+
+
+@pytest.mark.parametrize(
+    ("command", "fragment"),
+    [
+        ("gh pr create --draft --title x --body y", "gh pr"),
+        ("gh pr merge 12 --squash", "gh pr"),
+        ("gh issue comment 12 --body x", "gh issue"),
+        ("gh workflow run recurring-sort.yml", "gh workflow"),
+        (f"gh repo delete {REPO} --yes", "gh repo"),
+        ("gh auth token", "gh auth"),
+        (f"gh api -X PUT repos/{REPO}/pulls/12/merge", "PUT"),
+        (f"gh api -X DELETE repos/{REPO}/git/refs/heads/main", "DELETE"),
+        (f"gh api --method=DELETE repos/{REPO}/issues/12/labels/automated", "DELETE"),
+        (f"gh api -iX DELETE repos/{REPO}/issues/12/labels/automated", "DELETE"),
+        (f"gh api -X PATCH repos/{REPO}/issues/12 -f state=closed", "PATCH"),
+        (f"gh api -X PATCH repos/{REPO}/pulls", "PATCH"),
+        (f"gh api repos/{REPO}/pulls/12 -f state=closed", "POST"),
+        (f"gh api repos/{REPO}/pulls/12 -fstate=closed", "POST"),
+        (f"gh api -X POST repos/{REPO}/pulls/12/merge", "POST"),
+        (f"gh api repos/{REPO}/pulls/12/reviews -f event=APPROVE", "reviews"),
+        (f"gh api repos/{REPO}/issues -f title=x", "POST"),
+        (f"gh api repos/{REPO}/git/refs -f ref=refs/heads/main -f sha=abc", "git/refs"),
+        (f"gh api repos/{REPO}/issues/12/comments/../../../dispatches -f event_type=x", "dispatches"),
+        (f"gh api repos/{REPO}/actions/workflows/sort.yml/dispatches -f ref=main", "dispatches"),
+        ("gh api repos/JesperDramsch/other-repo/pulls -f title=x", "other-repo"),
+        ("gh api repos/someone/python-deadlines/issues/1/comments -f body=x", "someone"),
+        ("gh api https://evil.example/repos/JesperDramsch/python-deadlines/pulls -f title=x", "evil.example"),
+        (f"gh api --hostname evil.example repos/{REPO}/pulls -f title=x", "POST"),
+        ("gh api graphql -f query='mutation { mergePullRequest }'", "graphql"),
+        (f"gh api -X GET repos/{REPO}/pulls -f per_page=100", "GET"),
+        (f"gh api repos/{REPO}/pulls/12 --input /tmp/body.json", "POST"),
+    ],
+)
+def test_desk_gh_other_than_the_allowed_api_calls_is_blocked(run_hook, make_repo, command, fragment):
+    repo = make_repo(ROLLING)
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True), "gh", fragment)
+
+
+@pytest.mark.parametrize("command", ["gh pr merge 12 --squash", f"gh api -X PUT repos/{REPO}/pulls/12/merge"])
+def test_gh_outside_desk_runs_is_allowed(run_hook, make_repo, command):
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=make_repo(ROLLING)))
+
+
+# --- the desk procedure in .claude/routines/desk.md (desk run, main agent) ---
+
+
+DESK_SCRIPTS = [
+    "python utils/desk_pr_body.py /tmp/ledger.md",
+    "python utils/merge_data.py",
+    "python utils/sort_yaml.py --skip_links",
+    "python3 ./utils/sort_yaml.py --skip_links",
+    "/usr/bin/python utils/sort_yaml.py --skip_links",
+    "uv run --python 3.11 --with pyyaml,pydantic python utils/sort_yaml.py --skip_links",
+    "./utils/sort_yaml.py --skip_links",
+    "cd utils && python sort_yaml.py --skip_links",
+    "python -m utils.sort_yaml",
+    "pixi run sort",
+    "pixi run -e default links",
+    "timeout 600 python utils/merge_data.py",
+    "bash -c 'python3 utils/desk_pr_body.py /tmp/ledger.md'",
+    "python utils/desk_queue.py add <queue> --jsonl /tmp/records.jsonl",
+    "python utils/desk_queue.py remove <queue> abc123 def456",
+    "python utils/desk_queue.py snooze <queue> abc123",
+    "python utils/desk_queue.py init <queue>",
+]
+DESK_PROCEDURE = [
+    "date -u",
+    "date -u +%Y-%m-%dT%H:%M:%SZ",
+    "git fetch origin main",
+    "git fetch origin auto/conference-updates",
+    "git fetch origin desk-queue",
+    "git checkout -B auto/conference-updates origin/auto/conference-updates",
+    "git merge-base --is-ancestor origin/main HEAD",
+    "git merge --no-edit origin/main",
+    "git merge --abort",
+    "git checkout --no-track -b auto/conference-updates origin/main",
+    "git branch --show-current",
+    "git status --short",
+    "git worktree add --detach $(mktemp -d)/desk-queue origin/desk-queue",
+    "python utils/desk_worklist.py --queue-dir <queue> > /tmp/worklist.json",
+    "git add _data/conferences.yml _data/archive.yml _data/legacy.yml",
+    "git commit -m 'PyCon Greece 2027: cfp_ext' -m 'cfp_ext: null -> 2027-03-01 23:59:00'",
+    "git show --stat HEAD",
+    "git rev-parse HEAD",
+    "git rev-parse origin/auto/conference-updates",
+    "git rebase origin/auto/conference-updates",
+    "git rebase --abort",
+    "git reset --hard origin/auto/conference-updates",
+    "git rev-list --count origin/main..origin/auto/conference-updates",
+    "git -C <queue> add -A",
+    "git -C <queue> commit -m 'Remove handled queue items'",
+    "git -C <queue> fetch origin desk-queue",
+]
+
+
+@pytest.mark.parametrize("command", [*DESK_PROCEDURE, *DESK_PUSHES, *GH_READS, *GH_WRITES, *DESK_SCRIPTS])
+def test_desk_procedure_is_allowed(run_hook, make_repo, queue_repo, command):
+    repo = make_repo(ROLLING)
+    outcome = run_hook("Bash", {"command": command.replace("<queue>", str(queue_repo))}, cwd=repo, desk=True)
+    assert_allowed(outcome)
+
+
+def test_desk_data_edit_is_allowed(run_hook, make_repo):
+    repo = make_repo(ROLLING)
+    outcome = run_hook("Edit", github_edit("Edit", repo / "_data" / "conferences.yml"), cwd=repo, desk=True)
+    assert_allowed(outcome)
+
+
+# --- subagents in a desk run ---
+
+
+SUBAGENT_GIT_READS = [
+    "git status --short",
+    "git log --oneline -5 -- _data/conferences.yml",
+    "git show HEAD:_data/archive.yml",
+    "git diff origin/main -- _data",
+    "git grep -n 'PyCon Greece'",
+    "git ls-files _data",
+    "git ls-remote origin",
+    "git ls-tree HEAD _data",
+    "git rev-parse HEAD",
+    "git rev-list --count origin/main..HEAD",
+    "git merge-base --is-ancestor origin/main HEAD",
+    "git blame -L 1,20 _data/conferences.yml",
+    "git cat-file -p HEAD",
+    "git fetch origin main",
+    "git describe --tags",
+    "git shortlog -sn",
+    "git for-each-ref refs/heads",
+    "git show-ref",
+    "git config --get remote.origin.url",
+    "git -C <repo> log -1",
+    "git --no-pager log -1",
+    "git --version",
+]
+SUBAGENT_OTHER_READS = [
+    "python utils/desk_queue.py list <queue>",
+    "python utils/desk_worklist.py --queue-dir <queue>",
+    "cat utils/sort_yaml.py",
+    "grep -n 'def ' utils/merge_data.py",
+    "sed -n 1,40p utils/desk_pr_body.py",
+    "uv run pytest tests/test_sort_yaml.py -q",
+    "grep -rn 'PyCon Greece' _data/conferences.yml _data/archive.yml _data/legacy.yml",
+    "curl -sSL https://2027.pycon.gr/cfp/",
+]
+
+
+@pytest.mark.parametrize("command", [*SUBAGENT_GIT_READS, *GH_READS, *SUBAGENT_OTHER_READS])
+def test_subagent_reads_are_allowed(run_hook, make_repo, queue_repo, command):
+    repo = make_repo(ROLLING)
+    command = command.replace("<repo>", str(repo)).replace("<queue>", str(queue_repo))
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT))
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git commit -m x",
+        "git add _data/conferences.yml",
+        "git push origin HEAD:auto/conference-updates",
+        "git -C <queue> push origin HEAD:desk-queue",
+        "git checkout -b scratch",
+        "git switch main",
+        "git reset --hard origin/main",
+        "git rebase origin/main",
+        "git merge origin/main",
+        "git stash",
+        "git worktree add /tmp/other",
+        "git branch --show-current",
+        "git branch -D auto/conference-updates",
+        "git tag v1",
+        "git config user.name x",
+        "git config --unset user.name",
+        "git restore _data/conferences.yml",
+        "git rm _data/legacy.yml",
+        "git clean -fd",
+        "git apply /tmp/patch.diff",
+        "git cherry-pick abc123",
+        "git update-ref refs/heads/main HEAD",
+        "git -C <repo> commit -m x",
+        "git -c user.name=x commit -m y",
+        "cd <repo> && git commit -m x",
+        "git status && git commit -am x",
+        "bash -c 'git commit -m x'",
+        "for i in 1 2; do git push origin HEAD:desk-queue; done",
+    ],
+)
+def test_subagent_git_writes_are_blocked(run_hook, make_repo, queue_repo, command):
+    repo = make_repo(ROLLING)
+    command = command.replace("<repo>", str(repo)).replace("<queue>", str(queue_repo))
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT), "git", "subagents")
+
+
+@pytest.mark.parametrize("command", [*GH_WRITES, "gh pr view 12", "gh issue list", "gh search repos pycon"])
+def test_subagent_gh_other_than_api_reads_is_blocked(run_hook, make_repo, command):
+    repo = make_repo(ROLLING)
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT), "gh")
+
+
+@pytest.mark.parametrize("command", DESK_SCRIPTS)
+def test_subagent_desk_scripts_are_blocked(run_hook, make_repo, queue_repo, command):
+    repo = make_repo(ROLLING)
+    command = command.replace("<queue>", str(queue_repo))
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT), ".py", "subagents")
+
+
+@pytest.mark.parametrize("tool", ["Edit", "Write", "MultiEdit", "NotebookEdit"])
+@pytest.mark.parametrize(
+    "path",
+    [
+        "<repo>/_data/conferences.yml",
+        "_data/conferences.yml",
+        "./utils/../_data/archive.yml",
+        "<repo>/new/folder/notes.md",
+        "<repo>/../repo/_data/legacy.yml",
+        "<repo>",
+    ],
+)
+def test_subagent_edit_inside_the_repository_is_blocked(run_hook, make_repo, tool, path):
+    repo = make_repo(ROLLING)
+    outcome = run_hook(tool, github_edit(tool, path.replace("<repo>", str(repo))), cwd=repo, desk=True, **SUBAGENT)
+    assert_blocked(outcome, tool, "subagents")
+
+
+def test_subagent_edit_through_a_symlink_into_the_repository_is_blocked(run_hook, make_repo, tmp_path):
+    repo = make_repo(ROLLING)
+    (repo / "_data").mkdir()
+    (tmp_path / "link").symlink_to(repo / "_data")
+    outcome = run_hook("Write", github_edit("Write", tmp_path / "link" / "a.yml"), cwd=tmp_path, desk=True, **SUBAGENT)
+    assert_blocked(outcome, "subagents")
+
+
+def test_subagent_edit_in_the_repository_of_the_path_is_blocked(run_hook, queue_repo, tmp_path):
+    outcome = run_hook(
+        "Write",
+        github_edit("Write", queue_repo / "queue" / "a.json"),
+        cwd=tmp_path,
+        desk=True,
+        **SUBAGENT,
+    )
+    assert_blocked(outcome, "subagents")
+
+
+@pytest.mark.parametrize("path", ["<tmp>/scratch/change-set.yml", "<tmp>/scratch/notes/lead.md"])
+def test_subagent_edit_outside_the_repository_is_allowed(run_hook, make_repo, tmp_path, path):
+    repo = make_repo(ROLLING)
+    tool_input = github_edit("Write", path.replace("<tmp>", str(tmp_path)))
+    assert_allowed(run_hook("Write", tool_input, cwd=repo, desk=True, **SUBAGENT))
+
+
+@pytest.mark.parametrize(
+    ("tool", "tool_input"),
+    [
+        ("Bash", {"command": "git commit -m x"}),
+        ("Bash", {"command": f"gh api repos/{REPO}/issues/12/comments -f body=x"}),
+        ("Bash", {"command": "gh pr view 12"}),
+        ("Bash", {"command": "python utils/sort_yaml.py --skip_links"}),
+        ("Write", {"file_path": "_data/conferences.yml", "content": "x"}),
+    ],
+)
+def test_subagent_rules_apply_to_desk_runs_only(run_hook, make_repo, tool, tool_input):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook(tool, tool_input, cwd=repo, **SUBAGENT))
+
+
+@pytest.mark.parametrize(
+    ("tool", "tool_input"),
+    [
+        ("Bash", {"command": "git commit -m x"}),
+        ("Bash", {"command": "python utils/sort_yaml.py --skip_links"}),
+        ("Write", {"file_path": "_data/conferences.yml", "content": "x"}),
+    ],
+)
+def test_agent_type_without_agent_id_is_the_main_agent(run_hook, make_repo, tool, tool_input):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook(tool, tool_input, cwd=repo, desk=True, agent_type="desk"))
 
 
 # --- optional ~/.desk-guard.json deny-list (any session) ---
@@ -351,8 +781,76 @@ def test_deny_list_patterns(run_hook, home, tmp_path, deny_list, tool, tool_inpu
         assert_allowed(outcome)
 
 
-def test_without_a_deny_list_everything_else_is_allowed(run_hook, tmp_path):
+def test_an_empty_deny_list_allows_everything_else(run_hook, tmp_path):
     assert_allowed(run_hook("WebFetch", {"url": "https://example.org", "prompt": "p"}, cwd=tmp_path, desk=True))
+
+
+def remove_deny_list(home, how):
+    """Take ~/.desk-guard.json away the way ``how`` names."""
+    path = home / ".desk-guard.json"
+    if how == "deleted":
+        path.unlink()
+    elif how == "moved":
+        path.rename(home / "desk-guard.json.bak")
+    elif how == "dangling symlink":
+        path.unlink()
+        path.symlink_to(home / "gone.json")
+
+
+@pytest.mark.parametrize("how", ["deleted", "moved", "dangling symlink"])
+@pytest.mark.parametrize(
+    ("tool", "tool_input"),
+    [
+        ("Bash", {"command": "ls"}),
+        ("WebFetch", {"url": "https://example.org", "prompt": "p"}),
+        ("Write", {"file_path": "scratch/notes.md", "content": "x"}),
+    ],
+)
+def test_missing_deny_list_blocks_desk_runs_only(run_hook, home, tmp_path, how, tool, tool_input):
+    remove_deny_list(home, how)
+    assert_blocked(run_hook(tool, tool_input, cwd=tmp_path, desk=True), ".desk-guard.json", "missing")
+    assert_blocked(run_hook(tool, tool_input, cwd=tmp_path, desk=True, **SUBAGENT), ".desk-guard.json")
+    assert_allowed(run_hook(tool, tool_input, cwd=tmp_path))
+
+
+def test_deny_list_that_is_a_directory_blocks_desk_runs_only(run_hook, home, tmp_path):
+    (home / ".desk-guard.json").unlink()
+    (home / ".desk-guard.json").mkdir()
+    assert_blocked(run_hook("Bash", {"command": "ls"}, cwd=tmp_path, desk=True), ".desk-guard.json")
+    assert_allowed(run_hook("Bash", {"command": "ls"}, cwd=tmp_path))
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "<tmp>/secrets/key.txt",
+        "<tmp>//secrets/key.txt",
+        "<tmp>/./secrets/key.txt",
+        "<tmp>/data/../secrets/key.txt",
+        "/<tmp>/secrets/key.txt",
+        "secrets/key.txt",
+        "./secrets//key.txt",
+        "data/../secrets/key.txt",
+        "~/../secrets/key.txt",
+        ".claude//hooks/desk_guard.py",
+        ".claude/./hooks/desk_guard.py",
+        "<tmp>/.claude/hooks/../hooks/desk_guard.py",
+    ],
+)
+@pytest.mark.parametrize("desk", [False, True])
+def test_deny_paths_match_the_normalised_path(run_hook, home, tmp_path, path, desk):
+    deny_paths = ["^" + re.escape(str(tmp_path / "secrets")) + "/", r"/\.claude/hooks/"]
+    (home / ".desk-guard.json").write_text(json.dumps({"deny_paths": deny_paths}), encoding="utf-8")
+    tool_input = {"file_path": path.replace("<tmp>", str(tmp_path)), "content": "x"}
+    assert_blocked(run_hook("Write", tool_input, cwd=tmp_path, desk=desk), "deny_paths")
+
+
+@pytest.mark.parametrize("path", ["<tmp>/secrets-public/key.txt", "<tmp>/data/secrets.txt", "hooks/desk_guard.py"])
+def test_deny_paths_leave_other_paths_alone(run_hook, home, tmp_path, path):
+    deny_paths = ["^" + re.escape(str(tmp_path / "secrets")) + "/", r"/\.claude/hooks/"]
+    (home / ".desk-guard.json").write_text(json.dumps({"deny_paths": deny_paths}), encoding="utf-8")
+    tool_input = {"file_path": path.replace("<tmp>", str(tmp_path)), "content": "x"}
+    assert_allowed(run_hook("Write", tool_input, cwd=tmp_path, desk=True))
 
 
 @pytest.mark.parametrize(
@@ -383,11 +881,28 @@ def test_settings_register_the_hook_for_every_matcher():
     assert {group["matcher"] for group in groups} == {
         "Bash",
         "Edit|Write|MultiEdit|NotebookEdit",
-        "mcp__claude-code-remote__.*",
+        "mcp__.*|Cron.*|Remote.*|Schedule.*",
         "WebFetch",
     }
     for group in groups:
         assert group["hooks"] == [{"type": "command", "command": command}]
+
+
+def matcher_matches(matcher, tool):
+    """Match a tool name the way Claude Code reads a hook matcher.
+
+    A matcher made only of letters, digits, ``_``, ``-``, spaces, commas and ``|`` lists exact names; any
+    other matcher is a regular expression searched anywhere in the name.
+    """
+    if re.fullmatch(r"[A-Za-z0-9_\- ,|]*", matcher):
+        return tool in {name.strip() for name in re.split(r"[|,]", matcher)}
+    return re.search(matcher, tool) is not None
+
+
+@pytest.mark.parametrize("tool", ["Bash", "Edit", "Write", "MultiEdit", "NotebookEdit", "WebFetch", *GUARDED_TOOLS])
+def test_settings_send_every_guarded_tool_to_the_hook(tool):
+    groups = json.loads(SETTINGS.read_text(encoding="utf-8"))["hooks"]["PreToolUse"]
+    assert any(matcher_matches(group["matcher"], tool) for group in groups)
 
 
 def test_hook_imports_only_the_standard_library():

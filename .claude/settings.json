@@ -20,7 +20,7 @@
         ]
       },
       {
-        "matcher": "mcp__claude-code-remote__.*",
+        "matcher": "mcp__.*|Cron.*|Remote.*|Schedule.*",
         "hooks": [
           {
             "type": "command",

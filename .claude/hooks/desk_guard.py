@@ -1,31 +1,65 @@
 #!/usr/bin/env python3
 """PreToolUse guard for the deadline desk and every other Claude Code session in this repository.
 
-Claude Code runs this script before Bash, file-edit, WebFetch and claude-code-remote tool calls (see
-``.claude/settings.json``) and passes the call as JSON on stdin (``tool_name``, ``tool_input``, ``cwd``).
-Exit code 2 blocks the call and the one-line reason on stderr is shown to the agent; exit code 0 lets the
-call through to the normal permission flow.
+Claude Code runs this script before Bash, Edit, Write, MultiEdit, NotebookEdit and WebFetch calls, before every
+MCP tool, and before CronCreate, CronDelete, CronList, RemoteTrigger and ScheduleWakeup (see
+``.claude/settings.json``). It passes the call as JSON on stdin: ``tool_name``, ``tool_input``, ``cwd`` and, when
+a subagent makes the call, ``agent_id``. Exit code 2 blocks the call and the one-line reason on stderr is shown
+to the agent; exit code 0 lets the call through to the normal permission flow. A desk run is a session with
+``DESK_ROUTINE=1``.
 
-Rules, checked in this order:
+Rules for every session:
 
-1. Any session: a Bash ``git push`` that targets ``main`` or ``master``. That is a refspec whose destination
-   is the branch (``main``, ``HEAD:main``, ``:main``, ``refs/heads/main``, ``heads/main``, ``--delete main``)
-   or a glob that covers it (``refs/heads/*:refs/heads/*``), the matching refspec ``:``, ``--all``,
-   ``--mirror`` or ``--branches``, or a push without refspecs while the current branch is ``main`` or
-   ``master``. A ``--dry-run`` push and a push of ``--tags`` alone send no branch and pass.
-2. On branch ``auto/conference-updates`` or with ``DESK_ROUTINE=1``: Edit, Write, MultiEdit and
-   NotebookEdit on a path under a repository's own ``.github/`` directory. Bash commands that write there
-   are not inspected.
-3. With ``DESK_ROUTINE=1``: every ``mcp__claude-code-remote__*`` tool.
-4. When ``~/.desk-guard.json`` exists: its optional regular-expression lists ``deny_bash``, ``deny_tools``,
+1. A Bash ``git push`` that targets ``main`` or ``master`` is blocked. That is a refspec whose destination is
+   the branch (``main``, ``HEAD:main``, ``:main``, ``refs/heads/main``, ``heads/main``, ``--delete main``) or a
+   glob that covers it (``refs/heads/*:refs/heads/*``), the matching refspec ``:``, ``--all``, ``--mirror`` or
+   ``--branches``, or a push without refspecs while the current branch is ``main`` or ``master``. A
+   ``--dry-run`` push and a push of ``--tags`` alone send no branch and pass.
+2. On branch ``auto/conference-updates``, Edit, Write, MultiEdit and NotebookEdit on a path under a
+   repository's own ``.github/`` directory are blocked. Bash commands that write there are not inspected.
+3. When ``~/.desk-guard.json`` exists, its optional regular-expression lists ``deny_bash``, ``deny_tools``,
    ``deny_paths`` and ``deny_urls`` are searched in the Bash command, the tool name, the file path and the
-   WebFetch URL. A malformed file blocks every call in a desk run and is ignored elsewhere.
+   WebFetch URL. A file path is searched twice: as given, and as the absolute path it names from ``cwd``
+   with ``~`` expanded and ``.``, ``..`` and repeated slashes removed. Symlinks are not followed. Outside desk
+   runs a malformed file is ignored.
+
+Rules for desk runs, on top of those:
+
+4. ``~/.desk-guard.json`` must exist and hold a JSON object in the form rule 3 reads. When it is missing,
+   unreadable or malformed, every call is blocked.
+5. Every MCP tool (``mcp__*``) and CronCreate, CronDelete, CronList, RemoteTrigger and ScheduleWakeup are
+   blocked.
+6. Rule 2 holds on every branch.
+7. ``git push`` must name the remote ``origin`` and at least one refspec, and every refspec must write
+   ``auto/conference-updates`` or ``desk-queue``. ``--force``, ``--force-with-lease``, ``-f``, ``--delete``,
+   ``-d``, ``--mirror``, ``--all``, ``--branches``, ``--tags``, ``--follow-tags`` and ``--prune`` are blocked,
+   alone or bundled (``-fu``), and so is a refspec that starts with ``+`` or ``:``. Dry runs get no exemption.
+8. ``gh`` runs only as ``gh api``. A request is a write when ``-X`` or ``--method`` sets a method other than
+   GET, or when it passes ``-f``, ``-F``, ``--field``, ``--raw-field`` or ``--input``. The only writes allowed
+   go to ``repos/JesperDramsch/python-deadlines``: POST ``pulls``, PATCH ``pulls/<n>``, POST
+   ``issues/<n>/comments`` and POST ``issues/<n>/labels``. The endpoint is written out literally, with or
+   without a leading slash or as a full ``https://api.github.com/`` URL, and without ``--hostname``.
+
+Rules for subagents in desk runs, on top of those:
+
+9. ``git`` runs only status, log, show, diff, grep, ls-files, ls-remote, ls-tree, rev-parse, rev-list,
+   merge-base, blame, cat-file, fetch, describe, shortlog, for-each-ref, show-ref and ``config --get``, or
+   with no subcommand at all (``git --version``).
+10. ``gh`` runs only as a ``gh api`` read.
+11. A command that runs ``utils/desk_queue.py`` add, remove, snooze or init, ``utils/desk_pr_body.py``,
+    ``utils/merge_data.py`` or ``utils/sort_yaml.py`` is blocked. A script counts as run when it is the
+    program, when a Python interpreter or a runner such as ``uv`` or ``pixi`` is the program and names the
+    script (or its module after ``-m``), or as the ``pixi run sort`` and ``pixi run links`` tasks.
+12. Edit, Write, MultiEdit and NotebookEdit are blocked on any path inside a repository: the one that holds
+    ``cwd`` or the one that holds the path, with symlinks resolved. Paths outside, such as ``/tmp``, are
+    allowed.
 
 Commands are pattern matched, never run: the script splits the command line into simple commands, steps over
 shell reserved words (``do``, ``then``, ``!``, ``{``), variable assignments and wrappers with their options
-(``sudo -u bob``, ``timeout 120``, ``env -C dir``), and reads the ``git`` invocations. The current branch
-comes from the repository's ``HEAD`` file. Unreadable hook input blocks in a desk run and passes elsewhere.
-Only the Python standard library is used.
+(``sudo -u bob``, ``timeout 120``, ``env -C dir``), follows ``cd``, ``sh -c`` and ``eval``, and reads the
+``git`` (with ``-C``), ``gh`` and script invocations. Code a program runs on its own, such as ``python -c`` or
+a script file, is not inspected. The current branch comes from the repository's ``HEAD`` file. Unreadable hook
+input and internal errors block in a desk run and pass elsewhere. Only the Python standard library is used.
 """
 
 import fnmatch
@@ -35,11 +69,16 @@ import re
 import shlex
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 PROTECTED_BRANCHES = frozenset({"main", "master"})
 ROLLING_BRANCH = "auto/conference-updates"
+QUEUE_BRANCH = "desk-queue"
+DESK_REMOTE = "origin"
+DESK_PUSH_DESTINATIONS = frozenset({f"refs/heads/{ROLLING_BRANCH}", f"refs/heads/{QUEUE_BRANCH}"})
 FILE_TOOLS = frozenset({"Edit", "Write", "MultiEdit", "NotebookEdit"})
-REMOTE_TOOL_PREFIX = "mcp__claude-code-remote__"
+MCP_TOOL_PREFIX = "mcp__"
+SCHEDULING_TOOLS = frozenset({"CronCreate", "CronDelete", "CronList", "RemoteTrigger", "ScheduleWakeup"})
 DENY_LIST_NAME = ".desk-guard.json"
 DENY_LIST_KEYS = ("deny_bash", "deny_tools", "deny_paths", "deny_urls")
 
@@ -48,6 +87,60 @@ GIT_OPTIONS_WITH_VALUE = frozenset({"-C", "-c", "--git-dir", "--work-tree", "--n
 PUSH_OPTIONS_WITH_VALUE = frozenset({"--repo", "-o", "--push-option", "--receive-pack", "--exec"})
 PUSH_EVERY_BRANCH = frozenset({"--all", "--mirror", "--branches"})
 PUSH_DRY_RUN = frozenset({"--dry-run", "-n"})
+# Push options a desk run may not use: they force, delete or send more than the named branch
+DESK_PUSH_FORBIDDEN = frozenset(
+    {"--all", "--branches", "--delete", "--follow-tags", "--force", "--force-with-lease", "--mirror", "--prune"}
+    | {"--tags", "-d", "-f"},
+)
+# git subcommands a subagent may run in a desk run; "config" is allowed with --get only
+SUBAGENT_GIT_SUBCOMMANDS = frozenset(
+    {"status", "log", "show", "diff", "grep", "ls-files", "ls-remote", "ls-tree", "rev-parse", "rev-list"}
+    | {"merge-base", "blame", "cat-file", "fetch", "describe", "shortlog", "for-each-ref", "show-ref"},
+)
+
+# gh api options that take a value, and what the value sets
+GH_API_OPTIONS_WITH_VALUE = {
+    "-X": "method",
+    "--method": "method",
+    "-f": "field",
+    "--raw-field": "field",
+    "-F": "field",
+    "--field": "field",
+    "--input": "field",
+    "--hostname": "hostname",
+    "-H": "other",
+    "--header": "other",
+    "-p": "other",
+    "--preview": "other",
+    "-q": "other",
+    "--jq": "other",
+    "-t": "other",
+    "--template": "other",
+    "--cache": "other",
+}
+DESK_API_ENDPOINT = r"(?:https://api\.github\.com/|/)?repos/JesperDramsch/python-deadlines/"
+# The gh api writes a desk run may make: method and endpoint
+DESK_API_WRITES = (
+    ("POST", re.compile(DESK_API_ENDPOINT + r"pulls")),
+    ("PATCH", re.compile(DESK_API_ENDPOINT + r"pulls/[0-9]+")),
+    ("POST", re.compile(DESK_API_ENDPOINT + r"issues/[0-9]+/comments")),
+    ("POST", re.compile(DESK_API_ENDPOINT + r"issues/[0-9]+/labels")),
+)
+
+# Scripts that write the data, the queue or the PR body, which a subagent in a desk run may not run; a set
+# limits the rule to those subcommands
+DESK_SCRIPTS: dict[str, frozenset[str] | None] = {
+    "desk_pr_body.py": None,
+    "desk_queue.py": frozenset({"add", "init", "remove", "snooze"}),
+    "merge_data.py": None,
+    "sort_yaml.py": None,
+}
+# pixi.toml tasks that run one of them, and the pixi run options that take a value
+PIXI_TASKS = {"sort": "sort_yaml.py", "links": "sort_yaml.py"}
+PIXI_RUN_OPTIONS_WITH_VALUE = frozenset({"-e", "--environment", "--manifest-path"})
+# Programs that run a script named among their arguments
+SCRIPT_RUNNER = re.compile(r"(?:python|pypy)[0-9.]*|uvx?|pixi|poetry|pipenv|pdm|hatch|rye|conda|mamba|micromamba")
+
 # Shell reserved words that can stand before a command: "do git push", "if ! git push", "{ git push; }"
 RESERVED_WORDS = frozenset({"!", "{", "}", "if", "then", "elif", "else", "do", "while", "until", "coproc"})
 # Words that run the command after them, with their options that take a value and the number of operands
@@ -93,6 +186,23 @@ class BlockError(Exception):
 
 class BadInputError(ValueError):
     """Raised when the hook input is not a PreToolUse JSON object."""
+
+
+class PushArguments(NamedTuple):
+    """The words after ``git push``, sorted into positionals, option names and the ``--repo`` value."""
+
+    positionals: list[str]
+    flags: frozenset[str]
+    repo_option: str | None
+
+
+class ApiRequest(NamedTuple):
+    """The parts of a ``gh api`` call that decide whether it writes and where."""
+
+    method: str | None
+    sends_fields: bool
+    hostname: str | None
+    endpoints: list[str]
 
 
 def find_repository(directory: Path) -> tuple[Path, Path] | None:
@@ -280,6 +390,113 @@ def command_start(words: list[str], directory: str) -> tuple[int, str]:
     return min(index, len(words)), directory
 
 
+def simple_commands(command: str, cwd: str, depth: int = 0) -> list[tuple[list[str], str]]:
+    """List every simple command of a command line, with the directory it runs in.
+
+    Parameters
+    ----------
+    command : str
+        The Bash command line.
+    cwd : str
+        Directory the command line starts in; ``cd``, ``env -C`` and ``sudo -D`` move it.
+    depth : int
+        Nesting level of ``sh -c`` and ``eval`` strings already unwrapped.
+
+    Returns
+    -------
+    list[tuple[list[str], str]]
+        The words of each command from the program on, and the directory the program runs in. The commands
+        inside an ``sh -c`` or ``eval`` string follow the command that runs them.
+    """
+    found: list[tuple[list[str], str]] = []
+    directory = cwd
+    for words in split_commands(command):
+        start, command_directory = command_start(words, directory)
+        if start == len(words):
+            continue
+        program, rest = Path(words[start]).name, words[start + 1 :]
+        found.append((words[start:], command_directory))
+
+        if program == "cd":
+            target = rest[0] if rest else "~"
+            directory = str(Path(command_directory, Path(target).expanduser()))
+        elif program in SHELLS and depth < MAX_NESTING:
+            for index, word in enumerate(rest[:-1]):
+                if SHELL_COMMAND_FLAG.match(word):
+                    found.extend(simple_commands(rest[index + 1], command_directory, depth + 1))
+                    break
+        elif program == "eval" and depth < MAX_NESTING:
+            found.extend(simple_commands(" ".join(rest), command_directory, depth + 1))
+    return found
+
+
+def git_subcommand(args: list[str], directory: str) -> tuple[int, str]:
+    """Find the subcommand of a ``git`` invocation behind its global options.
+
+    Parameters
+    ----------
+    args : list[str]
+        Words after ``git``.
+    directory : str
+        Directory git starts in.
+
+    Returns
+    -------
+    tuple[int, str]
+        The index of the subcommand in ``args`` (``len(args)`` when there is none) and the directory git
+        works in, which ``-C`` changes.
+    """
+    index = 0
+    while index < len(args) and args[index].startswith("-"):
+        if args[index] == "-C" and index + 1 < len(args):
+            directory = str(Path(directory, Path(args[index + 1]).expanduser()))
+        index += 2 if args[index] in GIT_OPTIONS_WITH_VALUE else 1
+    return min(index, len(args)), directory
+
+
+def parse_push(args: list[str]) -> PushArguments:
+    """Sort the words after ``git push`` into positionals and options.
+
+    Parameters
+    ----------
+    args : list[str]
+        Words after ``push``.
+
+    Returns
+    -------
+    PushArguments
+        The positionals, the option names (a bundle such as ``-fu`` gives ``-f`` and ``-u``) and the
+        ``--repo`` value.
+    """
+    positionals: list[str] = []
+    flags: set[str] = set()
+    repo_option = None
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        index += 1
+        if arg == "--":
+            positionals.extend(args[index:])
+            break
+        if arg.startswith("--"):
+            name, equals, value = arg.partition("=")
+            flags.add(name)
+            if name in PUSH_OPTIONS_WITH_VALUE and not equals:
+                value = args[index] if index < len(args) else ""
+                index += 1
+            if name == "--repo":
+                repo_option = value
+        elif arg.startswith("-") and arg != "-":
+            for position, char in enumerate(arg[1:], start=2):
+                flags.add(f"-{char}")
+                if f"-{char}" in PUSH_OPTIONS_WITH_VALUE:
+                    index += 1 if position == len(arg) else 0  # the value is attached or the next word
+                    break
+        else:
+            positionals.append(arg)
+    return PushArguments(positionals, frozenset(flags), repo_option)
+
+
 def refspec_destination(refspec: str, directory: str) -> str:
     """Return the remote ref a push refspec writes to.
 
@@ -330,13 +547,13 @@ def protected_branch(destination: str) -> str | None:
     return None
 
 
-def push_reason(args: list[str], directory: str) -> str | None:
-    """Return why a ``git push`` with these arguments reaches main or master, or None when it does not.
+def push_reason(push: PushArguments, directory: str) -> str | None:
+    """Return why a ``git push`` reaches main or master, or None when it does not.
 
     Parameters
     ----------
-    args : list[str]
-        Words after ``push``.
+    push : PushArguments
+        The parsed words after ``push``.
     directory : str
         Repository directory the push runs in.
 
@@ -345,34 +562,17 @@ def push_reason(args: list[str], directory: str) -> str | None:
     str | None
         The block reason, or None.
     """
-    positionals: list[str] = []
-    flags: set[str] = set()
-    remote_given_as_option = False
-    skip_value = False
-    for index, arg in enumerate(args):
-        if skip_value:
-            skip_value = False
-        elif arg == "--":
-            positionals.extend(args[index + 1 :])
-            break
-        elif arg in PUSH_OPTIONS_WITH_VALUE:
-            skip_value = True
-            remote_given_as_option = remote_given_as_option or arg == "--repo"
-        elif arg.startswith("-"):
-            flags.add(arg.partition("=")[0])
-        else:
-            positionals.append(arg)
-    remote_given_as_option = remote_given_as_option or "--repo" in flags
-
-    if flags & PUSH_DRY_RUN:
+    if push.flags & PUSH_DRY_RUN:
         return None
-    every_branch = sorted(flags & PUSH_EVERY_BRANCH)
+    every_branch = sorted(push.flags & PUSH_EVERY_BRANCH)
     if every_branch:
         return f"git push {every_branch[0]} also pushes main"
 
-    refspecs = positionals if remote_given_as_option else positionals[1:]
+    # With --repo every positional counts as a refspec here. git reads the first as the remote instead, so
+    # this blocks at least what git would push to main.
+    refspecs = push.positionals if push.repo_option is not None else push.positionals[1:]
     if not refspecs:
-        if "--tags" in flags and "--follow-tags" not in flags:
+        if "--tags" in push.flags and "--follow-tags" not in push.flags:
             return None  # pushes refs/tags/* only
         branch = current_branch(directory)
         if branch in PROTECTED_BRANCHES:
@@ -392,56 +592,267 @@ def push_reason(args: list[str], directory: str) -> str | None:
     return None
 
 
-def git_push_reason(command: str, cwd: str, depth: int = 0) -> str | None:
-    """Return why a Bash command pushes to main or master, or None when it does not.
+def desk_push_reason(push: PushArguments, directory: str) -> str | None:
+    """Return why a ``git push`` is off limits in a desk run, or None when it may go ahead.
 
     Parameters
     ----------
-    command : str
-        The Bash command line.
-    cwd : str
-        Directory the command starts in; ``cd``, ``git -C`` and ``env -C`` move it.
-    depth : int
-        Nesting level of ``sh -c`` and ``eval`` strings already unwrapped.
+    push : PushArguments
+        The parsed words after ``push``.
+    directory : str
+        Repository directory the push runs in.
 
     Returns
     -------
     str | None
         The block reason, or None.
     """
-    directory = cwd
-    for words in split_commands(command):
-        start, command_directory = command_start(words, directory)
-        if start == len(words):
-            continue
-        program, rest = Path(words[start]).name, words[start + 1 :]
+    forbidden = sorted(push.flags & DESK_PUSH_FORBIDDEN)
+    if forbidden:
+        return f"git push {forbidden[0]} is off limits in desk runs"
+    # git reads the first positional as the remote, even after --repo
+    remote = push.positionals[0] if push.positionals else push.repo_option
+    if remote != DESK_REMOTE:
+        return f"git push to {remote or 'the default remote'} is off limits: desk runs push only to {DESK_REMOTE}"
+    refspecs = push.positionals[1:]
+    if not refspecs:
+        return f"git push without a refspec is off limits in desk runs; use git push {DESK_REMOTE} HEAD:<branch>"
+    for refspec in refspecs:
+        if refspec.startswith(("+", ":")):
+            return f"git push refspec {refspec!r} forces or deletes, which desk runs may not do"
+        if refspec_destination(refspec, directory) not in DESK_PUSH_DESTINATIONS:
+            return f"git push refspec {refspec!r} is off limits: desk runs push only {ROLLING_BRANCH} or {QUEUE_BRANCH}"
+    return None
 
-        if program == "cd":
-            target = rest[0] if rest else "~"
-            directory = str(Path(command_directory, Path(target).expanduser()))
-        elif program in SHELLS and depth < MAX_NESTING:
-            for index, word in enumerate(rest[:-1]):
-                if SHELL_COMMAND_FLAG.match(word):
-                    reason = git_push_reason(rest[index + 1], command_directory, depth + 1)
-                    if reason:
-                        return reason
-                    break
-        elif program == "eval" and depth < MAX_NESTING:
-            reason = git_push_reason(" ".join(rest), command_directory, depth + 1)
+
+def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool) -> str | None:
+    """Return why a ``git`` invocation is blocked, or None.
+
+    Parameters
+    ----------
+    args : list[str]
+        Words after ``git``.
+    directory : str
+        Directory git starts in.
+    desk : bool
+        Whether this is a desk run.
+    subagent : bool
+        Whether a subagent of a desk run makes the call.
+
+    Returns
+    -------
+    str | None
+        The block reason, or None.
+    """
+    index, git_directory = git_subcommand(args, directory)
+    if index == len(args):
+        return None
+    subcommand, rest = args[index], args[index + 1 :]
+    if subcommand == "push":
+        push = parse_push(rest)
+        reason = push_reason(push, git_directory)
+        if reason:
+            return f"{reason}; push to another branch instead"
+        if desk:
+            reason = desk_push_reason(push, git_directory)
             if reason:
                 return reason
-        elif program == "git":
-            git_directory = command_directory
-            index = 0
-            while index < len(rest) and rest[index].startswith("-"):
-                if rest[index] == "-C" and index + 1 < len(rest):
-                    git_directory = str(Path(git_directory, Path(rest[index + 1]).expanduser()))
-                index += 2 if rest[index] in GIT_OPTIONS_WITH_VALUE else 1
-            if index < len(rest) and rest[index] == "push":
-                reason = push_reason(rest[index + 1 :], git_directory)
-                if reason:
-                    return reason
+    if subagent and subcommand not in SUBAGENT_GIT_SUBCOMMANDS and not (subcommand == "config" and "--get" in rest):
+        return f"git {subcommand} is off limits for subagents in desk runs; return a change set to the desk"
     return None
+
+
+def parse_gh_api(args: list[str]) -> ApiRequest:
+    """Read the method, fields, host and endpoint of a ``gh api`` call.
+
+    Parameters
+    ----------
+    args : list[str]
+        Words after ``gh api``.
+
+    Returns
+    -------
+    ApiRequest
+        The method set with ``-X`` or ``--method`` (upper case, None when unset), whether fields or an input
+        file are sent, the ``--hostname`` value and the positional words.
+    """
+    method = None
+    sends_fields = False
+    hostname = None
+    endpoints: list[str] = []
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        index += 1
+        if arg == "--":
+            endpoints.extend(args[index:])
+            break
+        if arg.startswith("--"):
+            name, equals, value = arg.partition("=")
+            kind = GH_API_OPTIONS_WITH_VALUE.get(name)
+            if kind is None:
+                continue  # a switch such as --paginate
+            if not equals:
+                value = args[index] if index < len(args) else ""
+                index += 1
+        elif arg.startswith("-") and arg != "-":
+            # Short options can be bundled and take their value attached: -i, -XPATCH, -iX PATCH, -fkey=v
+            kind = None
+            for position, char in enumerate(arg[1:], start=2):
+                kind = GH_API_OPTIONS_WITH_VALUE.get(f"-{char}")
+                if kind is not None:
+                    value = arg[position:].removeprefix("=")
+                    if position == len(arg):
+                        value = args[index] if index < len(args) else ""
+                        index += 1
+                    break
+            if kind is None:
+                continue
+        else:
+            endpoints.append(arg)
+            continue
+        if kind == "method":
+            method = value.upper()
+        elif kind == "field":
+            sends_fields = True
+        elif kind == "hostname":
+            hostname = value
+    return ApiRequest(method, sends_fields, hostname, endpoints)
+
+
+def gh_reason(args: list[str], *, desk: bool, subagent: bool) -> str | None:
+    """Return why a ``gh`` invocation is blocked, or None.
+
+    Parameters
+    ----------
+    args : list[str]
+        Words after ``gh``.
+    desk : bool
+        Whether this is a desk run.
+    subagent : bool
+        Whether a subagent of a desk run makes the call.
+
+    Returns
+    -------
+    str | None
+        The block reason, or None.
+    """
+    if not desk:
+        return None
+    if not args or args[0] != "api":
+        return f"gh {args[0] if args else ''} is off limits in desk runs; use gh api"
+    request = parse_gh_api(args[1:])
+    if (request.method is None or request.method == "GET") and not request.sends_fields:
+        return None
+    if subagent:
+        return "gh api writes are off limits for subagents in desk runs; return a change set to the desk"
+    method = request.method or "POST"
+    endpoint = " ".join(request.endpoints)
+    if request.hostname is None and len(request.endpoints) == 1:
+        for allowed_method, pattern in DESK_API_WRITES:
+            if method == allowed_method and pattern.fullmatch(endpoint):
+                return None
+    return f"gh api {method} {endpoint} is not a write desk runs may make"
+
+
+def desk_script(words: list[str]) -> str | None:
+    """Return the desk script a simple command runs, or None.
+
+    Parameters
+    ----------
+    words : list[str]
+        The words of a simple command from the program on.
+
+    Returns
+    -------
+    str | None
+        The script, with its subcommand when the rule is limited to some, or None.
+    """
+    program = Path(words[0]).name
+    if program not in DESK_SCRIPTS and not SCRIPT_RUNNER.fullmatch(program):
+        return None
+    for index, word in enumerate(words):
+        name = Path(word).name
+        if index > 0 and words[index - 1] == "-m":
+            name = word.rpartition(".")[2] + ".py"  # python -m utils.sort_yaml
+        if name not in DESK_SCRIPTS:
+            continue
+        subcommands = DESK_SCRIPTS[name]
+        if subcommands is None:
+            return name
+        subcommand = next((later for later in words[index + 1 :] if not later.startswith("-")), None)
+        if subcommand in subcommands:
+            return f"{name} {subcommand}"
+    if program == "pixi" and "run" in words:
+        rest = words[words.index("run") + 1 :]
+        index = 0
+        while index < len(rest) and rest[index].startswith("-"):
+            index += 2 if rest[index] in PIXI_RUN_OPTIONS_WITH_VALUE else 1
+        if index < len(rest) and rest[index] in PIXI_TASKS:
+            return PIXI_TASKS[rest[index]]
+    return None
+
+
+def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool) -> str | None:
+    """Return why a Bash command is blocked, or None when no rule covers it.
+
+    Parameters
+    ----------
+    command : str
+        The Bash command line.
+    cwd : str
+        Directory the command starts in.
+    desk : bool
+        Whether this is a desk run.
+    subagent : bool
+        Whether a subagent of a desk run makes the call.
+
+    Returns
+    -------
+    str | None
+        The block reason, or None.
+    """
+    for words, directory in simple_commands(command, cwd):
+        program, rest = Path(words[0]).name, words[1:]
+        reason = None
+        if program == "git":
+            reason = git_reason(rest, directory, desk=desk, subagent=subagent)
+        elif program == "gh":
+            reason = gh_reason(rest, desk=desk, subagent=subagent)
+        if reason is None and subagent:
+            script = desk_script(words)
+            if script:
+                reason = f"{script} is off limits for subagents in desk runs; return a change set to the desk"
+        if reason:
+            return reason
+    return None
+
+
+def expand_user(path: str) -> Path:
+    """Return ``path`` with a leading ``~`` expanded, or unchanged when the home directory is unknown."""
+    try:
+        return Path(path).expanduser()
+    except RuntimeError:
+        return Path(path)
+
+
+def normalise_path(path: str, cwd: str) -> str:
+    """Return the absolute path a tool's file path names, without following symlinks.
+
+    Parameters
+    ----------
+    path : str
+        File path from the tool input, absolute or relative to ``cwd``.
+    cwd : str
+        The session's working directory.
+
+    Returns
+    -------
+    str
+        The path joined to ``cwd``, with ``~`` expanded and ``.``, ``..`` and repeated slashes removed.
+    """
+    joined = os.path.normpath(Path(cwd, expand_user(path)))
+    return "/" + joined.lstrip("/") if joined.startswith("//") else joined
 
 
 def github_repository(path: str, cwd: str) -> Path | None:
@@ -468,29 +879,66 @@ def github_repository(path: str, cwd: str) -> Path | None:
     return repository[0] if len(parts) > 1 and parts[0] == ".github" else None
 
 
+def enclosing_repository(path: str, cwd: str) -> Path | None:
+    """Return the root of a repository that holds ``path``: the one that holds ``cwd`` or the path itself.
+
+    Parameters
+    ----------
+    path : str
+        File path from the tool input, absolute or relative to ``cwd``.
+    cwd : str
+        The session's working directory.
+
+    Returns
+    -------
+    Path | None
+        The repository root, or None when ``path`` lies outside both, before and after resolving
+        symlinks.
+    """
+    full = Path(normalise_path(path, cwd))
+    candidates = {full, full.resolve()}
+    for start in (Path(cwd).absolute(), *(candidate.parent for candidate in candidates)):
+        repository = find_repository(start)
+        if repository is None:
+            continue
+        for root in {repository[0], repository[0].resolve()}:
+            if any(candidate.is_relative_to(root) for candidate in candidates):
+                return repository[0]
+    return None
+
+
 def load_deny_list(*, desk: bool) -> dict[str, list[re.Pattern[str]]]:
     """Read the optional deny-list from ``~/.desk-guard.json``.
 
     Parameters
     ----------
     desk : bool
-        Whether this is a desk run, where a malformed file blocks the call.
+        Whether this is a desk run, where a missing, unreadable or malformed file blocks the call.
 
     Returns
     -------
     dict[str, list[re.Pattern[str]]]
-        Compiled patterns per key; empty when the file is absent, or malformed outside a desk run.
+        Compiled patterns per key. Outside a desk run, empty when the file is missing, unreadable or
+        malformed.
 
     Raises
     ------
     BlockError
-        When the file is malformed in a desk run.
+        When the file is missing, unreadable or malformed in a desk run.
     """
     path = Path.home() / DENY_LIST_NAME
-    if not path.exists():
+    try:
+        text = path.read_text(encoding="utf-8")
+    except FileNotFoundError as error:
+        if desk:
+            raise BlockError(f"~/{DENY_LIST_NAME} is missing and desk runs need it; restore it") from error
+        return {}
+    except OSError as error:
+        if desk:
+            raise BlockError(f"~/{DENY_LIST_NAME} is unreadable ({error}); fix it") from error
         return {}
     try:
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(text)
         if not isinstance(data, dict):
             raise ValueError("the top level is not a JSON object")
         patterns = {}
@@ -499,7 +947,7 @@ def load_deny_list(*, desk: bool) -> dict[str, list[re.Pattern[str]]]:
             if not isinstance(values, list) or not all(isinstance(value, str) for value in values):
                 raise ValueError(f"{key} is not a list of strings")
             patterns[key] = [re.compile(value) for value in values]
-    except (OSError, ValueError, re.error) as error:
+    except (ValueError, re.error) as error:
         if desk:
             raise BlockError(f"~/{DENY_LIST_NAME} is malformed ({error}); fix or remove it") from error
         return {}
@@ -528,33 +976,47 @@ def check(payload: dict, *, desk: bool) -> None:
     if not isinstance(tool, str) or not isinstance(tool_input, dict):
         raise BadInputError("tool_name or tool_input is missing")
     cwd = payload["cwd"] if isinstance(payload.get("cwd"), str) else str(Path.cwd())
+    # Claude Code sets agent_id only for a subagent's calls; agent_type also comes with --agent sessions
+    subagent = desk and payload.get("agent_id") is not None
     command = tool_input.get("command") if tool == "Bash" else None
     path = tool_input.get("file_path") or tool_input.get("notebook_path")
     url = tool_input.get("url") if tool == "WebFetch" else None
 
-    if isinstance(command, str):
-        reason = git_push_reason(command, cwd)
-        if reason:
-            raise BlockError(f"{reason}; push to another branch instead")
-
-    root = github_repository(path, cwd) if tool in FILE_TOOLS and isinstance(path, str) else None
-    if root is not None:
-        if desk:
-            raise BlockError(f"{tool} under .github/ is off limits in desk runs ({path})")
-        if ROLLING_BRANCH in {current_branch(str(root)), current_branch(cwd)}:
-            raise BlockError(f"{tool} under .github/ is off limits on {ROLLING_BRANCH} ({path})")
-
-    if desk and tool.startswith(REMOTE_TOOL_PREFIX):
+    if desk and (tool.startswith(MCP_TOOL_PREFIX) or tool in SCHEDULING_TOOLS):
         raise BlockError(f"{tool} is off limits in desk runs")
 
+    if isinstance(command, str):
+        reason = bash_reason(command, cwd, desk=desk, subagent=subagent)
+        if reason:
+            raise BlockError(reason)
+
+    if tool in FILE_TOOLS and isinstance(path, str):
+        root = github_repository(path, cwd)
+        if root is not None:
+            if desk:
+                raise BlockError(f"{tool} under .github/ is off limits in desk runs ({path})")
+            if ROLLING_BRANCH in {current_branch(str(root)), current_branch(cwd)}:
+                raise BlockError(f"{tool} under .github/ is off limits on {ROLLING_BRANCH} ({path})")
+        if subagent and enclosing_repository(path, cwd) is not None:
+            raise BlockError(
+                f"{tool} inside the repository is off limits for subagents in desk runs ({path}); "
+                "write scratch files outside it and return a change set to the desk",
+            )
+
     deny_list = load_deny_list(desk=desk)
-    subjects = {"deny_bash": command, "deny_tools": tool, "deny_paths": path, "deny_urls": url}
-    for key, subject in subjects.items():
-        if not isinstance(subject, str):
-            continue
-        for pattern in deny_list.get(key, []):
-            if pattern.search(subject):
-                raise BlockError(f"~/{DENY_LIST_NAME} {key} pattern {pattern.pattern!r} matches")
+    subjects = {
+        "deny_bash": [command],
+        "deny_tools": [tool],
+        "deny_paths": [path, normalise_path(path, cwd)] if isinstance(path, str) else [],
+        "deny_urls": [url],
+    }
+    for key, values in subjects.items():
+        for subject in values:
+            if not isinstance(subject, str):
+                continue
+            for pattern in deny_list.get(key, []):
+                if pattern.search(subject):
+                    raise BlockError(f"~/{DENY_LIST_NAME} {key} pattern {pattern.pattern!r} matches")
 
 
 def block(reason: str) -> int:
