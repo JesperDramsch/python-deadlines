@@ -36,6 +36,9 @@ except ImportError:
 
 logger = get_tqdm_logger(__name__)
 
+# Recorded with merge questions handed to the desk queue
+SOURCE_NAME = "python.org"
+
 
 def fill_links_from_history(df_ics: pd.DataFrame, df_yml: pd.DataFrame) -> pd.DataFrame:
     """Fill missing links in ICS data from historical conference data.
@@ -380,6 +383,7 @@ def main(year=None, base="") -> bool:
             df_merged, df_remote, merge_report = fuzzy_match(
                 df_yml[df_yml["year"] == y],
                 df_ics.loc[df_ics["year"] == y],
+                source_name=SOURCE_NAME,
             )
             logger.info(
                 f"Merge report: {merge_report.exact_matches} exact, "
@@ -391,7 +395,7 @@ def main(year=None, base="") -> bool:
             df_merged = df_merged.drop(["conference"], axis=1)
             df_merged = deduplicate(df_merged)
             df_remote = deduplicate(df_remote)
-            df_merged = merge_conferences(df_merged, df_remote)
+            df_merged = merge_conferences(df_merged, df_remote, source_name=SOURCE_NAME)
 
             # Concatenate the new data with the existing data
             df_new = pd.concat([df_new, df_merged], ignore_index=True)
