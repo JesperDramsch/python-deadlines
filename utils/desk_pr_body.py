@@ -21,7 +21,7 @@ Exit codes: 0 when the body was written (or printed), 1 when ``gh`` failed,
 
 import argparse
 import shutil
-import subprocess
+import subprocess  # noqa: S404
 import sys
 import tempfile
 from pathlib import Path
@@ -116,7 +116,7 @@ def run_gh(args: list[str]) -> str:
         raise GhError("gh is not on PATH")
     try:
         result = subprocess.run(
-            [executable, *args],
+            [executable, *args],  # noqa: S603
             capture_output=True,
             text=True,
             encoding="utf-8",

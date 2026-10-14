@@ -32,7 +32,7 @@ import argparse
 import json
 import os
 import shutil
-import subprocess
+import subprocess  # noqa: S404
 import sys
 from collections import Counter
 from dataclasses import dataclass
@@ -447,7 +447,7 @@ def git(*args: str, cwd: Path, check: bool = True) -> subprocess.CompletedProces
     if executable is None:
         raise FileNotFoundError("git is not on PATH")
     return subprocess.run(
-        [executable, *args],
+        [executable, *args],  # noqa: S603
         cwd=cwd,
         capture_output=True,
         text=True,
