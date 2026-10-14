@@ -25,7 +25,7 @@ Out: meetups, webinars, courses and trainings, vendor sales events.
 - `conference` is the series name without the year, spelled the way the data already spells it. Before choosing a spelling, search `conference` and `alt_name` in all three data files and the keys and variations in `titles.yml`.
 - `alt_name` holds an official alternative name, such as PyCon SK for PyCon Slovakia.
 - A series that runs in several cities takes the qualifier the event itself uses ("Python Pizza Istanbul", "Pytorch Day Japan"), so that (`conference`, `year`) stays unique.
-- A series is tracked when its name matches, ignoring case and accents, a `conference` or `alt_name` in any of the three data files or a key or variation in `titles.yml`, or when its link's domain appears in the data files. Check all four before treating a find as new.
+- A find is tracked when it is the same series as an entry in any of the three data files: its name matches, ignoring case and accents, the entry's `conference` or `alt_name` or a `titles.yml` key or variation that maps to it, or its link matches the entry's `link` once years are taken out of the host and path (`2027.pycon.gr` matches `2026.pycon.gr`). A shared domain alone proves nothing: grep the data files for it to find entries to compare. On hosts that carry many series (`pydata.org`, `events.linuxfoundation.org`, `pretalx.com`, `sessionize.com`, and `web.archive.org`, where the archived URL counts) only the path tells them apart: `pydata.org/lagos2027/` is not `pydata.org/berlin2026/`.
 
 ## Field rules
 

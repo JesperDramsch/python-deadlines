@@ -19,8 +19,8 @@ The desk hands you the daily `scout` item, or an item about a series no data fil
    Done when: every source type was searched and each find is listed with the URL it came from.
 2. **Scope.** Check each find against AGENTS.md "What gets listed".
    Done when: each find is in scope, or dismissed with the reason.
-3. **Untracked check.** Search the find's name, ignoring case and accents, in `conference` and `alt_name` across all three data files and in the keys and variations of `utils/tidy_conf/data/titles.yml`; grep the data files for its link's domain.
-   Done when: each find is untracked, or dismissed as tracked under the name that matched.
+3. **Untracked check.** Apply AGENTS.md "Names": search the find's name, ignoring case and accents, in `conference` and `alt_name` across all three data files and in the keys and variations of `utils/tidy_conf/data/titles.yml`; grep the data files for its link's domain and compare each entry found by name and path. A domain match alone never makes a find tracked.
+   Done when: each find is untracked, or dismissed as tracked, naming the entry it matched and whether by name or by link.
 4. **Propose.** Follow each remaining find to its primary sources (an aggregator is a lead, never the evidence) and name it per AGENTS.md "Names".
    - Exact `start` and `end` dates: `new-series` with a full entry and every field's URL and quote, plus one `new-series` set per past edition the sources date exactly (AGENTS.md "Complete data").
    - Otherwise: `lead`, with what is known and where it is stated.
