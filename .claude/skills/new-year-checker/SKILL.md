@@ -1,6 +1,6 @@
 ---
 name: new-year-checker
-description: Looks for the next edition of a conference series that has only past editions and returns a new entry, a lead or a legacy suspect. Use when the desk hands over a worklist item whose skill is new-year-checker (stale series, missing editions, signals about archived series).
+description: Looks for the next edition of a conference series that has only past editions and returns a new entry, a lead or a legacy suspect. Use when the desk hands over a worklist item whose skill is new-year-checker (stale series, missing editions, signals about archived series, maintainer requests for a new edition).
 ---
 
 # New-year checker
@@ -16,7 +16,7 @@ The desk hands you one series whose editions are all past (`latest_edition` is t
    - the site's home page and navigation;
    - the official accounts (`twitter`, `mastodon`, `bluesky`, `youtube`), for posts announcing dates or a CfP;
    - pretalx and Sessionize pages for the next year, guessed from past slugs (`https://pretalx.com/<slug>-<year>/`, `https://sessionize.com/<slug>-<year>/`);
-   - the queue items' URLs and payloads.
+   - the queue items' URLs and payloads, and the URLs a `maintainer-request` comment gives (cite the comment for what no page states).
    Done when: every source above was tried and its outcome noted.
 3. **Decide** the series' outcome:
    - A primary source states exact `start` and `end` dates: `new-edition` with a full entry. `year` is the year of `start`. Carry over the stable fields (`conference`, `alt_name`, `sub`, the socials), citing the latest edition. Take `link`, `place`, `cfp`, `cfp_link` and the sub-links from this edition's sources, and `timezone` as AGENTS.md "Field rules" maps the zone they state. `cfp` is `TBA` until a deadline is published and `None` when the source says there is no public CfP.
@@ -27,3 +27,4 @@ The desk hands you one series whose editions are all past (`latest_edition` is t
 4. **Fill past editions.** Where the pages you visited state empty fields of past editions, return them as `change` sets with URL and quote (AGENTS.md "Complete data").
    Done when: every empty field you saw stated has a change.
 5. **Return** every change set. Flag a missing CoC (`no-coc`) and pages that did not render.
+   Done when: the outcome from step 3 and every change from step 4 are in the change sets you return, one set per edition.

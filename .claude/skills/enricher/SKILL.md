@@ -1,15 +1,15 @@
 ---
 name: enricher
-description: Checks one upcoming conference edition against its live sources (deadline and extensions, dates, place, cancellation, sub-links, socials, CoC) and returns an evidenced change set. Use when the desk hands over a worklist item whose skill is enricher, including import questions, cross-site redirects, calendar drift and change signals.
+description: Checks one upcoming conference edition against its live sources (deadline and extensions, dates, place, cancellation, sub-links, socials, CoC) and returns an evidenced change set. Use when the desk hands over a worklist item whose skill is enricher, including import questions, cross-site redirects, calendar drift, change signals and maintainer requests about any edition.
 ---
 
 # Enricher
 
-The desk hands you one worklist item for a series with an upcoming entry, plus the queue items behind it. Check that edition on its live sources and return change sets in the shape AGENTS.md "Change sets" gives. You research; the desk edits, commits and pushes. Field, name and evidence rules are in AGENTS.md.
+The desk hands you one worklist item for a series with an upcoming entry, or a maintainer request about any edition, plus the queue items behind it. Check that edition on its live sources and return change sets in the shape AGENTS.md "Change sets" gives. You research; the desk edits, commits and pushes. Field, name and evidence rules are in AGENTS.md.
 
 ## Steps
 
-1. **Load.** Read the current entry for (`conference`, `year`) in `_data/conferences.yml`: the item's `entry` is a snapshot. Read the series' other editions in all three data files. When the item has `ambiguous_matches`, settle which series it concerns from its URLs and names, or return `needs-maintainer` naming the candidates.
+1. **Load.** Read the current entry for (`conference`, `year`) from whichever of the three data files holds it (`_data/conferences.yml`, unless a `maintainer-request` names a past edition): the item's `entry` is a snapshot. Read the series' other editions in all three data files. When the item has `ambiguous_matches`, settle which series it concerns from its URLs and names, or return `needs-maintainer` naming the candidates.
    Done when: you hold the entry and the list of its empty fields.
 2. **Fetch** `link`, `cfp_link`, the CfP platform page, every URL in the queue items, and the pages the site links for sponsors, financial aid and its Code of Conduct.
    Done when: every URL has an outcome: fetched, redirected (to where) or failed (how).
