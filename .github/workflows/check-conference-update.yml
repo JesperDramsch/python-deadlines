@@ -968,7 +968,7 @@ jobs:
           CONF_ZONE: ${{ needs.zone-check.outputs.zone }}
         run: |
           git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
-          git add _data/conferences.yml
+          git add _data/conferences.yml _data/archive.yml _data/legacy.yml 2>/dev/null || git add _data/conferences.yml
           git commit -m "conf: ${CONF_NAME}" -m "Source: ${CONF_URL}" -m "Zone: ${CONF_ZONE}"
           git push origin $UPDATE_BRANCH --force-with-lease
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
@@ -1035,7 +1035,10 @@ jobs:
   # Stage 2b: Comprehensive new year scraper
   new-year-scraper:
     needs: [zone-check, triage]
+    # Disabled: in practice this path re-edited existing editions instead of
+    # adding new ones. New editions are handled by the cfp-scout routine.
     if: |
+      false &&
       needs.zone-check.outputs.skip != 'true' &&
       needs.zone-check.outputs.has_pending != 'true' &&
       needs.triage.outputs.should_analyze == 'true' &&
@@ -1231,7 +1234,7 @@ jobs:
           DETECTED_YEAR: ${{ needs.triage.outputs.detected_year }}
         run: |
           git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
-          git add _data/conferences.yml
+          git add _data/conferences.yml _data/archive.yml _data/legacy.yml 2>/dev/null || git add _data/conferences.yml
           git commit -m "conf: ${CONF_NAME} ${DETECTED_YEAR} 🆕" -m "New year detected" -m "Source: ${CONF_URL}"
           git push origin $UPDATE_BRANCH --force-with-lease
           echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
