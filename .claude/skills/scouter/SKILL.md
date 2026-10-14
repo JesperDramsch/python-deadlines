@@ -10,7 +10,10 @@ The desk hands you the daily `scout` item, or an item about a series no data fil
 ## Steps
 
 1. **Gather finds.**
-   - A `candidate` or `registry` item: the payload's names, fields and `evidence_url` are the find.
+   - A `candidate` or `registry` item: the payload's names, fields and `evidence_url` are the find. A candidate's `flags`:
+     - `lead-only`: an aggregator lead. Copy no value from it; take every value from a primary source.
+     - `no-website`: the shared sheet has this edition but no website. Search for one.
+     - `denylist-review: <domain>: <reason>`: the domain is on the denylist's `review` list. Copy the flag into the `flags` of the find's change set; the critic returns needs-maintainer.
    - A `maintainer-request` item: the series and URLs the comment names are the find, and the request settles its scope (step 2).
    - The `scout` item: search each of these, with `<year>` standing for this year and next (`date -u`).
      - Targeted web searches: "PyCon <year>", "PyData <year>", "Python conference call for proposals", "PyDay", "Python Pizza", framework and scientific library names with "conference", and the same in other languages ("conferencia Python", "Python Konferenz").
