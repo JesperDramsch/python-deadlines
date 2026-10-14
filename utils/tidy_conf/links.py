@@ -13,7 +13,9 @@ from tqdm import tqdm
 # A cfp_link/sponsor/finaid that is just the homepage again carries no
 # information (e.g. "cfp_link: https://2027.pycon.de/" on the PyCon DE entry
 # whose link is https://2027.pycon.de/) - it should be a different page, a
-# subdomain, or at least a #anchor on the homepage.
+# subdomain, or at least a #anchor on the homepage. The bare root of the
+# series site (e.g. "cfp_link: https://pycon.de/" next to
+# "link: https://2027.pycon.de/") carries no information either.
 REDUNDANT_LINK_FIELDS = ("cfp_link", "sponsor", "finaid")
 
 
@@ -40,12 +42,102 @@ def normalize_url_pointer(url: str) -> tuple:
     return (netloc, parsed.path.rstrip("/"), parsed.params, parsed.query, parsed.fragment)
 
 
+def site_host(url: str) -> str:
+    """Return the host of a URL in lower case, without port or a "www." prefix.
+
+    Parameters
+    ----------
+    url : str
+        URL to take the host from
+
+    Returns
+    -------
+    str
+        Host name, or an empty string when the URL has none
+    """
+    host = urlparse(str(url).strip()).hostname or ""
+    return host.lower().removeprefix("www.")
+
+
+def is_parent_domain(parent: str, host: str) -> bool:
+    """Check whether ``parent`` is a parent domain of ``host``.
+
+    A single label such as ``de`` does not count as a parent.
+
+    Parameters
+    ----------
+    parent : str
+        Candidate parent host, e.g. ``pycon.de``
+    host : str
+        Host to test, e.g. ``2027.pycon.de``
+
+    Returns
+    -------
+    bool
+        True when ``host`` is a subdomain of ``parent``
+    """
+    if "." not in parent:
+        return False
+    return host.endswith("." + parent)
+
+
+def is_bare_site_root(url: str) -> bool:
+    """Check whether a URL is the bare root of a site.
+
+    A bare root has an empty or "/" path and no params, query or #fragment.
+
+    Parameters
+    ----------
+    url : str
+        URL to check
+
+    Returns
+    -------
+    bool
+        True when the URL points at nothing more specific than the site itself
+    """
+    parsed = urlparse(str(url).strip())
+    if not parsed.hostname or parsed.path not in {"", "/"}:
+        return False
+    return not (parsed.params or parsed.query or parsed.fragment)
+
+
+def is_redundant_site_root(value: str, link: str) -> bool:
+    """Check whether a sub-page link is only the bare root of the main link's site.
+
+    The site is the same when the hosts are equal after dropping "www.", or
+    when the sub-page host is a parent domain of the main link's host
+    (``pycon.de`` for ``2027.pycon.de``). The reverse is not redundant: a
+    year subdomain is more specific than the series site.
+
+    Parameters
+    ----------
+    value : str
+        Sub-page link (cfp_link, sponsor or finaid)
+    link : str
+        Main conference link
+
+    Returns
+    -------
+    bool
+        True when ``value`` adds nothing over ``link``
+    """
+    if not is_bare_site_root(value):
+        return False
+    value_host, link_host = site_host(value), site_host(link)
+    if not value_host or not link_host:
+        return False
+    return value_host == link_host or is_parent_domain(value_host, link_host)
+
+
 def drop_redundant_link_fields(data: list) -> list:
     """Drop sub-page link fields that are the same pointer as the main link.
 
     Goes through cfp_link/sponsor/finaid on each conference and
     removes any that just repeat the conference's main link. This catches
-    upstream sources that fill every URL column with the homepage.
+    upstream sources that fill every URL column with the homepage. A field
+    that is only the bare root of the same site (``https://pycon.de/`` next
+    to ``https://2027.pycon.de/``) is dropped as well.
 
     Parameters
     ----------
@@ -66,12 +158,16 @@ def drop_redundant_link_fields(data: list) -> list:
         base = normalize_url_pointer(link)
         for field in REDUNDANT_LINK_FIELDS:
             value = q.get(field)
-            if value and normalize_url_pointer(value) == base:
-                tqdm.write(
-                    f"Dropping redundant '{field}' from {q.get('conference')} {q.get('year')}: "
-                    f"'{value}' is the same pointer as the main link",
-                )
-                del q[field]
+            if not value:
+                continue
+            if normalize_url_pointer(value) == base:
+                reason = "is the same pointer as the main link"
+            elif is_redundant_site_root(value, link):
+                reason = f"is only the root of the same site as the main link '{link}'"
+            else:
+                continue
+            tqdm.write(f"Dropping redundant '{field}' from {q.get('conference')} {q.get('year')}: '{value}' {reason}")
+            del q[field]
     return data
 
 

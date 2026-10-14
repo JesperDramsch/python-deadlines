@@ -120,3 +120,62 @@ class TestDropRedundantLinkFields:
         data = [{"conference": "Plain Conf", "year": 2026, "link": "https://plain.conf/"}]
         result = drop_redundant_link_fields(data)
         assert result[0] == {"conference": "Plain Conf", "year": 2026, "link": "https://plain.conf/"}
+
+
+class TestDropBareSiteRoot:
+    """A sub-page link that is only the bare root of the main link's site is dropped."""
+
+    @staticmethod
+    def _entry(link: str, **fields: str) -> list:
+        return [{"conference": "PyCon DE & PyData", "year": 2027, "link": link, **fields}]
+
+    def test_parent_domain_root_dropped(self):
+        """The series site root next to a year subdomain says nothing about the CfP."""
+        result = drop_redundant_link_fields(self._entry("https://2027.pycon.de/", cfp_link="https://pycon.de/"))
+        assert "cfp_link" not in result[0]
+        assert result[0]["link"] == "https://2027.pycon.de/"
+
+    def test_parent_domain_root_with_www_and_no_slash_dropped(self):
+        result = drop_redundant_link_fields(
+            self._entry("https://2027.pycon.de/", sponsor="http://www.pycon.de", finaid="https://pycon.de/"),
+        )
+        assert "sponsor" not in result[0]
+        assert "finaid" not in result[0]
+
+    def test_same_host_root_dropped_when_link_is_a_sub_page(self):
+        result = drop_redundant_link_fields(self._entry("https://pycon.org/2026/", cfp_link="https://www.pycon.org/"))
+        assert "cfp_link" not in result[0]
+
+    def test_sub_page_on_parent_domain_kept(self):
+        result = drop_redundant_link_fields(
+            self._entry("https://2027.pycon.de/", sponsor="https://pycon.de/sponsoring/"),
+        )
+        assert result[0]["sponsor"] == "https://pycon.de/sponsoring/"
+
+    def test_other_site_kept(self):
+        result = drop_redundant_link_fields(self._entry("https://2027.pycon.de/", cfp_link="https://pretalx.com/x/cfp"))
+        assert result[0]["cfp_link"] == "https://pretalx.com/x/cfp"
+
+    def test_other_site_root_kept(self):
+        result = drop_redundant_link_fields(self._entry("https://2027.pycon.de/", cfp_link="https://pretalx.com/"))
+        assert result[0]["cfp_link"] == "https://pretalx.com/"
+
+    def test_year_subdomain_root_next_to_series_link_kept(self):
+        """The reverse direction is more specific than the series site, so it stays."""
+        result = drop_redundant_link_fields(self._entry("https://pycon.de/", cfp_link="https://2027.pycon.de/"))
+        assert result[0]["cfp_link"] == "https://2027.pycon.de/"
+
+    def test_anchor_on_parent_domain_kept(self):
+        result = drop_redundant_link_fields(self._entry("https://2027.pycon.de/", cfp_link="https://pycon.de/#cfp"))
+        assert result[0]["cfp_link"] == "https://pycon.de/#cfp"
+
+    def test_query_on_parent_domain_kept(self):
+        result = drop_redundant_link_fields(
+            self._entry("https://2027.pycon.de/", cfp_link="https://pycon.de/?page=cfp"),
+        )
+        assert result[0]["cfp_link"] == "https://pycon.de/?page=cfp"
+
+    def test_lookalike_host_kept(self):
+        """A host that only ends in the same letters is not a parent domain."""
+        result = drop_redundant_link_fields(self._entry("https://2027.pycon.de/", cfp_link="https://con.de/"))
+        assert result[0]["cfp_link"] == "https://con.de/"
