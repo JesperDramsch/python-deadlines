@@ -31,7 +31,7 @@ Out: meetups, webinars, courses and trainings, vendor sales events.
 
 - `year` is the year of `start`.
 - `cfp` is the original deadline. An extension goes in `cfp_ext`, and a second extension replaces `cfp_ext`. `cfp` changes only to correct it to the original deadline a source states.
-- `timezone` is an IANA name (`Europe/Vienna`), set only when the source states a zone. No `timezone` means Anywhere on Earth (UTC-12).
+- `timezone` is the zone the source states, as its IANA name. UTC or GMT is `UTC`. A regional abbreviation (CET, EST) is the IANA zone of the event's location: a CET deadline for a Vienna event is `Europe/Vienna`. A deadline in Anywhere on Earth (AoE), or with no zone stated, has no `timezone`, since no `timezone` means AoE (UTC-12).
 - A deadline stated as a date only is `23:59:00` on that date.
 - A vague date ("early March", "spring 2027") is not a value. Leave the field as it is; a `cfp` with no exact deadline is `TBA`.
 - `cfp: None` means the edition has no public CfP. `cfp: Cancelled` marks a cancelled edition.

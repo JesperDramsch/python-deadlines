@@ -19,7 +19,7 @@ The desk hands you one series whose editions are all past (`latest_edition` is t
    - the queue items' URLs and payloads.
    Done when: every source above was tried and its outcome noted.
 3. **Decide** the series' outcome:
-   - A primary source states exact `start` and `end` dates: `new-edition` with a full entry. `year` is the year of `start`. Carry over the stable fields (`conference`, `alt_name`, `sub`, the socials), citing the latest edition. Take `link`, `place`, `cfp`, `cfp_link` and the sub-links from this edition's sources, and `timezone` only when they state one. `cfp` is `TBA` until a deadline is published and `None` when the source says there is no public CfP.
+   - A primary source states exact `start` and `end` dates: `new-edition` with a full entry. `year` is the year of `start`. Carry over the stable fields (`conference`, `alt_name`, `sub`, the socials), citing the latest edition. Take `link`, `place`, `cfp`, `cfp_link` and the sub-links from this edition's sources, and `timezone` as AGENTS.md "Field rules" maps the zone they state. `cfp` is `TBA` until a deadline is published and `None` when the source says there is no public CfP.
    - The edition is announced but its dates are vague or missing: `lead`, with the URL and quote.
    - Nothing found: `no-change`, listing what was tried.
    - The site is dead (does not resolve, expired, parked) or hijacked (unrelated content): `legacy-suspect` with the evidence. The data stays as it is; `utils/sort_yaml.py` owns the legacy split.

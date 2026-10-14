@@ -12,12 +12,8 @@ The desk hands you one change set (AGENTS.md "Change sets") that another subagen
 For each entry in `changes`, check:
 
 - `url`, fetched again, carries the quote verbatim, and the quote supports the value: same date, time and zone.
-- `year` is the year of `start`, and `end` is not before `start`.
-- `timezone` is set only when the page states a zone, as the IANA name for the event's location (a "CET" deadline for a Vienna event is `Europe/Vienna`). No zone stated means no `timezone`: Anywhere on Earth.
-- An extension sits in `cfp_ext` and `cfp` keeps the original deadline. A date-only deadline is `23:59:00`.
-- `cfp_link`, `sponsor`, `finaid` and `coc` land on the page they name, never a homepage or a bare domain root.
+- The value follows the AGENTS.md "Field rules" for its field: `year`, `cfp` and `cfp_ext`, `timezone` (against the zone the quote states), a date-only deadline, `place` and `sub`. Fetch each `cfp_link`, `sponsor`, `finaid` and `coc` yourself to see where it lands. `end` is not before `start`.
 - Socials are the conference's own accounts: linked from its site, or naming it in their profile.
-- `sub` codes exist in `_data/types.yml`.
 - The name follows AGENTS.md "Names": spelled as the data spells the series, (`conference`, `year`) unique, the series not tracked under another name.
 - A carried-over field matches the edition it cites.
 
