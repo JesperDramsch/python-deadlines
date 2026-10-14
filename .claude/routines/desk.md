@@ -69,7 +69,7 @@ Done when: every entry posted after the previous cut-off is an item at the front
 
 ### 6. Work the items
 
-Take the items in worklist order. Several subagents may research at once; apply and push one conference at a time. For each item:
+Take the items in worklist order. Several subagents may research at once, for different conferences: an item starts only once every earlier item of its conference has finished step 4, so its subagent sees their changes. Apply and push one conference at a time. For each item:
 
 1. **Research.** Start a subagent with "Read AGENTS.md and .claude/skills/<skill>/SKILL.md, then handle this worklist item and return change sets as AGENTS.md describes", followed by the item's JSON and every queue item its `queue_refs` name (read from `QUEUE/<file>`, matched by `id`). Done when it has returned its change sets, or its failure is recorded.
 2. **Critic.** Send every change set with result `change`, `new-edition` or `new-series`, and every scouter `lead`, to a fresh subagent with "Read AGENTS.md and .claude/skills/critic/SKILL.md, then review this change set" and the set. Done when each has a verdict.
