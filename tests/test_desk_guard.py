@@ -5,7 +5,8 @@ Each test runs the hook as a subprocess, the way Claude Code runs it: a crafted 
 for branch and repository detection. HOME holds an empty .desk-guard.json unless a test replaces or removes
 it, since a desk run without one blocks every call. pytester runs the subprocesses, with a timeout and
 captured exit code and stderr. The push spellings the hook blocks are also run with real git against a local
-bare remote, to show that git reads them as the options they abbreviate.
+bare remote, to show that git reads them as the options they abbreviate, and so are an alias set inside an
+alias, a tag fetch and a ``git config`` call whose ``--file`` takes ``--get`` as its value.
 """
 
 import ast
@@ -222,6 +223,8 @@ def assert_allowed(outcome):
         "git -c 'alias.p=!git push origin main' p",
         "git -c 'alias.p=!git push' p origin HEAD:main",
         "git -c alias.push=status push origin main",
+        "git -c 'alias.p=-c alias.q=push q' p origin HEAD:main",
+        "git -c 'alias.p=-c \"alias.q=-c alias.r=push r\" q' p origin main",
         "git-push origin main",
         "/usr/lib/git-core/git-push --force origin HEAD:main",
     ],
@@ -249,6 +252,7 @@ def test_push_targeting_main_is_blocked(run_hook, make_repo, command):
         "git push --recurse-submodules check origin",
         "git -c alias.p=push p",
         "git -c 'alias.p=!git push' p origin",
+        "git -c 'alias.p=-c alias.q=push q' p",
         "git-push origin",
     ],
 )
@@ -321,6 +325,10 @@ def test_push_from_a_worktree_on_main_is_blocked(run_hook, make_repo, git, tmp_p
         "git -c alias.st=status st",
         "git -c 'alias.p=!echo git push origin main' p",
         "git -c alias.p=q -c alias.q=p p origin main",
+        # git stops at a loop and at an alias that redefines itself
+        "git -c 'alias.p=-c alias.q=p q' p origin main",
+        "git -c 'alias.p=-c alias.p=push p' p origin main",
+        "git -c 'alias.p=-c alias.q=push q' p origin HEAD:feature",
         "git-push origin HEAD:feature",
     ],
 )
@@ -585,6 +593,16 @@ def test_blocked_push_spellings_do_harm_with_real_git(
     assert git_ref(remote, ref) == expected
 
 
+def test_alias_set_inside_an_alias_pushes_main_with_real_git(run_hook, pytester, remote_clone, git_ref):
+    remote, clone = remote_clone
+    command = "git -c 'alias.p=-c alias.q=push q' p origin HEAD:main"
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=clone), "git push", "main")
+    assert git_ref(remote, "refs/heads/main") != git_ref(clone, "HEAD")
+    result = pytester.run(GIT, "-C", str(clone), *shlex.split(command)[1:], timeout=30)
+    assert result.ret == 0, result.errlines
+    assert git_ref(remote, "refs/heads/main") == git_ref(clone, "HEAD")
+
+
 # --- gh in a desk run ---
 
 
@@ -680,6 +698,12 @@ DESK_SCRIPTS = [
     "pixi run merge",
     "pixi run sort",
     "pixi run -e default links",
+    "pixi run -m pixi.toml sort",
+    "pixi run --manifest-path pixi.toml merge",
+    "python utils/import_python_official.py",
+    "python3 ./utils/import_python_organizers.py",
+    "uv run --with pyyaml python utils/import_python_organizers.py",
+    "python -m utils.import_python_official",
     "timeout 600 python utils/merge_data.py",
     "bash -c 'python3 utils/desk_pr_body.py /tmp/ledger.md'",
     "python utils/desk_queue.py add <queue> --jsonl /tmp/records.jsonl",
@@ -693,6 +717,8 @@ DESK_PROCEDURE = [
     "git fetch origin main",
     "git fetch origin auto/conference-updates",
     "git fetch origin desk-queue",
+    "git update-ref -d refs/remotes/origin/auto/conference-updates",
+    "git rev-parse -q --verify origin/auto/conference-updates",
     "git checkout -B auto/conference-updates origin/auto/conference-updates",
     "git merge-base --is-ancestor origin/main HEAD",
     "git merge --no-edit origin/main",
@@ -724,52 +750,138 @@ def test_desk_procedure_is_allowed(run_hook, make_repo, queue_repo, command):
     assert_allowed(outcome)
 
 
+def test_desk_routine_makes_no_git_config_changes():
+    text = (ROOT / ".claude" / "routines" / "desk.md").read_text(encoding="utf-8")
+    assert not re.search(r"git (?:-C \S+ )?(?:-c|--config-env)\b|git config|GIT_CONFIG", text)
+
+
 def test_desk_data_edit_is_allowed(run_hook, make_repo):
     repo = make_repo(ROLLING)
     outcome = run_hook("Edit", github_edit("Edit", repo / "_data" / "conferences.yml"), cwd=repo, desk=True)
     assert_allowed(outcome)
 
 
-# --- git aliases in a desk run ---
+# --- git config changes in a desk run ---
 
 
-@pytest.mark.parametrize(
-    "command",
-    [
-        "git -c alias.p=push p --force origin HEAD:main",
-        "git -c alias.p=push p origin HEAD:auto/conference-updates",
-        "git -c ALIAS.P=push P origin HEAD:auto/conference-updates",
-        "git -c 'alias.c=!git commit' c -m x",
-        "git --config-env=alias.p=PUSH p origin HEAD:auto/conference-updates",
-        "git --config-env alias.p=PUSH p origin HEAD:auto/conference-updates",
-        "git config alias.p push",
-        "git config --global alias.p push",
-        "git config --add Alias.p push",
-        "git config --file .git/config alias.p 'push --force'",
-        "git config set alias.p push",
-        "git config --rename-section old alias",
-        "git config alias.p push && git p origin HEAD:auto/conference-updates",
-        "/usr/lib/git-core/git-config alias.p push",
-    ],
-)
+DESK_CONFIG_CHANGES = [
+    # -c and --config-env settings, whatever they set
+    "git -c alias.p=push p --force origin HEAD:main",
+    "git -c alias.p=push p origin HEAD:auto/conference-updates",
+    "git -c ALIAS.P=push P origin HEAD:auto/conference-updates",
+    "git -c 'alias.c=!git commit' c -m x",
+    "git -c user.name=Desk commit -m x",
+    "git -c core.quotepath=off status --short",
+    "git -c include.path=/tmp/extra.cfg status",
+    "git -c includeIf.onbranch:auto/**.path=/tmp/extra.cfg status",
+    "git -c help.autocorrect=immediate status",
+    "git -c push.default=matching push origin HEAD:auto/conference-updates",
+    "git -c push.followTags=true push origin HEAD:auto/conference-updates",
+    "git -c 'remote.origin.push=refs/heads/*:refs/heads/*' push origin HEAD:auto/conference-updates",
+    "git -c remote.origin.pushurl=/tmp/other.git push origin HEAD:auto/conference-updates",
+    "git -c url./tmp/other.git.pushInsteadOf=https://github.com/ status",
+    "git -C <queue> -c remote.origin.pushurl=/tmp/other.git push origin HEAD:desk-queue",
+    "git --config-env=alias.p=PUSH p origin HEAD:auto/conference-updates",
+    "git --config-env alias.p=PUSH p origin HEAD:auto/conference-updates",
+    "git --config-env=push.default=MODE push origin HEAD:auto/conference-updates",
+    # git config calls that are not pure reads
+    "git config alias.p push",
+    "git config --global alias.p push",
+    "git config --add Alias.p push",
+    "git config --file .git/config alias.p 'push --force'",
+    "git config set alias.p push",
+    "git config --rename-section old alias",
+    "git config alias.p push && git p origin HEAD:auto/conference-updates",
+    "/usr/lib/git-core/git-config alias.p push",
+    "git config user.email desk@example.com",
+    "git config --unset user.name",
+    "git config include.path /tmp/extra.cfg",
+    "git config remote.origin.pushurl /tmp/other.git",
+    "git config --global push.default matching",
+    "git config --edit",
+    "git config user.name --get",
+    "git config -- user.name --list",
+    "git config --file --get probe.key value",
+    "git config -f --list probe.key value",
+    "git config --fil --get probe.key value",
+    "git config --type --get probe.key value",
+    # GIT_CONFIG* environment variables
+    "GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=alias.p GIT_CONFIG_VALUE_0=push git p origin HEAD:auto/conference-updates",
+    "GIT_CONFIG_PARAMETERS=\"'push.default'='matching'\" git push origin HEAD:auto/conference-updates",
+    "GIT_CONFIG_GLOBAL=/tmp/extra.cfg git status",
+    "GIT_CONFIG_SYSTEM=/tmp/extra.cfg git status",
+    "GIT_CONFIG_NOSYSTEM=1 git status",
+    "GIT_CONFIG=/tmp/extra.cfg git status",
+    "GIT_CONFIG_COUNT+=1 git status",
+    "GIT_CONFIG_COUNT=1",
+    "env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=push.default GIT_CONFIG_VALUE_0=matching git push origin HEAD",
+    "env -u GIT_DIR GIT_CONFIG_GLOBAL=/tmp/extra.cfg git status",
+    "sudo GIT_CONFIG_GLOBAL=/tmp/extra.cfg git status",
+    "export GIT_CONFIG_GLOBAL=/tmp/extra.cfg",
+    "export GIT_CONFIG_GLOBAL=/tmp/extra.cfg && git status",
+    "export -n X GIT_CONFIG_COUNT=1",
+    "declare -x GIT_CONFIG_COUNT=1",
+    "typeset -x GIT_CONFIG_KEY_0=alias.p",
+    "f() { local GIT_CONFIG_VALUE_0=push; git status; }; f",
+    "readonly GIT_CONFIG_NOSYSTEM=1",
+    "builtin export GIT_CONFIG_COUNT=1",
+    "command export GIT_CONFIG_COUNT=1",
+    "bash -c 'GIT_CONFIG_COUNT=1 git status'",
+    "eval export GIT_CONFIG_GLOBAL=/tmp/extra.cfg",
+    "for i in 1; do GIT_CONFIG_COUNT=1 git status; done",
+]
+
+
+@pytest.mark.parametrize("command", DESK_CONFIG_CHANGES)
 @pytest.mark.parametrize("fields", [{}, SUBAGENT])
-def test_desk_git_aliases_are_blocked(run_hook, make_repo, command, fields):
+def test_desk_git_config_changes_are_blocked(run_hook, make_repo, queue_repo, command, fields):
     repo = make_repo(ROLLING)
-    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields), "git", "alias")
+    command = command.replace("<queue>", str(queue_repo))
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields), "config", "desk runs")
 
 
 @pytest.mark.parametrize(
     "command",
     [
         "git config --get alias.p",
-        "git config user.email desk@example.com",
-        "git -c user.name=Desk commit -m x",
-        "git -c core.quotepath=off status --short",
+        "git config --get-all remote.origin.fetch",
+        "git config --get-regexp '^remote\\.'",
+        "git config --list",
+        "git config -l",
+        "git config --show-origin --list",
+        "git config --global --get user.name",
+        "git config --file .git/config --get user.name",
+        "git config -f .git/config --list",
+        "git -C <queue> config --get remote.origin.url",
+        "git config --get user.name --get",
+        # words that name GIT_CONFIG* variables without assigning one
+        "echo GIT_CONFIG_COUNT=1",
+        "grep -rn GIT_CONFIG_COUNT= utils",
+        "env | grep GIT_CONFIG",
+        "export GIT_TRACE=1",
+        "GIT_TRACE=1 git status",
     ],
 )
-def test_desk_git_config_outside_alias_keys_is_allowed(run_hook, make_repo, command):
+@pytest.mark.parametrize("fields", [{}, SUBAGENT])
+def test_desk_git_config_reads_are_allowed(run_hook, make_repo, queue_repo, command, fields):
     repo = make_repo(ROLLING)
-    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True))
+    command = command.replace("<queue>", str(queue_repo))
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields))
+
+
+@pytest.mark.parametrize("command", ["git -c user.name=x status", "GIT_CONFIG_COUNT=0 git status", "git config a.b c"])
+def test_git_config_changes_outside_desk_runs_are_allowed(run_hook, make_repo, command):
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=make_repo(ROLLING)))
+
+
+def test_git_config_file_option_takes_the_read_option_as_its_value_with_real_git(run_hook, pytester, remote_clone):
+    _, clone = remote_clone
+    command = "git config --file --get probe.key value"
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=clone, desk=True), "git config", "desk runs")
+    assert not (clone / "--get").exists()
+    result = pytester.run(GIT, "-C", str(clone), *shlex.split(command)[1:], timeout=30)
+    assert result.ret == 0, result.errlines
+    assert "probe" in (clone / "--get").read_text(encoding="utf-8")
 
 
 # --- subagents in a desk run ---
@@ -797,6 +909,8 @@ SUBAGENT_GIT_READS = [
     "git config --get remote.origin.url",
     "git config --global --get user.name",
     "git config --get user.name --get",
+    "git config --get-all remote.origin.fetch",
+    "git config --list",
     "git fetch --depth 1 origin main",
     "git fetch --depth=1 origin refs/heads/main",
     "git fetch -j 2 origin main",
@@ -856,8 +970,8 @@ def test_subagent_reads_are_allowed(run_hook, make_repo, queue_repo, command):
         "git apply /tmp/patch.diff",
         "git cherry-pick abc123",
         "git update-ref refs/heads/main HEAD",
+        "git update-ref -d refs/remotes/origin/auto/conference-updates",
         "git -C <repo> commit -m x",
-        "git -c user.name=x commit -m y",
         "cd <repo> && git commit -m x",
         "git status && git commit -am x",
         "bash -c 'git commit -m x'",
@@ -880,12 +994,26 @@ def test_subagent_reads_are_allowed(run_hook, make_repo, queue_repo, command):
         "git fetch --stdin origin",
         "git fetch --refmap=+refs/heads/*:refs/heads/* origin main",
         "git fetch --refm '+refs/heads/*:refs/heads/*' origin main",
+        "git fetch origin tag v1",
+        "git fetch --depth 1 origin main tag v1",
+        "git -C <queue> fetch --no-tags origin tag v1",
     ],
 )
 def test_subagent_git_writes_are_blocked(run_hook, make_repo, queue_repo, command):
     repo = make_repo(ROLLING)
     command = command.replace("<repo>", str(repo)).replace("<queue>", str(queue_repo))
     assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT), "git", "subagents")
+
+
+def test_subagent_fetch_of_a_tag_writes_a_local_tag_with_real_git(run_hook, pytester, git, remote_clone, git_ref):
+    remote, clone = remote_clone
+    git("-C", str(remote), "tag", "v0", "main")
+    command = "git fetch origin tag v0"
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=clone, desk=True, **SUBAGENT), "tag", "subagents")
+    assert git_ref(clone, "refs/tags/v0") is None
+    result = pytester.run(GIT, "-C", str(clone), *shlex.split(command)[1:], timeout=30)
+    assert result.ret == 0, result.errlines
+    assert git_ref(clone, "refs/tags/v0") == git_ref(remote, "refs/tags/v0")
 
 
 @pytest.mark.parametrize("command", [*GH_WRITES, "gh pr view 12", "gh issue list", "gh search repos pycon"])

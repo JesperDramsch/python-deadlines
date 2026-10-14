@@ -37,9 +37,15 @@ Rules for desk runs, on top of those:
    ``-d``, ``--mirror``, ``--all``, ``--branches``, ``--tags``, ``--follow-tags``, ``--prune`` and
    ``--recurse-submodules`` (with any value) are blocked, alone, bundled (``-fu``) or abbreviated
    (``--force-w``, ``--del``), and so is a refspec that starts with ``+`` or ``:``. Dry runs get no exemption.
-   Since an alias can stand in for any git command, a ``-c`` or ``--config-env`` setting of an ``alias.*`` key
-   is blocked, and so is a ``git config`` call that names one, unless it is a ``--get`` read.
-8. ``gh`` runs only as ``gh api``. A request is a write when ``-X`` or ``--method`` sets a method other than
+8. Desk runs make no git config changes. Every ``-c`` and ``--config-env`` setting on a git command is
+   blocked, whatever it sets, and so is every ``git config`` call that is not a pure read: one that names
+   ``--get``, ``--get-all``, ``--get-regexp``, ``--list`` or ``-l`` before the first word that is not an
+   option or an option's value. A word that assigns an environment variable whose name starts with
+   ``GIT_CONFIG`` (``GIT_CONFIG_COUNT``, ``GIT_CONFIG_KEY_<n>``, ``GIT_CONFIG_PARAMETERS``,
+   ``GIT_CONFIG_GLOBAL`` and the rest) is blocked too: as a leading assignment, an ``env`` operand, or an
+   ``export``, ``declare``, ``typeset``, ``local`` or ``readonly`` argument. This closes the routes through
+   aliases, ``include.path``, ``includeIf``, ``help.autocorrect``, ``push.*``, ``remote.*`` and ``url.*``.
+9. ``gh`` runs only as ``gh api``. A request is a write when ``-X`` or ``--method`` sets a method other than
    GET, or when it passes ``-f``, ``-F``, ``--field``, ``--raw-field`` or ``--input``. The only writes allowed
    go to ``repos/JesperDramsch/python-deadlines``: POST ``pulls``, PATCH ``pulls/<n>``, POST
    ``issues/<n>/comments`` and POST ``issues/<n>/labels``. The endpoint is written out literally, with or
@@ -47,36 +53,45 @@ Rules for desk runs, on top of those:
 
 Rules for subagents in desk runs, on top of those:
 
-9. ``git`` runs only status, log, show, diff, grep, ls-files, ls-remote, ls-tree, rev-parse, rev-list,
-   merge-base, blame, cat-file, fetch, describe, shortlog, for-each-ref, show-ref and ``config --get``, or
-   with no subcommand at all (``git --version``). ``--get`` must come before the first word that is not an
-   option, since git config reads a later one as a value to write. A ``fetch`` refspec after the remote that
-   contains ``:`` or starts with ``+`` writes a local ref and is blocked, and so are ``--refmap`` and
-   ``--stdin``, which set refspecs.
-10. ``gh`` runs only as a ``gh api`` read.
-11. A command that runs ``utils/desk_queue.py`` add, remove, snooze or init, ``utils/desk_pr_body.py``,
-    ``utils/merge_data.py``, ``utils/sort_yaml.py`` or ``utils/main.py`` (the importers and the sort) is
-    blocked. A script counts as run when it is the program, when a Python interpreter or a runner such as
-    ``uv`` or ``pixi`` is the program and names the script (or its module after ``-m``, also attached as in
-    ``-mutils.sort_yaml``), or as the ``pixi run sort``, ``pixi run links`` and ``pixi run merge`` tasks.
-    ``main.py`` counts only in a folder named ``utils``.
-12. Edit, Write, MultiEdit and NotebookEdit are blocked on any path inside a repository: the one that holds
+10. ``git`` runs only status, log, show, diff, grep, ls-files, ls-remote, ls-tree, rev-parse, rev-list,
+    merge-base, blame, cat-file, fetch, describe, shortlog, for-each-ref, show-ref and a pure ``config``
+    read (rule 8), or with no subcommand at all (``git --version``). Rule 8 already blocks every ``-c``,
+    ``--config-env`` and ``GIT_CONFIG*`` setting. A ``fetch`` refspec after the remote that contains ``:``
+    or starts with ``+`` writes a local ref and is blocked, and so is the word ``tag`` after the remote
+    (``git fetch origin tag v1``), which writes a local tag, and ``--refmap`` and ``--stdin``, which set
+    refspecs.
+11. ``gh`` runs only as a ``gh api`` read.
+12. A command that runs ``utils/desk_queue.py`` add, remove, snooze or init, ``utils/desk_pr_body.py``,
+    ``utils/merge_data.py``, ``utils/sort_yaml.py``, ``utils/main.py``, ``utils/import_python_official.py``
+    or ``utils/import_python_organizers.py`` (the queue, the PR body, the merge, the sort and the
+    importers, which all write the data, the queue or the PR) is blocked. A script counts as run when it is
+    the program, when a Python interpreter or a runner such as ``uv`` or ``pixi`` is the program and names
+    the script (or its module after ``-m``, also attached as in ``-mutils.sort_yaml``), or as the
+    ``pixi run sort``, ``pixi run links`` and ``pixi run merge`` tasks, also after ``pixi run`` options
+    such as ``-e <environment>`` or ``-m <manifest>``. ``main.py`` counts only in a folder named ``utils``.
+13. Edit, Write, MultiEdit and NotebookEdit are blocked on any path inside a repository: the one that holds
     ``cwd`` or the one that holds the path, with symlinks resolved. Paths outside, such as ``/tmp``, are
     allowed. Bash commands that write into the repository are not inspected, apart from the git and script
-    calls of rules 9 and 11.
+    calls of rules 10 and 12.
 
 Commands are pattern matched, never run: the script splits the command line into simple commands, steps over
 shell reserved words (``do``, ``then``, ``!``, ``{``), variable assignments and wrappers with their options
 (``sudo -u bob``, ``timeout 120``, ``env -C dir``), follows ``cd``, ``sh -c`` and ``eval``, and reads the
 ``git`` (with ``-C``), ``gh`` and script invocations. A program named ``git-<sub>`` in any folder, such as
 ``/usr/lib/git-core/git-push``, counts as ``git <sub>``. Outside desk runs, an alias set with
-``git -c alias.<name>=<value>`` is expanded before the rules apply, a shell alias (``!...``) included.
-Aliases from config files, from ``--config-env`` or from ``GIT_CONFIG_*`` variables are not expanded, and
-commands git runs from its config, such as hooks, ``core.pager`` and ``core.sshCommand``, are not inspected.
-Programs other than ``git`` and ``gh``, such as ``curl``, are not inspected beyond rules 3 and 11, and neither
-is code a program runs on its own, such as ``python -c`` or a script file. The current branch comes from the
-repository's ``HEAD`` file. Unreadable hook input and internal errors block in a desk run and pass elsewhere.
-Only the Python standard library is used.
+``git -c alias.<name>=<value>`` is expanded before the rules apply, a shell alias (``!...``) included. The
+aliases are read again after each expansion, so one set by a ``-c`` inside another alias's value is expanded
+too; expansion stops at ``push``, at a name already expanded and at a name no ``-c`` defines. Outside desk
+runs, these are not inspected: aliases from config files, from ``--config-env`` or from ``GIT_CONFIG_*``
+variables, which are not expanded; config that sets push targets or options (``remote.<name>.push``,
+``remote.<name>.pushurl``, ``push.default``, ``push.followTags``, ``push.recurseSubmodules``,
+``url.<base>.pushInsteadOf``), which is not read; a subcommand git autocorrects (``help.autocorrect``); and
+commands git runs from its config, such as hooks, ``core.pager`` and ``core.sshCommand``. Desk runs block all
+of these by refusing config changes (rule 8). That covers git and shell commands: a file tool or another
+program that writes a config file directly is not inspected. Programs other than ``git`` and ``gh``, such as
+``curl``, are not inspected beyond rules 3, 8 and 12, and neither is code a program runs on its own, such as
+``python -c`` or a script file. The current branch comes from the repository's ``HEAD`` file. Unreadable hook
+input and internal errors block in a desk run and pass elsewhere. Only the Python standard library is used.
 """
 
 import fnmatch
@@ -105,9 +120,14 @@ GIT_OPTIONS_WITH_VALUE = frozenset({"-C", "-c", "--git-dir", "--work-tree", "--n
 PUSH_OPTIONS_WITH_VALUE = frozenset(
     {"--repo", "-o", "--push-option", "--receive-pack", "--exec", "--recurse-submodules"},
 )
-# git options that set a config value for one call ("-c alias.p=push"), and a key in the alias section
+# git options that set a config value for one call ("-c alias.p=push", "--config-env=alias.p=VARIABLE")
 GIT_CONFIG_OPTIONS = frozenset({"-c", "--config-env"})
-ALIAS_KEY = re.compile(r"alias(?:\.|$)", re.IGNORECASE)
+# git config options that only read, and the options that take the next word as their value
+CONFIG_READ_OPTIONS = frozenset({"--get", "--get-all", "--get-regexp", "--list", "-l"})
+CONFIG_OPTIONS_WITH_VALUE = frozenset({"--blob", "--comment", "--default", "--file", "--type", "--value", "-f"})
+# An environment variable that changes git config, and the shell builtins that assign one in an argument
+GIT_CONFIG_VARIABLE = re.compile(r"GIT_CONFIG[A-Za-z0-9_]*\+?=")
+ASSIGNING_BUILTINS = frozenset({"declare", "export", "local", "readonly", "typeset"})
 PUSH_EVERY_BRANCH = frozenset({"--all", "--mirror", "--branches"})
 PUSH_DRY_RUN = frozenset({"--dry-run", "-n"})
 # Push options a desk run may not use: they force, delete or send more than the named branch
@@ -162,6 +182,8 @@ DESK_API_WRITES = (
 DESK_SCRIPTS: dict[str, frozenset[str] | None] = {
     "desk_pr_body.py": None,
     "desk_queue.py": frozenset({"add", "init", "remove", "snooze"}),
+    "import_python_official.py": None,
+    "import_python_organizers.py": None,
     "main.py": None,
     "merge_data.py": None,
     "sort_yaml.py": None,
@@ -170,7 +192,7 @@ DESK_SCRIPTS: dict[str, frozenset[str] | None] = {
 UTILS_ONLY_SCRIPTS = frozenset({"main.py"})
 # pixi.toml tasks that run one of them, and the pixi run options that take a value
 PIXI_TASKS = {"sort": "sort_yaml.py", "links": "sort_yaml.py", "merge": "main.py"}
-PIXI_RUN_OPTIONS_WITH_VALUE = frozenset({"-e", "--environment", "--manifest-path"})
+PIXI_RUN_OPTIONS_WITH_VALUE = frozenset({"-e", "--environment", "-m", "--manifest-path"})
 # Programs that run a script named among their arguments
 SCRIPT_RUNNER = re.compile(r"(?:python|pypy)[0-9.]*|uvx?|pixi|poetry|pipenv|pdm|hatch|rye|conda|mamba|micromamba")
 # The -m option of a Python interpreter, alone or after other switches, with the module attached or not:
@@ -182,6 +204,7 @@ RESERVED_WORDS = frozenset({"!", "{", "}", "if", "then", "elif", "else", "do", "
 # Words that run the command after them, with their options that take a value and the number of operands
 # before that command: "sudo -u bob git push", "timeout -s KILL 120 git push", "flock lockfile git push"
 WRAPPERS: dict[str, tuple[frozenset[str], int]] = {
+    "builtin": (frozenset(), 0),
     "command": (frozenset(), 0),
     "doas": (frozenset({"-C", "-u"}), 0),
     "env": (frozenset({"-C", "--chdir", "-S", "--split-string", "-u", "--unset"}), 0),
@@ -210,7 +233,7 @@ WRAPPERS: dict[str, tuple[frozenset[str], int]] = {
 WRAPPER_CHDIR = {"env": frozenset({"-C", "--chdir"}), "sudo": frozenset({"-D", "--chdir"})}
 SHELLS = frozenset({"bash", "dash", "ksh", "sh", "su", "zsh"})
 SHELL_COMMAND_FLAG = re.compile(r"^-[A-Za-z]*c[A-Za-z]*$")  # -c, -lc, -ec
-ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*\+?=")  # NAME=value or NAME+=value
 HEREDOC = re.compile(r"(?<!<)<<(?!<)-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 SHELL_PUNCTUATION = ";&|()<>"
 MAX_NESTING = 3
@@ -222,6 +245,14 @@ class BlockError(Exception):
 
 class BadInputError(ValueError):
     """Raised when the hook input is not a PreToolUse JSON object."""
+
+
+class SimpleCommand(NamedTuple):
+    """One simple command: its words from the program on, the directory it runs in and the words before it."""
+
+    words: list[str]
+    directory: str
+    prefix: list[str]  # reserved words, assignments and wrappers with their options and operands
 
 
 class GitCommand(NamedTuple):
@@ -434,7 +465,7 @@ def command_start(words: list[str], directory: str) -> tuple[int, str]:
     return min(index, len(words)), directory
 
 
-def simple_commands(command: str, cwd: str, depth: int = 0) -> list[tuple[list[str], str]]:
+def simple_commands(command: str, cwd: str, depth: int = 0) -> list[SimpleCommand]:
     """List every simple command of a command line, with the directory it runs in.
 
     Parameters
@@ -448,18 +479,19 @@ def simple_commands(command: str, cwd: str, depth: int = 0) -> list[tuple[list[s
 
     Returns
     -------
-    list[tuple[list[str], str]]
-        The words of each command from the program on, and the directory the program runs in. The commands
-        inside an ``sh -c`` or ``eval`` string follow the command that runs them.
+    list[SimpleCommand]
+        The words of each command from the program on, the directory the program runs in and the words
+        before the program. A command made only of assignments has no words. The commands inside an
+        ``sh -c`` or ``eval`` string follow the command that runs them.
     """
-    found: list[tuple[list[str], str]] = []
+    found: list[SimpleCommand] = []
     directory = cwd
     for words in split_commands(command):
         start, command_directory = command_start(words, directory)
+        found.append(SimpleCommand(words[start:], command_directory, words[:start]))
         if start == len(words):
             continue
         program, rest = Path(words[start]).name, words[start + 1 :]
-        found.append((words[start:], command_directory))
 
         if program == "cd":
             target = rest[0] if rest else "~"
@@ -759,10 +791,12 @@ def desk_push_reason(push: PushArguments, directory: str) -> str | None:
 
 
 def config_reads(args: list[str]) -> bool:
-    """Return True when ``git config`` only reads: ``--get`` comes before the first word that is not an option.
+    """Return True when ``git config`` only reads.
 
-    git config stops reading options at that word, so a later ``--get`` is a value it writes
-    (``git config user.name --get``).
+    A read names ``--get``, ``--get-all``, ``--get-regexp``, ``--list`` or ``-l`` before the first word
+    that is not an option. git config stops reading options at that word, so a later one is a value it
+    writes (``git config user.name --get``), and so is a word an option such as ``--file`` takes as its
+    value (``git config --file --get user.name x``).
 
     Parameters
     ----------
@@ -772,13 +806,21 @@ def config_reads(args: list[str]) -> bool:
     Returns
     -------
     bool
-        Whether the call is a ``--get`` read.
+        Whether the call is a pure read.
     """
-    for word in args:
-        if word == "--get":
+    index = 0
+    while index < len(args):
+        word = args[index]
+        index += 1
+        if word in CONFIG_READ_OPTIONS:
             return True
-        if word == "--" or not word.startswith("-"):
+        if word in {"--", "-"} or not word.startswith("-"):
             return False
+        # An option that takes a value, written out or abbreviated, or a short cluster that ends in one
+        if "=" not in word and (
+            long_option(word, CONFIG_OPTIONS_WITH_VALUE) or takes_value(word, CONFIG_OPTIONS_WITH_VALUE)
+        ):
+            index += 1
     return False
 
 
@@ -816,8 +858,11 @@ def fetch_reason(args: list[str]) -> str | None:
                     break
         else:
             positionals.append(arg)
-    # The first positional is the remote; a refspec with a destination or a "+" writes a local ref
+    # The first positional is the remote; a refspec with a destination or a "+" writes a local ref, and so
+    # does "tag <name>", which fetches refs/tags/<name> into the local tag
     for refspec in positionals[1:]:
+        if refspec == "tag":
+            return "git fetch tag <name> writes a local tag, which subagents in desk runs may not do"
         if ":" in refspec or refspec.startswith("+"):
             return f"git fetch refspec {refspec!r} writes a local ref, which subagents in desk runs may not do"
     return None
@@ -845,16 +890,21 @@ def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool, d
         The block reason, or None.
     """
     command = git_subcommand(args, directory)
-    if desk:
-        for option, setting in command.settings:
-            if ALIAS_KEY.match(setting):
-                return f"git {option} {setting} is off limits in desk runs: an alias can stand in for any git command"
+    if desk and command.settings:
+        option, setting = command.settings[0]
+        return f"git {option} {setting} is off limits in desk runs, which make no git config changes"
 
-    # Outside desk runs, expand the aliases the call sets. git ignores an alias that hides one of its own
-    # commands, so none stands in for push itself; each alias is expanded once, as git stops at a loop.
-    aliases = {} if desk else git_aliases(command.settings)
-    while command.index < len(args) and args[command.index] != "push" and args[command.index].lower() in aliases:
-        value, rest = aliases.pop(args[command.index].lower()), args[command.index + 1 :]
+    # Outside desk runs, expand the aliases the call sets. An alias value can set more aliases with -c, so
+    # the map is read again after each expansion. git ignores an alias that hides one of its own commands,
+    # so none stands in for push itself, and it stops at a loop, so no name is expanded twice.
+    expanded: set[str] = set()
+    while not desk and command.index < len(args):
+        name = args[command.index].lower()
+        aliases = git_aliases(command.settings)
+        if args[command.index] == "push" or name in expanded or name not in aliases:
+            break
+        expanded.add(name)
+        value, rest = aliases[name], args[command.index + 1 :]
         if value.startswith("!"):
             # A shell alias runs its command with the remaining words appended
             if depth >= MAX_NESTING:
@@ -878,12 +928,12 @@ def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool, d
             if reason:
                 return reason
     reads = subcommand == "config" and config_reads(rest)
-    if desk and subcommand == "config" and not reads and any(ALIAS_KEY.match(word) for word in rest):
-        return "git config writes to alias keys are off limits in desk runs: an alias can stand in for any git command"
     if subagent and subcommand == "fetch":
         return fetch_reason(rest)
     if subagent and subcommand not in SUBAGENT_GIT_SUBCOMMANDS and not reads:
         return f"git {subcommand} is off limits for subagents in desk runs; return a change set to the desk"
+    if desk and subcommand == "config" and not reads:
+        return "git config is off limits in desk runs, which make no git config changes, apart from pure reads"
     return None
 
 
@@ -1054,6 +1104,28 @@ def desk_script(words: list[str], directory: str) -> str | None:
     return None
 
 
+def git_config_assignment(prefix: list[str], words: list[str]) -> str | None:
+    """Return the word of a simple command that assigns a ``GIT_CONFIG*`` environment variable, or None.
+
+    Parameters
+    ----------
+    prefix : list[str]
+        The words before the program: leading assignments and wrappers, with ``env``'s operands.
+    words : list[str]
+        The words from the program on, whose arguments assign when the program is ``export``, ``declare``,
+        ``typeset``, ``local`` or ``readonly``.
+
+    Returns
+    -------
+    str | None
+        The assignment, such as ``GIT_CONFIG_COUNT=1``, or None.
+    """
+    candidates = list(prefix)
+    if words and words[0] in ASSIGNING_BUILTINS:
+        candidates.extend(words[1:])
+    return next((word for word in candidates if GIT_CONFIG_VARIABLE.match(word)), None)
+
+
 def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: int = 0) -> str | None:
     """Return why a Bash command is blocked, or None when no rule covers it.
 
@@ -1075,7 +1147,13 @@ def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: in
     str | None
         The block reason, or None.
     """
-    for words, directory in simple_commands(command, cwd, depth):
+    for words, directory, prefix in simple_commands(command, cwd, depth):
+        if desk:
+            assignment = git_config_assignment(prefix, words)
+            if assignment:
+                return f"{assignment} is off limits in desk runs, which make no git config changes"
+        if not words:
+            continue
         program, rest = Path(words[0]).name, words[1:]
         if program.startswith("git-") and len(program) > len("git-"):
             # The dashed programs in git's exec path, such as git-push, run as the subcommand
