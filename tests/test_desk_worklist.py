@@ -149,6 +149,7 @@ class TestRouting:
         assert item["year"] == 2027
         assert item["entry"] is None
         assert item["latest_edition"]["year"] == 2023
+        assert item["context"] == {}
 
     def test_legacy_only_series_goes_to_new_year_checker(self):
         data = dataset(legacy=[conf("PyCon Example", 2015)])
@@ -188,11 +189,11 @@ class TestRouting:
     def test_entry_for_the_item_year(self):
         data = dataset([conf("PyCon Example", 2026), conf("PyCon Example", 2027)])
 
-        with_year = only(build(data, [queue_item(title="PyCon Example 2026 - Main")]))
+        with_year = only(build(data, [queue_item(title="PyCon Example 2027 - Main")]))
         without_year = only(build(data, [queue_item(title="PyCon Example")]))
 
-        assert (with_year["year"], with_year["entry"]["year"]) == (2026, 2026)
-        assert (without_year["year"], without_year["entry"]["year"]) == (2027, 2027)
+        assert (with_year["year"], with_year["entry"]["year"], with_year["context"]) == (2027, 2027, {})
+        assert (without_year["year"], without_year["entry"]["year"], without_year["context"]) == (2026, 2026, {})
 
     def test_year_from_item_field(self):
         data = dataset([conf("PyCon Example", 2026), conf("PyCon Example", 2027)])
@@ -220,6 +221,110 @@ class TestRouting:
         item = only(build(data, [queue_item(title="Some page title", series="PyCon Example")]))
 
         assert item["skill"] == "enricher"
+
+
+class TestQueueYear:
+    """Watch titles keep the year of the edition they were created for, so a queue year can be stale."""
+
+    def test_stale_title_year_takes_the_entry_year(self):
+        data = dataset([conf("PyCon US", 2027, cfp=days_ago(1))], [conf("PyCon US", 2026)])
+        signal = queue_item(title="[Conference] PyCon US 2026 - Main", year=2026)
+
+        item = only(build(data, [signal]))
+
+        assert item["skill"] == "enricher"
+        assert item["reasons"] == ["deadline-check", "signal"]
+        assert (item["conference"], item["year"], item["entry"]["year"]) == ("PyCon US", 2027, 2027)
+        assert item["context"]["queue_year"] == 2026
+        assert item["context"]["days_since"] == 1
+        assert item["queue_refs"] == [{"file": "queue/example.json", "id": signal["id"]}]
+
+    def test_stale_title_year_merges_into_tba_rotation(self):
+        name = name_in_slot("PyCon TBA", TODAY.weekday(), 2027)
+        data = dataset([conf(name, 2027, cfp="TBA")], [conf(name, 2026)])
+
+        item = only(build(data, [queue_item(title=f"[Conference] {name} 2026 - Main", year=2026)]))
+
+        assert item["reasons"] == ["signal", "tba-rotation"]
+        assert (item["year"], item["entry"]["year"], item["context"]) == (2027, 2027, {"queue_year": 2026})
+
+    def test_stale_title_year_takes_the_next_edition(self):
+        data = dataset([conf("PyCon Example", 2026), conf("PyCon Example", 2027)], [conf("PyCon Example", 2025)])
+
+        item = only(build(data, [queue_item(title="[Conference] PyCon Example 2025 - Main")]))
+
+        assert (item["year"], item["entry"]["year"], item["context"]) == (2026, 2026, {"queue_year": 2025})
+
+    def test_yearless_item_takes_the_next_edition(self):
+        """An edition starting next week comes before the TBA entry for the year after."""
+        data = dataset(
+            [
+                conf("PyTorch Conference", 2026, start=TODAY + timedelta(days=6), end=TODAY + timedelta(days=7)),
+                conf("PyTorch Conference", 2027),
+            ],
+        )
+
+        item = only(build(data, [queue_item(title="[Conference] PyTorch Conference - Main")]))
+
+        assert (item["year"], item["entry"]["year"], item["context"]) == (2026, 2026, {})
+
+    @pytest.mark.parametrize(("days_since_end", "expected"), [(1, 2027), (0, 2026)])
+    def test_ended_edition_is_passed_over(self, days_since_end, expected):
+        """An edition that has ended but is not archived yet is not the next one; one ending today is."""
+        end = TODAY - timedelta(days=days_since_end)
+        data = dataset(
+            [conf("PyCon Example", 2026, start=end - timedelta(days=2), end=end), conf("PyCon Example", 2027)],
+        )
+
+        item = only(build(data, [queue_item(title="PyCon Example")]))
+
+        assert item["year"] == expected
+
+    def test_newest_when_every_edition_has_ended(self):
+        data = dataset(
+            [
+                conf("PyCon Example", 2025, start=TODAY - timedelta(days=40), end=TODAY - timedelta(days=38)),
+                conf("PyCon Example", 2026, start=TODAY - timedelta(days=5), end=TODAY - timedelta(days=3)),
+            ],
+        )
+
+        item = only(build(data, [queue_item(title="PyCon Example")]))
+
+        assert item["year"] == 2026
+
+    def test_ambiguous_item_keeps_its_queue_year(self):
+        data = dataset([conf("PyHEP.dev", 2027, alt_name="PyHEP")], [conf("PyHEP", 2025)])
+
+        item = only(build(data, [queue_item(title="[Conference] PyHEP 2025 - Main")]))
+
+        assert (item["year"], item["entry"], item["context"]) == (2025, None, {})
+
+    @pytest.mark.parametrize("title_year", [2024, 2025])
+    def test_known_edition_year_merges_into_stale_series(self, title_year):
+        """For the new-year-checker, a year it already has is not the edition to look for."""
+        name = name_in_slot("PyCon Stale", TODAY.weekday())
+        data = dataset(archive=[conf(name, 2024), conf(name, 2025)])
+
+        item = only(build(data, [queue_item(title=f"[Conference] {name} {title_year} - Main", year=title_year)]))
+
+        assert item["skill"] == "new-year-checker"
+        assert item["reasons"] == ["signal", "stale-series"]
+        assert item["year"] is None
+        assert item["latest_edition"]["year"] == 2025
+        assert item["context"] == {"queue_year": title_year, "latest_year": 2025}
+
+    def test_missing_edition_year_is_kept(self):
+        data = dataset(archive=[conf("PyCon Example", 2025)])
+        candidate = queue_item(
+            "candidate",
+            "PyCon Example 2026",
+            source="pretalx",
+            payload={"classification": "MISSING_EDITION", "fields": {"conference": "PyCon Example", "year": 2026}},
+        )
+
+        item = only(build(data, [candidate]))
+
+        assert (item["skill"], item["year"], item["context"]) == ("new-year-checker", 2026, {})
 
 
 class TestKindOverrides:

@@ -10,13 +10,21 @@ Work comes from four places, in this order in the output:
    1, 3 or 7 days before today, counted from the deadline's calendar date in
    the entry's timezone (AoE, UTC-12, when unset).
 2. Queue items read from a checkout of the desk-queue branch, matched to a
-   series by name.
+   series by name the way cfp_candidates.py matches: after
+   normalize_conference_name and the titles.yml mappings, ignoring case,
+   accents and whitespace. A matched item takes the year of the entry it is
+   bound to: the entry for its own year, else the next edition that has not
+   ended. A differing queue year is kept in context["queue_year"].
 3. Rotations: entries with a TBA cfp and stale series from cfp_candidates.py,
    each picked on one weekday in seven by a hash of its name.
 4. One open-ended scouting item, unless --no-scout is given.
 
 Items for the same skill, conference and year are merged. The same data,
 queue and date always give the same output. Nothing here touches the network.
+
+It needs the same packages as sort_yaml.py (the pixi or uv environment),
+because the title normalisation in tidy_conf imports pandas, pydantic,
+thefuzz and tqdm.
 
 Usage::
 
@@ -465,16 +473,27 @@ def _match(names: list[str], lookup: dict, known_mappings: dict) -> tuple[str | 
     return (names[0] if names else None), []
 
 
-def _pick_upcoming(upcoming: list[dict], year: int | None) -> dict:
-    """Return the upcoming entry for the year, else the newest upcoming entry."""
+def _pick_upcoming(upcoming: list[dict], year: int | None, today: date) -> dict:
+    """Return the upcoming entry for the year, else the next edition that has not ended.
+
+    When every entry has ended (conferences.yml not yet sorted), the newest one is returned.
+    """
     for entry in upcoming:
         if year is not None and _as_year(entry.get("year")) == year:
             return entry
+    running = [entry for entry in upcoming if (_as_date(entry.get("end")) or date.max) >= today]
+    if running:
+        return min(running, key=_edition_order)
     return max(upcoming, key=_edition_order)
 
 
-def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: dict) -> dict:
-    """Turn one queue item into a worklist item."""
+def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: dict, today: date) -> dict:
+    """Turn one queue item into a worklist item.
+
+    A matched item takes its year from the entry it is bound to. Watch titles keep the year
+    of the edition they were created for, so a queue year that names no upcoming entry, or
+    an edition the new-year-checker already has, is moved to context["queue_year"].
+    """
     kind = item.get("kind")
     payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
     reason = kind if kind in QUEUE_KINDS else "signal"
@@ -501,7 +520,7 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
         representatives = []
         for key in matches:
             if upcoming[key]:
-                path, entry = DATA_PATHS["conferences"], _pick_upcoming(upcoming[key], year)
+                path, entry = DATA_PATHS["conferences"], _pick_upcoming(upcoming[key], year, today)
             else:
                 path, entry = max(editions[key], key=lambda edition: _edition_order(edition[1]))
             representatives.append(
@@ -512,14 +531,17 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
 
     key = matches[0]
     latest = max(editions[key], key=lambda edition: _edition_order(edition[1]))[1]
-    chosen = _pick_upcoming(upcoming[key], year) if upcoming[key] else None
+    chosen = _pick_upcoming(upcoming[key], year, today) if upcoming[key] else None
     conference = (chosen or latest).get("conference")
     if skill == "enricher" and chosen is not None:
-        if year is None:
-            year = _as_year(chosen.get("year"))
-        return _new_item(skill, reason, conference, year, entry=chosen, queue_refs=refs)
+        entry_year = _as_year(chosen.get("year"))
+        context = {"queue_year": year} if year is not None and year != entry_year else {}
+        return _new_item(skill, reason, conference, entry_year, entry=chosen, queue_refs=refs, context=context)
     if skill == "new-year-checker":
-        return _new_item(skill, reason, conference, year, latest_edition=latest, queue_refs=refs)
+        context = {}
+        if year is not None and year <= (_as_year(latest.get("year")) or 0):
+            context, year = {"queue_year": year}, None
+        return _new_item(skill, reason, conference, year, latest_edition=latest, queue_refs=refs, context=context)
     return _new_item(skill, reason, conference, year, queue_refs=refs)
 
 
@@ -584,7 +606,7 @@ def build_worklist(
 
     items = deadline_checks(conferences, today)
     queue_order = sorted(queue_items, key=lambda q: (str(q.get("file")), str(q.get("received")), str(q.get("id"))))
-    items.extend(_route_queue_item(queue_item, editions, lookup, known_mappings) for queue_item in queue_order)
+    items.extend(_route_queue_item(queue_item, editions, lookup, known_mappings, today) for queue_item in queue_order)
     items.extend(tba_rotation(conferences, today))
     items.extend(stale_series(data, today, known_mappings))
     items = _merge(items)
