@@ -1,0 +1,86 @@
+name: Write to the desk queue
+description: >-
+  Add JSON-line records to the desk-queue branch with utils/desk_queue.py,
+  creating the branch when it does not exist. Run it after actions/checkout,
+  from the repository root, with contents: write.
+
+inputs:
+  records:
+    description: File of queue records, one JSON object per line. A missing or empty file writes nothing.
+    required: true
+  message:
+    description: Commit message for the queue commit.
+    required: true
+
+outputs:
+  added:
+    description: Number of items the push added to the queue.
+    value: ${{ steps.write.outputs.added }}
+
+runs:
+  using: composite
+  steps:
+    - id: write
+      shell: bash
+      env:
+        RECORDS: ${{ inputs.records }}
+        MESSAGE: ${{ inputs.message }}
+        BRANCH: desk-queue
+        INIT_BRANCH: desk-queue-init
+      run: |
+        set -euo pipefail
+        cd "$GITHUB_WORKSPACE"
+
+        if [ ! -s "$RECORDS" ]; then
+          echo "No records to queue"
+          echo "added=0" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        SCRIPT="$GITHUB_WORKSPACE/utils/desk_queue.py"
+        QUEUE="$RUNNER_TEMP/desk-queue"
+        RESULTS="$RUNNER_TEMP/desk-queue-results.txt"
+
+        # The queue only grows by appends keyed on stable ids, so a rejected
+        # push is retried from a fresh copy of the branch; never forced.
+        for attempt in 1 2 3 4 5 6 7 8; do
+          git worktree remove --force "$QUEUE" 2>/dev/null || rm -rf "$QUEUE"
+          git worktree prune
+          git branch -D "$INIT_BRANCH" 2>/dev/null || true
+
+          if git ls-remote --exit-code --heads origin "$BRANCH" > /dev/null; then
+            git fetch --quiet --depth=1 origin "$BRANCH"
+            git worktree add --quiet --detach "$QUEUE" FETCH_HEAD
+          else
+            echo "::notice title=Desk queue::Creating the $BRANCH branch"
+            git worktree add --quiet --detach "$QUEUE"
+            git -C "$QUEUE" checkout --quiet --orphan "$INIT_BRANCH"
+            git -C "$QUEUE" rm -rfq .
+          fi
+
+          python3 "$SCRIPT" add "$QUEUE" --jsonl "$RECORDS" | tee "$RESULTS"
+          git -C "$QUEUE" add -A
+          if git -C "$QUEUE" diff --cached --quiet; then
+            echo "Every record is already queued"
+            echo "added=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git -C "$QUEUE" \
+            -c user.name="github-actions[bot]" \
+            -c user.email="github-actions[bot]@users.noreply.github.com" \
+            commit --quiet -m "$MESSAGE"
+          if git -C "$QUEUE" push --quiet origin "HEAD:refs/heads/$BRANCH"; then
+            ADDED=$(grep -c '^added ' "$RESULTS" || true)
+            echo "added=$ADDED" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Desk queue::Queued $ADDED item(s)"
+            exit 0
+          fi
+
+          WAIT=$(( attempt * 2 + RANDOM % 5 ))
+          echo "Push rejected (attempt $attempt), retrying in ${WAIT}s"
+          sleep "$WAIT"
+        done
+
+        echo "::error title=Desk queue::Could not push to $BRANCH after 8 attempts"
+        exit 1
