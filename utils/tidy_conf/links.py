@@ -19,13 +19,14 @@ except ImportError:
     from .queue_out import utc_now
 
 # Sub-page link fields that must point somewhere other than the main link.
-# A cfp_link/sponsor/finaid that is just the homepage again carries no
+# A cfp_link/sponsor/finaid/coc that is just the homepage again carries no
 # information (e.g. "cfp_link: https://2027.pycon.de/" on the PyCon DE entry
 # whose link is https://2027.pycon.de/) - it should be a different page, a
 # subdomain, or at least a #anchor on the homepage. The bare root of the
 # series site (e.g. "cfp_link: https://pycon.de/" next to
-# "link: https://2027.pycon.de/") carries no information either.
-REDUNDANT_LINK_FIELDS = ("cfp_link", "sponsor", "finaid")
+# "link: https://2027.pycon.de/") carries no information either. A homepage
+# is not a Code of Conduct page, so coc is held to the same rule.
+REDUNDANT_LINK_FIELDS = ("cfp_link", "sponsor", "finaid", "coc")
 
 # Public suffixes with two labels, under which a registrable domain has three
 # labels (pycon.org.au rather than org.au). This is not the full Public Suffix
@@ -254,7 +255,7 @@ def record_redirect(
     year : int | None
         Conference year, when known
     field : str | None
-        Data field holding the URL (link, cfp_link, sponsor or finaid), when known
+        Data field holding the URL (link, cfp_link, sponsor, finaid or coc), when known
 
     Returns
     -------
@@ -313,7 +314,7 @@ def is_redundant_site_root(value: str, link: str) -> bool:
     Parameters
     ----------
     value : str
-        Sub-page link (cfp_link, sponsor or finaid)
+        Sub-page link (cfp_link, sponsor, finaid or coc)
     link : str
         Main conference link
 
@@ -333,7 +334,7 @@ def is_redundant_site_root(value: str, link: str) -> bool:
 def drop_redundant_link_fields(data: list) -> list:
     """Drop sub-page link fields that are the same pointer as the main link.
 
-    Goes through cfp_link/sponsor/finaid on each conference and
+    Goes through cfp_link/sponsor/finaid/coc on each conference and
     removes any that just repeat the conference's main link. This catches
     upstream sources that fill every URL column with the homepage. A field
     that is only the bare root of the same site (``https://pycon.de/`` next

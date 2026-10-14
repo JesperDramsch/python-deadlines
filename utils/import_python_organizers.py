@@ -15,6 +15,7 @@ try:
     from tidy_conf.countries import get_country_alpha3
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.denylist import drop_denied
+    from tidy_conf.interactive_merge import carry_over_earlier_editions
     from tidy_conf.queue_out import append_queue_record
     from tidy_conf.queue_out import utc_now
     from tidy_conf.schema import get_schema
@@ -29,6 +30,7 @@ except ImportError:
     from .tidy_conf.countries import get_country_alpha3
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.denylist import drop_denied
+    from .tidy_conf.interactive_merge import carry_over_earlier_editions
     from .tidy_conf.queue_out import append_queue_record
     from .tidy_conf.queue_out import utc_now
     from .tidy_conf.schema import get_schema
@@ -412,6 +414,9 @@ def main(year: int | None = None, base: str = "") -> None:
     df_new = fill_missing_required(df_new)
 
     df_new = drop_rows_without_link(df_new)
+
+    # Editions from before this year stay until the sort archives them
+    df_new = carry_over_earlier_editions(df_new, target_file, year)
 
     # Write the new data to the YAML file
     write_df_yaml(df_new, target_file)

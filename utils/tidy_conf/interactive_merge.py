@@ -11,13 +11,15 @@ import contextlib
 import logging
 from collections import defaultdict
 from collections.abc import Iterable
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
+import yaml
 from thefuzz import fuzz
 from thefuzz import process
 
 try:
-    from tidy_conf.countries import COUNTRY_NORMALIZATION
     from tidy_conf.countries import normalize_place
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import normalize_conference_name
@@ -32,7 +34,6 @@ try:
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
-    from .countries import COUNTRY_NORMALIZATION
     from .countries import normalize_place
     from .schema import get_schema
     from .titles import normalize_conference_name
@@ -137,6 +138,110 @@ def _question_context(row, conference, field, yaml_value, remote_value, source_n
         "source_name": source_name,
         "url": _row_link(row),
     }
+
+
+def is_empty_value(value: Any) -> bool:
+    """Check whether a merge value holds nothing.
+
+    None, NaN, a blank string and an empty list or mapping are empty. A list
+    is never passed to pd.isnull, which returns an array for it.
+
+    Parameters
+    ----------
+    value : Any
+        Value of one field of a merge row
+
+    Returns
+    -------
+    bool
+        True if the value holds nothing
+    """
+    if isinstance(value, list | tuple | dict):
+        return len(value) == 0
+    if isinstance(value, str):
+        return not value.strip()
+    return value is None or bool(pd.isna(value))
+
+
+def merge_container_values(
+    yaml_value: Any,
+    remote_value: Any,
+    column: str,
+    conference: str,
+    logger: logging.Logger,
+) -> Any:
+    """Merge a field that holds a list or a mapping, such as extra_places or location.
+
+    The YAML value is kept when it holds anything, and the remote value is
+    taken only when the YAML value is empty. Different values are logged.
+
+    Parameters
+    ----------
+    yaml_value : Any
+        Value from the YAML source (source of truth)
+    remote_value : Any
+        Value from the remote source
+    column : str
+        Field name, for the log
+    conference : str
+        Conference name, for the log
+    logger : logging.Logger
+        Logger for the conflict message
+
+    Returns
+    -------
+    Any
+        The value to keep
+    """
+    if is_empty_value(remote_value):
+        return yaml_value
+    if is_empty_value(yaml_value):
+        return remote_value
+    if yaml_value != remote_value:
+        logger.info(
+            f"Conflict [{conference}][{column}]: YAML={yaml_value!r} vs Remote={remote_value!r} -> keeping YAML",
+        )
+    return yaml_value
+
+
+def carry_over_earlier_editions(df_new: pd.DataFrame, path: Path | str, year: int) -> pd.DataFrame:
+    """Add the editions before ``year`` that the file at ``path`` holds.
+
+    Both importers rebuild conferences.yml from the editions of ``year`` and
+    later. In January, last year's editions are still in conferences.yml,
+    since the sort archives an edition only weeks after it ends. Rebuilding
+    the file without them would delete them, so they are carried over
+    unchanged and the sort archives them on schedule. Only this file is
+    read: the importers do not rebuild archive.yml or legacy.yml.
+
+    Parameters
+    ----------
+    df_new : pd.DataFrame
+        Rows the importer is about to write to ``path``
+    path : Path | str
+        The conferences.yml the importer overwrites
+    year : int
+        First year of the import
+
+    Returns
+    -------
+    pd.DataFrame
+        ``df_new`` with the earlier editions at the end
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        with Path(path).open(encoding="utf-8") as file:
+            entries = yaml.safe_load(file) or []
+    except FileNotFoundError:
+        return df_new
+    earlier = pd.DataFrame.from_dict(entries)
+    if earlier.empty or "year" not in earlier.columns:
+        return df_new
+    earlier = earlier[pd.to_numeric(earlier["year"], errors="coerce") < year]
+    if earlier.empty:
+        return df_new
+    logger.info(f"Carrying over {len(earlier)} editions from before {year} in {path}")
+    return pd.concat([df_new, earlier], ignore_index=True)
 
 
 def apply_alt_names(
@@ -649,12 +754,6 @@ def merge_conferences(
         logger.debug("Dropping 'conference' column from df_remote")
         df_remote = df_remote.drop(["conference"], axis=1)
 
-    # Use centralized country normalization mappings
-    # This ensures consistency with the rest of the codebase
-    # Note: For place fields, we use normalize_place() which uses PLACE_COUNTRY_NORMALIZATION
-    # For other fields, we use COUNTRY_NORMALIZATION (substring replacement)
-    replacements = COUNTRY_NORMALIZATION
-
     logger.info("Performing pandas merge on 'title_match'")
     df_merge = pd.merge(
         left=df_yml,
@@ -694,20 +793,19 @@ def merge_conferences(
             # print(i,cx,cy,cx in df_merge.columns and cy in df_merge.columns,column in df_merge.columns,)
             if cx in df_merge.columns and cy in df_merge.columns:
                 rx, ry = row[cx], row[cy]
-                # For place fields, use the dedicated normalize_place function
-                # This prevents the "US of America" bug (substring replacement issues)
+                # Lists and mappings (extra_places, location) cannot go through
+                # the checks below: pd.isnull returns an array for a list.
+                if isinstance(rx, list | tuple | dict) or isinstance(ry, list | tuple | dict):
+                    df_new.at[i, column] = merge_container_values(rx, ry, column, conference_name, logger)
+                    continue
+                # Country names are normalised in the place field only.
+                # Replacing them inside other fields changes links ("GB" in a
+                # form id) and names ("PyCon Korea" grows a "South" each run).
                 if column == "place":
                     if isinstance(rx, str):
                         rx = normalize_place(rx)
                     if isinstance(ry, str):
                         ry = normalize_place(ry)
-                else:
-                    # For other columns, use substring replacement
-                    for orig, replacement in replacements.items():
-                        if isinstance(rx, str):
-                            rx = rx.replace(orig, replacement)
-                        if isinstance(ry, str):
-                            ry = ry.replace(orig, replacement)
                 # Prefer my sponsor info if exists
                 if column == "sponsor" and not pd.isnull(rx):
                     ry = rx

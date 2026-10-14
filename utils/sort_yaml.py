@@ -18,6 +18,7 @@ try:
     from logging_config import get_tqdm_logger
     from tidy_conf import auto_add_sub
     from tidy_conf import write_conference_yaml
+    from tidy_conf.countries import normalize_place
     from tidy_conf.date import clean_dates
     from tidy_conf.latlon import add_latlon
     from tidy_conf.links import check_link_availability
@@ -32,6 +33,7 @@ except ImportError:
     from .logging_config import get_tqdm_logger
     from .tidy_conf import auto_add_sub
     from .tidy_conf import write_conference_yaml
+    from .tidy_conf.countries import normalize_place
     from .tidy_conf.date import clean_dates
     from .tidy_conf.latlon import add_latlon
     from .tidy_conf.links import check_link_availability
@@ -155,18 +157,38 @@ def order_keywords(data: list[Conference]) -> list[Conference]:
     return new_dict
 
 
-def merge_duplicates(data):
-    """Merge duplicates in the data."""
+def merge_duplicates(data: list[dict]) -> list[dict]:
+    """Merge entries that are the same edition.
+
+    Entries are the same edition when they share the conference, the year and
+    the place. Places are compared with their country normalised, since the
+    importers write a copy of an archived edition with "London, UK" where the
+    stored entry has "London, United Kingdom". The first entry keeps its
+    stored place, so no stored data is rewritten. Every other field takes
+    the longer of the two values.
+
+    Parameters
+    ----------
+    data : list[dict]
+        Conference entries, those of conferences.yml first
+
+    Returns
+    -------
+    list[dict]
+        The entries with each edition once
+    """
     filtered = []
-    filtered_reduced = []
+    seen = {}
     for q in tqdm(data):
-        q_reduced = f"{q.get('conference', None)} {q.get('year', None)} {q.get('place', None)}"
-        if q_reduced not in filtered_reduced:
+        q_reduced = (q.get("conference"), q.get("year"), normalize_place(q.get("place")))
+        if q_reduced not in seen:
+            seen[q_reduced] = len(filtered)
             filtered.append(q)
-            filtered_reduced.append(q_reduced)
         else:
-            index = filtered_reduced.index(q_reduced)
+            index = seen[q_reduced]
             for key, value in q.items():
+                if key == "place":
+                    continue
                 if value and key not in filtered[index]:
                     filtered[index][key] = value
                 else:
@@ -230,7 +252,7 @@ def check_links(data):
     """Check the links in the data iteratively."""
     cache, cache_archived = get_cache()
     for i, q in tqdm(enumerate(sorted(data, key=operator.itemgetter("year"), reverse=True)), total=len(data)):
-        for key in ("link", "cfp_link", "sponsor", "finaid"):
+        for key in ("link", "cfp_link", "sponsor", "finaid", "coc"):
             if key in q:
                 new_link = check_link_availability(
                     q[key],

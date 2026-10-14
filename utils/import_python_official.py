@@ -19,6 +19,7 @@ try:
     from tidy_conf.date import create_nice_date
     from tidy_conf.deduplicate import deduplicate
     from tidy_conf.denylist import drop_denied
+    from tidy_conf.interactive_merge import carry_over_earlier_editions
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import fill_missing_required
     from tidy_conf.yaml import load_title_mappings
@@ -31,6 +32,7 @@ except ImportError:
     from .tidy_conf.date import create_nice_date
     from .tidy_conf.deduplicate import deduplicate
     from .tidy_conf.denylist import drop_denied
+    from .tidy_conf.interactive_merge import carry_over_earlier_editions
     from .tidy_conf.titles import tidy_df_names
     from .tidy_conf.utils import fill_missing_required
     from .tidy_conf.yaml import load_title_mappings
@@ -450,6 +452,9 @@ END:VCALENDAR""",
         # Fill in missing required fields
         logger.info("Filling missing required fields")
         df_new = fill_missing_required(df_new)
+
+        # Editions from before this year stay until the sort archives them
+        df_new = carry_over_earlier_editions(df_new, target_file, year)
 
         # Write the new data to the YAML file
         logger.info(f"Writing {len(df_new)} conference entries to {target_file}")

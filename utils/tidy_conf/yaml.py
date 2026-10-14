@@ -17,6 +17,17 @@ except ImportError:
     from .utils import strip_accents
 
 
+def _has_value(value) -> bool:
+    """Check whether a DataFrame cell holds a value to write.
+
+    A list or a mapping (extra_places, location) counts when it is not empty.
+    It is never passed to pd.notnull, which returns an array for a list.
+    """
+    if isinstance(value, list | tuple | dict):
+        return len(value) > 0
+    return bool(pd.notnull(value))
+
+
 def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:
     """Write a list of dictionaries to a YAML file.
 
@@ -28,7 +39,7 @@ def write_conference_yaml(data: list[dict] | pd.DataFrame, url: str) -> None:
         Location of the YAML file.
     """
     if isinstance(data, pd.DataFrame):
-        data = [{k: v for k, v in record.items() if pd.notnull(v)} for record in data.to_dict(orient="records")]
+        data = [{k: v for k, v in record.items() if _has_value(v)} for record in data.to_dict(orient="records")]
 
     # Check if data is empty before accessing elements
     if not data:
