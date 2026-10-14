@@ -94,18 +94,17 @@ jobs:
             git fetch origin $UPDATE_BRANCH
             git checkout $UPDATE_BRANCH
 
-            # Sync with main - try rebase first, then merge
+            # Sync with main - try rebase first, then merge. A merge conflict
+            # fails the job: resolving it in favour of main would silently drop
+            # the changes already on this branch.
             if ! git rebase origin/main; then
               echo "::warning title=Rebase Failed::Attempting merge instead"
               git rebase --abort 2>/dev/null || true
               if ! git merge origin/main --no-edit; then
+                CONFLICTS=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
                 git merge --abort 2>/dev/null || true
-                echo "::warning title=Merge Conflict::Auto-resolving conflicts in favor of main"
-                if ! git merge origin/main -X theirs --no-edit; then
-                  git merge --abort 2>/dev/null || true
-                  echo "::error title=Branch Sync Failed::Could not sync with main"
-                  exit 1
-                fi
+                echo "::error title=Branch Sync Conflict::${CONFLICTS:-git merge origin/main failed with no conflicted files}"
+                exit 1
               fi
             fi
           else

@@ -11,11 +11,13 @@ from pydantic import ValidationError
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
+import sort_yaml
 from hypothesis_strategies import HYPOTHESIS_AVAILABLE
 from hypothesis_strategies import valid_latitude
 from hypothesis_strategies import valid_longitude
 from tidy_conf.schema import Conference
 from tidy_conf.schema import Location
+from tidy_conf.schema import get_schema
 
 
 class TestConferenceSchema:
@@ -363,6 +365,49 @@ class TestSchemaEdgeCases:
             sample_conference["timezone"] = tz
             conf = Conference(**sample_conference)
             assert conf.timezone == tz
+
+
+class TestCodeOfConductField:
+    """The optional coc field holds a URL to the conference's Code of Conduct."""
+
+    def test_coc_optional(self, sample_conference):
+        conf = Conference(**sample_conference)
+        assert conf.coc is None
+        assert "coc" not in conf.model_dump(exclude_none=True)
+
+    def test_coc_accepts_url(self, sample_conference):
+        sample_conference["coc"] = "https://test.pycon.org/code-of-conduct/"
+        conf = Conference(**sample_conference)
+        assert str(conf.coc) == "https://test.pycon.org/code-of-conduct/"
+        # Serialised as a plain string, like the other URL fields
+        assert conf.model_dump()["coc"] == "https://test.pycon.org/code-of-conduct/"
+
+    @pytest.mark.parametrize("value", ["not-a-url", "test.pycon.org/coc", "ftp://test.pycon.org/coc"])
+    def test_coc_rejects_non_url(self, sample_conference, value):
+        sample_conference["coc"] = value
+        with pytest.raises(ValidationError) as exc_info:
+            Conference(**sample_conference)
+        assert {error["loc"][0] for error in exc_info.value.errors()} == {"coc"}
+
+    def test_coc_key_order_after_finaid(self, sample_conference):
+        """Key order comes from utils/schema.yml (order_keywords) and the model (YAML output)."""
+        schema_keys = get_schema().columns.tolist()
+        assert schema_keys[schema_keys.index("finaid") + 1] == "coc"
+
+        model_keys = list(Conference.model_fields)
+        assert model_keys[model_keys.index("finaid") + 1] == "coc"
+
+        entry = {
+            "coc": "https://test.pycon.org/coc/",
+            **sample_conference,
+            "finaid": "https://test.pycon.org/finaid/",
+            "twitter": "pycontest",
+        }
+        ordered = list(sort_yaml.order_keywords(entry))
+        assert ordered[ordered.index("finaid") + 1] == "coc"
+
+        dumped = list(Conference(**entry).model_dump(exclude_none=True))
+        assert dumped[dumped.index("finaid") + 1] == "coc"
 
 
 class TestSchemaRegressions:

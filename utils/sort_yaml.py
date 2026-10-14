@@ -232,7 +232,15 @@ def check_links(data):
     for i, q in tqdm(enumerate(sorted(data, key=operator.itemgetter("year"), reverse=True)), total=len(data)):
         for key in ("link", "cfp_link", "sponsor", "finaid"):
             if key in q:
-                new_link = check_link_availability(q[key], q["start"], cache=cache, cache_archived=cache_archived)
+                new_link = check_link_availability(
+                    q[key],
+                    q["start"],
+                    cache=cache,
+                    cache_archived=cache_archived,
+                    conference=q.get("conference"),
+                    year=q.get("year"),
+                    field=key,
+                )
                 parsed_url = urlparse(new_link)
                 if q[key] != new_link and parsed_url.hostname and parsed_url.hostname.endswith(".archive.org"):
                     time.sleep(0.5)

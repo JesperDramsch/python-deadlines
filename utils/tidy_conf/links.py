@@ -1,3 +1,5 @@
+import json
+import os
 import re
 import time
 from datetime import datetime
@@ -13,8 +15,69 @@ from tqdm import tqdm
 # A cfp_link/sponsor/finaid that is just the homepage again carries no
 # information (e.g. "cfp_link: https://2027.pycon.de/" on the PyCon DE entry
 # whose link is https://2027.pycon.de/) - it should be a different page, a
-# subdomain, or at least a #anchor on the homepage.
+# subdomain, or at least a #anchor on the homepage. The bare root of the
+# series site (e.g. "cfp_link: https://pycon.de/" next to
+# "link: https://2027.pycon.de/") carries no information either.
 REDUNDANT_LINK_FIELDS = ("cfp_link", "sponsor", "finaid")
+
+# Public suffixes with two labels, under which a registrable domain has three
+# labels (pycon.org.au rather than org.au). This is not the full Public Suffix
+# List, only the suffixes conference sites are likely to use.
+TWO_LEVEL_PUBLIC_SUFFIXES = frozenset(
+    {
+        "ac.uk",
+        "co.uk",
+        "gov.uk",
+        "org.uk",
+        "com.au",
+        "net.au",
+        "org.au",
+        "com.br",
+        "org.br",
+        "co.jp",
+        "ne.jp",
+        "or.jp",
+        "com.ar",
+        "org.ar",
+        "co.za",
+        "org.za",
+        "co.nz",
+        "com.mx",
+        "com.tr",
+        "co.in",
+        "com.cn",
+        "com.sg",
+        "co.il",
+        "org.il",
+        "or.tz",
+    },
+)
+
+# Hosts whose links always redirect to another site, mapped to the registrable
+# domains those redirects are expected to land on. forms.gle is the Google
+# Forms short link (it lands on docs.google.com) and lu.ma is the old Luma
+# domain, which now redirects to luma.com.
+EXPECTED_REDIRECT_TARGETS = {
+    "forms.gle": frozenset({"google.com"}),
+    "lu.ma": frozenset({"luma.com"}),
+}
+
+# General URL shorteners. A short link lands wherever it was made to point, so
+# a redirect from one to another site says nothing about the link.
+URL_SHORTENERS = frozenset({"bit.ly", "goo.gl", "tinyurl.com"})
+
+# Redirects to a different site found by check_link_availability. A link that
+# now lands on another site (a lapsed domain, a parked page, a new home for
+# the series) needs a person to look at it, so the link is kept as it is and
+# the redirect is recorded here instead.
+REDIRECT_RECORDS: list[dict] = []
+
+# When this environment variable names a file, every redirect record is also
+# appended to it as one JSON object per line, for a later job to pick up. The
+# lines are not complete queue items: the queue writer assigns each item its
+# "id" and the series key of the file it goes in when it adds the line, so
+# both are defined in one place.
+REDIRECT_RECORDS_ENV = "DESK_QUEUE_OUT"
 
 
 def normalize_url_pointer(url: str) -> tuple:
@@ -40,12 +103,243 @@ def normalize_url_pointer(url: str) -> tuple:
     return (netloc, parsed.path.rstrip("/"), parsed.params, parsed.query, parsed.fragment)
 
 
+def site_host(url: str) -> str:
+    """Return the host of a URL in lower case, without port or a "www." prefix.
+
+    Parameters
+    ----------
+    url : str
+        URL to take the host from
+
+    Returns
+    -------
+    str
+        Host name, or an empty string when the URL has none
+    """
+    host = urlparse(str(url).strip()).hostname or ""
+    return host.lower().removeprefix("www.")
+
+
+def is_parent_domain(parent: str, host: str) -> bool:
+    """Check whether ``parent`` is a parent domain of ``host``.
+
+    A public suffix such as ``de`` or ``co.uk`` does not count as a parent.
+
+    Parameters
+    ----------
+    parent : str
+        Candidate parent host, e.g. ``pycon.de``
+    host : str
+        Host to test, e.g. ``2027.pycon.de``
+
+    Returns
+    -------
+    bool
+        True when ``host`` is a subdomain of ``parent``
+    """
+    if "." not in parent or parent in TWO_LEVEL_PUBLIC_SUFFIXES:
+        return False
+    return host.endswith("." + parent)
+
+
+def registrable_domain(host: str) -> str:
+    """Return the registrable domain of a host.
+
+    This is the last two labels, or the last three when the last two are a
+    known two-level public suffix (see ``TWO_LEVEL_PUBLIC_SUFFIXES``).
+
+    Parameters
+    ----------
+    host : str
+        Host name, e.g. ``2027.pycon.de``
+
+    Returns
+    -------
+    str
+        Registrable domain, e.g. ``pycon.de``
+    """
+    labels = host.lower().strip(".").split(".")
+    if len(labels) >= 3 and ".".join(labels[-2:]) in TWO_LEVEL_PUBLIC_SUFFIXES:
+        return ".".join(labels[-3:])
+    return ".".join(labels[-2:])
+
+
+def is_different_site(url: str, other: str) -> bool:
+    """Check whether two URLs belong to different sites.
+
+    They are different sites when the hosts differ after dropping "www.",
+    neither host is a subdomain of the other, and their registrable domains
+    differ. ``ug.pycon.org`` and ``africa.pycon.org`` are the same site;
+    ``pythoncamp.de`` and ``barcamps.eu`` are not.
+
+    Parameters
+    ----------
+    url : str
+        First URL
+    other : str
+        Second URL
+
+    Returns
+    -------
+    bool
+        True when the URLs are on different sites; False when either has no host
+    """
+    host, other_host = site_host(url), site_host(other)
+    if not host or not other_host or host == other_host:
+        return False
+    if is_parent_domain(host, other_host) or is_parent_domain(other_host, host):
+        return False
+    return registrable_domain(host) != registrable_domain(other_host)
+
+
+def is_expected_redirect(url: str, final_url: str) -> bool:
+    """Check whether a redirect to another site is what the link is for.
+
+    A link on a general URL shortener (see ``URL_SHORTENERS``) may land
+    anywhere. A link on a host listed in ``EXPECTED_REDIRECT_TARGETS`` must
+    land on one of the registrable domains listed for it: ``forms.gle`` on
+    ``google.com``, ``lu.ma`` on ``luma.com``. Any other redirect is not
+    expected.
+
+    Parameters
+    ----------
+    url : str
+        URL as stored in the data
+    final_url : str
+        URL the redirect chain ended on
+
+    Returns
+    -------
+    bool
+        True when the redirect is one the link is expected to make
+    """
+    origin = registrable_domain(site_host(url))
+    if origin in URL_SHORTENERS:
+        return True
+    targets = EXPECTED_REDIRECT_TARGETS.get(origin, frozenset())
+    return registrable_domain(site_host(final_url)) in targets
+
+
+def record_redirect(
+    url: str,
+    final_url: str,
+    status: int,
+    conference: str | None = None,
+    year: int | None = None,
+    field: str | None = None,
+) -> dict:
+    """Record a redirect to a different site for review.
+
+    The record is appended to ``REDIRECT_RECORDS`` and, when the
+    ``DESK_QUEUE_OUT`` environment variable names a file, written to that
+    file as one JSON line. It holds the fields of a queue item with source
+    "link-check" and kind "redirect", except "id": the queue writer assigns
+    the id, and the series key of the file the item goes in, when it adds
+    the line.
+
+    Parameters
+    ----------
+    url : str
+        URL as stored in the data
+    final_url : str
+        URL the redirect chain ended on
+    status : int
+        HTTP status code of the final response
+    conference : str | None
+        Conference name, when known
+    year : int | None
+        Conference year, when known
+    field : str | None
+        Data field holding the URL (link, cfp_link, sponsor or finaid), when known
+
+    Returns
+    -------
+    dict
+        The record that was stored
+    """
+    record = {
+        "source": "link-check",
+        "kind": "redirect",
+        "received": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "title": conference or url,
+        "url": url,
+        "year": year,
+        "payload": {
+            "conference": conference,
+            "year": year,
+            "field": field,
+            "final_url": final_url,
+            "status": status,
+        },
+    }
+    REDIRECT_RECORDS.append(record)
+
+    out_path = os.environ.get(REDIRECT_RECORDS_ENV)
+    if out_path:
+        out_file = Path(out_path)
+        out_file.parent.mkdir(parents=True, exist_ok=True)
+        with out_file.open("a", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+    return record
+
+
+def is_bare_site_root(url: str) -> bool:
+    """Check whether a URL is the bare root of a site.
+
+    A bare root has an empty or "/" path and no params, query or #fragment.
+
+    Parameters
+    ----------
+    url : str
+        URL to check
+
+    Returns
+    -------
+    bool
+        True when the URL points at nothing more specific than the site itself
+    """
+    parsed = urlparse(str(url).strip())
+    if not parsed.hostname or parsed.path not in {"", "/"}:
+        return False
+    return not (parsed.params or parsed.query or parsed.fragment)
+
+
+def is_redundant_site_root(value: str, link: str) -> bool:
+    """Check whether a sub-page link is only the bare root of the main link's site.
+
+    The site is the same when the hosts are equal after dropping "www.", or
+    when the sub-page host is a parent domain of the main link's host
+    (``pycon.de`` for ``2027.pycon.de``). The reverse is not redundant: a
+    year subdomain is more specific than the series site.
+
+    Parameters
+    ----------
+    value : str
+        Sub-page link (cfp_link, sponsor or finaid)
+    link : str
+        Main conference link
+
+    Returns
+    -------
+    bool
+        True when ``value`` adds nothing over ``link``
+    """
+    if not is_bare_site_root(value):
+        return False
+    value_host, link_host = site_host(value), site_host(link)
+    if not value_host or not link_host:
+        return False
+    return value_host == link_host or is_parent_domain(value_host, link_host)
+
+
 def drop_redundant_link_fields(data: list) -> list:
     """Drop sub-page link fields that are the same pointer as the main link.
 
     Goes through cfp_link/sponsor/finaid on each conference and
     removes any that just repeat the conference's main link. This catches
-    upstream sources that fill every URL column with the homepage.
+    upstream sources that fill every URL column with the homepage. A field
+    that is only the bare root of the same site (``https://pycon.de/`` next
+    to ``https://2027.pycon.de/``) is dropped as well.
 
     Parameters
     ----------
@@ -66,12 +360,16 @@ def drop_redundant_link_fields(data: list) -> list:
         base = normalize_url_pointer(link)
         for field in REDUNDANT_LINK_FIELDS:
             value = q.get(field)
-            if value and normalize_url_pointer(value) == base:
-                tqdm.write(
-                    f"Dropping redundant '{field}' from {q.get('conference')} {q.get('year')}: "
-                    f"'{value}' is the same pointer as the main link",
-                )
-                del q[field]
+            if not value:
+                continue
+            if normalize_url_pointer(value) == base:
+                reason = "is the same pointer as the main link"
+            elif is_redundant_site_root(value, link):
+                reason = f"is only the root of the same site as the main link '{link}'"
+            else:
+                continue
+            tqdm.write(f"Dropping redundant '{field}' from {q.get('conference')} {q.get('year')}: '{value}' {reason}")
+            del q[field]
     return data
 
 
@@ -98,7 +396,16 @@ def get_cache():
     return cache, cache_archived
 
 
-def check_link_availability(url, start, cache=None, cache_archived=None):
+def check_link_availability(
+    url,
+    start,
+    cache=None,
+    cache_archived=None,
+    *,
+    conference: str | None = None,
+    year: int | None = None,
+    field: str | None = None,
+) -> str:
     """Checks if a URL is available.
 
     If not, tries to retrieve an archived version from the Wayback Machine.
@@ -106,9 +413,39 @@ def check_link_availability(url, start, cache=None, cache_archived=None):
 
     Automatically redirects to the final URL if it was redirected within the same domain.
 
+    A redirect that ends on a different site (see ``is_different_site``) is not
+    treated as healthy: the original URL is returned unchanged, with no Wayback
+    lookup, and the redirect is recorded with ``record_redirect`` for review.
+    A short link that lands where it is expected to (see ``is_expected_redirect``),
+    such as forms.gle on docs.google.com, is not recorded: it is checked like
+    any other link, so on a 200 the original URL is kept and, when the
+    conference is still to come, saved to the Wayback Machine.
+
     Automatically caches old (5+ years) URLs.
 
-    Note: Some URLs may not be available or archived. These return None and are logged.
+    Note: Some URLs may not be available or archived. These return the original URL and are logged.
+
+    Parameters
+    ----------
+    url : str
+        URL to check
+    start : datetime.date
+        Start date of the conference the URL belongs to
+    cache : set | None
+        URLs known to have no archived version, read from disk when None
+    cache_archived : set | None
+        URLs already archived, read from disk when None
+    conference : str | None
+        Conference name, only used to describe a recorded redirect
+    year : int | None
+        Conference year, only used to describe a recorded redirect
+    field : str | None
+        Data field holding the URL, only used to describe a recorded redirect
+
+    Returns
+    -------
+    str
+        The URL to keep: the original, a same-domain redirect target, or an archived copy
     """
     # If it's archived already, return the URL
     if url.startswith(("https://web.archive.org", "http://web.archive.org")):
@@ -130,6 +467,23 @@ def check_link_availability(url, start, cache=None, cache_archived=None):
         try:
             response = requests.get(url, allow_redirects=True, timeout=10)
             final_url = response.url
+            # A redirect to another site is not a healthy link: keep the URL as it
+            # is and leave the decision to a person. Short links such as
+            # forms.gle redirect to another site by design and are left out.
+            if is_different_site(url, final_url) and not is_expected_redirect(url, final_url):
+                tqdm.write(
+                    f"URL {url} was redirected to a different site: {final_url} "
+                    f"(status code: {response.status_code}). Keeping the original URL for review.",
+                )
+                record_redirect(
+                    url,
+                    final_url,
+                    response.status_code,
+                    conference=conference,
+                    year=year,
+                    field=field,
+                )
+                return url
             # Check if the final URL is within the same domain as the original URL
             if urlparse(url).netloc == urlparse(final_url).netloc and final_url != url:
                 # Don't cache the redirect if it suddenly has a query string

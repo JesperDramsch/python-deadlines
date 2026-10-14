@@ -25,6 +25,7 @@ OPTIONAL_COLUMNS = [
     "sub",
     "sponsor",
     "finaid",
+    "coc",
     "tutorial_deadline",
     "workshop_deadline",
     "timezone",
