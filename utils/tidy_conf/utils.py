@@ -12,6 +12,13 @@ except ImportError:
 
 from yaml.representer import SafeRepresenter
 
+try:
+    from tidy_conf.queue_out import append_queue_record
+    from tidy_conf.queue_out import utc_now
+except ImportError:
+    from .queue_out import append_queue_record
+    from .queue_out import utc_now
+
 _mapping_tag = yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG
 
 
@@ -77,8 +84,70 @@ def pretty_print(header, conf, tba=None, expired=None) -> None:
             print("\n")
 
 
+# Merge questions asked where no one could answer them (CI). Each is also
+# handed to the desk queue when DESK_QUEUE_OUT names a file (queue_out.py), so
+# the desk checks the live site; the merge itself keeps the default answer.
+QUESTION_RECORDS: list[dict] = []
+
+
+def _queue_text(value) -> str | None:
+    """Return a merge value as text for a queue record, or None when it is empty."""
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return str(value)
+
+
+def record_question(question: str, default_answer: bool, context: dict) -> dict:
+    """Record a merge question that was answered with its default.
+
+    Parameters
+    ----------
+    question : str
+        The question as it would have been asked.
+    default_answer : bool
+        The answer the merge went on with.
+    context : dict
+        What the question is about: "conference", "year" (int or None),
+        "field", "yaml_value", "remote_value", "source_name" and "url".
+
+    Returns
+    -------
+    dict
+        The record, a queue item without "id" with source "canonical-import"
+        and kind "question".
+    """
+    year = context.get("year")
+    payload = {
+        "question": question,
+        "conference": context.get("conference"),
+        "year": year,
+        "field": context.get("field"),
+        "yaml_value": _queue_text(context.get("yaml_value")),
+        "remote_value": _queue_text(context.get("remote_value")),
+        "default_answer": default_answer,
+        "source_name": context.get("source_name"),
+    }
+    record = {
+        "source": "canonical-import",
+        "kind": "question",
+        "received": utc_now(),
+        "title": payload["conference"] or question,
+        "url": context.get("url") or "",
+        "year": year,
+        "payload": payload,
+    }
+    QUESTION_RECORDS.append(record)
+    append_queue_record(record)
+    return record
+
+
 # Helper function for yes no questions
-def query_yes_no(question, default="no"):
+def query_yes_no(question, default="no", context=None):
     """Ask a yes/no question via input() and return their answer.
 
     "question" is a string that is presented to the user. "default" is the presumed
@@ -87,16 +156,19 @@ def query_yes_no(question, default="no"):
 
     The "answer" return value is True for "yes" or False for "no".
 
-    In non-interactive environments (e.g., CI), returns the default value.
+    In non-interactive environments (e.g., CI), returns the default value. When
+    "context" describes what the question is about (see record_question), the
+    unanswered question is recorded for the desk.
     """
     valid = {"yes": True, "y": True, "ye": True, "no": False, "n": False}
 
     # In non-interactive environments, use the default value
     if not sys.stdin.isatty():
-        if default is not None:
-            return valid[default]
         # If no default and non-interactive, default to "no" for safety
-        return False
+        answer = valid[default] if default is not None else False
+        if context is not None:
+            record_question(question, answer, context)
+        return answer
 
     match default:
         case "yes":

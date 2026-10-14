@@ -101,6 +101,41 @@ def is_placeholder_value(value) -> bool:
     return stripped in ("TBA", "TBD", "NONE", "N/A", "") or not stripped
 
 
+def _row_year(row) -> int | None:
+    """Return a merge row's edition year as an int, or None."""
+    for key in ("year", "year_x", "year_y"):
+        value = row.get(key) if key in row.index else None
+        if value is None or pd.isna(value):
+            continue
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _row_link(row) -> str:
+    """Return a merge row's main link, preferring the YAML side, or ""."""
+    for key in ("link", "link_x", "link_y"):
+        value = row.get(key) if key in row.index else None
+        if isinstance(value, str) and value:
+            return value
+    return ""
+
+
+def _question_context(row, conference, field, yaml_value, remote_value, source_name) -> dict:
+    """Describe a merge question for the desk (see tidy_conf.utils.record_question)."""
+    return {
+        "conference": conference,
+        "year": _row_year(row),
+        "field": field,
+        "yaml_value": yaml_value,
+        "remote_value": remote_value,
+        "source_name": source_name,
+        "url": _row_link(row),
+    }
+
+
 def resolve_conflict(
     yaml_val,
     remote_val,
@@ -206,6 +241,7 @@ def fuzzy_match(
     df_yml: pd.DataFrame,
     df_remote: pd.DataFrame,
     report: MergeReport | None = None,
+    source_name: str | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, MergeReport]:
     """Fuzzy merge conferences from two pandas dataframes on title.
 
@@ -224,6 +260,9 @@ def fuzzy_match(
         Remote source DataFrame (CSV or ICS)
     report : MergeReport, optional
         Merge report for tracking operations
+    source_name : str, optional
+        Name of the remote source, recorded with questions asked where no
+        one can answer them
 
     Returns
     -------
@@ -397,6 +436,7 @@ def fuzzy_match(
             # Prompt user for fuzzy matches that aren't excluded
             elif not query_yes_no(
                 f"Do '{row['conference']}' and '{title}' match? (y/n): ",
+                context=_question_context(row, conference_name, "conference", row["conference"], title, source_name),
             ):
                 logger.info(
                     f"Fuzzy match rejected: '{conference_name}' vs '{title}' (score: {prob})",
@@ -476,6 +516,7 @@ def merge_conferences(
     df_yml: pd.DataFrame,
     df_remote: pd.DataFrame,
     report: MergeReport | None = None,
+    source_name: str | None = None,
 ) -> pd.DataFrame:
     """Merge two dataframes on title and interactively resolve conflicts.
 
@@ -493,6 +534,9 @@ def merge_conferences(
         Remote source DataFrame
     report : MergeReport, optional
         Merge report for tracking operations
+    source_name : str, optional
+        Name of the remote source, recorded with questions asked where no
+        one can answer them
 
     Returns
     -------
@@ -633,6 +677,7 @@ def merge_conferences(
                     else:
                         if query_yes_no(
                             f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?",
+                            context=_question_context(row, conference_name, column, rx, ry, source_name),
                         ):
                             df_new.loc[i, column] = ry
                         else:
@@ -681,11 +726,29 @@ def merge_conferences(
                                 f"For {i} in column '{column}' would you prefer "
                                 f"'{ry + cfp_time_y}' or keep '{rx + cfp_time_x}'?"
                             ),
+                            context=_question_context(
+                                row,
+                                conference_name,
+                                column,
+                                rx + cfp_time_x,
+                                ry + cfp_time_y,
+                                source_name,
+                            ),
                         ):
                             df_new.loc[i, column] = ry + cfp_time_y
                         else:
                             # Check if it's an extension of the deadline and update both
-                            if query_yes_no("Is this an extension?"):
+                            if query_yes_no(
+                                "Is this an extension?",
+                                context=_question_context(
+                                    row,
+                                    conference_name,
+                                    "cfp_ext",
+                                    rx + cfp_time_x,
+                                    ry + cfp_time_y,
+                                    source_name,
+                                ),
+                            ):
                                 rrx, rry = (
                                     int(rx.replace("-", "").split(" ")[0]),
                                     int(
@@ -722,6 +785,7 @@ def merge_conferences(
                     else:
                         if query_yes_no(
                             f"For {i} in column '{column}' would you prefer '{ryy}' or keep '{rxx}'?",
+                            context=_question_context(row, conference_name, column, rxx, ryy, source_name),
                         ):
                             df_new.loc[i, column] = ryy
                         else:
@@ -730,6 +794,7 @@ def merge_conferences(
                     # For everything else give a choice
                     if query_yes_no(
                         f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?",
+                        context=_question_context(row, conference_name, column, rx, ry, source_name),
                     ):
                         df_new.loc[i, column] = ry
                     else:
