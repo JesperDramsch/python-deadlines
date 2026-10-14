@@ -8,8 +8,12 @@ vendor
 .jekyll-metadata
 .playwright-mcp/
 
-# Claude Code configuration
-.claude/
+# Claude Code: local state stays untracked; the shared desk setup is tracked
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/routines/
+!.claude/skills/
 CLAUDE.md
 
 # Temporary workflow files
