@@ -3,6 +3,21 @@
     "664f180b0918ece88c25d1a8ec52887e37616004",
     "7646186942ca6d516bf26c4c604166b984dbe96e"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "afdae9855ed910750a9c52d0b3c79acf712c8cb4",
+      "kind": "signal",
+      "payload": {
+        "diff": "00 days : 06 hours : 40 min : 27 sec Thanks for coming",
+        "trigger": "website_change",
+        "watch_uuid": "a380e266-b9e5-4be7-b411-f7d869b55427"
+      },
+      "received": "2026-10-15T23:06:17Z",
+      "source": "changedetection",
+      "title": "PyCon Netherlands 2026 - Main",
+      "url": "https://pycon-nl.org/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Netherlands"
 }
