@@ -163,12 +163,14 @@
 - conference: Python Nordeste
   alt_name: PyNE
   year: 2026
-  link: https://pythonnordeste.org/
+  link: https://2026.pythonnordeste.org/
   cfp: '2026-06-19 23:59:00'
   timezone: America/Bahia
   place: Fortaleza, Brazil
   start: 2026-08-13
   end: 2026-08-15
+  sponsor: https://drive.google.com/file/d/17xJoqoRSoWwDSEPoTbTz3RK4Iqz1887O/view
+  coc: https://2026.pythonnordeste.org/codigo-conduta.html
   sub: PY
   location:
   - title: Python Nordeste 2026
