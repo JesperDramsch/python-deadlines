@@ -6,7 +6,7 @@ pythondeadlin.es lists Python conferences with their Call for Proposals (CfP) de
 
 - `_data/conferences.yml`, `_data/archive.yml`, `_data/legacy.yml`: one entry per edition (a series in one year), upcoming, past and long past. `utils/sort_yaml.py` decides which file holds an entry, so add every edition to `conferences.yml`, past ones included, and let the sort move it.
 - `_data/types.yml`: the `sub` codes.
-- `utils/tidy_conf/data/titles.yml`: canonical series names and the spellings folded into them. `rejections.yml` beside it: names that look alike but belong to different series.
+- `utils/tidy_conf/data/titles.yml`: canonical series names and the spellings folded into them. Agents only add variations to it ("Data mechanics"). `rejections.yml` beside it: names that look alike but belong to different series, kept by the maintainer.
 - `utils/tidy_conf/data/denylist.yml`: domains the critic rejects or sends to the maintainer.
 - `.claude/routines/desk.md`: the daily desk run, for the agent running as the desk.
 - `.claude/skills/`: `enricher`, `new-year-checker`, `scouter` and `critic`, each run by a subagent the desk hands one item.
@@ -26,6 +26,7 @@ Out: meetups, webinars, courses and trainings, vendor sales events.
 - `conference` is the series name without the year, spelled the way the data already spells it. Before choosing a spelling, search `conference` and `alt_name` in all three data files and the keys and variations in `titles.yml`.
 - `alt_name` holds an official alternative name, such as PyCon SK for PyCon Slovakia.
 - A series that runs in several cities takes the qualifier the event itself uses ("Python Pizza Istanbul", "Pytorch Day Japan"), so that (`conference`, `year`) stays unique.
+- A primary source that names a series in a way its `conference`, its `alt_name` and `titles.yml` all miss (an older or longer name, another language, a national prefix such as "PyDay Chile Santiago") gives a variation: the other name under the series' `conference` as key, so the importers and the sort fold that spelling into the series. It goes in the change set's `titles`. A name other series share ("PyDay Chile"), the `conference` of any entry in the data files, or another series' `alt_name` is never a variation.
 - A find is tracked when it is the same series as an entry in any of the three data files: its name matches, ignoring case and accents, the entry's `conference` or `alt_name` or a `titles.yml` key or variation that maps to it, or its link matches the entry's `link` once years are taken out of the host and path (`2027.pycon.gr` matches `2026.pycon.gr`). A shared domain alone proves nothing: grep the data files for it to find entries to compare. On hosts that carry many series (`pydata.org`, `events.linuxfoundation.org`, `pretalx.com`, `sessionize.com`, and `web.archive.org`, where the archived URL counts) only the path tells them apart: `pydata.org/lagos2027/` is not `pydata.org/berlin2026/`.
 
 ## Field rules
@@ -68,6 +69,11 @@ changes:  # one per field; a new edition or series lists every field it sets
   new: '<YYYY-MM-DD HH:MM:SS>'
   url: <page fetched>
   quote: <verbatim text from that page>
+titles:  # titles.yml variations ("Names"); a set that only adds variations is a change with no changes
+- key: <the series' conference>
+  variation: <the other name>
+  url: <page fetched>
+  quote: <verbatim text that names the series this way>
 flags: []  # no-coc, sources-disagree (name both), did-not-render (name the URL), denylist-review (copied from the candidate)
 reason: <one line: why no change, what the lead is, what the maintainer must decide>
 ```
@@ -77,6 +83,7 @@ A field carried over from an earlier edition cites it (`url: carried from <confe
 ## Data mechanics
 
 1. Edit entries at any position in a file: ordering belongs to the sort.
-2. Run `python utils/sort_yaml.py --skip_links` (or `pixi run sort`) with an interpreter that has the dependencies in `pixi.toml` (pydantic, pandas, pyyaml and the rest). Where the default `python` lacks them, `/usr/bin/python` or the `uv run` line under "Checks" in REVIEW.md works. The sort exits non-zero and writes nothing when an entry fails validation.
-3. The sort geocodes a new in-person `place` through OpenStreetMap. Where that is unreachable and validation reports a missing location, add `location` yourself: one item with `title: <conference> <year>`, `latitude` and `longitude`.
-4. Stage all three data files, since the sort moves entries between them: `git add _data/conferences.yml _data/archive.yml _data/legacy.yml`.
+2. Add a variation to `utils/tidy_conf/data/titles.yml` under `alt_name`, in the layout the file already has: keys in sorted order, a new key with a `variations:` list, a `variations:` line after the other fields of a key that has no list yet, and the variation as one `- ` line at the end of its key's list. Change nothing else there: `global`, `regexes`, `spelling` and `rejections.yml` stay with the maintainer.
+3. Run `python utils/sort_yaml.py --skip_links` (or `pixi run sort`) with an interpreter that has the dependencies in `pixi.toml` (pydantic, pandas, pyyaml and the rest). Where the default `python` lacks them, `/usr/bin/python` or the `uv run` line under "Checks" in REVIEW.md works. The sort exits non-zero and writes nothing when an entry fails validation or `titles.yml` is not valid YAML. It applies `titles.yml` to every entry: one whose `conference` matches a variation takes the key as `conference`, and its old name as `alt_name` when it has none.
+4. The sort geocodes a new in-person `place` through OpenStreetMap. Where that is unreachable and validation reports a missing location, add `location` yourself: one item with `title: <conference> <year>`, `latitude` and `longitude`.
+5. Stage all three data files, since the sort moves entries between them, and `titles.yml`: `git add _data/conferences.yml _data/archive.yml _data/legacy.yml utils/tidy_conf/data/titles.yml`.

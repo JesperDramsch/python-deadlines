@@ -1003,6 +1003,10 @@ DESK_PROCEDURE = [
     "git worktree add --detach $(mktemp -d)/desk-queue origin/desk-queue",
     "python utils/desk_worklist.py --queue-dir <queue> > /tmp/worklist.json",
     "git add _data/conferences.yml _data/archive.yml _data/legacy.yml",
+    "git add _data/conferences.yml _data/archive.yml _data/legacy.yml utils/tidy_conf/data/titles.yml",
+    "git checkout HEAD -- _data/conferences.yml _data/archive.yml _data/legacy.yml utils/tidy_conf/data/titles.yml",
+    "git status --porcelain --ignored --untracked-files=normal -- .claude AGENTS.md REVIEW.md .github utils pixi.toml"
+    " ':(glob)**/CLAUDE*.md' ':(exclude)utils/tidy_conf/data/titles.yml' > /tmp/tamper.txt",
     "git commit -m 'PyCon Greece 2027: cfp_ext' -m 'cfp_ext: null -> 2027-03-01 23:59:00'",
     "git show --stat HEAD",
     "git rev-parse HEAD",
@@ -1029,9 +1033,10 @@ def test_desk_routine_makes_no_git_config_changes():
     assert not re.search(r"git (?:-C \S+ )?(?:-c|--config-env)\b|git config|GIT_CONFIG", text)
 
 
-def test_desk_data_edit_is_allowed(run_hook, make_repo):
+@pytest.mark.parametrize("relative", ["_data/conferences.yml", "utils/tidy_conf/data/titles.yml"])
+def test_desk_data_edit_is_allowed(run_hook, make_repo, relative):
     repo = make_repo(ROLLING)
-    outcome = run_hook("Edit", github_edit("Edit", repo / "_data" / "conferences.yml"), cwd=repo, desk=True)
+    outcome = run_hook("Edit", github_edit("Edit", repo / relative), cwd=repo, desk=True)
     assert_allowed(outcome)
 
 
@@ -1446,6 +1451,7 @@ def test_subagent_desk_scripts_are_blocked(run_hook, make_repo, queue_repo, comm
         "./utils/../_data/archive.yml",
         "<repo>/new/folder/notes.md",
         "<repo>/../repo/_data/legacy.yml",
+        "utils/tidy_conf/data/titles.yml",
         "<repo>",
     ],
 )

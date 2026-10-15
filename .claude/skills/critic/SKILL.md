@@ -17,7 +17,13 @@ For each entry in `changes`, check:
 - The name follows AGENTS.md "Names": spelled as the data spells the series, (`conference`, `year`) unique, the series not tracked under another name.
 - A carried-over field matches the edition it cites.
 
-Done when: every change has pass or fail with a one-line reason.
+For each entry in `titles`, check:
+
+- `url`, fetched again, carries the quote verbatim, and the quote uses the variation for this series: the same event, site or organiser.
+- `key` is the series' `conference` as the data, or the new-series set, spells it.
+- The variation follows AGENTS.md "Names": no other series shares it, and, ignoring case and accents, it is not a key, `global` or variation in `utils/tidy_conf/data/titles.yml` yet, not the `conference` of any entry or another series' `alt_name` in the three data files, and not listed against the key, or the key against it, in `utils/tidy_conf/data/rejections.yml`. Check each of these again for the forms `load_title_mappings` in `utils/tidy_conf/yaml.py` also matches: the variation without years, without "Conference" or "Conf", without spaces and without punctuation. "PyDay Chile 2026" fails, since without its year it is the shared name "PyDay Chile".
+
+Done when: every change and every variation has pass or fail with a one-line reason.
 
 ## B. Screen every new series
 
@@ -43,7 +49,7 @@ Done when: every signal above has a noted outcome.
 
 A change set flagged `denylist-review` gets `needs-maintainer`, whatever its checks show.
 
-- `accept`: the changes pass and, for a new series, no signal against was found and at least one signal for was. A failing change goes in `drop` with its reason and the rest stand, as long as a new entry keeps every field `utils/tidy_conf/schema.py` requires.
+- `accept`: the changes pass and, for a new series, no signal against was found and at least one signal for was. A failing change or variation goes in `drop` with its reason and the rest stand, as long as a new entry keeps every field `utils/tidy_conf/schema.py` requires.
 - `reject`: the domain is on the denylist's `reject` list; the find shows pay-to-present fees, paid publication or no Python content; or nothing usable passes. Give the reason.
 - `needs-maintainer`: everything in between, such as a page that did not render, the denylist's `review` list, mixed signals, or sources that disagree beyond the precedence rule in AGENTS.md.
 
@@ -53,7 +59,7 @@ Return:
 item: <worklist item id>
 verdict: accept  # accept | reject | needs-maintainer
 reason: <one line>
-drop: []  # fields to leave out, each with its reason
+drop: []  # fields and variations to leave out, each with its reason
 checks:
 - check: <what was checked>
   result: pass  # pass | fail | could-not-check
