@@ -19,22 +19,6 @@
     latitude: 40.63070934919421
     longitude: -8.657472831794745
 
-- conference: PyCon Kenya
-  year: 2026
-  link: https://www.pycon.ke/
-  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
-  cfp: '2026-06-10 00:00:00'
-  timezone: Africa/Nairobi
-  place: Nairobi, Kenya
-  start: 2026-08-28
-  end: 2026-08-29
-  sponsor: https://www.pycon.ke/sponsors
-  sub: PY
-  location:
-  - title: PyCon Kenya 2026
-    latitude: -1.2136405
-    longitude: 36.87930533266044
-
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
