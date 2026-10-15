@@ -426,10 +426,11 @@
   workshop_deadline: '2026-08-03 23:59:00'
   tutorial_deadline: '2026-08-03 23:59:00'
   place: Online
-  start: 2026-12-08
+  start: 2026-12-09
   end: 2026-12-10
   sponsor: https://pydata.org/global2026/sponsor
   finaid: https://pydata.org/global2026/about#diversity
+  coc: https://pydata.org/code-of-conduct/
   sub: DATA
 
 - conference: Plone Conference
