@@ -371,7 +371,11 @@
   end: 2026-07-19
   sponsor: https://www.scipy2026.scipy.org/s/SciPy26-SponsorProspectus-wn87.pdf
   finaid: https://docs.google.com/forms/d/e/1FAIpQLSdVD-AHPDcoVF4FPKdaWDTS9NyZtGym0KxoKf6AnWxv0MIiWg/viewform
+  coc: https://numfocus.org/code-of-conduct
+  twitter: SciPyConf
   mastodon: https://mastodon.social/@SciPyConf
+  bluesky: https://bsky.app/profile/scipyconf.bsky.social
+  youtube: https://www.youtube.com/@SciPy-Conf
   sub: SCIPY
   location:
   - title: SciPy US 2026
