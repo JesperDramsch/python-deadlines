@@ -574,6 +574,7 @@ def agent_definition(name):
 
 def test_desk_research_agent_has_only_read_search_and_fetch_tools():
     frontmatter, body = agent_definition("desk-research")
+    assert set(frontmatter) == {"name", "description", "tools"}
     assert frontmatter["name"] == "desk-research"
     assert frontmatter["name"] in load_hook().DESK_AGENT_TYPES
     assert isinstance(frontmatter["description"], str) and frontmatter["description"].strip()
