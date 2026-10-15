@@ -79,8 +79,20 @@ Rules for subagents in desk runs, on top of those:
     such as ``-e <environment>`` or ``-m <manifest>``. ``main.py`` counts only in a folder named ``utils``.
 13. Edit, Write, MultiEdit and NotebookEdit are blocked on any path inside a repository: the one that holds
     ``cwd`` or the one that holds the path, with symlinks resolved. Paths outside, such as ``/tmp``, are
-    allowed. Bash commands that write into the repository are not inspected, apart from the git and script
-    calls of rules 10 and 12.
+    allowed. A Bash command that writes into the repository is blocked too, by rule 14; the other Bash
+    calls, apart from the git and script calls of rules 10 and 12, are not inspected.
+14. A Bash command may not write a path inside a repository, by the same test rule 13 uses: the repository
+    that holds ``cwd`` or the one that holds the target, with symlinks resolved. A target outside every
+    repository, such as one under ``/tmp``, is allowed, and so are ``/dev/null``, ``/dev/stdout``,
+    ``/dev/stderr`` and ``/dev/fd/*``. The writes read are an output redirection in any form (``>``, ``>>``,
+    ``>|``, ``&>``, ``&>>``, ``n>``, ``n>>`` and the read-write ``<>``) and the file-writing programs and
+    options ``tee``, ``cp``, ``mv``, ``rm``, ``rmdir``, ``touch``, ``mkdir``, ``ln``, ``chmod``, ``chown``,
+    ``chgrp``, ``truncate``, ``dd`` (``of=``), ``install``, ``rsync``, ``patch``, ``shred``, ``split``,
+    ``unlink``, ``sponge``, ``sed -i``/``--in-place``, ``perl -i``, ``unzip`` and ``tar`` extraction (``-x``
+    with or without ``-C``). ``cd`` and a wrapper chdir move the directory a relative target is taken
+    against, as they do for the push rule. A target the hook cannot resolve to a path (a variable, a glob, a
+    brace, a command substitution or a here-string path) counts as inside a repository, so the command is
+    blocked.
 
 Commands are pattern matched, never run: the script splits the command line into simple commands, steps over
 shell reserved words (``do``, ``then``, ``!``, ``{``), variable assignments and wrappers with their options
@@ -108,9 +120,11 @@ double quotes and backslash escapes (a backslash-underscore separates words, a b
 and those words are read as the rest of the command line, so the push rule sees them; a ``${VAR}`` is left as a
 word that cannot be resolved, and a string that cannot be split, or that holds such a reference where the
 program or subcommand would stand, is blocked when any word could be ``git`` or ``push``. Programs other than
-``git`` and ``gh``,
-such as ``curl``, are not inspected beyond rules 3, 8 and 12, and neither is code a program runs on its own, such
-as ``python -c`` or a script file. The current branch comes from the repository's ``HEAD`` file. Unreadable hook
+``git`` and ``gh``, such as ``curl``, are not inspected beyond rules 3, 8, 12 and 14. Rule 14 reads the writes
+a program makes through its own arguments and redirections, but not code an interpreter runs inline, such as
+``python -c``, a ``python`` here-document, ``node -e`` or ``perl -e``: a file such code writes is a stated
+limit, covered by the desk's own checks. Code a program runs on its own, such as a script file, is not read
+either. The current branch comes from the repository's ``HEAD`` file. Unreadable hook
 input and internal errors block in a desk run and pass elsewhere. Only the Python standard library is used.
 """
 
@@ -267,6 +281,84 @@ HEREDOC = re.compile(r"(?<!<)<<(?!<)-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 SHELL_PUNCTUATION = ";&|()<>"
 MAX_NESTING = 3
 
+# Shell operators built from the punctuation characters, longest first so a greedy walk reads "&>>" before
+# "&", and the three kinds a run of punctuation decomposes into. A separator ends the simple command before
+# it; an output or read-write redirect takes the next word as a file it writes; a read, here-string or
+# file-descriptor duplication takes a word that is not a file write.
+SHELL_OPERATORS = (
+    "<<<",
+    "&>>",
+    ";;",
+    "&&",
+    "||",
+    "|&",
+    ">>",
+    "<<",
+    ">|",
+    "<>",
+    ">&",
+    "<&",
+    "&>",
+    ";",
+    "&",
+    "|",
+    "(",
+    ")",
+    "<",
+    ">",
+)
+SEPARATOR_OPERATORS = frozenset({";", ";;", "&", "&&", "|", "||", "|&", "(", ")"})
+WRITE_REDIRECT_OPERATORS = frozenset({">", ">>", ">|", "<>", "&>", "&>>"})
+READ_REDIRECT_OPERATORS = frozenset({"<", "<<", "<<<", "<&", ">&"})
+
+# The redirection targets that write no repository file: the bit bucket and the standard streams
+DEV_WRITE_TARGET = re.compile(r"/dev/(?:null|stdout|stderr|fd/[0-9]+)\Z")
+# A target the hook cannot resolve to a literal path: a leftover variable, a glob or brace, a command
+# substitution (its "$(" or ")" survives) or an empty word
+UNRESOLVED_TARGET = re.compile(r"[$*?\[\]{}()]")
+
+# Programs a subagent in a desk run may not run when they write a repository path. Each kind names the
+# options that take a following value, so the operands that are targets can be told apart.
+# Writers whose every file operand is a target they create, truncate or remove.
+WRITER_ALL_OPERANDS: dict[str, frozenset[str]] = {
+    "rm": frozenset(),
+    "rmdir": frozenset(),
+    "unlink": frozenset(),
+    "sponge": frozenset(),
+    "tee": frozenset(),
+    "touch": frozenset({"-d", "--date", "-r", "--reference", "-t", "--time"}),
+    "mkdir": frozenset({"-m", "--mode", "-Z", "--context"}),
+    "shred": frozenset({"-n", "--iterations", "-s", "--size"}),
+    "truncate": frozenset({"-s", "--size", "-r", "--reference", "-o", "--io-blocks"}),
+    "split": frozenset(
+        {"-a", "--suffix-length", "-b", "--bytes", "-C", "--line-bytes", "-l", "--lines", "-n", "--number"},
+    ),
+}
+# Writers whose last operand is the destination; the target-directory option names it instead.
+WRITER_DEST_LAST: dict[str, tuple[frozenset[str], frozenset[str]]] = {
+    "cp": (frozenset({"-S", "--suffix", "--sparse"}), frozenset({"-t", "--target-directory"})),
+    "mv": (frozenset({"-S", "--suffix"}), frozenset({"-t", "--target-directory"})),
+    "ln": (frozenset({"-S", "--suffix"}), frozenset({"-t", "--target-directory"})),
+    "install": (
+        frozenset({"-m", "--mode", "-o", "--owner", "-g", "--group", "-S", "--suffix"}),
+        frozenset({"-t", "--target-directory"}),
+    ),
+    "rsync": (frozenset(), frozenset()),
+}
+# Writers whose first operand is a mode or owner, the rest being targets, unless --reference reads one.
+WRITER_SKIP_FIRST = frozenset({"chmod", "chown", "chgrp"})
+# Writers that unpack into the working directory, or the directory a directory option names.
+WRITER_INTO_DIR: dict[str, frozenset[str]] = {
+    "unzip": frozenset({"-d"}),
+    "patch": frozenset({"-d", "--directory"}),
+}
+# sed and perl edit the file operands in place only with an in-place option; sed and perl take a script or
+# code as a value, and sed reads its first operand as the script when no script option gives one.
+INPLACE_SCRIPT_OPTIONS = {
+    "sed": frozenset({"-e", "--expression", "-f", "--file"}),
+    "perl": frozenset({"-e", "-E", "-M", "-m", "-I", "-F", "-x"}),
+}
+
 
 class BlockError(Exception):
     """Raised with the one-line reason when the tool call must be blocked."""
@@ -282,6 +374,7 @@ class SimpleCommand(NamedTuple):
     words: list[str]
     directory: str
     prefix: list[str]  # reserved words, assignments and wrappers with their options and operands
+    redirects: list[str]  # the targets of its output redirections (>, >>, >|, &>, &>>, n>, n>>, <>)
 
 
 class GitCommand(NamedTuple):
@@ -393,7 +486,34 @@ def strip_heredocs(command: str) -> str:
     return "\n".join(kept)
 
 
-def split_commands(command: str) -> list[list[str]]:
+def split_operators(token: str) -> list[str] | None:
+    """Split a run of shell punctuation into its operators, or None when a character fits none.
+
+    Parameters
+    ----------
+    token : str
+        A token made only of the characters in ``SHELL_PUNCTUATION``.
+
+    Returns
+    -------
+    list[str] | None
+        The operators in order (``a&&>b`` gives ``["&&", ">"]``), or None when the run cannot be read as a
+        sequence of known operators.
+    """
+    operators: list[str] = []
+    index = 0
+    while index < len(token):
+        for operator in SHELL_OPERATORS:
+            if token.startswith(operator, index):
+                operators.append(operator)
+                index += len(operator)
+                break
+        else:
+            return None
+    return operators
+
+
+def split_commands(command: str) -> list[tuple[list[str], list[str]]]:
     """Split a command line into simple commands at ``;``, ``&&``, ``||``, ``|``, ``&``, brackets and newlines.
 
     Parameters
@@ -403,8 +523,11 @@ def split_commands(command: str) -> list[list[str]]:
 
     Returns
     -------
-    list[list[str]]
-        The words of each simple command; redirections and their targets are left out.
+    list[tuple[list[str], list[str]]]
+        For each simple command, its words from the program on, and the targets of its output redirections
+        (``>``, ``>>``, ``>|``, ``&>``, ``&>>``, ``n>``, ``n>>`` and the read-write ``<>``). Read redirects,
+        here-strings and file-descriptor duplications take a word that is not a file write, so their targets
+        are left out, as are the targets of every redirect for a command line the lexer cannot read.
     """
     text = strip_heredocs(command).replace("\n", " ; ").replace("`", " ; ")
     lexer = shlex.shlex(text, posix=True, punctuation_chars=SHELL_PUNCTUATION)
@@ -412,22 +535,32 @@ def split_commands(command: str) -> list[list[str]]:
     try:
         tokens = list(lexer)
     except ValueError:
-        # Unbalanced quotes: fall back to plain whitespace words between the separators
-        return [part.split() for part in re.split(r"[;&|()<>]+", text) if part.split()]
+        # Unbalanced quotes: fall back to plain whitespace words between the separators, redirects dropped
+        return [(part.split(), []) for part in re.split(r"[;&|()<>]+", text) if part.split()]
 
-    commands: list[list[str]] = [[]]
-    skip_target = False
+    commands: list[tuple[list[str], list[str]]] = [([], [])]
+    pending: str | None = None  # "write": the next word is a file write; "skip": a redirect word to drop
     for token in tokens:
-        if skip_target:
-            skip_target = False
+        if pending is not None:
+            if pending == "write":
+                commands[-1][1].append(token)
+            pending = None
         elif token and all(char in SHELL_PUNCTUATION for char in token):
-            if "<" in token or ">" in token:
-                skip_target = True
-            else:
-                commands.append([])
+            operators = split_operators(token)
+            if operators is None:
+                commands.append(([], []))
+                continue
+            for operator in operators:
+                if operator in SEPARATOR_OPERATORS:
+                    commands.append(([], []))
+                    pending = None
+                elif operator in WRITE_REDIRECT_OPERATORS:
+                    pending = "write"
+                elif operator in READ_REDIRECT_OPERATORS:
+                    pending = "skip"
         else:
-            commands[-1].append(token)
-    return [words for words in commands if words]
+            commands[-1][0].append(token)
+    return [command for command in commands if command[0] or command[1]]
 
 
 def takes_value(option: str, options: frozenset[str]) -> bool:
@@ -717,15 +850,16 @@ def simple_commands(command: str, cwd: str, depth: int = 0, *, desk: bool = Fals
     Returns
     -------
     list[SimpleCommand]
-        The words of each command from the program on, the directory the program runs in and the words
-        before the program. A command made only of assignments has no words. The commands inside an
-        ``sh -c`` or ``eval`` string follow the command that runs them.
+        The words of each command from the program on, the directory the program runs in, the words
+        before the program and the targets of its output redirections. A command made only of assignments
+        or a bare redirect has no words. The commands inside an ``sh -c`` or ``eval`` string follow the
+        command that runs them.
     """
     found: list[SimpleCommand] = []
     directory = cwd
-    for words in split_commands(command):
+    for words, redirects in split_commands(command):
         start, command_directory, words = command_start(words, directory, desk=desk)
-        found.append(SimpleCommand(words[start:], command_directory, words[:start]))
+        found.append(SimpleCommand(words[start:], command_directory, words[:start], redirects))
         if start == len(words):
             continue
         program, rest = Path(words[start]).name, words[start + 1 :]
@@ -1384,6 +1518,196 @@ def git_config_assignment(prefix: list[str], words: list[str]) -> str | None:
     return assignment
 
 
+def writer_operands(args: list[str], value_options: frozenset[str]) -> list[str]:
+    """Return the operands of a command, dropping its options and the words they take as values.
+
+    Parameters
+    ----------
+    args : list[str]
+        The words after the program.
+    value_options : frozenset[str]
+        Options that take the next word as their value, so that word is not an operand. An option written
+        ``--name=value`` keeps its value attached and takes no following word.
+
+    Returns
+    -------
+    list[str]
+        The operands in order; everything after a lone ``--`` is an operand.
+    """
+    found: list[str] = []
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        index += 1
+        if arg == "--":
+            found.extend(args[index:])
+            break
+        if arg.startswith("-") and arg != "-":
+            consumed, attached, next_is_value = option_value(arg, value_options)
+            if consumed is not None and attached is None and next_is_value:
+                index += 1  # a short cluster ending in a value option, or "--name", takes the next word
+            continue
+        found.append(arg)
+    return found
+
+
+def valued_option(args: list[str], names: frozenset[str]) -> str | None:
+    """Return the value of the first option in ``names`` the command passes, or None when none is passed."""
+    index = 0
+    while index < len(args):
+        arg = args[index]
+        index += 1
+        if arg == "--":
+            return None
+        name, equals, attached = arg.partition("=")
+        if name in names:
+            return attached if equals else (args[index] if index < len(args) else "")
+    return None
+
+
+def tar_extracts(args: list[str]) -> bool:
+    """Return True when a ``tar`` call extracts an archive (``-x``, ``--extract`` or a leading ``x``)."""
+    for position, arg in enumerate(args):
+        if arg in {"--extract", "--get"}:
+            return True
+        if arg.startswith("-") and not arg.startswith("--") and "x" in arg:
+            return True
+        if position == 0 and not arg.startswith("-") and "x" in arg:
+            return True
+    return False
+
+
+def inplace_edit_targets(program: str, args: list[str]) -> list[str] | None:
+    """Return the files ``sed`` or ``perl`` edits in place, or None when the call does not edit in place.
+
+    Parameters
+    ----------
+    program : str
+        ``sed`` or ``perl``.
+    args : list[str]
+        The words after the program.
+
+    Returns
+    -------
+    list[str] | None
+        The file operands, or None when no in-place option is present.
+    """
+    in_place = False
+    for arg in args:
+        if arg == "--":
+            break
+        if (
+            arg == "--in-place"
+            or arg.startswith("--in-place=")
+            or (arg.startswith("-") and not arg.startswith("--") and "i" in arg.partition("=")[0])
+        ):
+            in_place = True
+    if not in_place:
+        return None
+    value_options = INPLACE_SCRIPT_OPTIONS[program]
+    files = writer_operands(args, value_options)
+    if program == "sed" and valued_option(args, value_options) is None:
+        files = files[1:]  # the first operand is the script when no -e or -f gives one
+    return files
+
+
+def writer_targets(program: str, args: list[str], directory: str) -> list[str] | None:
+    """Return the repository-relevant paths a file-writing program writes, or None when it is not one.
+
+    Parameters
+    ----------
+    program : str
+        The program name, without its directory.
+    args : list[str]
+        The words after the program, with inline variables already resolved.
+    directory : str
+        The directory the command runs in, which a program that unpacks into the working directory writes.
+
+    Returns
+    -------
+    list[str] | None
+        The target paths to test, or None when ``program`` does not write a file.
+    """
+    if program in WRITER_ALL_OPERANDS:
+        return writer_operands(args, WRITER_ALL_OPERANDS[program])
+    if program in WRITER_DEST_LAST:
+        value_options, directory_options = WRITER_DEST_LAST[program]
+        target_directory = valued_option(args, directory_options)
+        if target_directory is not None:
+            return [target_directory]
+        operands = writer_operands(args, value_options | directory_options)
+        return operands[-1:]
+    if program in WRITER_SKIP_FIRST:
+        if valued_option(args, frozenset({"--reference"})) is not None:
+            return writer_operands(args, frozenset({"--reference"}))
+        return writer_operands(args, frozenset({"--reference"}))[1:]
+    if program in WRITER_INTO_DIR:
+        target_directory = valued_option(args, WRITER_INTO_DIR[program])
+        return [target_directory if target_directory is not None else directory]
+    if program == "dd":
+        return [arg.partition("=")[2] for arg in args if arg.startswith("of=")]
+    if program == "tar" and tar_extracts(args):
+        target_directory = valued_option(args, frozenset({"-C", "--directory"}))
+        return [target_directory if target_directory is not None else directory]
+    if program in INPLACE_SCRIPT_OPTIONS:
+        return inplace_edit_targets(program, args)
+    return None
+
+
+def writes_repository(target: str, directory: str) -> bool:
+    """Return True when a write to ``target`` lands inside a repository, or the hook cannot resolve it.
+
+    Parameters
+    ----------
+    target : str
+        A redirection target or a writer program's operand, with inline variables already resolved.
+    directory : str
+        The directory the write runs in, which a relative target is taken against.
+
+    Returns
+    -------
+    bool
+        True when the target is inside a repository, or is a variable, glob, brace, command substitution,
+        here-string or empty word the hook cannot resolve to a path; False for ``/dev/null`` and the
+        standard streams, and for a path outside every repository, such as one under ``/tmp``.
+    """
+    if not target or UNRESOLVED_TARGET.search(target):
+        return True
+    if DEV_WRITE_TARGET.fullmatch(target):
+        return False
+    return enclosing_repository(target, directory) is not None
+
+
+def repository_write_reason(program: str, args: list[str], directory: str) -> str | None:
+    """Return why a subagent's file-writing program writes a repository path in a desk run, or None.
+
+    Parameters
+    ----------
+    program : str
+        The program name, without its directory.
+    args : list[str]
+        The words after the program, with inline variables already resolved.
+    directory : str
+        The directory the command runs in.
+
+    Returns
+    -------
+    str | None
+        The block reason, naming the program and the target, or None.
+    """
+    targets = writer_targets(program, args, directory)
+    if not targets:
+        return None
+    for target in targets:
+        if writes_repository(target, directory):
+            where = target or "an unresolved path"
+            return (
+                f"{program} writes into the repository ({where}), which is off limits for subagents in desk "
+                "runs; write scratch files outside it and return a change set to the desk"
+            )
+    return None
+
+
 def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: int = 0) -> str | None:
     """Return why a Bash command is blocked, or None when no rule covers it.
 
@@ -1408,7 +1732,7 @@ def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: in
     # Literal "NAME=value" assignments set a variable so that a "$NAME" later in the command line resolves.
     # A standalone assignment persists; one before a command is for that command alone, as in the shell.
     variables: dict[str, str] = {}
-    for words, directory, prefix in simple_commands(command, cwd, depth, desk=desk):
+    for words, directory, prefix, redirects in simple_commands(command, cwd, depth, desk=desk):
         if desk:
             assignment = git_config_assignment(prefix, words)
             if assignment:
@@ -1420,6 +1744,16 @@ def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: in
                 local[name] = value
                 if not words:
                     variables[name] = value  # a command of assignments only persists them
+        # A subagent may not redirect into the repository, whatever program (if any) the redirect follows
+        if subagent:
+            for target in redirects:
+                resolved = expand_variables(target, local)
+                if writes_repository(resolved, directory):
+                    where = resolved or "an unresolved path"
+                    return (
+                        f"redirecting into the repository ({where}) is off limits for subagents in desk "
+                        "runs; write scratch files outside it and return a change set to the desk"
+                    )
         if not words:
             continue
         words = [expand_variables(word, local) for word in words]
@@ -1436,6 +1770,8 @@ def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: in
             script = desk_script(words, directory)
             if script:
                 reason = f"{script} is off limits for subagents in desk runs; return a change set to the desk"
+        if reason is None and subagent:
+            reason = repository_write_reason(program, rest, directory)
         if reason:
             return reason
     return None

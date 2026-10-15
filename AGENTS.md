@@ -10,7 +10,7 @@ pythondeadlin.es lists Python conferences with their Call for Proposals (CfP) de
 - `utils/tidy_conf/data/denylist.yml`: domains the critic rejects or sends to the maintainer.
 - `.claude/routines/desk.md`: the daily desk run, for the agent running as the desk.
 - `.claude/skills/`: `enricher`, `new-year-checker`, `scouter` and `critic`, each run by a subagent the desk hands one item.
-- `.claude/hooks/desk_guard.py`: blocks pushes to main, and `.github/` edits on the rolling branch and in desk runs. In desk runs it also blocks every `mcp__` tool and the Cron, RemoteTrigger and ScheduleWakeup tools; pushes other than to `auto/conference-updates` and `desk-queue`, and any force or delete push; git config changes; `gh` subcommands other than `gh api`, and `gh api` writes outside the rolling PR's endpoints; every repository write from a subagent; and, when its private deny list is missing, every call.
+- `.claude/hooks/desk_guard.py`: blocks pushes to main, and `.github/` edits on the rolling branch and in desk runs. In desk runs it also blocks every `mcp__` tool and the Cron, RemoteTrigger and ScheduleWakeup tools; pushes other than to `auto/conference-updates` and `desk-queue`, and any force or delete push; git config changes; `gh` subcommands other than `gh api`, and `gh api` writes outside the rolling PR's endpoints; from a subagent, its git and `gh api` writes, the data and queue scripts, and file-tool edits, redirections and file-writing programs that write inside a repository; and, when its deny list is missing, every call.
 
 ## What gets listed
 

@@ -1372,6 +1372,163 @@ def test_agent_type_without_agent_id_is_the_main_agent(run_hook, make_repo, tool
     assert_allowed(run_hook(tool, tool_input, cwd=repo, desk=True, agent_type="desk"))
 
 
+# --- subagents writing a repository path with a redirect or a file command (desk run) ---
+
+# One row per write form: a spelling that writes into the checkout, the same form writing under /tmp, and the
+# fragment of the reason (a redirect names "redirecting", a program names itself).
+WRITE_FORMS = [
+    ("echo x > out.txt", "echo x > /tmp/out.txt", "redirecting"),
+    ("echo x >> out.txt", "echo x >> /tmp/out.txt", "redirecting"),
+    ("echo x >| out.txt", "echo x >| /tmp/out.txt", "redirecting"),
+    ("echo x &> out.txt", "echo x &> /tmp/out.txt", "redirecting"),
+    ("echo x &>> out.txt", "echo x &>> /tmp/out.txt", "redirecting"),
+    ("echo x 2> out.txt", "echo x 2> /tmp/out.txt", "redirecting"),
+    ("echo x 2>> out.txt", "echo x 2>> /tmp/out.txt", "redirecting"),
+    ("echo x <> out.txt", "echo x <> /tmp/out.txt", "redirecting"),
+    ("tee out.txt", "tee /tmp/out.txt", "tee"),
+    ("cp /tmp/a out.yml", "cp /tmp/a /tmp/b.yml", "cp"),
+    ("mv /tmp/a out.yml", "mv /tmp/a /tmp/b.yml", "mv"),
+    ("rm -rf _data/x.yml", "rm -rf /tmp/x.yml", "rm"),
+    ("rmdir sub", "rmdir /tmp/sub", "rmdir"),
+    ("touch out.txt", "touch /tmp/out.txt", "touch"),
+    ("mkdir sub", "mkdir /tmp/sub", "mkdir"),
+    ("ln -s /tmp/a out.yml", "ln -s /tmp/a /tmp/b.yml", "ln"),
+    ("chmod 644 _data/conferences.yml", "chmod 644 /tmp/x", "chmod"),
+    ("chown root _data/conferences.yml", "chown root /tmp/x", "chown"),
+    ("chgrp staff _data/conferences.yml", "chgrp staff /tmp/x", "chgrp"),
+    ("truncate -s 0 out.txt", "truncate -s 0 /tmp/out.txt", "truncate"),
+    ("dd if=/dev/zero of=out.bin", "dd if=/dev/zero of=/tmp/out.bin", "dd"),
+    ("install -m 644 /tmp/a _data/x", "install -m 644 /tmp/a /tmp/x", "install"),
+    ("rsync -a /tmp/src/ _data/", "rsync -a /tmp/src/ /tmp/d/", "rsync"),
+    ("patch -p1 -i /tmp/x.diff", "patch -d /tmp -p1 -i /tmp/x.diff", "patch"),
+    ("shred out.txt", "shred /tmp/out.txt", "shred"),
+    ("split -l 10 /tmp/a out-", "split -l 10 /tmp/a /tmp/out-", "split"),
+    ("unlink out.txt", "unlink /tmp/out.txt", "unlink"),
+    ("sponge out.txt", "sponge /tmp/out.txt", "sponge"),
+    ("sed -i s/a/b/ _data/conferences.yml", "sed -i s/a/b/ /tmp/a.yml", "sed"),
+    ("perl -i -pe s/a/b/ _data/conferences.yml", "perl -i -pe s/a/b/ /tmp/a.yml", "perl"),
+    ("unzip /tmp/a.zip", "unzip /tmp/a.zip -d /tmp/out", "unzip"),
+    ("tar -xf /tmp/a.tar", "tar -xf /tmp/a.tar -C /tmp", "tar"),
+]
+
+
+@pytest.mark.parametrize(("inside", "outside", "fragment"), WRITE_FORMS)
+def test_subagent_write_into_the_repository_is_blocked(run_hook, make_repo, inside, outside, fragment):
+    repo = make_repo(ROLLING)
+    assert_blocked(run_hook("Bash", {"command": inside}, cwd=repo, desk=True, **SUBAGENT), fragment, "subagents")
+
+
+@pytest.mark.parametrize(("inside", "outside", "fragment"), WRITE_FORMS)
+def test_subagent_write_under_tmp_is_allowed(run_hook, make_repo, inside, outside, fragment):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook("Bash", {"command": outside}, cwd=repo, desk=True, **SUBAGENT))
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "echo x > /dev/null",
+        "echo x 2> /dev/null",
+        "echo x >> /dev/null",
+        "echo x > /dev/stdout",
+        "echo x > /dev/stderr",
+        "echo x > /dev/fd/2",
+        "tee /dev/null",
+        "curl -sSL https://x > /dev/null",
+    ],
+)
+def test_subagent_write_to_the_null_device_or_a_stream_is_allowed(run_hook, make_repo, command):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT))
+
+
+@pytest.mark.parametrize(
+    ("command", "fragment"),
+    [
+        ("echo x > $OUT", "redirecting"),
+        ("echo x > out-$(date +%s).log", "redirecting"),
+        ("echo x > '*.log'", "redirecting"),
+        ("echo x > $(mktemp)", "redirecting"),
+        ("cp /tmp/a $DEST", "cp"),
+        ("tee out-$NAME.txt", "tee"),
+    ],
+)
+def test_subagent_write_to_an_unresolved_target_is_blocked(run_hook, make_repo, command, fragment):
+    repo = make_repo(ROLLING)
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT), fragment, "subagents")
+
+
+@pytest.mark.parametrize(
+    ("command", "allowed"),
+    [
+        ("cd /tmp && echo x > out.txt", True),
+        ("cd /tmp && tee out.txt", True),
+        ("OUT=/tmp/x.txt; echo x > $OUT", True),
+        ("cd <repo> && echo x > out.txt", False),
+        ("env -C <repo> tee out.txt", False),
+        ("OUT=<repo>/notes.txt; echo x > $OUT", False),
+    ],
+)
+def test_subagent_write_tracks_cd_wrapper_chdir_and_inline_variables(run_hook, make_repo, tmp_path, command, allowed):
+    repo = make_repo(ROLLING)
+    outcome = run_hook("Bash", {"command": command.replace("<repo>", str(repo))}, cwd=tmp_path, desk=True, **SUBAGENT)
+    if allowed:
+        assert_allowed(outcome)
+    else:
+        assert_blocked(outcome, "subagents")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "curl -sSL https://2027.pycon.gr/cfp/",
+        "curl -o /tmp/snapshot.html https://2027.pycon.gr/cfp/",
+        "python -c 'print(1)'",
+        "python3 -c 'import json,sys; print(sys.version)'",
+        "jq .deadline /tmp/data.json",
+        "grep -rn 'PyCon Greece' _data/conferences.yml",
+        "git log --oneline -5",
+        "cat _data/conferences.yml | head -20",
+        "curl -sSL https://2027.pycon.gr/api | jq '.cfp'",
+        "sed -n 1,40p utils/sort_yaml.py",
+    ],
+)
+def test_subagent_research_reads_are_still_allowed(run_hook, make_repo, command):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT))
+
+
+@pytest.mark.parametrize("command", ["echo x > out.txt", "cp /tmp/a out.yml", "rm -rf _data/x", "tee out.txt"])
+def test_repository_writes_outside_subagent_desk_runs_are_not_inspected(run_hook, make_repo, command):
+    repo = make_repo(ROLLING)
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, desk=True))  # the main agent
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo, **SUBAGENT))  # a subagent outside a desk run
+
+
+@pytest.mark.skipif(BASH is None, reason="bash runs the command")
+def test_subagent_redirect_into_the_checkout_writes_with_real_shell(run_hook, pytester, make_repo):
+    repo = make_repo(ROLLING)
+    command = "echo payload > scratch.txt"
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT), "redirecting", "subagents")
+    assert not (repo / "scratch.txt").exists()
+    result = pytester.run(BASH, "-c", f"cd {shlex.quote(str(repo))} && {command}", timeout=30)
+    assert result.ret == 0, result.errlines
+    assert (repo / "scratch.txt").read_text(encoding="utf-8").strip() == "payload"
+
+
+@pytest.mark.skipif(BASH is None, reason="bash runs the command")
+def test_subagent_cp_into_the_checkout_writes_with_real_shell(run_hook, pytester, make_repo, tmp_path):
+    repo = make_repo(ROLLING)
+    source = tmp_path / "src.txt"
+    source.write_text("payload", encoding="utf-8")
+    command = f"cp {shlex.quote(str(source))} copied.yml"
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **SUBAGENT), "cp", "subagents")
+    assert not (repo / "copied.yml").exists()
+    result = pytester.run(BASH, "-c", f"cd {shlex.quote(str(repo))} && {command}", timeout=30)
+    assert result.ret == 0, result.errlines
+    assert (repo / "copied.yml").read_text(encoding="utf-8") == "payload"
+
+
 # --- optional ~/.desk-guard.json deny-list (any session) ---
 
 
