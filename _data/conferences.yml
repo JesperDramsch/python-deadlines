@@ -896,6 +896,8 @@
   start: 2027-04-20
   end: 2027-04-22
   sponsor: https://pycon.de/sponsoring/
+  finaid: https://pycon.de/financial-aid/
+  coc: https://pioneershub.github.io/pyconde-conference/code-of-conduct/
   twitter: PyConDE
   mastodon: https://fosstodon.org/@pyconde
   bluesky: https://bsky.app/profile/pyconde.bsky.social
