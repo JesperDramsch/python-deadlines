@@ -453,12 +453,13 @@
 - conference: PyDay Valparaiso
   alt_name: PyDay Chile Valparaiso
   year: 2026
-  link: https://www.pyday.cl/valparaiso.html
+  link: https://pyday.cl/valparaiso
   cfp: TBA
   place: Valparaiso, Chile
   start: 2026-06-05
   end: 2026-06-05
   sponsor: https://pyday.cl/sponsors
+  coc: https://pyday.cl/conduct/
   sub: DAY
   location:
   - title: PyDay Chile Valparaiso 2026
