@@ -9,7 +9,7 @@ The desk is the daily Routine that keeps the conference data complete and curren
 - Push only to `auto/conference-updates` and `desk-queue`, following "Pushing". Files under `.github/` stay with the maintainer.
 - Reach GitHub only through `gh api` REST calls. GraphQL, which `gh pr` uses, can be blocked in the Routine sandbox.
 - Write your own files (the worklist, the ledger, comment and PR bodies) in the session's scratch directory under `/tmp`, written `<scratch>` below: the scratchpad your system prompt names, else one from `mktemp -d`. Post every body, replies included, with `-F body=@<file>`, never inline.
-- In a desk run `.claude/hooks/desk_guard.py` blocks `.github/` edits; every `mcp__` tool and the Cron, RemoteTrigger and ScheduleWakeup tools; pushes other than to `auto/conference-updates` and `desk-queue`, and any force or delete push; `gh` subcommands other than `gh api`, and `gh api` writes outside the rolling PR's endpoints; and, inside subagents, every repository write (git and `gh api` writes, `desk_queue.py` writes, `desk_pr_body.py`, `merge_data.py`, the sort, and Edit or Write inside the repository). Without `~/.desk-guard.json` it blocks every call: stop and report that. Record any other blocked call for the report and carry on with the next item.
+- In a desk run `.claude/hooks/desk_guard.py` blocks `.github/` edits; every `mcp__` tool and the Cron, RemoteTrigger and ScheduleWakeup tools; pushes other than to `auto/conference-updates` and `desk-queue`, and any force or delete push; `gh` subcommands other than `gh api`, and `gh api` writes outside the rolling PR's endpoints; and, inside subagents, every repository write (git and `gh api` writes, `desk_queue.py` writes, `desk_pr_body.py`, `merge_data.py`, the sort, and Edit or Write inside the repository). Without `~/.desk-guard.json` it blocks every call: stop and report that. Record any other blocked call for the report and carry on with the next item. The guard cannot read every write a shell command makes, such as one from inline interpreter code, so steps 6 and 7 also check the checkout and the queue worktree for files a subagent changed.
 
 REPO below stands for `JesperDramsch/python-deadlines`.
 
@@ -71,9 +71,9 @@ Done when: every entry posted after the previous cut-off is an item at the front
 
 Take the items in worklist order. Several subagents may research at once, for different conferences: an item starts only once every earlier item of its conference has finished step 4, so its subagent sees their changes. Apply and push one conference at a time. For each item:
 
-1. **Research.** Start a subagent with "Read AGENTS.md and .claude/skills/<skill>/SKILL.md, then handle this worklist item and return change sets as AGENTS.md describes", followed by the item's JSON and every queue item its `queue_refs` name (read from `QUEUE/<file>`, matched by `id`). Done when it has returned its change sets, or its failure is recorded.
-2. **Critic.** Send every change set with result `change`, `new-edition` or `new-series`, and every scouter `lead`, to a fresh subagent with "Read AGENTS.md and .claude/skills/critic/SKILL.md, then review this change set" and the set. Done when each has a verdict.
-3. **Apply.** For each accepted set (without the fields the critic dropped), edit the data and run the sort (AGENTS.md, "Data mechanics"), then commit the three data files: one commit per conference, covering every edition of that series the item touched. Subject: `<conference> <year>: <fields changed>`, or `Add <conference> <year>` for a new entry. Body: per field the old and new value, the URL and the quote, then the critic's flags. Done when `git status --short` prints nothing and `git show --stat HEAD` lists only `_data/` files.
+1. **Research.** Start a subagent with "Read AGENTS.md and .claude/skills/<skill>/SKILL.md, then handle this worklist item and return change sets as AGENTS.md describes", followed by the item's JSON and every queue item its `queue_refs` name (read from `QUEUE/<file>`, matched by `id`). When it returns or fails, run the tamper check: `git status --porcelain -- .claude AGENTS.md .github utils pixi.toml` must print nothing. The desk never changes these paths, so anything the check prints is a subagent's change to the guard or the procedure: stop the run there, with nothing more committed, pushed or posted, and report the paths (step 9). Done when it has returned its change sets, or its failure is recorded, and the tamper check printed nothing.
+2. **Critic.** Send every change set with result `change`, `new-edition` or `new-series`, and every scouter `lead`, to a fresh subagent with "Read AGENTS.md and .claude/skills/critic/SKILL.md, then review this change set" and the set. When each critic returns, run the tamper check again (step 6.1). Done when each has a verdict and every tamper check printed nothing.
+3. **Apply.** For each accepted set (without the fields the critic dropped), edit the data and run the sort (AGENTS.md, "Data mechanics"). Before you stage and commit, run the tamper check (step 6.1) and then the stray-write check, since subagents still researching can write to the working tree while you apply this conference. Compare `git status --porcelain` and `git diff` with the edits you made for this conference: only `_data/` files may change, and only in the entries and fields of this conference's accepted sets, apart from the sort's own work (the `location` it adds for a new place, and entries it moves between the three files or reorders without changing them). Anything else is a stray write: restore it, with `git checkout -- <path>` for a tracked file and `git clean -fd -- <path>` for an untracked one, and note "stray write: <paths>" for this item's ledger row and the final report (step 9). When a stray write was in one of the three data files, restore all three with `git checkout -- _data/conferences.yml _data/archive.yml _data/legacy.yml`, apply your edits again, run the sort and check again; a change that comes back after that is the sort's own rewrite, so keep it and leave it out of the note. Repeat the check up to five times; when it still finds a stray write, stop and report. Then commit the three data files: one commit per conference, covering every edition of that series the item touched. Subject: `<conference> <year>: <fields changed>`, or `Add <conference> <year>` for a new entry. Body: per field the old and new value, the URL and the quote, then the critic's flags. Anything `git status --short` prints after the commit is a stray write too: restore and note it the same way. Done when the last stray-write check found no stray write, `git status --short` prints nothing and `git show --stat HEAD` lists only `_data/` files.
 4. **Push.** Follow "Pushing". Done when `git rev-parse HEAD` equals `git rev-parse origin/auto/conference-updates`.
 5. **Ledger.** Add the item's rows ("Ledger") to your scratch ledger and, once a PR can exist (step 7), to the PR body, opening the PR if none is open ("Rolling PR"). This run's section keeps the previous run's "Feedback read to" value. Done when the rows are in the PR body, or in the scratch ledger while no PR can exist.
 
@@ -81,12 +81,14 @@ Done when: every worklist item has its ledger rows.
 
 ### 7. Publish the ledger
 
+Start with the queue check, skipped without a `desk-queue` branch (step 3). Nothing writes to QUEUE before step 8, so `git -C QUEUE status --porcelain` must print nothing. When it prints anything, a subagent wrote there: restore QUEUE with `git -C QUEUE checkout -- .` and `git -C QUEUE clean -fd`, note "stray write in the queue: <paths>" for the final report (step 9) and run the check again. When it still prints anything, stop and report.
+
 A PR can exist once `git rev-list --count origin/main..origin/auto/conference-updates` prints more than 0.
 
 - It can: open or update the rolling PR with this run's final counts and rows ("Rolling PR"). Its "Feedback read to" line takes this run's step 5 cut-off once every `maintainer-request` item has settled: its ledger row is `actioned`, `dismissed`, or `deferred` for any reason but a failed subagent. While any request has no row (not reached) or one deferred for a failed subagent, the line keeps the previous run's value, so the next run reads those requests again.
 - It cannot: this run's section, header line included, is the new `ledger/pending.md`, placed above any text already there. Without a `desk-queue` branch (step 3) there is nowhere to keep it: it stays in the final report (step 9), and the writers create the branch on their next run.
 
-Done when: `gh api repos/REPO/pulls/<n> --jq .body` starts with this run's "Desk last ran" line and its "Feedback read to" line follows the rule above, or the new `ledger/pending.md` text is ready, or the section is set aside for the report.
+Done when: `gh api repos/REPO/pulls/<n> --jq .body` starts with this run's "Desk last ran" line and its "Feedback read to" line follows the rule above, or the new `ledger/pending.md` text is ready, or the section is set aside for the report; and, with a `desk-queue` branch, `git -C QUEUE status --porcelain` prints nothing.
 
 ### 8. Clean the queue
 
@@ -103,7 +105,7 @@ Done when: the step was skipped, or, after `git -C QUEUE fetch origin desk-queue
 
 ### 9. Report
 
-End with one paragraph: start time, model id, items checked, conferences changed, the PR link (or that none can exist yet), the dismissed and deferred counts, and anything that stopped or blocked the run. When step 7 set this run's section aside for the report, add it after the paragraph.
+End with one paragraph: start time, model id, items checked, conferences changed, the PR link (or that none can exist yet), the dismissed and deferred counts, every stray write steps 6.3 and 7 found, with its paths, and anything that stopped or blocked the run, with the paths a tamper check printed. When step 7 set this run's section aside for the report, add it after the paragraph.
 
 Done when: that paragraph, and the section when step 7 set it aside, is your final message.
 
@@ -159,7 +161,7 @@ Feedback read to: <cut-off, YYYY-MM-DDTHH:MM:SSZ>
 
 ### Ledger
 
-Each worklist item gets one Candidates row, except the `scout` item, which gets one row per find: the item (conference and year, the find's name, or the item id), the source (its reasons and queue sources, or the comment URL for a maintainer request), the outcome, and a one-line detail with the deciding URL and any flags, such as a missing CoC.
+Each worklist item gets one Candidates row, except the `scout` item, which gets one row per find: the item (conference and year, the find's name, or the item id), the source (its reasons and queue sources, or the comment URL for a maintainer request), the outcome, and a one-line detail with the deciding URL and any flags, such as a missing CoC or "stray write: <paths>" (step 6.3).
 
 - `actioned`: a change was committed.
 - `dismissed`: checked with nothing to change, out of scope, already tracked, or rejected by the critic (give its reason).
