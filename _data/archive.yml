@@ -550,6 +550,8 @@
   place: Londrina, Brazil
   start: 2026-05-01
   end: 2026-05-03
+  coc: https://sul.python.org.br/codigo-de-conduta/
+  youtube: https://www.youtube.com/@PythonSul
   sub: PY
   location:
   - title: Python Sul 2026
