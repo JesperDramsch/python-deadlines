@@ -618,6 +618,128 @@ def test_alias_set_inside_an_alias_pushes_main_with_real_git(run_hook, pytester,
     assert git_ref(remote, "refs/heads/main") == git_ref(clone, "HEAD")
 
 
+# --- send-pack and http-push: git's plumbing that writes remote refs like push (any session) ---
+
+
+@pytest.mark.parametrize(
+    ("command", "fragment"),
+    [
+        ("git send-pack origin main", "main"),
+        ("git send-pack origin HEAD:main", "main"),
+        ("git send-pack ./rem +feature:main", "main"),
+        ("git send-pack origin 'refs/heads/*:refs/heads/*'", "main"),
+        ("git send-pack --mirror origin", "--mirror"),
+        ("git send-pack --force origin HEAD:refs/heads/master", "master"),
+        ("git http-push https://example.com/r.git HEAD:main", "main"),
+        ("git http-push https://example.com/r.git refs/heads/master", "master"),
+        ("/usr/lib/git-core/git-send-pack origin main", "main"),
+        ("git-send-pack origin HEAD:main", "main"),
+        ("git-http-push https://example.com/r.git HEAD:main", "main"),
+    ],
+)
+def test_send_pack_and_http_push_to_main_are_blocked(run_hook, make_repo, command, fragment):
+    repo = make_repo("feature")
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo), "git push", fragment)
+
+
+@pytest.mark.parametrize("fields", [{}, SUBAGENT])
+@pytest.mark.parametrize(
+    ("command", "fragment"),
+    [
+        ("git send-pack origin HEAD:main", "main"),
+        ("git send-pack upstream HEAD:auto/conference-updates", "origin"),
+        ("git send-pack --force origin HEAD:auto/conference-updates", "--force"),
+        ("git send-pack origin HEAD:feature", "'HEAD:feature'"),
+        ("git http-push https://example.com/r.git HEAD:main", "main"),
+    ],
+)
+def test_send_pack_and_http_push_in_a_desk_run_are_blocked(run_hook, make_repo, command, fragment, fields):
+    repo = make_repo(ROLLING)
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields), "git push", fragment)
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git send-pack origin HEAD:feature",
+        "git send-pack ./rem feature",
+        "git send-pack origin +feature:topic",
+        "git http-push https://example.com/r.git HEAD:feature",
+    ],
+)
+def test_send_pack_and_http_push_to_another_branch_outside_desk_runs_are_allowed(run_hook, make_repo, command):
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=make_repo("feature")))
+
+
+def test_send_pack_to_the_rolling_branch_in_a_desk_run_is_allowed(run_hook, make_repo):
+    repo = make_repo(ROLLING)
+    assert_allowed(
+        run_hook("Bash", {"command": "git send-pack origin HEAD:auto/conference-updates"}, cwd=repo, desk=True),
+    )
+
+
+# send-pack spellings that write remote main, each in the sessions where it is blocked
+HARMFUL_SEND_PACKS = [
+    ("send-pack {remote} HEAD:main", False),
+    ("send-pack {remote} HEAD:main", True),
+    ("send-pack --force {remote} HEAD:refs/heads/main", False),
+]
+
+
+@pytest.mark.parametrize(("arguments", "desk"), HARMFUL_SEND_PACKS)
+def test_send_pack_to_main_does_harm_with_real_git(run_hook, pytester, remote_clone, git_ref, arguments, desk):
+    remote, clone = remote_clone
+    arguments = arguments.format(remote=str(remote))
+    assert_blocked(run_hook("Bash", {"command": f"git {arguments}"}, cwd=clone, desk=desk), "git push", "main")
+    assert git_ref(remote, "refs/heads/main") != git_ref(clone, "HEAD")
+    result = pytester.run(GIT, "-C", str(clone), *shlex.split(arguments), timeout=30)
+    assert result.ret == 0, result.errlines
+    assert git_ref(remote, "refs/heads/main") == git_ref(clone, "HEAD")
+
+
+# --- a push refspec carried by a shell variable assigned earlier in the command line (any session) ---
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "BR=payload:main; git push origin $BR",
+        "BR=payload:main; git push origin ${BR}",
+        'BR=payload:main; git push origin "$BR"',
+        "BR=HEAD:main; git push origin $BR",
+        "REMOTE=origin BR=feature:main; git push $REMOTE $BR",
+        "DEST=main; git push origin HEAD:$DEST",
+    ],
+)
+def test_push_refspec_from_an_inline_variable_to_main_is_blocked(run_hook, make_repo, command):
+    repo = make_repo("feature")
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo), "git push", "main")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "BR=feature; git push origin $BR",
+        "BR=HEAD:feature; git push origin $BR",
+        "git push origin $BR",  # set outside the command line: unresolved, a stated limit
+        "git push origin ${BR}",
+    ],
+)
+def test_push_refspec_from_a_variable_to_another_branch_is_allowed(run_hook, make_repo, command):
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=make_repo("feature")))
+
+
+@pytest.mark.skipif(BASH is None, reason="bash runs the command")
+def test_push_refspec_from_an_inline_variable_moves_main_with_real_git(run_hook, pytester, remote_clone, git_ref):
+    remote, clone = remote_clone
+    command = "BR=HEAD:main; git push origin $BR"
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=clone), "git push", "main")
+    assert git_ref(remote, "refs/heads/main") != git_ref(clone, "HEAD")
+    result = pytester.run(BASH, "-c", f"cd {shlex.quote(str(clone))} && {command}", timeout=30)
+    assert result.ret == 0, result.errlines
+    assert git_ref(remote, "refs/heads/main") == git_ref(clone, "HEAD")
+
+
 # --- gh in a desk run ---
 
 

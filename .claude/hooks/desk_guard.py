@@ -10,13 +10,17 @@ to the agent; exit code 0 lets the call through to the normal permission flow. A
 
 Rules for every session:
 
-1. A Bash ``git push`` that targets ``main`` or ``master`` is blocked. That is a refspec whose destination is
+1. A Bash ``git push`` that targets ``main`` or ``master`` is blocked, and so are the plumbing commands
+   ``git send-pack`` and ``git http-push``, which write remote refs the same way and take the same remote
+   and refspecs. That is a refspec whose destination is
    the branch (``main``, ``HEAD:main``, ``:main``, ``refs/heads/main``, ``heads/main``, ``--delete main``) or a
    glob that covers it (``refs/heads/*:refs/heads/*``), the matching refspec ``:``, ``--all``, ``--mirror`` or
    ``--branches``, or a push without refspecs while the current branch is ``main`` or ``master``. A
    ``--dry-run`` push and a push of ``--tags`` alone send no branch and pass, unless ``--no-dry-run`` or
    ``--no-tags`` undoes the option. A long option counts in any abbreviation git accepts (``--mirr``,
-   ``--al``).
+   ``--al``). A refspec built from a ``$NAME`` or ``${NAME}`` resolves when that name is assigned a literal
+   value earlier in the same command line (``BR=x:main; git push origin $BR``); a name set outside the
+   command line cannot be resolved and is a stated limit below.
 2. On branch ``auto/conference-updates``, Edit, Write, MultiEdit and NotebookEdit on a path under a
    repository's own ``.github/`` directory are blocked. Bash commands that write there are not inspected.
 3. When ``~/.desk-guard.json`` exists, its optional regular-expression lists ``deny_bash``, ``deny_tools``,
@@ -37,6 +41,7 @@ Rules for desk runs, on top of those:
    ``-d``, ``--mirror``, ``--all``, ``--branches``, ``--tags``, ``--follow-tags``, ``--prune`` and
    ``--recurse-submodules`` (with any value) are blocked, alone, bundled (``-fu``) or abbreviated
    (``--force-w``, ``--del``), and so is a refspec that starts with ``+`` or ``:``. Dry runs get no exemption.
+   ``git send-pack`` and ``git http-push`` are held to this rule too, as rule 1 says.
 8. Desk runs make no git config changes. Every ``-c`` and ``--config-env`` setting on a git command is
    blocked, whatever it sets, and so is every ``git config`` call that is not a pure read: one that names
    ``--get``, ``--get-all``, ``--get-regexp``, ``--list`` or ``-l`` before the first word that is not an
@@ -93,7 +98,10 @@ variables, which are not expanded; config that sets push targets or options (``r
 commands git runs from its config, such as hooks, ``core.pager`` and ``core.sshCommand``. Desk runs block all
 of these by refusing config changes (rule 8). That covers git commands and the assignments rule 8 names. A file
 tool or another program that writes a config file directly is not inspected, and neither are other ways a shell
-sets or exports a variable, such as ``read``, ``printf -v`` or ``set -a``. A desk run blocks an ``env``
+sets or exports a variable, such as ``read``, ``printf -v`` or ``set -a``. A ``$NAME`` or ``${NAME}`` in a push
+refspec resolves only from a literal ``NAME=value`` assignment earlier in the same command line; a name set
+outside the command line, or by one of those uninspected routes, is left unresolved and the refspec it carries
+is read as written. A desk run blocks an ``env``
 split-string option (``-S``, ``--split-string``, clustered or as ``--split-string=STRING``) outright. Outside
 desk runs the string it takes is split the way GNU env does, into whitespace-separated words with single and
 double quotes and backslash escapes (a backslash-underscore separates words, a backslash-c ends the string),
@@ -126,6 +134,10 @@ SCHEDULING_TOOLS = frozenset({"CronCreate", "CronDelete", "CronList", "RemoteTri
 DENY_LIST_NAME = ".desk-guard.json"
 DENY_LIST_KEYS = ("deny_bash", "deny_tools", "deny_paths", "deny_urls")
 
+# The subcommands that write remote refs with the same positionals as push (a remote or URL, then
+# refspecs): the porcelain "push" and the plumbing "send-pack" and "http-push". All three go through the
+# push rules.
+PUSH_SUBCOMMANDS = frozenset({"push", "send-pack", "http-push"})
 # git options that take the next word as their value, before and after the "push" subcommand. No push
 # switch is a prefix of a push option here, so an abbreviation of one of these takes a value too.
 GIT_OPTIONS_WITH_VALUE = frozenset({"-C", "-c", "--git-dir", "--work-tree", "--namespace", "--config-env"})
@@ -250,6 +262,7 @@ ENV_SPLIT_OPTIONS = frozenset({"-S", "--split-string"})
 SHELLS = frozenset({"bash", "dash", "ksh", "sh", "su", "zsh"})
 SHELL_COMMAND_FLAG = re.compile(r"^-[A-Za-z]*c[A-Za-z]*$")  # -c, -lc, -ec
 ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*\+?=")  # NAME=value or NAME+=value
+VARIABLE_REFERENCE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)")  # ${NAME}, $NAME
 HEREDOC = re.compile(r"(?<!<)<<(?!<)-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 SHELL_PUNCTUATION = ";&|()<>"
 MAX_NESTING = 3
@@ -597,6 +610,28 @@ def split_string_pieces(string: str) -> list[str]:
     if (not clean or variable_in_command) and (variables or any(word in {"git", "push"} for word in words)):
         raise BlockError("an env split-string that could run git push cannot be read, so it is blocked")
     return words
+
+
+def expand_variables(word: str, variables: dict[str, str]) -> str:
+    """Replace ``$NAME`` and ``${NAME}`` in ``word`` with the values of ``variables``, leaving others as is.
+
+    Only a variable assigned a literal value earlier in the same command line is known, so a variable set
+    outside it, or by a command the guard does not read, stays unresolved. Command substitutions such as
+    ``$(...)`` are not references and are left alone.
+
+    Parameters
+    ----------
+    word : str
+        One word of a command.
+    variables : dict[str, str]
+        Known variable names and their values.
+
+    Returns
+    -------
+    str
+        The word with its known variable references resolved.
+    """
+    return VARIABLE_REFERENCE.sub(lambda match: variables.get(match.group(1) or match.group(2), match.group(0)), word)
 
 
 def command_start(words: list[str], directory: str, *, desk: bool = False) -> tuple[int, str, list[str]]:
@@ -1139,7 +1174,7 @@ def git_reason(args: list[str], directory: str, *, desk: bool, subagent: bool, d
     if index == len(args):
         return None
     subcommand, rest = args[index], args[index + 1 :]
-    if subcommand == "push":
+    if subcommand in PUSH_SUBCOMMANDS:
         push = parse_push(rest)
         reason = push_reason(push, git_directory)
         if reason:
@@ -1370,13 +1405,24 @@ def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: in
     str | None
         The block reason, or None.
     """
+    # Literal "NAME=value" assignments set a variable so that a "$NAME" later in the command line resolves.
+    # A standalone assignment persists; one before a command is for that command alone, as in the shell.
+    variables: dict[str, str] = {}
     for words, directory, prefix in simple_commands(command, cwd, depth, desk=desk):
         if desk:
             assignment = git_config_assignment(prefix, words)
             if assignment:
                 return config_change_reason(assignment, subagent=subagent)
+        local = dict(variables)
+        for word in prefix:
+            name, equals, value = word.partition("=")
+            if equals and ASSIGNMENT.match(word) and not name.endswith("+"):
+                local[name] = value
+                if not words:
+                    variables[name] = value  # a command of assignments only persists them
         if not words:
             continue
+        words = [expand_variables(word, local) for word in words]
         program, rest = Path(words[0]).name, words[1:]
         if program.startswith("git-") and len(program) > len("git-"):
             # The dashed programs in git's exec path, such as git-push, run as the subcommand
