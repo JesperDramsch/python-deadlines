@@ -1215,3 +1215,15 @@
   coc: https://pyconf.org/coc
   sub: PY
   note: CfP closed before Domain was registered.
+
+- conference: PyTennessee
+  alt_name: PyTN
+  year: 2026
+  link: https://pytn.org
+  cfp_link: https://sessionize.com/pytn-2026/
+  cfp: '2026-08-31 23:59:00'
+  timezone: America/Chicago
+  place: Online
+  start: 2026-10-20
+  end: 2026-10-20
+  sub: PY
