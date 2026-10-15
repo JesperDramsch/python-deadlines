@@ -804,6 +804,20 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: PyCon Armenia
+  year: 2027
+  link: https://pycon.am/
+  cfp: TBA
+  place: Yerevan, Armenia
+  start: 2027-06-18
+  end: 2027-06-19
+  sponsor: https://pycon.am/#sponsors
+  sub: PY
+  location:
+  - title: PyCon Armenia 2027
+    latitude: 40.1777112
+    longitude: 44.5126233
+
 - conference: PyCon Thailand
   year: 2027
   link: https://th.pycon.org/
@@ -818,20 +832,6 @@
   - title: PyCon Thailand 2027
     latitude: 13.7563
     longitude: 100.5018
-
-- conference: PyCon Armenia
-  year: 2027
-  link: https://pycon.am/
-  cfp: TBA
-  place: Yerevan, Armenia
-  start: 2027-06-18
-  end: 2027-06-19
-  sponsor: https://pycon.am/#sponsors
-  sub: PY
-  location:
-  - title: PyCon Armenia 2027
-    latitude: 40.1777112
-    longitude: 44.5126233
 
 - conference: PyCon Italy
   alt_name: PyCon Italia
@@ -948,20 +948,6 @@
     latitude: 50.8465573
     longitude: 4.351697
 
-- conference: Pytorch Day China
-  year: 2026
-  link: https://www.lfopensource.cn/pytorch-day-china/
-  cfp: TBA
-  place: Beijing, China
-  start: 2026-12-12
-  end: 2026-12-12
-  youtube: https://www.youtube.com/pytorch
-  sub: DATA,DAY
-  location:
-  - title: Pytorch Day China 2026
-    latitude: 40.190632
-    longitude: 116.412144
-
 - conference: PyCon mini Tokyo
   alt_name: PyCon mini Tokyo with PythonAsia conference
   year: 2026
@@ -976,18 +962,19 @@
     latitude: 35.718741949999995
     longitude: 139.73118058112317
 
-- conference: PyLadiesCon
+- conference: Pytorch Day China
   year: 2026
-  link: https://2026.conference.pyladies.com/en/
-  cfp: None
-  place: Online
-  start: 2026-12-05
-  end: 2026-12-07
-  sponsor: https://2026.conference.pyladies.com/en/sponsors/
-  mastodon: https://fosstodon.org/@pyladiescon
-  bluesky: https://bsky.app/profile/pyladiescon.bsky.social
-  youtube: https://www.youtube.com/@PyLadiesGlobal
-  sub: PY
+  link: https://www.lfopensource.cn/pytorch-day-china/
+  cfp: TBA
+  place: Beijing, China
+  start: 2026-12-12
+  end: 2026-12-12
+  youtube: https://www.youtube.com/pytorch
+  sub: DATA,DAY
+  location:
+  - title: Pytorch Day China 2026
+    latitude: 40.190632
+    longitude: 116.412144
 
 - conference: PyDay Santo Domingo
   alt_name: PyDay SDQ
@@ -1005,6 +992,19 @@
   - title: PyDay Santo Domingo 2026
     latitude: 18.4801972
     longitude: -69.942111
+
+- conference: PyLadiesCon
+  year: 2026
+  link: https://2026.conference.pyladies.com/en/
+  cfp: None
+  place: Online
+  start: 2026-12-05
+  end: 2026-12-07
+  sponsor: https://2026.conference.pyladies.com/en/sponsors/
+  mastodon: https://fosstodon.org/@pyladiescon
+  bluesky: https://bsky.app/profile/pyladiescon.bsky.social
+  youtube: https://www.youtube.com/@PyLadiesGlobal
+  sub: PY
 
 - conference: PyCon Tanzania
   alt_name: Python Tanzania Conference

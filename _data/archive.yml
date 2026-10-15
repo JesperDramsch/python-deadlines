@@ -19,21 +19,6 @@
     latitude: 40.63070934919421
     longitude: -8.657472831794745
 
-- conference: PyCon Togo
-  year: 2026
-  link: https://pycontg.pytogo.org/
-  cfp: '2026-06-04 18:00:00'
-  place: Lomé, Togo
-  start: 2026-08-28
-  end: 2026-08-30
-  sponsor: https://pycontg.pytogo.org/partners
-  youtube: https://www.youtube.com/@KwekuTech
-  sub: PY
-  location:
-  - title: PyCon Togo 2026
-    latitude: 6.130419
-    longitude: 1.215829
-
 - conference: PyCon Kenya
   year: 2026
   link: https://www.pycon.ke/
@@ -49,6 +34,21 @@
   - title: PyCon Kenya 2026
     latitude: -1.2136405
     longitude: 36.87930533266044
+
+- conference: PyCon Togo
+  year: 2026
+  link: https://pycontg.pytogo.org/
+  cfp: '2026-06-04 18:00:00'
+  place: Lomé, Togo
+  start: 2026-08-28
+  end: 2026-08-30
+  sponsor: https://pycontg.pytogo.org/partners
+  youtube: https://www.youtube.com/@KwekuTech
+  sub: PY
+  location:
+  - title: PyCon Togo 2026
+    latitude: 6.130419
+    longitude: 1.215829
 
 - conference: PyCon Poland
   alt_name: PyCon PL
@@ -268,6 +268,7 @@
   cfp_link: https://2026.pycon.co/#/call-for-proposals
   cfp: '2026-04-28 23:59:00'
   cfp_ext: '2026-05-12 23:59:00'
+  tutorial_deadline: '2026-05-12 23:59:00'
   timezone: America/Bogota
   place: Medellín, Colombia
   start: 2026-07-24
@@ -279,19 +280,6 @@
   - title: PyCon Colombia 2026
     latitude: 6.2443382
     longitude: -75.573553
-
-- conference: Python Sudeste
-  year: 2026
-  link: https://ingressos.python.org.br/sudeste/ingressos
-  cfp: TBA
-  place: Rio de Janeiro, RJ
-  start: 2026-07-24
-  end: 2026-07-26
-  sub: PY
-  location:
-  - title: Python Sudeste 2026
-    latitude: -22.9110137
-    longitude: -43.2093727
 
 - conference: PyCon Russia
   year: 2026
@@ -308,6 +296,19 @@
   - title: PyCon Russia 2026
     latitude: 55.7558
     longitude: 37.6173
+
+- conference: Python Sudeste
+  year: 2026
+  link: https://ingressos.python.org.br/sudeste/ingressos
+  cfp: TBA
+  place: Rio de Janeiro, RJ
+  start: 2026-07-24
+  end: 2026-07-26
+  sub: PY
+  location:
+  - title: Python Sudeste 2026
+    latitude: -22.9110137
+    longitude: -43.2093727
 
 - conference: EuroSciPy
   year: 2026
