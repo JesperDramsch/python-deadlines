@@ -616,6 +616,9 @@
   start: 2026-10-17
   end: 2026-10-18
   sponsor: https://tw.pycon.org/2026/en-us/sponsor
+  coc: https://tw.pycon.org/2026/en-us/about/code-of-conduct
+  twitter: pycontw
+  youtube: https://www.youtube.com/channel/UCHLnNgRnfGYDzPCCH8qGbQw
   sub: PY
   location:
   - title: PyCon Taiwan 2026
