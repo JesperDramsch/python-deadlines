@@ -34,22 +34,6 @@
     latitude: 6.130419
     longitude: 1.215829
 
-- conference: PyCon Kenya
-  year: 2026
-  link: https://www.pycon.ke/
-  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
-  cfp: '2026-06-10 00:00:00'
-  timezone: Africa/Nairobi
-  place: Nairobi, Kenya
-  start: 2026-08-28
-  end: 2026-08-29
-  sponsor: https://www.pycon.ke/sponsors
-  sub: PY
-  location:
-  - title: PyCon Kenya 2026
-    latitude: -1.2136405
-    longitude: 36.87930533266044
-
 - conference: PyCon Poland
   alt_name: PyCon PL
   year: 2026
@@ -98,7 +82,10 @@
   start: 2026-08-24
   end: 2026-08-28
   sponsor: https://2026.djangocon.us/sponsors/
+  finaid: https://2026.djangocon.us/opportunity-grants/
+  coc: https://2026.djangocon.us/conduct/
   mastodon: https://fosstodon.org/@djangocon
+  bluesky: https://bsky.app/profile/djangocon.us
   sub: WEB
   location:
   - title: DjangoCon US 2026
@@ -109,12 +96,15 @@
   year: 2026
   link: https://2026.pycon.jp/
   cfp_link: https://pretalx.com/pyconjp2026/cfp
-  cfp: '2026-06-01 15:00:00'
+  cfp: '2026-06-01 21:00:00'
   timezone: Asia/Tokyo
   place: Hiroshima, Japan
   start: 2026-08-21
   end: 2026-08-22
   sponsor: https://2026.pycon.jp/en/sponsors
+  coc: https://2026.pycon.jp/ja/coc
+  twitter: pyconjapan
+  youtube: https://www.youtube.com/user/PyConJP
   sub: PY
   location:
   - title: PyCon Japan 2026
@@ -151,6 +141,24 @@
     latitude: 9.7843604
     longitude: -83.4995932
 
+- conference: PyDay Rancagua
+  alt_name: PyDay Chile Rancagua
+  year: 2026
+  link: https://www.pyday.cl/rancagua/
+  cfp_link: https://sessionize.com/pyday-rancagua-2026/
+  cfp: '2026-07-22 23:59:00'
+  timezone: America/Santiago
+  place: Rancagua, Chile
+  start: 2026-08-19
+  end: 2026-08-19
+  sponsor: https://www.pyday.cl/sponsors/
+  coc: https://www.pyday.cl/conduct/
+  sub: DAY
+  location:
+  - title: PyDay Rancagua 2026
+    latitude: -34.1702433
+    longitude: -70.740718
+
 - conference: PyCon South Korea
   alt_name: PyCon.KR
   year: 2026
@@ -173,12 +181,14 @@
 - conference: Python Nordeste
   alt_name: PyNE
   year: 2026
-  link: https://pythonnordeste.org/
+  link: https://2026.pythonnordeste.org/
   cfp: '2026-06-19 23:59:00'
   timezone: America/Bahia
   place: Fortaleza, Brazil
   start: 2026-08-13
   end: 2026-08-15
+  sponsor: https://drive.google.com/file/d/17xJoqoRSoWwDSEPoTbTz3RK4Iqz1887O/view
+  coc: https://2026.pythonnordeste.org/codigo-conduta.html
   sub: PY
   location:
   - title: Python Nordeste 2026
@@ -195,6 +205,7 @@
   start: 2026-08-08
   end: 2026-08-09
   sponsor: https://drive.google.com/file/d/1YVBx9KNewNCUyfgLhoNT9aM05sCaCvSG/view
+  coc: https://2026.pycon.id/code-of-conduct
   sub: PY
   location:
   - title: PyCon Indonesia 2026
@@ -256,6 +267,7 @@
   start: 2026-07-24
   end: 2026-07-25
   sponsor: https://pycon.am/#sponsors
+  coc: https://pycon.am/CoC.html
   sub: PY,DATA
   location:
   - title: PyCon Armenia 2026
@@ -268,6 +280,7 @@
   cfp_link: https://2026.pycon.co/#/call-for-proposals
   cfp: '2026-04-28 23:59:00'
   cfp_ext: '2026-05-12 23:59:00'
+  tutorial_deadline: '2026-05-12 23:59:00'
   timezone: America/Bogota
   place: Medellín, Colombia
   start: 2026-07-24
@@ -279,19 +292,6 @@
   - title: PyCon Colombia 2026
     latitude: 6.2443382
     longitude: -75.573553
-
-- conference: Python Sudeste
-  year: 2026
-  link: https://ingressos.python.org.br/sudeste/ingressos
-  cfp: TBA
-  place: Rio de Janeiro, RJ
-  start: 2026-07-24
-  end: 2026-07-26
-  sub: PY
-  location:
-  - title: Python Sudeste 2026
-    latitude: -22.9110137
-    longitude: -43.2093727
 
 - conference: PyCon Russia
   year: 2026
@@ -308,6 +308,19 @@
   - title: PyCon Russia 2026
     latitude: 55.7558
     longitude: 37.6173
+
+- conference: Python Sudeste
+  year: 2026
+  link: https://ingressos.python.org.br/sudeste/ingressos
+  cfp: TBA
+  place: Rio de Janeiro, RJ
+  start: 2026-07-24
+  end: 2026-07-26
+  sub: PY
+  location:
+  - title: Python Sudeste 2026
+    latitude: -22.9110137
+    longitude: -43.2093727
 
 - conference: EuroSciPy
   year: 2026
@@ -358,7 +371,11 @@
   end: 2026-07-19
   sponsor: https://www.scipy2026.scipy.org/s/SciPy26-SponsorProspectus-wn87.pdf
   finaid: https://docs.google.com/forms/d/e/1FAIpQLSdVD-AHPDcoVF4FPKdaWDTS9NyZtGym0KxoKf6AnWxv0MIiWg/viewform
+  coc: https://numfocus.org/code-of-conduct
+  twitter: SciPyConf
   mastodon: https://mastodon.social/@SciPyConf
+  bluesky: https://bsky.app/profile/scipyconf.bsky.social
+  youtube: https://www.youtube.com/@SciPy-Conf
   sub: SCIPY
   location:
   - title: SciPy US 2026
@@ -373,6 +390,7 @@
   place: Ananindeua, Brazil
   start: 2026-07-03
   end: 2026-07-05
+  coc: https://pythonnorte.org/codigo-de-conduta
   sub: PY
   location:
   - title: Python Norte 2026
@@ -395,12 +413,13 @@
 
 - conference: PyCon Singapore
   year: 2026
-  link: http://pycon.sg/
+  link: https://pycon.sg/
   cfp: TBA
   place: Singapore, Singapore
   start: 2026-06-19
   end: 2026-06-21
-  sponsor: http://pycon.sg/index.html#sponsors
+  sponsor: https://pycon.sg/index.html#sponsors
+  coc: https://pycon.sg/coc.html
   sub: PY
   location:
   - title: PyCon Singapore 2026
@@ -440,6 +459,24 @@
     latitude: 47.3615882
     longitude: 7.354445
 
+- conference: PyDay Santiago
+  alt_name: PyDay Chile Santiago
+  year: 2026
+  link: https://pyday.cl/santiago
+  cfp_link: https://sessionize.com/pyday-santiago-2026
+  cfp: '2026-05-08 23:59:00'
+  timezone: America/Santiago
+  place: Santiago, Chile
+  start: 2026-06-06
+  end: 2026-06-06
+  sponsor: https://pyday.cl/sponsors/
+  coc: https://pyday.cl/conduct/
+  sub: DAY
+  location:
+  - title: PyDay Santiago 2026
+    latitude: -33.4377756
+    longitude: -70.6504502
+
 - conference: PyData London
   year: 2026
   link: https://pydata.org/london2026
@@ -459,12 +496,13 @@
 - conference: PyDay Valparaiso
   alt_name: PyDay Chile Valparaiso
   year: 2026
-  link: https://www.pyday.cl/valparaiso.html
+  link: https://pyday.cl/valparaiso
   cfp: TBA
   place: Valparaiso, Chile
   start: 2026-06-05
   end: 2026-06-05
   sponsor: https://pyday.cl/sponsors
+  coc: https://pyday.cl/conduct/
   sub: DAY
   location:
   - title: PyDay Chile Valparaiso 2026
@@ -555,6 +593,8 @@
   place: Londrina, Brazil
   start: 2026-05-01
   end: 2026-05-03
+  coc: https://sul.python.org.br/codigo-de-conduta/
+  youtube: https://www.youtube.com/@PythonSul
   sub: PY
   location:
   - title: Python Sul 2026
@@ -570,8 +610,11 @@
   place: Petaluma, USA
   start: 2026-04-25
   end: 2026-04-26
+  sponsor: https://northbaypython.org/sponsor
+  coc: https://northbaypython.org/code-of-conduct
   mastodon: https://social.northbaypython.org/@NorthBayPython
   bluesky: https://bsky.app/profile/northbaypython.org
+  youtube: https://youtube.com/@northbaypython
   sub: PY
   location:
   - title: North Bay Python 2026
@@ -611,7 +654,7 @@
 
 - conference: DjangoCon Europe
   year: 2026
-  link: https://djangocon.eu/
+  link: https://2026.djangocon.eu/
   cfp_link: https://pretalx.evolutio.pt/djangocon-europe-2026/cfp
   cfp: '2026-02-08 23:59:59'
   cfp_ext: '2026-02-15 23:59:00'
@@ -619,7 +662,12 @@
   place: Athens, Greece
   start: 2026-04-15
   end: 2026-04-19
-  sponsor: https://djangocon.eu/call-for-sponsors/
+  sponsor: https://2026.djangocon.eu/call-for-sponsors/
+  finaid: https://2026.djangocon.eu/grants/
+  coc: https://2026.djangocon.eu/code-of-conduct/
+  twitter: DjangoConEurope
+  mastodon: https://fosstodon.org/@djangoconeurope
+  youtube: https://www.youtube.com/user/djangoconeurope
   sub: WEB
   location:
   - title: DjangoCon Europe 2026
@@ -632,13 +680,17 @@
   link: https://2026.pycon.de/
   cfp_link: https://pretalx.com/pyconde-pydata-2026/cfp
   cfp: '2025-12-21 23:59:59'
-  cfp_ext: '2026-01-18 23:59:59'
+  cfp_ext: '2026-01-11 23:59:59'
   tutorial_deadline: '2026-01-11 23:59:00'
   timezone: Europe/Berlin
   place: Darmstadt, Germany
   start: 2026-04-14
   end: 2026-04-17
   sponsor: https://2026.pycon.de/sponsoring/
+  finaid: https://2026.pycon.de/financial-aid/
+  coc: https://2026.pycon.de/code-of-conduct/
+  twitter: PyConDE
+  mastodon: https://fosstodon.org/@pyconde
   sub: PY,DATA
   location:
   - title: PyCon Germany & PyData Conference 2026
@@ -687,10 +739,12 @@
   cfp_link: https://pretalx.com/python-asia-2026
   cfp: '2025-11-30 23:59:00'
   timezone: Asia/Manila
-  place: Malate, Philippines
+  place: Manila, Philippines
   start: 2026-03-21
   end: 2026-03-23
   sponsor: https://bit.ly/PythonAsia2026-CallForSponsors
+  finaid: https://2026.pythonasia.org/aid-scholarships/
+  coc: https://2026.pythonasia.org/code-of-conduct/
   sub: PY
   location:
   - title: PythonAsia 2026
@@ -1978,6 +2032,21 @@
   - title: AfroPython Conf 2023
     latitude: -5.7944777
     longitude: -35.2119324
+
+- conference: PyDay Santiago
+  alt_name: PyDay Chile Santiago
+  year: 2025
+  link: https://sessionize.com/pyday-santiago-2025/
+  cfp: '2025-05-25 23:59:00'
+  timezone: America/Santiago
+  place: Santiago, Chile
+  start: 2025-06-06
+  end: 2025-06-06
+  sub: DAY
+  location:
+  - title: PyDay Santiago 2025
+    latitude: -33.4377756
+    longitude: -70.6504502
 
 - conference: PyData London
   year: 2025
