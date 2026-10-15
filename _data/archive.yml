@@ -259,6 +259,7 @@
   start: 2026-07-24
   end: 2026-07-25
   sponsor: https://pycon.am/#sponsors
+  coc: https://pycon.am/CoC.html
   sub: PY,DATA
   location:
   - title: PyCon Armenia 2026
