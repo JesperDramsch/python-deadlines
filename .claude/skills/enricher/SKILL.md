@@ -19,6 +19,7 @@ The desk hands you one worklist item about an edition the data holds in any of t
    - `cfp_link`, `sponsor`, `finaid` and `coc`: each lands on the page it names.
    - `twitter`, `mastodon`, `bluesky` and `youtube`: the conference's own accounts, as its site links them.
    - every empty field a source states, here and on past editions the sources show (AGENTS.md "Complete data").
+   - the names the sources give the series: one that gives a variation (AGENTS.md "Names") goes in `titles`.
    Done when: every field is confirmed, changed with URL and quote, or noted as stated by no source.
 4. **Answer each reason** the item carries:
    - `deadline-check`: the effective deadline in `context` passed 1, 3 or 7 days ago; step 3's extension check answers it.
