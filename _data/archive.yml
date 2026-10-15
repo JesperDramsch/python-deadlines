@@ -96,12 +96,15 @@
   year: 2026
   link: https://2026.pycon.jp/
   cfp_link: https://pretalx.com/pyconjp2026/cfp
-  cfp: '2026-06-01 15:00:00'
+  cfp: '2026-06-01 21:00:00'
   timezone: Asia/Tokyo
   place: Hiroshima, Japan
   start: 2026-08-21
   end: 2026-08-22
   sponsor: https://2026.pycon.jp/en/sponsors
+  coc: https://2026.pycon.jp/ja/coc
+  twitter: pyconjapan
+  youtube: https://www.youtube.com/user/PyConJP
   sub: PY
   location:
   - title: PyCon Japan 2026
