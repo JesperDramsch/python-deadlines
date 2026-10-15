@@ -1,0 +1,25 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "fcfc054c8a59f6f465fc176cb371bf21d3f8c720",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Angola",
+        "default_answer": false,
+        "field": "end",
+        "question": "For PyCon Angola in column 'end' would you prefer '2027-05-25' or keep '2027-05-26'?",
+        "remote_value": "2027-05-25",
+        "source_name": "python.org",
+        "yaml_value": "2027-05-26",
+        "year": 2027
+      },
+      "received": "2026-10-15T12:09:13Z",
+      "source": "canonical-import",
+      "title": "PyCon Angola",
+      "url": "https://ao.pycon.org/",
+      "year": 2027
+    }
+  ],
+  "series": "PyCon Angola"
+}

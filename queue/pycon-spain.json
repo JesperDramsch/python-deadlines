@@ -1,0 +1,25 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "ecace8fe1851ba0c6e23e6216de5f309d0ba7d5a",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Spain",
+        "default_answer": false,
+        "field": "place",
+        "question": "For PyCon Spain in column 'place' would you prefer 'Barcelona, España' or keep 'Barcelona, Spain'?",
+        "remote_value": "Barcelona, España",
+        "source_name": "python-organizers",
+        "yaml_value": "Barcelona, Spain",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "PyCon Spain",
+      "url": "https://2026.es.pycon.org/en/",
+      "year": 2026
+    }
+  ],
+  "series": "PyCon Spain"
+}

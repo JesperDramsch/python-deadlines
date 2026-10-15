@@ -1,0 +1,25 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "bd9eb740521a953cf6d86cc2d60265656f67e7c8",
+      "kind": "question",
+      "payload": {
+        "conference": "Warsaw Python Pizza",
+        "default_answer": false,
+        "field": "cfp",
+        "question": "For Warsaw Python Pizza in column 'cfp' would you prefer '2026-04-12 23:59:00' or keep '2026-04-14 23:59:00'?",
+        "remote_value": "2026-04-12 23:59:00",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-04-14 23:59:00",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "Warsaw Python Pizza",
+      "url": "https://warsaw.python.pizza/",
+      "year": 2026
+    }
+  ],
+  "series": "Warsaw Python Pizza"
+}

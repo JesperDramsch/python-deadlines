@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "664f180b0918ece88c25d1a8ec52887e37616004",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Netherlands",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Netherlands in column 'link' would you prefer 'https://www.pycon-nl.org/' or keep 'https://pycon-nl.org/'?",
+        "remote_value": "https://www.pycon-nl.org/",
+        "source_name": "python.org",
+        "yaml_value": "https://pycon-nl.org/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "PyCon Netherlands",
+      "url": "https://pycon-nl.org/",
+      "year": 2026
+    },
+    {
+      "id": "7646186942ca6d516bf26c4c604166b984dbe96e",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Netherlands",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Netherlands in column 'link' would you prefer 'https://www.pycon-nl.org' or keep 'https://pycon-nl.org/'?",
+        "remote_value": "https://www.pycon-nl.org",
+        "source_name": "python-organizers",
+        "yaml_value": "https://pycon-nl.org/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "PyCon Netherlands",
+      "url": "https://pycon-nl.org/",
+      "year": 2026
+    }
+  ],
+  "series": "PyCon Netherlands"
+}

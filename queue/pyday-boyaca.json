@@ -1,0 +1,25 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "f518813b1e3dd3f43b1f8b57c6f7624e087caa8e",
+      "kind": "question",
+      "payload": {
+        "conference": "PyDay Boyacá",
+        "default_answer": false,
+        "field": "end",
+        "question": "For PyDay Boyacá in column 'end' would you prefer '2026-09-12' or keep '2026-09-13'?",
+        "remote_value": "2026-09-12",
+        "source_name": "python.org",
+        "yaml_value": "2026-09-13",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "PyDay Boyacá",
+      "url": "https://www.pyday.co/",
+      "year": 2026
+    }
+  ],
+  "series": "PyDay Boyacá"
+}

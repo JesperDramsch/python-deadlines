@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "d49f55b42fc530e4d00824b9ab991a358e9c9c82",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Panamá",
+        "default_answer": false,
+        "field": "place",
+        "question": "For PyCon Panamá in column 'place' would you prefer 'Panama City, Panama' or keep 'Panama City, Panamá'?",
+        "remote_value": "Panama City, Panama",
+        "source_name": "python.org",
+        "yaml_value": "Panama City, Panamá",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "PyCon Panamá",
+      "url": "https://pycon.pa/2026/",
+      "year": 2026
+    },
+    {
+      "id": "e74042fb323b05d1b2af025162f2ded7d468df37",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Panamá",
+        "default_answer": false,
+        "field": "place",
+        "question": "For PyCon Panamá in column 'place' would you prefer 'Panamá City, Panamá' or keep 'Panama City, Panamá'?",
+        "remote_value": "Panamá City, Panamá",
+        "source_name": "python-organizers",
+        "yaml_value": "Panama City, Panamá",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "PyCon Panamá",
+      "url": "https://pycon.pa/2026/",
+      "year": 2026
+    }
+  ],
+  "series": "PyCon Panamá"
+}

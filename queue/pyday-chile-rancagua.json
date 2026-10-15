@@ -1,0 +1,31 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "28de94c2cb0d10af687f6cc566a51018930e8a9a",
+      "kind": "candidate",
+      "payload": {
+        "classification": "MAYBE",
+        "evidence_url": "https://github.com/python-organizers/conferences",
+        "fields": {
+          "conference": "PyDay Chile Rancagua",
+          "end": "2026-08-19",
+          "place": "Rancagua, Chile",
+          "start": "2026-08-19",
+          "year": 2026
+        },
+        "flags": [
+          "no-website"
+        ],
+        "matched": null,
+        "source_id": "python-organizers"
+      },
+      "received": "2026-10-15T12:09:26Z",
+      "source": "canonical-import",
+      "title": "PyDay Chile Rancagua 2026",
+      "url": "",
+      "year": 2026
+    }
+  ],
+  "series": "PyDay Chile Rancagua"
+}

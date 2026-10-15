@@ -1,0 +1,63 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "9a61cdeece25d9747ff63c05157a0b104b5e7805",
+      "kind": "question",
+      "payload": {
+        "conference": "North Bay Python",
+        "default_answer": false,
+        "field": "link",
+        "question": "For North Bay Python in column 'link' would you prefer 'http://2026.northbaypython.org/' or keep 'https://northbaypython.org/'?",
+        "remote_value": "http://2026.northbaypython.org/",
+        "source_name": "python.org",
+        "yaml_value": "https://northbaypython.org/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "North Bay Python",
+      "url": "https://northbaypython.org/",
+      "year": 2026
+    },
+    {
+      "id": "11b65523c4142e292156e9acb39ed25cbecdd3a6",
+      "kind": "question",
+      "payload": {
+        "conference": "North Bay Python",
+        "default_answer": false,
+        "field": "link",
+        "question": "For North Bay Python in column 'link' would you prefer 'https://2026.northbaypython.org' or keep 'https://northbaypython.org/'?",
+        "remote_value": "https://2026.northbaypython.org",
+        "source_name": "python-organizers",
+        "yaml_value": "https://northbaypython.org/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "North Bay Python",
+      "url": "https://northbaypython.org/",
+      "year": 2026
+    },
+    {
+      "id": "15f9c0a255ab885c3ac02ec0f414d5203ceadd30",
+      "kind": "question",
+      "payload": {
+        "conference": "North Bay Python",
+        "default_answer": false,
+        "field": "end",
+        "question": "For North Bay Python in column 'end' would you prefer '2026-04-27' or keep '2026-04-26'?",
+        "remote_value": "2026-04-27",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-04-26",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "North Bay Python",
+      "url": "https://northbaypython.org/",
+      "year": 2026
+    }
+  ],
+  "series": "North Bay Python"
+}

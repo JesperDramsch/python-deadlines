@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "c64f9c59c4cd21dc8af638eaf2cb2ec451155e67",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Wroclaw",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Wroclaw in column 'link' would you prefer 'http://www.pyconwroclaw.com/' or keep 'https://www.pyconwroclaw.com/'?",
+        "remote_value": "http://www.pyconwroclaw.com/",
+        "source_name": "python.org",
+        "yaml_value": "https://www.pyconwroclaw.com/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "PyCon Wroclaw",
+      "url": "https://www.pyconwroclaw.com/",
+      "year": 2026
+    },
+    {
+      "id": "cd532ad3990dd3dc42101d3fea3ac01b54f59221",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Wroclaw",
+        "default_answer": false,
+        "field": "end",
+        "question": "For PyCon Wroclaw in column 'end' would you prefer '2026-11-20' or keep '2026-11-21'?",
+        "remote_value": "2026-11-20",
+        "source_name": "python.org",
+        "yaml_value": "2026-11-21",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "PyCon Wroclaw",
+      "url": "https://www.pyconwroclaw.com/",
+      "year": 2026
+    }
+  ],
+  "series": "PyCon Wroclaw"
+}

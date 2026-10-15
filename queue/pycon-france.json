@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "5056594617d7749d0f7af4024422d03196868660",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon France",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon France in column 'link' would you prefer 'http://pycon.fr/2026' or keep 'https://www.pycon.fr/2026/en/'?",
+        "remote_value": "http://pycon.fr/2026",
+        "source_name": "python.org",
+        "yaml_value": "https://www.pycon.fr/2026/en/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "PyCon France",
+      "url": "https://www.pycon.fr/2026/en/",
+      "year": 2026
+    },
+    {
+      "id": "d761e6ecd8678041d85323f1639da938fc6844f9",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon France",
+        "default_answer": false,
+        "field": "place",
+        "question": "For PyCon France in column 'place' would you prefer 'Bidart, France' or keep 'Biarritz, France'?",
+        "remote_value": "Bidart, France",
+        "source_name": "python.org",
+        "yaml_value": "Biarritz, France",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "PyCon France",
+      "url": "https://www.pycon.fr/2026/en/",
+      "year": 2026
+    }
+  ],
+  "series": "PyCon France"
+}

@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "e3d36f3a519c016eb2cbfac02298b3279bdea8a8",
+      "kind": "question",
+      "payload": {
+        "conference": "SciPy US",
+        "default_answer": false,
+        "field": "cfp",
+        "question": "For SciPy US in column 'cfp' would you prefer '2026-05-04 15:20:00' or keep '2026-02-25 15:20:00'?",
+        "remote_value": "2026-05-04 15:20:00",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-02-25 15:20:00",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "SciPy US",
+      "url": "https://www.scipy2026.scipy.org/",
+      "year": 2026
+    },
+    {
+      "id": "846c548c65c2bd0968ad1bd1628529aab0266395",
+      "kind": "question",
+      "payload": {
+        "conference": "SciPy US",
+        "default_answer": false,
+        "field": "tutorial_deadline",
+        "question": "For SciPy US in column 'tutorial_deadline' would you prefer '2026-05-04' or keep '2026-03-04 23:59:00'?",
+        "remote_value": "2026-05-04",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-03-04 23:59:00",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "SciPy US",
+      "url": "https://www.scipy2026.scipy.org/",
+      "year": 2026
+    }
+  ],
+  "series": "SciPy US"
+}

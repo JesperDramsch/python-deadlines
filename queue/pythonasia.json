@@ -1,0 +1,25 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "6c1a7911263abe78f4f6bea7b9da2cf27dbb875c",
+      "kind": "question",
+      "payload": {
+        "conference": "PythonAsia",
+        "default_answer": false,
+        "field": "place",
+        "question": "For PythonAsia in column 'place' would you prefer 'Manila, The Philippines' or keep 'Malate, Philippines'?",
+        "remote_value": "Manila, The Philippines",
+        "source_name": "python-organizers",
+        "yaml_value": "Malate, Philippines",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "PythonAsia",
+      "url": "https://2026.pythonasia.org/",
+      "year": 2026
+    }
+  ],
+  "series": "PythonAsia"
+}

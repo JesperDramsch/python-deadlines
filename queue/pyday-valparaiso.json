@@ -1,0 +1,25 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "1e614a866558eeb0255d3c4d85efa6d90c037ba6",
+      "kind": "question",
+      "payload": {
+        "conference": "PyDay Valparaiso",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyDay Valparaiso in column 'link' would you prefer 'https://pyday.cl/valparaiso' or keep 'https://www.pyday.cl/valparaiso.html'?",
+        "remote_value": "https://pyday.cl/valparaiso",
+        "source_name": "python-organizers",
+        "yaml_value": "https://www.pyday.cl/valparaiso.html",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "PyDay Valparaiso",
+      "url": "https://www.pyday.cl/valparaiso.html",
+      "year": 2026
+    }
+  ],
+  "series": "PyDay Valparaiso"
+}

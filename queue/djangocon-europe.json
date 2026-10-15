@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "400953dfa23272274e1f06227bae295209ab72da",
+      "kind": "question",
+      "payload": {
+        "conference": "DjangoCon Europe",
+        "default_answer": false,
+        "field": "link",
+        "question": "For DjangoCon Europe in column 'link' would you prefer 'https://2026.djangocon.eu/' or keep 'https://djangocon.eu/'?",
+        "remote_value": "https://2026.djangocon.eu/",
+        "source_name": "python.org",
+        "yaml_value": "https://djangocon.eu/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:11Z",
+      "source": "canonical-import",
+      "title": "DjangoCon Europe",
+      "url": "https://djangocon.eu/",
+      "year": 2026
+    },
+    {
+      "id": "4566fe46b5d56fa17e015bb179d6cee590f80521",
+      "kind": "question",
+      "payload": {
+        "conference": "DjangoCon Europe",
+        "default_answer": false,
+        "field": "link",
+        "question": "For DjangoCon Europe in column 'link' would you prefer 'https://2026.djangocon.eu' or keep 'https://djangocon.eu/'?",
+        "remote_value": "https://2026.djangocon.eu",
+        "source_name": "python-organizers",
+        "yaml_value": "https://djangocon.eu/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "DjangoCon Europe",
+      "url": "https://djangocon.eu/",
+      "year": 2026
+    }
+  ],
+  "series": "DjangoCon Europe"
+}

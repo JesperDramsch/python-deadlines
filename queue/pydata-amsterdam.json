@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "fe313e454763f7086f57b8e0f1e2742dfdee0a7a",
+      "kind": "question",
+      "payload": {
+        "conference": "PyData Amsterdam",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyData Amsterdam in column 'link' would you prefer 'https://www.sesamers.com/event/pydata-amsterdam' or keep 'https://amsterdam.pydata.org/'?",
+        "remote_value": "https://www.sesamers.com/event/pydata-amsterdam",
+        "source_name": "python-organizers",
+        "yaml_value": "https://amsterdam.pydata.org/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "PyData Amsterdam",
+      "url": "https://amsterdam.pydata.org/",
+      "year": 2026
+    },
+    {
+      "id": "3829b6b70a1977b1d11269351169e376ec6e1f40",
+      "kind": "question",
+      "payload": {
+        "conference": "PyData Amsterdam",
+        "default_answer": false,
+        "field": "end",
+        "question": "For PyData Amsterdam in column 'end' would you prefer '2026-09-12' or keep '2026-09-11'?",
+        "remote_value": "2026-09-12",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-09-11",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "PyData Amsterdam",
+      "url": "https://amsterdam.pydata.org/",
+      "year": 2026
+    }
+  ],
+  "series": "PyData Amsterdam"
+}

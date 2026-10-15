@@ -1,0 +1,63 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "e0b111ef635e739069f77b24a9866d7e7d3bf794",
+      "kind": "question",
+      "payload": {
+        "conference": "Swiss Python Summit",
+        "default_answer": false,
+        "field": "link",
+        "question": "For Swiss Python Summit in column 'link' would you prefer 'https://www.python-summit.ch/' or keep 'https://python-summit.ch/'?",
+        "remote_value": "https://www.python-summit.ch/",
+        "source_name": "python.org",
+        "yaml_value": "https://python-summit.ch/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:12Z",
+      "source": "canonical-import",
+      "title": "Swiss Python Summit",
+      "url": "https://python-summit.ch/",
+      "year": 2026
+    },
+    {
+      "id": "a3b2a0f5dd457efb14d9aa419511aae207afa6aa",
+      "kind": "question",
+      "payload": {
+        "conference": "Swiss Python Summit",
+        "default_answer": false,
+        "field": "link",
+        "question": "For Swiss Python Summit in column 'link' would you prefer 'https://www.python-summit.ch' or keep 'https://python-summit.ch/'?",
+        "remote_value": "https://www.python-summit.ch",
+        "source_name": "python-organizers",
+        "yaml_value": "https://python-summit.ch/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "Swiss Python Summit",
+      "url": "https://python-summit.ch/",
+      "year": 2026
+    },
+    {
+      "id": "fc7dc1b6c4b9d370fb6907dfd0e3833ff6fd52d9",
+      "kind": "question",
+      "payload": {
+        "conference": "Swiss Python Summit",
+        "default_answer": false,
+        "field": "cfp_link",
+        "question": "For Swiss Python Summit in column 'cfp_link' would you prefer 'https://python-summit.ch/cfp' or keep 'https://www.python-summit.ch/cfp/'?",
+        "remote_value": "https://python-summit.ch/cfp",
+        "source_name": "python-organizers",
+        "yaml_value": "https://www.python-summit.ch/cfp/",
+        "year": 2026
+      },
+      "received": "2026-10-15T12:09:25Z",
+      "source": "canonical-import",
+      "title": "Swiss Python Summit",
+      "url": "https://python-summit.ch/",
+      "year": 2026
+    }
+  ],
+  "series": "Swiss Python Summit"
+}

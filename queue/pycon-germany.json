@@ -1,0 +1,44 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "6cd4fcebd4fa0ed16f21719a789cb5cafc0f23fc",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Germany",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Germany in column 'link' would you prefer 'http://pycon.de/' or keep 'https://2027.pycon.de/'?",
+        "remote_value": "http://pycon.de/",
+        "source_name": "python.org",
+        "yaml_value": "https://2027.pycon.de/",
+        "year": 2027
+      },
+      "received": "2026-10-15T12:09:13Z",
+      "source": "canonical-import",
+      "title": "PyCon Germany",
+      "url": "https://2027.pycon.de/",
+      "year": 2027
+    },
+    {
+      "id": "3a5eda33543eb5f07fa295cb1163ebd1a4f7cf0c",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Germany",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Germany in column 'link' would you prefer 'https://pycon.de' or keep 'https://2027.pycon.de/'?",
+        "remote_value": "https://pycon.de",
+        "source_name": "python-organizers",
+        "yaml_value": "https://2027.pycon.de/",
+        "year": 2027
+      },
+      "received": "2026-10-15T12:09:26Z",
+      "source": "canonical-import",
+      "title": "PyCon Germany",
+      "url": "https://2027.pycon.de/",
+      "year": 2027
+    }
+  ],
+  "series": "PyCon Germany"
+}
