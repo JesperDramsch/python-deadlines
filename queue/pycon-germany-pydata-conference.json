@@ -1,101 +1,11 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "281cd9fdec89b24309b3ee7c8928719f95e0cea9",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Germany & PyData Conference",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Germany & PyData Conference in column 'link' would you prefer 'https://pycon.de/' or keep 'https://2026.pycon.de/'?",
-        "remote_value": "https://pycon.de/",
-        "source_name": "python.org",
-        "yaml_value": "https://2026.pycon.de/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:12Z",
-      "source": "canonical-import",
-      "title": "PyCon Germany & PyData Conference",
-      "url": "https://2026.pycon.de/",
-      "year": 2026
-    },
-    {
-      "id": "fc3306d15276f2ac952350571f4933c53587e963",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Germany & PyData Conference",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Germany & PyData Conference in column 'link' would you prefer 'https://pycon.de' or keep 'https://2026.pycon.de/'?",
-        "remote_value": "https://pycon.de",
-        "source_name": "python-organizers",
-        "yaml_value": "https://2026.pycon.de/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Germany & PyData Conference",
-      "url": "https://2026.pycon.de/",
-      "year": 2026
-    },
-    {
-      "id": "a153ccf066b2fb26a823dedbfacbafc58e404e1c",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Germany & PyData Conference",
-        "default_answer": false,
-        "field": "cfp_link",
-        "question": "For PyCon Germany & PyData Conference in column 'cfp_link' would you prefer 'https://2026.pycon.de/call-for-proposals' or keep 'https://pretalx.com/pyconde-pydata-2026/cfp'?",
-        "remote_value": "https://2026.pycon.de/call-for-proposals",
-        "source_name": "python-organizers",
-        "yaml_value": "https://pretalx.com/pyconde-pydata-2026/cfp",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Germany & PyData Conference",
-      "url": "https://2026.pycon.de/",
-      "year": 2026
-    },
-    {
-      "id": "88403cc10b418e0010dc30d0e3ba93a1e4b162d0",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Germany & PyData Conference",
-        "default_answer": false,
-        "field": "cfp",
-        "question": "For PyCon Germany & PyData Conference in column 'cfp' would you prefer '2026-01-11 23:59:59' or keep '2025-12-21 23:59:59'?",
-        "remote_value": "2026-01-11 23:59:59",
-        "source_name": "python-organizers",
-        "yaml_value": "2025-12-21 23:59:59",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Germany & PyData Conference",
-      "url": "https://2026.pycon.de/",
-      "year": 2026
-    },
-    {
-      "id": "c36b229a991cd6bacab7e03a9dbb981a9a879fae",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Germany & PyData Conference",
-        "default_answer": false,
-        "field": "start",
-        "question": "For PyCon Germany & PyData Conference in column 'start' would you prefer '2026-04-13' or keep '2026-04-14'?",
-        "remote_value": "2026-04-13",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-04-14",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Germany & PyData Conference",
-      "url": "https://2026.pycon.de/",
-      "year": 2026
-    }
+  "handled": [
+    "281cd9fdec89b24309b3ee7c8928719f95e0cea9",
+    "fc3306d15276f2ac952350571f4933c53587e963",
+    "a153ccf066b2fb26a823dedbfacbafc58e404e1c",
+    "88403cc10b418e0010dc30d0e3ba93a1e4b162d0",
+    "c36b229a991cd6bacab7e03a9dbb981a9a879fae"
   ],
+  "items": [],
   "series": "PyCon Germany & PyData Conference"
 }

@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "a9fb72d1f7b20a2cd1aaa15fcf155a66bc677b2d",
-      "kind": "question",
-      "payload": {
-        "conference": "DjangoCon US",
-        "default_answer": false,
-        "field": "cfp_link",
-        "question": "For DjangoCon US in column 'cfp_link' would you prefer 'https://2026.djangocon.us/speaking' or keep 'https://pretalx.com/djangocon-us-2026/cfp'?",
-        "remote_value": "https://2026.djangocon.us/speaking",
-        "source_name": "python-organizers",
-        "yaml_value": "https://pretalx.com/djangocon-us-2026/cfp",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "DjangoCon US",
-      "url": "https://2026.djangocon.us/",
-      "year": 2026
-    }
+  "handled": [
+    "a9fb72d1f7b20a2cd1aaa15fcf155a66bc677b2d"
   ],
+  "items": [],
   "series": "DjangoCon US"
 }

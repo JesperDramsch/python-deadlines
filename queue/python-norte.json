@@ -1,63 +1,9 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "658275f9ca9a9b2748eeb95fe8b5f4a58a51eb58",
-      "kind": "question",
-      "payload": {
-        "conference": "Python Norte",
-        "default_answer": false,
-        "field": "link",
-        "question": "For Python Norte in column 'link' would you prefer 'https://2026.pythonnorte.org/' or keep 'https://pythonnorte.org/'?",
-        "remote_value": "https://2026.pythonnorte.org/",
-        "source_name": "python.org",
-        "yaml_value": "https://pythonnorte.org/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:12Z",
-      "source": "canonical-import",
-      "title": "Python Norte",
-      "url": "https://pythonnorte.org/",
-      "year": 2026
-    },
-    {
-      "id": "3edcd3051541da4f2c8195fcdec1ef48c144a1a8",
-      "kind": "question",
-      "payload": {
-        "conference": "Python Norte",
-        "default_answer": false,
-        "field": "link",
-        "question": "For Python Norte in column 'link' would you prefer 'https://2026.pythonnorte.org' or keep 'https://pythonnorte.org/'?",
-        "remote_value": "https://2026.pythonnorte.org",
-        "source_name": "python-organizers",
-        "yaml_value": "https://pythonnorte.org/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "Python Norte",
-      "url": "https://pythonnorte.org/",
-      "year": 2026
-    },
-    {
-      "id": "86253054bceb7c7968dcd199dd784962adc3de84",
-      "kind": "question",
-      "payload": {
-        "conference": "Python Norte",
-        "default_answer": false,
-        "field": "place",
-        "question": "For Python Norte in column 'place' would you prefer 'Ananindeua, Brasil' or keep 'Ananindeua, Brazil'?",
-        "remote_value": "Ananindeua, Brasil",
-        "source_name": "python-organizers",
-        "yaml_value": "Ananindeua, Brazil",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "Python Norte",
-      "url": "https://pythonnorte.org/",
-      "year": 2026
-    }
+  "handled": [
+    "658275f9ca9a9b2748eeb95fe8b5f4a58a51eb58",
+    "3edcd3051541da4f2c8195fcdec1ef48c144a1a8",
+    "86253054bceb7c7968dcd199dd784962adc3de84"
   ],
+  "items": [],
   "series": "Python Norte"
 }

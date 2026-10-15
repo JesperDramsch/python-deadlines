@@ -1,63 +1,9 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "b01878beacb803a911f65b761fea4788c883d826",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Japan",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Japan in column 'end' would you prefer '2026-08-23' or keep '2026-08-22'?",
-        "remote_value": "2026-08-23",
-        "source_name": "python.org",
-        "yaml_value": "2026-08-22",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:12Z",
-      "source": "canonical-import",
-      "title": "PyCon Japan",
-      "url": "https://2026.pycon.jp/",
-      "year": 2026
-    },
-    {
-      "id": "ebfb2683d1e966a38aa1fdddc0c1adfb48395dd4",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Japan",
-        "default_answer": false,
-        "field": "cfp",
-        "question": "For PyCon Japan in column 'cfp' would you prefer '2026-05-31 15:00:00' or keep '2026-06-01 15:00:00'?",
-        "remote_value": "2026-05-31 15:00:00",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-06-01 15:00:00",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Japan",
-      "url": "https://2026.pycon.jp/",
-      "year": 2026
-    },
-    {
-      "id": "43486ae4faa089036eb733bccccd681bc34d290d",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Japan",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Japan in column 'end' would you prefer '2026-08-23' or keep '2026-08-22'?",
-        "remote_value": "2026-08-23",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-08-22",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Japan",
-      "url": "https://2026.pycon.jp/",
-      "year": 2026
-    }
+  "handled": [
+    "b01878beacb803a911f65b761fea4788c883d826",
+    "ebfb2683d1e966a38aa1fdddc0c1adfb48395dd4",
+    "43486ae4faa089036eb733bccccd681bc34d290d"
   ],
+  "items": [],
   "series": "PyCon Japan"
 }

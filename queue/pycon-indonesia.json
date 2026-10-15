@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "a07018ffc5a3b6756746baff3a0fb2c589a7748f",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Indonesia",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Indonesia in column 'link' would you prefer 'https://conferencegrid.com/events/pycon-id-2026' or keep 'https://pycon.id/'?",
-        "remote_value": "https://conferencegrid.com/events/pycon-id-2026",
-        "source_name": "python-organizers",
-        "yaml_value": "https://pycon.id/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Indonesia",
-      "url": "https://pycon.id/",
-      "year": 2026
-    }
+  "handled": [
+    "a07018ffc5a3b6756746baff3a0fb2c589a7748f"
   ],
+  "items": [],
   "series": "PyCon Indonesia"
 }

@@ -1,24 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "71994405b2e37b22fc6d63664f5e3cc67daca685",
-      "kind": "registry",
-      "payload": {
-        "change": "untracked",
-        "evidence_url": "https://raw.githubusercontent.com/PyCon/pycon.org/master/_national/pycon-arewa.yml",
-        "names": [
-          "PyCon Arewa"
-        ],
-        "registry": "pycon.org",
-        "website": "https://pythonhausa.org/pyconarewa"
-      },
-      "received": "2026-10-15T12:13:19Z",
-      "source": "registry",
-      "title": "PyCon Arewa",
-      "url": "https://pythonhausa.org/pyconarewa",
-      "year": null
-    }
+  "handled": [
+    "71994405b2e37b22fc6d63664f5e3cc67daca685"
   ],
+  "items": [],
   "series": "PyCon Arewa"
 }

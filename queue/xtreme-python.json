@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "9a578fdd7f618959962820124b5a832e689737ee",
-      "kind": "question",
-      "payload": {
-        "conference": "Xtreme Python",
-        "default_answer": false,
-        "field": "end",
-        "question": "For Xtreme Python in column 'end' would you prefer '2026-11-18' or keep '2026-11-17'?",
-        "remote_value": "2026-11-18",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-11-17",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "Xtreme Python",
-      "url": "https://xtremepython.dev/2026/",
-      "year": 2026
-    }
+  "handled": [
+    "9a578fdd7f618959962820124b5a832e689737ee"
   ],
+  "items": [],
   "series": "Xtreme Python"
 }

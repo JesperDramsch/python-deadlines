@@ -1,29 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "b993a685d35c3b91d669bd1f0aca004e07ac6a3e",
-      "kind": "candidate",
-      "payload": {
-        "classification": "NEW_SERIES",
-        "evidence_url": "https://pyconf.org",
-        "fields": {
-          "conference": "PyConf",
-          "link": "https://pyconf.org",
-          "year": 2026
-        },
-        "flags": [
-          "lead-only"
-        ],
-        "matched": null,
-        "source_id": "https://pyconf.org"
-      },
-      "received": "2026-10-15T12:13:19Z",
-      "source": "developers-events",
-      "title": "PyConf",
-      "url": "https://pyconf.org",
-      "year": 2026
-    }
+  "handled": [
+    "b993a685d35c3b91d669bd1f0aca004e07ac6a3e"
   ],
+  "items": [],
   "series": "PyConf"
 }

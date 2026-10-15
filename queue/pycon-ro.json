@@ -1,24 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "17f75df2f9b1a54ad3f3d2871cf80cbd60b5c8d3",
-      "kind": "registry",
-      "payload": {
-        "change": "untracked",
-        "evidence_url": "https://www.python.org/psf/trademarks/pycon/",
-        "names": [
-          "PyCon RO",
-          "PyCon Romania"
-        ],
-        "registry": "psf-trademarks"
-      },
-      "received": "2026-10-15T12:13:19Z",
-      "source": "registry",
-      "title": "PyCon RO",
-      "url": "https://www.python.org/psf/trademarks/pycon/",
-      "year": null
-    }
+  "handled": [
+    "17f75df2f9b1a54ad3f3d2871cf80cbd60b5c8d3"
   ],
+  "items": [],
   "series": "PyCon RO"
 }

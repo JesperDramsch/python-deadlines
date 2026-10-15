@@ -1,24 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "718cd1b1152af55d1264904fc405cb3cb8c1f006",
-      "kind": "registry",
-      "payload": {
-        "change": "untracked",
-        "evidence_url": "https://www.python.org/psf/trademarks/pycon/",
-        "names": [
-          "PyCon VE",
-          "PyCon Venezuela"
-        ],
-        "registry": "psf-trademarks"
-      },
-      "received": "2026-10-15T12:13:19Z",
-      "source": "registry",
-      "title": "PyCon VE",
-      "url": "https://www.python.org/psf/trademarks/pycon/",
-      "year": null
-    }
+  "handled": [
+    "718cd1b1152af55d1264904fc405cb3cb8c1f006"
   ],
+  "items": [],
   "series": "PyCon VE"
 }

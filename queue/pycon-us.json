@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "b0498ea3a93c383ee92d6b18199949dcdeca0014",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon US",
-        "default_answer": false,
-        "field": "cfp_link",
-        "question": "For PyCon US in column 'cfp_link' would you prefer 'https://us.pycon.org/2026/speaking/guidelines' or keep 'https://us.pycon.org/2026/speaking/talks/'?",
-        "remote_value": "https://us.pycon.org/2026/speaking/guidelines",
-        "source_name": "python-organizers",
-        "yaml_value": "https://us.pycon.org/2026/speaking/talks/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon US",
-      "url": "https://us.pycon.org/2026/",
-      "year": 2026
-    }
+  "handled": [
+    "b0498ea3a93c383ee92d6b18199949dcdeca0014"
   ],
+  "items": [],
   "series": "PyCon US"
 }

@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "a0396079f271d359a62a7e2fd0a7308589651bcd",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Togo",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Togo in column 'end' would you prefer '2026-08-29' or keep '2026-08-30'?",
-        "remote_value": "2026-08-29",
-        "source_name": "python.org",
-        "yaml_value": "2026-08-30",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:12Z",
-      "source": "canonical-import",
-      "title": "PyCon Togo",
-      "url": "https://pycontg.pytogo.org/",
-      "year": 2026
-    }
+  "handled": [
+    "a0396079f271d359a62a7e2fd0a7308589651bcd"
   ],
+  "items": [],
   "series": "PyCon Togo"
 }

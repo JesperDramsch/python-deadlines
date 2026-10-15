@@ -1,24 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "5a33c7fa9d0416991d77474db6d7215af1969516",
-      "kind": "registry",
-      "payload": {
-        "change": "untracked",
-        "evidence_url": "https://raw.githubusercontent.com/PyCon/pycon.org/master/_regional/pythoncamp.yml",
-        "names": [
-          "PythonCamp"
-        ],
-        "registry": "pycon.org",
-        "website": "https://pythoncamp.de"
-      },
-      "received": "2026-10-15T12:13:19Z",
-      "source": "registry",
-      "title": "PythonCamp",
-      "url": "https://pythoncamp.de",
-      "year": null
-    }
+  "handled": [
+    "5a33c7fa9d0416991d77474db6d7215af1969516"
   ],
+  "items": [],
   "series": "PythonCamp"
 }

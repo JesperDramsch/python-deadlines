@@ -4,6 +4,7 @@
     {
       "id": "fcfc054c8a59f6f465fc176cb371bf21d3f8c720",
       "kind": "question",
+      "next_check": "2026-10-22",
       "payload": {
         "conference": "PyCon Angola",
         "default_answer": false,

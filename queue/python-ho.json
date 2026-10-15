@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "d2eac497337f8fd78a38d8e572ad7ab1cf5f5575",
-      "kind": "question",
-      "payload": {
-        "conference": "Python Ho",
-        "default_answer": false,
-        "field": "end",
-        "question": "For Python Ho in column 'end' would you prefer '2026-10-25' or keep '2026-10-24'?",
-        "remote_value": "2026-10-25",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-10-24",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "Python Ho",
-      "url": "https://2026.pythonho.com/",
-      "year": 2026
-    }
+  "handled": [
+    "d2eac497337f8fd78a38d8e572ad7ab1cf5f5575"
   ],
+  "items": [],
   "series": "Python Ho"
 }

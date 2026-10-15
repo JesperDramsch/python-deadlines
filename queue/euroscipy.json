@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "0e10b3896eb4a43cd13aafd176ed76f394d92455",
-      "kind": "question",
-      "payload": {
-        "conference": "EuroSciPy",
-        "default_answer": false,
-        "field": "place",
-        "question": "For EuroSciPy in column 'place' would you prefer 'Krakow, Poland' or keep 'Kraków, Poland'?",
-        "remote_value": "Krakow, Poland",
-        "source_name": "python.org",
-        "yaml_value": "Kraków, Poland",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:12Z",
-      "source": "canonical-import",
-      "title": "EuroSciPy",
-      "url": "https://euroscipy.org/",
-      "year": 2026
-    }
+  "handled": [
+    "0e10b3896eb4a43cd13aafd176ed76f394d92455"
   ],
+  "items": [],
   "series": "EuroSciPy"
 }

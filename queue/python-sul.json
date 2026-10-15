@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "d684666c538c809d3e5739464412d73f7bc0dea0",
-      "kind": "question",
-      "payload": {
-        "conference": "Python Sul",
-        "default_answer": false,
-        "field": "place",
-        "question": "For Python Sul in column 'place' would you prefer 'Londrina, Brasil' or keep 'Londrina, Brazil'?",
-        "remote_value": "Londrina, Brasil",
-        "source_name": "python-organizers",
-        "yaml_value": "Londrina, Brazil",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "Python Sul",
-      "url": "https://sul.python.org.br/",
-      "year": 2026
-    }
+  "handled": [
+    "d684666c538c809d3e5739464412d73f7bc0dea0"
   ],
+  "items": [],
   "series": "Python Sul"
 }

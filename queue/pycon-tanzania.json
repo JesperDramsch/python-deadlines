@@ -1,44 +1,8 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "d40e115e178eb1ec2ee32df2e864e31b994ca530",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Tanzania",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Tanzania in column 'link' would you prefer 'https://pycon.tz' or keep 'https://pycon.or.tz/'?",
-        "remote_value": "https://pycon.tz",
-        "source_name": "python-organizers",
-        "yaml_value": "https://pycon.or.tz/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Tanzania",
-      "url": "https://pycon.or.tz/",
-      "year": 2026
-    },
-    {
-      "id": "7ee5c6ac143e2edd0d9f8db76ef3dc9c56d4a670",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Tanzania",
-        "default_answer": false,
-        "field": "place",
-        "question": "For PyCon Tanzania in column 'place' would you prefer 'Dar es Salaam, United Republic of' or keep 'Dar Es Salaam, Tanzania'?",
-        "remote_value": "Dar es Salaam, United Republic of",
-        "source_name": "python-organizers",
-        "yaml_value": "Dar Es Salaam, Tanzania",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Tanzania",
-      "url": "https://pycon.or.tz/",
-      "year": 2026
-    }
+  "handled": [
+    "d40e115e178eb1ec2ee32df2e864e31b994ca530",
+    "7ee5c6ac143e2edd0d9f8db76ef3dc9c56d4a670"
   ],
+  "items": [],
   "series": "PyCon Tanzania"
 }

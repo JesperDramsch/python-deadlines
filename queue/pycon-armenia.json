@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "95de1b433630306b6d83d903ec2b1b2468867d23",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Armenia",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Armenia in column 'end' would you prefer '2026-07-26' or keep '2026-07-25'?",
-        "remote_value": "2026-07-26",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-07-25",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Armenia",
-      "url": "https://pycon.am/",
-      "year": 2026
-    }
+  "handled": [
+    "95de1b433630306b6d83d903ec2b1b2468867d23"
   ],
+  "items": [],
   "series": "PyCon Armenia"
 }

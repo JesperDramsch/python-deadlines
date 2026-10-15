@@ -4,6 +4,7 @@
     {
       "id": "79e571f5665723324f8219e7cc750e0fc59781e0",
       "kind": "question",
+      "next_check": "2026-10-22",
       "payload": {
         "conference": "PyCon Cameroon",
         "default_answer": false,
@@ -23,6 +24,7 @@
     {
       "id": "f8cd4affb80677ffce349c14737c08387e7ce227",
       "kind": "question",
+      "next_check": "2026-10-22",
       "payload": {
         "conference": "PyCon Cameroon",
         "default_answer": false,
@@ -42,6 +44,7 @@
     {
       "id": "d94c7a12946ffa2d6baa0348eb2b51bdacee4d79",
       "kind": "question",
+      "next_check": "2026-10-22",
       "payload": {
         "conference": "PyCon Cameroon",
         "default_answer": false,

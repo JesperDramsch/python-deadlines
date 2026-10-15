@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "a5b6d20c858c25f2516eb5ffce4390898fc3549a",
-      "kind": "question",
-      "payload": {
-        "conference": "PyData Global",
-        "default_answer": false,
-        "field": "place",
-        "question": "For PyData Global in column 'place' would you prefer 'Worldwide' or keep 'Online'?",
-        "remote_value": "Worldwide",
-        "source_name": "python-organizers",
-        "yaml_value": "Online",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyData Global",
-      "url": "https://pydata.org/global2026/",
-      "year": 2026
-    }
+  "handled": [
+    "a5b6d20c858c25f2516eb5ffce4390898fc3549a"
   ],
+  "items": [],
   "series": "PyData Global"
 }

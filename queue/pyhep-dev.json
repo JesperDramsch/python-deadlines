@@ -1,44 +1,8 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "e2264215a8304792e6265469658ebe5f97dee06c",
-      "kind": "question",
-      "payload": {
-        "conference": "PyHEP.dev",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyHEP.dev in column 'link' would you prefer 'https://indico.cern.ch/category/7971' or keep 'https://indico.nikhef.nl/event/7873/'?",
-        "remote_value": "https://indico.cern.ch/category/7971",
-        "source_name": "python-organizers",
-        "yaml_value": "https://indico.nikhef.nl/event/7873/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyHEP.dev",
-      "url": "https://indico.nikhef.nl/event/7873/",
-      "year": 2026
-    },
-    {
-      "id": "689bc70d8ecd662ae7a01e40a018f011772eb726",
-      "kind": "question",
-      "payload": {
-        "conference": "PyHEP.dev",
-        "default_answer": false,
-        "field": "place",
-        "question": "For PyHEP.dev in column 'place' would you prefer 'Geneva, Switzerland' or keep 'Amsterdam, Netherlands'?",
-        "remote_value": "Geneva, Switzerland",
-        "source_name": "python-organizers",
-        "yaml_value": "Amsterdam, Netherlands",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyHEP.dev",
-      "url": "https://indico.nikhef.nl/event/7873/",
-      "year": 2026
-    }
+  "handled": [
+    "e2264215a8304792e6265469658ebe5f97dee06c",
+    "689bc70d8ecd662ae7a01e40a018f011772eb726"
   ],
+  "items": [],
   "series": "PyHEP.dev"
 }

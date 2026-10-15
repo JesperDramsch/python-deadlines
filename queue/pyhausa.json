@@ -1,24 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "e5cadf4424ae1934a02b2ec2cf9fac9d1d2aba5a",
-      "kind": "registry",
-      "payload": {
-        "change": "untracked",
-        "evidence_url": "https://raw.githubusercontent.com/PyCon/pycon.org/master/_regional/PyHausa.yml",
-        "names": [
-          "PyHausa"
-        ],
-        "registry": "pycon.org",
-        "website": "https://pythonhausa.org"
-      },
-      "received": "2026-10-15T12:13:19Z",
-      "source": "registry",
-      "title": "PyHausa",
-      "url": "https://pythonhausa.org",
-      "year": null
-    }
+  "handled": [
+    "e5cadf4424ae1934a02b2ec2cf9fac9d1d2aba5a"
   ],
+  "items": [],
   "series": "PyHausa"
 }

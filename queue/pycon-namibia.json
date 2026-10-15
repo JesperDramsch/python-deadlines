@@ -1,82 +1,10 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "3a3681ea6ddeb1814ee8f5b5662ea1073b40ba8a",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Namibia",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Namibia in column 'end' would you prefer '2026-02-27' or keep '2026-02-26'?",
-        "remote_value": "2026-02-27",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-02-26",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Namibia",
-      "url": "https://na.pycon.org/",
-      "year": 2026
-    },
-    {
-      "id": "98c73ce284d8bb5df1a6375525a50bd13130bb34",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Namibia",
-        "default_answer": false,
-        "field": "start",
-        "question": "For PyCon Namibia in column 'start' would you prefer '2027-02-19' or keep '2027-02-26'?",
-        "remote_value": "2027-02-19",
-        "source_name": "python-organizers",
-        "yaml_value": "2027-02-26",
-        "year": 2027
-      },
-      "received": "2026-10-15T12:09:26Z",
-      "source": "canonical-import",
-      "title": "PyCon Namibia",
-      "url": "https://na.pycon.org/2027/",
-      "year": 2027
-    },
-    {
-      "id": "6c7b9cd7a0baa8e50d49cff6a9fa0ae923d77f91",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Namibia",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Namibia in column 'end' would you prefer '2027-02-26' or keep '2027-03-04'?",
-        "remote_value": "2027-02-26",
-        "source_name": "python-organizers",
-        "yaml_value": "2027-03-04",
-        "year": 2027
-      },
-      "received": "2026-10-15T12:09:26Z",
-      "source": "canonical-import",
-      "title": "PyCon Namibia",
-      "url": "https://na.pycon.org/2027/",
-      "year": 2027
-    },
-    {
-      "id": "df6bf042629eccceabdf56304161c7708ac83993",
-      "kind": "drift",
-      "payload": {
-        "conference": "PyCon Namibia",
-        "diffs": {
-          "cfp": {
-            "data": "2026-09-21 23:59:00 Africa/Windhoek",
-            "source": "2026-10-15 17:00 (Africa/Windhoek)"
-          }
-        },
-        "year": 2027
-      },
-      "received": "2026-10-15T12:13:19Z",
-      "source": "pretalx",
-      "title": "PyCon Namibia",
-      "url": "https://pretalx.com/pycon-namibia-2027/cfp",
-      "year": 2027
-    }
+  "handled": [
+    "3a3681ea6ddeb1814ee8f5b5662ea1073b40ba8a",
+    "98c73ce284d8bb5df1a6375525a50bd13130bb34",
+    "6c7b9cd7a0baa8e50d49cff6a9fa0ae923d77f91",
+    "df6bf042629eccceabdf56304161c7708ac83993"
   ],
+  "items": [],
   "series": "PyCon Namibia"
 }

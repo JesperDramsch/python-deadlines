@@ -4,6 +4,7 @@
     {
       "id": "0f9e2eb0c38b77e722846e50c95b167f24d1eb7a",
       "kind": "question",
+      "next_check": "2026-10-22",
       "payload": {
         "conference": "PyConf Hyderabad",
         "default_answer": false,

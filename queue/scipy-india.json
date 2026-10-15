@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "d6d916d3a6f3f691d7510999d1946b645b6ccccc",
-      "kind": "question",
-      "payload": {
-        "conference": "SciPy India",
-        "default_answer": false,
-        "field": "tutorial_deadline",
-        "question": "For SciPy India in column 'tutorial_deadline' would you prefer '2026-10-19' or keep '2026-11-01 23:59:00'?",
-        "remote_value": "2026-10-19",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-11-01 23:59:00",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "SciPy India",
-      "url": "https://scipy.in/2026/",
-      "year": 2026
-    }
+  "handled": [
+    "d6d916d3a6f3f691d7510999d1946b645b6ccccc"
   ],
+  "items": [],
   "series": "SciPy India"
 }

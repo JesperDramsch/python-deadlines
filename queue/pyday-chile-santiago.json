@@ -1,31 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "843fa3f73122225ee823e9254eea2fbf1a93cc09",
-      "kind": "candidate",
-      "payload": {
-        "classification": "MAYBE",
-        "evidence_url": "https://github.com/python-organizers/conferences",
-        "fields": {
-          "conference": "PyDay Chile Santiago",
-          "end": "2026-06-06",
-          "place": "Santiago, Chile",
-          "start": "2026-06-06",
-          "year": 2026
-        },
-        "flags": [
-          "no-website"
-        ],
-        "matched": null,
-        "source_id": "python-organizers"
-      },
-      "received": "2026-10-15T12:09:26Z",
-      "source": "canonical-import",
-      "title": "PyDay Chile Santiago 2026",
-      "url": "",
-      "year": 2026
-    }
+  "handled": [
+    "843fa3f73122225ee823e9254eea2fbf1a93cc09"
   ],
+  "items": [],
   "series": "PyDay Chile Santiago"
 }

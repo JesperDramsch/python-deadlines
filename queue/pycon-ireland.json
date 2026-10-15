@@ -1,25 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "93e42dc604b4c57e09a06201755c9c7384994fe7",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Ireland",
-        "default_answer": false,
-        "field": "cfp_link",
-        "question": "For PyCon Ireland in column 'cfp_link' would you prefer 'https://2026.pycon.ie/cfp' or keep 'https://sessionize.com/pycon-ireland-2026/'?",
-        "remote_value": "https://2026.pycon.ie/cfp",
-        "source_name": "python-organizers",
-        "yaml_value": "https://sessionize.com/pycon-ireland-2026/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Ireland",
-      "url": "https://2026.pycon.ie/",
-      "year": 2026
-    }
+  "handled": [
+    "93e42dc604b4c57e09a06201755c9c7384994fe7"
   ],
+  "items": [],
   "series": "PyCon Ireland"
 }
