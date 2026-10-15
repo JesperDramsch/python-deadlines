@@ -118,8 +118,9 @@
   link: https://scipy.in/2026/
   cfp_link: https://cfp.scipy.in/scipy-india-2026/cfp
   cfp: '2026-10-19 23:59:00'
-  workshop_deadline: '2026-10-19 23:59:00'
-  tutorial_deadline: '2026-10-19 23:59:00'
+  cfp_ext: '2026-11-01 23:59:00'
+  workshop_deadline: '2026-11-01 23:59:00'
+  tutorial_deadline: '2026-11-01 23:59:00'
   timezone: Asia/Kolkata
   place: Chennai, India
   start: 2026-12-19
