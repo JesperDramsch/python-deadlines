@@ -36,6 +36,15 @@
             "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
           }
         ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+          }
+        ]
       }
     ]
   }

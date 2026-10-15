@@ -1,16 +1,18 @@
 """Tests for .claude/hooks/desk_guard.py, the PreToolUse guard registered in .claude/settings.json.
 
 Each test runs the hook as a subprocess, the way Claude Code runs it: a crafted PreToolUse payload on stdin
-(with ``agent_id`` for a subagent's call), DESK_ROUTINE and HOME set per test, and temporary git repositories
-for branch and repository detection. HOME holds an empty .desk-guard.json unless a test replaces or removes
-it, since a desk run without one blocks every call. pytester runs the subprocesses, with a timeout and
-captured exit code and stderr. The push spellings the hook blocks are also run with real git against a local
-bare remote, to show that git reads them as the options they abbreviate, and so are an alias set inside an
-alias, a tag fetch, a ``git config`` call whose ``--file`` takes ``--get`` as its value and ``GIT_CONFIG*``
-variables that bash sets with ``printf -v`` and exports by name.
+(with ``agent_id`` and ``agent_type`` for a subagent's call), DESK_ROUTINE and HOME set per test, and temporary
+git repositories for branch and repository detection. HOME holds an empty .desk-guard.json unless a test
+replaces or removes it, since a desk run without one blocks every call. pytester runs the subprocesses, with a
+timeout and captured exit code and stderr. The push spellings the hook blocks are also run with real git
+against a local bare remote, to show that git reads them as the options they abbreviate, and so are an alias
+set inside an alias, a tag fetch, a ``git config`` call whose ``--file`` takes ``--get`` as its value and
+``GIT_CONFIG*`` variables that bash sets with ``printf -v`` and exports by name. The subagent file the desk
+starts, the subagent types desk.md names and the hook's registration in settings.json are read directly.
 """
 
 import ast
+import importlib.util
 import json
 import re
 import shlex
@@ -19,15 +21,21 @@ import sys
 from pathlib import Path
 
 import pytest
+import yaml
 
 pytest_plugins = ["pytester"]
 
 ROOT = Path(__file__).resolve().parents[1]
 HOOK = ROOT / ".claude" / "hooks" / "desk_guard.py"
 SETTINGS = ROOT / ".claude" / "settings.json"
+AGENTS = ROOT / ".claude" / "agents"
+ROUTINE = ROOT / ".claude" / "routines" / "desk.md"
 ROLLING = "auto/conference-updates"
 REPO = "JesperDramsch/python-deadlines"
-SUBAGENT = {"agent_id": "agent-1", "agent_type": "general-purpose"}
+# A desk-research subagent, the only type that may act in a desk run. The subagent rules on Bash and file tools
+# are tested on it as the second layer they are, for a desk-research subagent that has those tools after all.
+SUBAGENT = {"agent_id": "agent-1", "agent_type": "desk-research"}
+OTHER_SUBAGENT = {"agent_id": "agent-2", "agent_type": "general-purpose"}
 GIT = shutil.which("git")
 BASH = shutil.which("bash")
 
@@ -458,6 +466,134 @@ def test_mcp_and_scheduling_tools_in_a_desk_run_are_blocked(run_hook, tmp_path, 
 @pytest.mark.parametrize("tool", GUARDED_TOOLS)
 def test_mcp_and_scheduling_tools_outside_desk_runs_are_allowed(run_hook, tmp_path, tool):
     assert_allowed(run_hook(tool, {"message": "hi"}, cwd=tmp_path))
+
+
+# --- subagent types (desk run) ---
+
+
+def agent_input(**fields):
+    """Return the input of an Agent call, with fields such as ``subagent_type`` added."""
+    return {"description": "Research one item", "prompt": "Read AGENTS.md and the skill", **fields}
+
+
+@pytest.mark.parametrize("tool", ["Agent", "Task"])
+def test_desk_agent_call_with_the_desk_research_type_is_allowed(run_hook, tmp_path, tool):
+    assert_allowed(run_hook(tool, agent_input(subagent_type="desk-research"), cwd=tmp_path, desk=True))
+
+
+@pytest.mark.parametrize("tool", ["Agent", "Task"])
+@pytest.mark.parametrize(
+    "fields",
+    [
+        {"subagent_type": "general-purpose"},
+        {"subagent_type": "Explore"},
+        {"subagent_type": "Desk-Research"},
+        {"subagent_type": "desk-research "},
+        {"subagent_type": ""},
+        {"subagent_type": None},
+        {"subagent_type": ["desk-research"]},
+        {},
+    ],
+)
+def test_desk_agent_call_with_another_type_or_none_is_blocked(run_hook, tmp_path, tool, fields):
+    outcome = run_hook(tool, agent_input(**fields), cwd=tmp_path, desk=True)
+    assert_blocked(outcome, tool, "subagent_type desk-research")
+
+
+@pytest.mark.parametrize("tool", ["Agent", "Task"])
+@pytest.mark.parametrize("fields", [{"subagent_type": "desk-research"}, {"subagent_type": "general-purpose"}, {}])
+def test_agent_calls_outside_desk_runs_are_allowed(run_hook, tmp_path, tool, fields):
+    assert_allowed(run_hook(tool, agent_input(**fields), cwd=tmp_path))
+
+
+@pytest.mark.parametrize("tool", ["Agent", "Task"])
+def test_deny_tools_reach_agent_calls_in_desk_runs_only(run_hook, home, tmp_path, tool):
+    (home / ".desk-guard.json").write_text(json.dumps({"deny_tools": ["^(Agent|Task)$"]}), encoding="utf-8")
+    tool_input = agent_input(subagent_type="desk-research")
+    assert_blocked(run_hook(tool, tool_input, cwd=tmp_path, desk=True), "deny_tools")
+    assert_allowed(run_hook(tool, tool_input, cwd=tmp_path))
+    (home / ".desk-guard.json").unlink()
+    assert_blocked(run_hook(tool, tool_input, cwd=tmp_path, desk=True), ".desk-guard.json", "missing")
+    assert_allowed(run_hook(tool, tool_input, cwd=tmp_path))
+
+
+# Calls a subagent may make. Of the desk-research tools the hook sees only WebFetch; Bash, Write and Agent reach it
+# from a subagent that has them after all, and Read stands for the tools settings.json never sends to it.
+SUBAGENT_CALLS = [
+    ("WebFetch", {"url": "https://2027.pycon.gr/cfp/", "prompt": "the deadline"}),
+    ("Bash", {"command": "ls"}),
+    ("Write", {"file_path": "scratch/change-set.yml", "content": "x"}),
+    ("Read", {"file_path": "AGENTS.md"}),
+    ("Agent", agent_input(subagent_type="desk-research")),
+]
+
+
+@pytest.mark.parametrize(("tool", "tool_input"), SUBAGENT_CALLS)
+def test_desk_calls_from_a_desk_research_subagent_are_allowed(run_hook, tmp_path, tool, tool_input):
+    assert_allowed(run_hook(tool, tool_input, cwd=tmp_path, desk=True, **SUBAGENT))
+
+
+@pytest.mark.parametrize(
+    "fields",
+    [
+        OTHER_SUBAGENT,
+        {"agent_id": "agent-3", "agent_type": "Explore"},
+        {"agent_id": "agent-4", "agent_type": "desk"},
+        {"agent_id": "agent-5"},
+        {"agent_id": "agent-6", "agent_type": None},
+        {"agent_id": "agent-7", "agent_type": ""},
+    ],
+)
+@pytest.mark.parametrize(("tool", "tool_input"), SUBAGENT_CALLS)
+def test_desk_calls_from_other_subagents_are_blocked(run_hook, tmp_path, tool, tool_input, fields):
+    outcome = run_hook(tool, tool_input, cwd=tmp_path, desk=True, **fields)
+    assert_blocked(outcome, tool, "only desk-research subagents may act")
+
+
+@pytest.mark.parametrize("fields", [OTHER_SUBAGENT, {"agent_id": "agent-5"}])
+@pytest.mark.parametrize(("tool", "tool_input"), SUBAGENT_CALLS)
+def test_calls_from_other_subagents_outside_desk_runs_are_allowed(run_hook, tmp_path, tool, tool_input, fields):
+    assert_allowed(run_hook(tool, tool_input, cwd=tmp_path, **fields))
+
+
+def load_hook():
+    """Import the hook as a module, without running it."""
+    spec = importlib.util.spec_from_file_location("desk_guard", HOOK)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def agent_definition(name):
+    """Return the YAML frontmatter and the body of ``.claude/agents/<name>.md``."""
+    text = (AGENTS / f"{name}.md").read_text(encoding="utf-8")
+    match = re.fullmatch(r"---\n(.*?)\n---\n(.*)", text, re.DOTALL)
+    assert match, f"{name}.md has no frontmatter between --- lines"
+    return yaml.safe_load(match.group(1)), match.group(2)
+
+
+def test_desk_research_agent_has_only_read_search_and_fetch_tools():
+    frontmatter, body = agent_definition("desk-research")
+    assert frontmatter["name"] == "desk-research"
+    assert frontmatter["name"] in load_hook().DESK_AGENT_TYPES
+    assert isinstance(frontmatter["description"], str) and frontmatter["description"].strip()
+    tools = frontmatter["tools"]
+    names = [name.strip() for name in tools.split(",")] if isinstance(tools, str) else tools
+    assert sorted(names) == sorted(["Read", "Grep", "Glob", "WebFetch", "WebSearch"])
+    assert body.strip()
+
+
+def test_every_subagent_type_the_desk_starts_is_a_desk_agent_type():
+    text = ROUTINE.read_text(encoding="utf-8")
+    research = next(line for line in text.splitlines() if line.startswith("1. **Research.**"))
+    critic = next(line for line in text.splitlines() if line.startswith("2. **Critic.**"))
+    for step in (research, critic):
+        assert re.search(r"subagent_type: [\w-]+", step), step
+    named = set(re.findall(r"subagent_type: ([\w-]+)", text))
+    assert named
+    assert named <= load_hook().DESK_AGENT_TYPES
+    for name in named:
+        assert agent_definition(name)[0]["name"] == name
 
 
 # --- pushes in a desk run ---
@@ -1658,6 +1794,7 @@ def test_settings_register_the_hook_for_every_matcher():
         "Edit|Write|MultiEdit|NotebookEdit",
         "mcp__.*|Cron.*|Remote.*|Schedule.*",
         "WebFetch",
+        "Agent|Task",
     }
     for group in groups:
         assert group["hooks"] == [{"type": "command", "command": command}]
@@ -1678,6 +1815,15 @@ def matcher_matches(matcher, tool):
 def test_settings_send_every_guarded_tool_to_the_hook(tool):
     groups = json.loads(SETTINGS.read_text(encoding="utf-8"))["hooks"]["PreToolUse"]
     assert any(matcher_matches(group["matcher"], tool) for group in groups)
+
+
+@pytest.mark.parametrize("tool", ["Agent", "Task"])
+def test_settings_send_agent_calls_to_the_hook(tool):
+    groups = json.loads(SETTINGS.read_text(encoding="utf-8"))["hooks"]["PreToolUse"]
+    matching = [group for group in groups if matcher_matches(group["matcher"], tool)]
+    assert matching
+    for group in matching:
+        assert any(hook["command"].endswith('/.claude/hooks/desk_guard.py"') for hook in group["hooks"])
 
 
 def test_hook_imports_only_the_standard_library():

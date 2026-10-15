@@ -2,10 +2,11 @@
 """PreToolUse guard for the deadline desk and every other Claude Code session in this repository.
 
 Claude Code runs this script before Bash, Edit, Write, MultiEdit, NotebookEdit and WebFetch calls, before every
-MCP tool, and before CronCreate, CronDelete, CronList, RemoteTrigger and ScheduleWakeup (see
-``.claude/settings.json``). It passes the call as JSON on stdin: ``tool_name``, ``tool_input``, ``cwd`` and, when
-a subagent makes the call, ``agent_id``. Exit code 2 blocks the call and the one-line reason on stderr is shown
-to the agent; exit code 0 lets the call through to the normal permission flow. A desk run is a session with
+MCP tool, before CronCreate, CronDelete, CronList, RemoteTrigger and ScheduleWakeup, and before Agent, the tool
+that starts a subagent, which older versions name Task (see ``.claude/settings.json``). It passes the call as
+JSON on stdin: ``tool_name``, ``tool_input``, ``cwd`` and, when a subagent makes the call, ``agent_id`` and the
+subagent's type as ``agent_type``. Exit code 2 blocks the call and the one-line reason on stderr is shown to the
+agent; exit code 0 lets the call through to the normal permission flow. A desk run is a session with
 ``DESK_ROUTINE=1``.
 
 Rules for every session:
@@ -27,7 +28,8 @@ Rules for every session:
    ``deny_paths`` and ``deny_urls`` are searched in the Bash command, the tool name, the file path and the
    WebFetch URL. A file path is searched twice: as given, and as the absolute path it names from ``cwd``
    with ``~`` expanded and ``.``, ``..`` and repeated slashes removed. Symlinks are not followed. Outside desk
-   runs a malformed file is ignored.
+   runs a malformed file is ignored, and Agent and Task calls, which reach the hook only for rule 10, pass
+   without this check.
 
 Rules for desk runs, on top of those:
 
@@ -58,18 +60,28 @@ Rules for desk runs, on top of those:
    go to ``repos/JesperDramsch/python-deadlines``: POST ``pulls``, PATCH ``pulls/<n>``, POST
    ``issues/<n>/comments`` and POST ``issues/<n>/labels``. The endpoint is written out literally, with or
    without a leading slash or as a full ``https://api.github.com/`` URL, and without ``--hostname``.
+10. An Agent or Task call must start a subagent of a type in ``DESK_AGENT_TYPES``, which holds only
+    ``desk-research`` (``.claude/agents/desk-research.md``). A call whose ``subagent_type`` names another type,
+    or that has no ``subagent_type``, is blocked.
 
 Rules for subagents in desk runs, on top of those:
 
-10. ``git`` runs only status, log, show, diff, grep, ls-files, ls-remote, ls-tree, rev-parse, rev-list,
+11. Only ``desk-research`` subagents may act. A call that carries ``agent_id`` is blocked when its
+    ``agent_type`` is not in ``DESK_AGENT_TYPES`` or is missing. The hook sees only the tools listed above, so
+    such a subagent's Read, Grep, Glob and WebSearch calls never reach this rule.
+
+``desk-research`` has only Read, Grep, Glob, WebFetch and WebSearch: no Bash and no file tools. Rules 12 to 16
+are a second layer: they matter only if that type restriction fails.
+
+12. ``git`` runs only status, log, show, diff, grep, ls-files, ls-remote, ls-tree, rev-parse, rev-list,
     merge-base, blame, cat-file, fetch, describe, shortlog, for-each-ref, show-ref and a pure ``config``
     read (rule 8), or with no subcommand at all (``git --version``). Rule 8 already blocks every ``-c``,
     ``--config-env`` and ``GIT_CONFIG*`` setting. A ``fetch`` refspec after the remote that contains ``:``
     or starts with ``+`` writes a local ref and is blocked, and so is the word ``tag`` after the remote
     (``git fetch origin tag v1``), which writes a local tag, and ``--refmap`` and ``--stdin``, which set
     refspecs.
-11. ``gh`` runs only as a ``gh api`` read.
-12. A command that runs ``utils/desk_queue.py`` add, remove, snooze or init, ``utils/desk_pr_body.py``,
+13. ``gh`` runs only as a ``gh api`` read.
+14. A command that runs ``utils/desk_queue.py`` add, remove, snooze or init, ``utils/desk_pr_body.py``,
     ``utils/merge_data.py``, ``utils/sort_yaml.py``, ``utils/main.py``, ``utils/import_python_official.py``
     or ``utils/import_python_organizers.py`` (the queue, the PR body, the merge, the sort and the
     importers, which all write the data, the queue or the PR) is blocked. A script counts as run when it is
@@ -77,11 +89,11 @@ Rules for subagents in desk runs, on top of those:
     the script (or its module after ``-m``, also attached as in ``-mutils.sort_yaml``), or as the
     ``pixi run sort``, ``pixi run links`` and ``pixi run merge`` tasks, also after ``pixi run`` options
     such as ``-e <environment>`` or ``-m <manifest>``. ``main.py`` counts only in a folder named ``utils``.
-13. Edit, Write, MultiEdit and NotebookEdit are blocked on any path inside a repository: the one that holds
+15. Edit, Write, MultiEdit and NotebookEdit are blocked on any path inside a repository: the one that holds
     ``cwd`` or the one that holds the path, with symlinks resolved. Paths outside, such as ``/tmp``, are
-    allowed. A Bash command that writes into the repository is blocked too, by rule 14; the other Bash
-    calls, apart from the git and script calls of rules 10 and 12, are not inspected.
-14. A Bash command may not write a path inside a repository, by the same test rule 13 uses: the repository
+    allowed. A Bash command that writes into the repository is blocked too, by rule 16; the other Bash
+    calls, apart from the git and script calls of rules 12 and 14, are not inspected.
+16. A Bash command may not write a path inside a repository, by the same test rule 15 uses: the repository
     that holds ``cwd`` or the one that holds the target, with symlinks resolved. A target outside every
     repository, such as one under ``/tmp``, is allowed, and so are ``/dev/null``, ``/dev/stdout``,
     ``/dev/stderr`` and ``/dev/fd/*``. The writes read are an output redirection in any form (``>``, ``>>``,
@@ -120,7 +132,7 @@ double quotes and backslash escapes (a backslash-underscore separates words, a b
 and those words are read as the rest of the command line, so the push rule sees them; a ``${VAR}`` is left as a
 word that cannot be resolved, and a string that cannot be split, or that holds such a reference where the
 program or subcommand would stand, is blocked when any word could be ``git`` or ``push``. Programs other than
-``git`` and ``gh``, such as ``curl``, are not inspected beyond rules 3, 8, 12 and 14. Rule 14 reads the writes
+``git`` and ``gh``, such as ``curl``, are not inspected beyond rules 3, 8, 14 and 16. Rule 16 reads the writes
 a program makes through its own arguments and redirections, but not code an interpreter runs inline, such as
 ``python -c``, a ``python`` here-document, ``node -e`` or ``perl -e``: a file such code writes is a stated
 limit, covered by the desk's own checks. Code a program runs on its own, such as a script file, is not read
@@ -145,6 +157,10 @@ DESK_PUSH_DESTINATIONS = frozenset({f"refs/heads/{ROLLING_BRANCH}", f"refs/heads
 FILE_TOOLS = frozenset({"Edit", "Write", "MultiEdit", "NotebookEdit"})
 MCP_TOOL_PREFIX = "mcp__"
 SCHEDULING_TOOLS = frozenset({"CronCreate", "CronDelete", "CronList", "RemoteTrigger", "ScheduleWakeup"})
+# The tool that starts a subagent: Agent, named Task in older Claude Code versions
+AGENT_TOOLS = frozenset({"Agent", "Task"})
+# The subagent types a desk run may start, defined in .claude/agents/, and the only subagents that may act in one
+DESK_AGENT_TYPES = frozenset({"desk-research"})
 DENY_LIST_NAME = ".desk-guard.json"
 DENY_LIST_KEYS = ("deny_bash", "deny_tools", "deny_paths", "deny_urls")
 
@@ -1924,6 +1940,8 @@ def check(payload: dict, *, desk: bool) -> None:
     tool_input = payload.get("tool_input")
     if not isinstance(tool, str) or not isinstance(tool_input, dict):
         raise BadInputError("tool_name or tool_input is missing")
+    if tool in AGENT_TOOLS and not desk:
+        return  # Agent calls reach the hook for rule 10 alone
     cwd = payload["cwd"] if isinstance(payload.get("cwd"), str) else str(Path.cwd())
     # Claude Code sets agent_id only for a subagent's calls; agent_type also comes with --agent sessions
     subagent = desk and payload.get("agent_id") is not None
@@ -1933,6 +1951,21 @@ def check(payload: dict, *, desk: bool) -> None:
 
     if desk and (tool.startswith(MCP_TOOL_PREFIX) or tool in SCHEDULING_TOOLS):
         raise BlockError(f"{tool} is off limits in desk runs")
+
+    # A desk run starts only desk-research subagents (rule 10), and only those may act in it (rule 11)
+    desk_types = ", ".join(sorted(DESK_AGENT_TYPES))
+    if desk and tool in AGENT_TOOLS:
+        subagent_type = tool_input.get("subagent_type")
+        if not isinstance(subagent_type, str) or subagent_type not in DESK_AGENT_TYPES:
+            named = "no subagent_type" if subagent_type is None else f"subagent_type {subagent_type!r}"
+            raise BlockError(
+                f"{tool} with {named} is off limits in desk runs; start every subagent with subagent_type {desk_types}",
+            )
+    if subagent:
+        agent_type = payload.get("agent_type")
+        if not isinstance(agent_type, str) or agent_type not in DESK_AGENT_TYPES:
+            named = "a subagent with no agent_type" if agent_type is None else f"a subagent of type {agent_type!r}"
+            raise BlockError(f"{tool} from {named} is off limits in desk runs; only {desk_types} subagents may act")
 
     if isinstance(command, str):
         reason = bash_reason(command, cwd, desk=desk, subagent=subagent)

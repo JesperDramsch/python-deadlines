@@ -15,7 +15,7 @@ The desk hands you the daily `scout` item, or an item about a series no data fil
      - `no-website`: the shared sheet has this edition but no website. Search for one.
      - `denylist-review: <domain>: <reason>`: the domain is on the denylist's `review` list. Copy the flag into the `flags` of the find's change set; the critic returns needs-maintainer.
    - A `maintainer-request` item: the series and URLs the comment names are the find, and the request settles its scope (step 2).
-   - The `scout` item: search each of these, with `<year>` standing for this year and next (`date -u`).
+   - The `scout` item: search each of these, with `<year>` standing for this year and next (the year of the worklist's `today`, which the desk gives with the item).
      - Targeted web searches: "PyCon <year>", "PyData <year>", "Python conference call for proposals", "PyDay", "Python Pizza", framework and scientific library names with "conference", and the same in other languages ("conferencia Python", "Python Konferenz").
      - Bluesky public search, which answers its first page without authentication: `https://api.bsky.app/xrpc/app.bsky.feed.searchPosts?q=<query>` (try `pycon <year>`, `"call for proposals" python`, `pydata <year>`).
      - pretalx and Sessionize event pages, found by web search (`site:pretalx.com python <year>`, `site:sessionize.com pycon`).
