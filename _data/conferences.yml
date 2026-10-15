@@ -473,6 +473,11 @@
   place: Dublin, Ireland
   start: 2026-11-21
   end: 2026-11-21
+  coc: https://2026.pycon.ie/code-of-conduct/
+  twitter: pythonireland
+  mastodon: https://mastodon.ie/@Python_Ireland
+  bluesky: https://bsky.app/profile/python-ireland.bsky.social
+  youtube: https://www.youtube.com/@PythonIreland
   sub: PY
   location:
   - title: PyCon Ireland 2026
