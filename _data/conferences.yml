@@ -600,6 +600,10 @@
   place: San Jose, USA
   start: 2026-10-20
   end: 2026-10-21
+  sponsor: https://events.linuxfoundation.org/pytorch-conference-north-america/sponsor/
+  coc: https://events.linuxfoundation.org/pytorch-conference-north-america/attend/code-of-conduct/
+  twitter: pytorch
+  youtube: https://www.youtube.com/pytorch
   sub: DATA
   note: Separate poster session CfP open until 2026-07-26.
   location:
