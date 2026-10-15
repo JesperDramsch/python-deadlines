@@ -312,6 +312,34 @@
   mastodon: https://fosstodon.org/@wagtail
   sub: WEB
 
+- conference: PyConf
+  year: 2026
+  link: https://pyconf.org/
+  cfp_link: https://pyconf.org/cfp
+  cfp: '2026-08-31 23:59:00'
+  place: San Francisco, USA
+  start: 2026-12-04
+  end: 2026-12-06
+  coc: https://pyconf.org/coc
+  sub: PY
+  note: CfP closed before Domain was registered.
+  location:
+  - title: PyConf 2026
+    latitude: 37.7681571
+    longitude: -122.392929
+
+- conference: PyTennessee
+  alt_name: PyTN
+  year: 2026
+  link: https://pytn.org/
+  cfp_link: https://sessionize.com/pytn-2026/
+  cfp: '2026-08-31 23:59:00'
+  timezone: America/Chicago
+  place: Online
+  start: 2026-10-20
+  end: 2026-10-20
+  sub: PY
+
 - conference: Python Pizza Istanbul
   alt_name: Istanbul Python Pizza
   year: 2026
@@ -1203,27 +1231,3 @@
   - title: PyDay Boyacá 2026
     latitude: 5.7148307
     longitude: -72.9279328
-
-- conference: PyConf
-  year: 2026
-  link: https://pyconf.org/
-  cfp_link: https://pyconf.org/cfp
-  cfp: '2026-08-31 23:59:00'
-  place: San Francisco, USA
-  start: 2026-12-04
-  end: 2026-12-06
-  coc: https://pyconf.org/coc
-  sub: PY
-  note: CfP closed before Domain was registered.
-
-- conference: PyTennessee
-  alt_name: PyTN
-  year: 2026
-  link: https://pytn.org
-  cfp_link: https://sessionize.com/pytn-2026/
-  cfp: '2026-08-31 23:59:00'
-  timezone: America/Chicago
-  place: Online
-  start: 2026-10-20
-  end: 2026-10-20
-  sub: PY
