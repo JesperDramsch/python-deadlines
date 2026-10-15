@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Enrich TBA conferences with links found on their websites.
 
+A TBA conference is one whose cfp has no date: TBA, TBD, or None for an
+edition with no public CfP, whose links are still worth filling. A cancelled
+edition is left out.
+
 The enrichment is deterministic. It lists the links on each conference's
 homepage with lynx and matches them against known patterns:
 
@@ -89,7 +93,7 @@ def validate_field_value(field_name: str, value: str) -> tuple[bool, str]:
 
 
 def find_tba_conferences(data_path: Path | None = None) -> list[dict[str, Any]]:
-    """Find all conferences with TBA CFP deadlines.
+    """Find all conferences with TBA CFP deadlines, leaving out cancelled editions.
 
     Parameters
     ----------
@@ -116,7 +120,8 @@ def find_tba_conferences(data_path: Path | None = None) -> list[dict[str, Any]]:
     tba_conferences = []
     for conf in conferences:
         cfp = str(conf.get("cfp", "")).lower().strip()
-        if cfp in TBA_WORDS:
+        # A cancelled edition has nothing to enrich
+        if cfp in TBA_WORDS and cfp != "cancelled":
             tba_conferences.append(conf)
             logger.debug(f"Found TBA conference: {conf.get('conference')} {conf.get('year')}")
 
