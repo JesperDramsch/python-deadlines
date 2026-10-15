@@ -1787,9 +1787,42 @@ def test_unreadable_input_blocks_desk_runs_only(run_hook, tmp_path, raw):
 # --- registration ---
 
 
+# The command every matcher runs. A hook that exits 1 (a crash, or a Python too old to import it) is a
+# non-blocking error to Claude Code, so in desk runs the shell turns any failure into exit 2.
+HOOK_COMMAND = (
+    'python3 "${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py"'
+    ' || { rc=$?; [ "$DESK_ROUTINE" = 1 ] && exit 2; exit $rc; }'
+)
+
+
+@pytest.mark.parametrize(
+    ("hook_body", "desk", "expected"),
+    [
+        ("raise SystemExit(0)", True, 0),
+        ("raise SystemExit(0)", False, 0),
+        ("raise SystemExit(2)", True, 2),
+        ("raise SystemExit(2)", False, 2),
+        ("raise TypeError('crash at import')", True, 2),
+        ("raise TypeError('crash at import')", False, 1),
+        ("this is not python", True, 2),
+    ],
+)
+def test_hook_command_fails_closed_in_desk_runs_only(pytester, monkeypatch, tmp_path, hook_body, desk, expected):
+    hooks = tmp_path / ".claude" / "hooks"
+    hooks.mkdir(parents=True)
+    (hooks / "desk_guard.py").write_text(hook_body + "\n", encoding="utf-8")
+    monkeypatch.setenv("CLAUDE_PROJECT_DIR", str(tmp_path))
+    if desk:
+        monkeypatch.setenv("DESK_ROUTINE", "1")
+    else:
+        monkeypatch.delenv("DESK_ROUTINE", raising=False)
+    result = pytester.run("sh", "-c", HOOK_COMMAND, stdin=b"{}", timeout=30)
+    assert int(result.ret) == expected
+
+
 def test_settings_register_the_hook_for_every_matcher():
     groups = json.loads(SETTINGS.read_text(encoding="utf-8"))["hooks"]["PreToolUse"]
-    command = 'python3 "${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py"'
+    command = HOOK_COMMAND
     assert {group["matcher"] for group in groups} == {
         "Bash",
         "Edit|Write|MultiEdit|NotebookEdit",
@@ -1824,7 +1857,7 @@ def test_settings_send_agent_calls_to_the_hook(tool):
     matching = [group for group in groups if matcher_matches(group["matcher"], tool)]
     assert matching
     for group in matching:
-        assert any(hook["command"].endswith('/.claude/hooks/desk_guard.py"') for hook in group["hooks"])
+        assert any(hook["command"] == HOOK_COMMAND for hook in group["hooks"])
 
 
 def test_hook_imports_only_the_standard_library():

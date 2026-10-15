@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       },
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       },
@@ -24,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       },
@@ -33,7 +33,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       },
@@ -42,7 +42,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       }

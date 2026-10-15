@@ -6,8 +6,9 @@ MCP tool, before CronCreate, CronDelete, CronList, RemoteTrigger and ScheduleWak
 that starts a subagent, which older versions name Task (see ``.claude/settings.json``). It passes the call as
 JSON on stdin: ``tool_name``, ``tool_input``, ``cwd`` and, when a subagent makes the call, ``agent_id`` and the
 subagent's type as ``agent_type``. Exit code 2 blocks the call and the one-line reason on stderr is shown to the
-agent; exit code 0 lets the call through to the normal permission flow. A desk run is a session with
-``DESK_ROUTINE=1``.
+agent; exit code 0 lets the call through to the normal permission flow. Claude Code treats any other exit
+code as a non-blocking error, so in desk runs the settings command turns one, such as a crash on import, into
+exit code 2. A desk run is a session with ``DESK_ROUTINE=1``.
 
 Rules for every session:
 
@@ -139,6 +140,8 @@ limit, covered by the desk's own checks. Code a program runs on its own, such as
 either. The current branch comes from the repository's ``HEAD`` file. Unreadable hook
 input and internal errors block in a desk run and pass elsewhere. Only the Python standard library is used.
 """
+
+from __future__ import annotations
 
 import fnmatch
 import json
