@@ -642,6 +642,7 @@
   start: 2026-10-22
   end: 2026-10-23
   sponsor: https://www.python-summit.ch/sponsoring/
+  coc: https://www.python-summit.ch/coc/
   twitter: pythonsummit
   sub: PY,DATA
   note: 'Day 1: General Python Day; Day 2: Data Science Day'
