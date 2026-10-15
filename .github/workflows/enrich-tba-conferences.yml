@@ -51,7 +51,7 @@ jobs:
 
       # Before the branch setup, which runs utils/merge_data.py on a conflict
       - name: Setup Pixi
-        uses: prefix-dev/setup-pixi@v0.10.2
+        uses: prefix-dev/setup-pixi@v0.11.0
 
       - name: Setup accumulator branch
         id: setup
