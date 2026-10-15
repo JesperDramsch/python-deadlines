@@ -455,6 +455,24 @@
     latitude: 47.3615882
     longitude: 7.354445
 
+- conference: PyDay Santiago
+  alt_name: PyDay Chile Santiago
+  year: 2026
+  link: https://pyday.cl/santiago
+  cfp_link: https://sessionize.com/pyday-santiago-2026
+  cfp: '2026-05-08 23:59:00'
+  timezone: America/Santiago
+  place: Santiago, Chile
+  start: 2026-06-06
+  end: 2026-06-06
+  sponsor: https://pyday.cl/sponsors/
+  coc: https://pyday.cl/conduct/
+  sub: DAY
+  location:
+  - title: PyDay Santiago 2026
+    latitude: -33.4377756
+    longitude: -70.6504502
+
 - conference: PyData London
   year: 2026
   link: https://pydata.org/london2026
@@ -2010,6 +2028,21 @@
   - title: AfroPython Conf 2023
     latitude: -5.7944777
     longitude: -35.2119324
+
+- conference: PyDay Santiago
+  alt_name: PyDay Chile Santiago
+  year: 2025
+  link: https://sessionize.com/pyday-santiago-2025/
+  cfp: '2025-05-25 23:59:00'
+  timezone: America/Santiago
+  place: Santiago, Chile
+  start: 2025-06-06
+  end: 2025-06-06
+  sub: DAY
+  location:
+  - title: PyDay Santiago 2025
+    latitude: -33.4377756
+    longitude: -70.6504502
 
 - conference: PyData London
   year: 2025
