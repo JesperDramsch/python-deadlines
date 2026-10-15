@@ -98,7 +98,10 @@
   start: 2026-08-24
   end: 2026-08-28
   sponsor: https://2026.djangocon.us/sponsors/
+  finaid: https://2026.djangocon.us/opportunity-grants/
+  coc: https://2026.djangocon.us/conduct/
   mastodon: https://fosstodon.org/@djangocon
+  bluesky: https://bsky.app/profile/djangocon.us
   sub: WEB
   location:
   - title: DjangoCon US 2026
