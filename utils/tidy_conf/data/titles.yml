@@ -146,6 +146,16 @@ alt_name:
     - 'PyDay Mexico: CDMX'
     - PyDay CDMX
     - Python Day Mexico
+  PyDay Rancagua:
+    variations:
+    - PyDay Chile Rancagua
+  PyDay Santiago:
+    variations:
+    - PyDay Chile Santiago
+  PyDay Valparaiso:
+    variations:
+    - PyDay Chile Valparaiso
+    - PyDay Valparaíso
   PyDay Valparaiso:
     variations:
     - PyDay Chile Valparaiso
