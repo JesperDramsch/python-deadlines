@@ -1203,3 +1203,15 @@
   - title: PyDay Boyacá 2026
     latitude: 5.7148307
     longitude: -72.9279328
+
+- conference: PyConf
+  year: 2026
+  link: https://pyconf.org/
+  cfp_link: https://pyconf.org/cfp
+  cfp: '2026-08-31 23:59:00'
+  place: San Francisco, USA
+  start: 2026-12-04
+  end: 2026-12-06
+  coc: https://pyconf.org/coc
+  sub: PY
+  note: CfP closed before Domain was registered.
