@@ -14,14 +14,14 @@ Contributions are very welcome!
 
 To add or update a deadline:
 
--   Fork the repository
--   Update `_data/conferences.yml`
--   Make sure it has the `conference`, `year`, `link`, `cfp`, `place`, `sub` attributes
-    -   This [online web app](https://timezonefinder.michelfe.it/) makes it easy to find timezones – just click!
-        (Based on [timezonefinder](https://github.com/jannikmi/timezonefinder) library)
-    -   Alternatively, see available timezone strings [here](https://momentjs.com/timezone/).
--   Optionally add a `note`
--   Send a [pull request](_data/conferences.yml)
+- Fork the repository
+- Update `_data/conferences.yml`
+- Make sure it has the `conference`, `year`, `link`, `cfp`, `place`, `sub` attributes
+    - This [online web app](https://timezonefinder.michelfe.it/) makes it easy to find timezones – just click!
+      (Based on [timezonefinder](https://github.com/jannikmi/timezonefinder) library)
+    - Alternatively, see available timezone strings [here](https://momentjs.com/timezone/).
+- Optionally add a `note`
+- Send a [pull request](_data/conferences.yml)
 
 ### Examples
 
@@ -115,24 +115,24 @@ I mainly run the `main.py` and `sort_yaml.py` to get new entries and move old en
 
 ## Forks & other useful listings
 
--   [aideadlines][2] the original
--   [geodeadlin.es][3] by @LukasMosser
--   [neuro-deadlines][4] by @tbryn
--   [ai-challenge-deadlines][5] by @dieg0as
--   [CV-oriented ai-deadlines (with an emphasis on medical images)][8] by @duducheng
--   [es-deadlines (Embedded Systems, Computer Architecture, and Cyber-physical Systems)][9] by @AlexVonB and @k0nze
--   [2019-2020 International Conferences in AI, CV, DM, NLP and Robotics][10] by @JackieTseng
--   [ccf-deadlines][11] by @ccfddl
--   [networking-deadlines (Computer Networking, Measurement)][12] by @andrewcchu
--   [ad-deadlines.com][13] by @daniel-bogdoll
--   [sec-deadlines.github.io/ (Security and Privacy)][14] by @clementfung
--   [pythondeadlin.es][15] by @jesperdramsch
--   [deadlines.openlifescience.ai (Healthcare domain conferences and workshops)][16] by @monk1337
--   [hci-deadlines.github.io (Human-Computer Interaction conferences)][17] by @makinteract
--   [ds-deadlines.github.io (Distributed Systems, Event-based Systems, Performance, and Software Engineering conferences)][18] by @ds-deadlines
--   [https://deadlines.cpusec.org/ (Computer Architecture-Security conferences)][19] by @hoseinyavarzadeh
--   [se-deadlines.github.io (Software engineering conferences)][20] by @sivanahamer and @imranur-rahman
--   [awesome-mlss (Machine Learning Summer Schools)][21] by @sshkhr and @gmberton
+- [aideadlines][2] the original
+- [geodeadlin.es][3] by @LukasMosser
+- [neuro-deadlines][4] by @tbryn
+- [ai-challenge-deadlines][5] by @dieg0as
+- [CV-oriented ai-deadlines (with an emphasis on medical images)][8] by @duducheng
+- [es-deadlines (Embedded Systems, Computer Architecture, and Cyber-physical Systems)][9] by @AlexVonB and @k0nze
+- [2019-2020 International Conferences in AI, CV, DM, NLP and Robotics][10] by @JackieTseng
+- [ccf-deadlines][11] by @ccfddl
+- [networking-deadlines (Computer Networking, Measurement)][12] by @andrewcchu
+- [ad-deadlines.com][13] by @daniel-bogdoll
+- [sec-deadlines.github.io/ (Security and Privacy)][14] by @clementfung
+- [pythondeadlin.es][15] by @jesperdramsch
+- [deadlines.openlifescience.ai (Healthcare domain conferences and workshops)][16] by @monk1337
+- [hci-deadlines.github.io (Human-Computer Interaction conferences)][17] by @makinteract
+- [ds-deadlines.github.io (Distributed Systems, Event-based Systems, Performance, and Software Engineering conferences)][18] by @ds-deadlines
+- [https://deadlines.cpusec.org/ (Computer Architecture-Security conferences)][19] by @hoseinyavarzadeh
+- [se-deadlines.github.io (Software engineering conferences)][20] by @sivanahamer and @imranur-rahman
+- [awesome-mlss (Machine Learning Summer Schools)][21] by @sshkhr and @gmberton
 
 ## Testing
 
@@ -216,15 +216,15 @@ Python Deadlines is available in multiple languages to make Python conference in
 
 ### Currently Supported Languages
 
--   English (en)
--   Spanish (es)
--   German (de)
--   French (fr)
--   Portuguese (Brazilian) (pt-br)
--   Chinese (Simplified) (zh-cn)
--   Russian (ru)
--   Indonesian (id)
--   Hindi (hi)
+- English (en)
+- Spanish (es)
+- German (de)
+- French (fr)
+- Portuguese (Brazilian) (pt-br)
+- Chinese (Simplified) (zh-cn)
+- Russian (ru)
+- Indonesian (id)
+- Hindi (hi)
 
 ### Contributing to Translations
 
@@ -266,7 +266,7 @@ If you'd like to add support for a new language, please open an issue.
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/raviselker"><img src="https://avatars.githubusercontent.com/u/4669197?v=4?s=100" width="100px;" alt="Ravi Selker"/><br /><sub><b>Ravi Selker</b></sub></a><br /><a href="#conference-raviselker" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://bardiharborow.com/"><img src="https://avatars.githubusercontent.com/u/1073681?v=4?s=100" width="100px;" alt="Bardi Harborow"/><br /><sub><b>Bardi Harborow</b></sub></a><br /><a href="#conference-bardiharborow" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/coolandsmartrr"><img src="https://avatars.githubusercontent.com/u/905436?v=4?s=100" width="100px;" alt="Ricky"/><br /><sub><b>Ricky</b></sub></a><br /><a href="#conference-coolandsmartrr" title="Python conference (Added or updated)">📆</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://bruhin.software/"><img src="https://avatars.githubusercontent.com/u/625793?v=4?s=100" width="100px;" alt="Florian Bruhin"/><br /><sub><b>Florian Bruhin</b></sub></a><br /><a href="#conference-The-Compiler" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://bruhin.software/"><img src="https://avatars.githubusercontent.com/u/625793?v=4?s=100" width="100px;" alt="Freya Bruhin"/><br /><sub><b>Freya Bruhin</b></sub></a><br /><a href="#conference-The-Compiler" title="Python conference (Added or updated)">📆</a></td>
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jungmir"><img src="https://avatars.githubusercontent.com/u/61821253?v=4?s=100" width="100px;" alt="jungmir"/><br /><sub><b>jungmir</b></sub></a><br /><a href="#conference-jungmir" title="Python conference (Added or updated)">📆</a></td>
@@ -290,7 +290,7 @@ This project is licensed under [MIT][1].
 
 It uses:
 
--   [IcoMoon Icons](https://icomoon.io/#icons-icomoon): [GPL](http://www.gnu.org/licenses/gpl.html) / [CC BY4.0](http://creativecommons.org/licenses/by/4.0/)
+- [IcoMoon Icons](https://icomoon.io/#icons-icomoon): [GPL](http://www.gnu.org/licenses/gpl.html) / [CC BY4.0](http://creativecommons.org/licenses/by/4.0/)
 
 [1]: https://abhshkdz.mit-license.org/
 [2]: http://aideadlin.es/
