@@ -31,6 +31,9 @@ except ImportError:
     from .tidy_conf.yaml import load_title_mappings
     from .tidy_conf.yaml import write_df_yaml
 
+# Recorded with merge questions handed to the desk queue
+SOURCE_NAME = "python-organizers"
+
 
 def load_remote(year: int) -> pd.DataFrame:
     """Load conference data from GitHub CSV for a specific year.
@@ -314,7 +317,7 @@ def main(year: int | None = None, base: str = "") -> None:
             f"Year {y}: df_yml_year shape: {df_yml_year.shape}, df_csv_year shape: {df_csv_year.shape}",
         )
 
-        df_merged, df_remote, merge_report = fuzzy_match(df_yml_year, df_csv_year)
+        df_merged, df_remote, merge_report = fuzzy_match(df_yml_year, df_csv_year, source_name=SOURCE_NAME)
         logger.info(
             f"Merge report: {merge_report.exact_matches} exact, "
             f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
@@ -333,7 +336,7 @@ def main(year: int | None = None, base: str = "") -> None:
             f"After deduplication - df_merged: {df_merged.shape}, df_remote: {df_remote.shape}",
         )
 
-        df_merged = merge_conferences(df_merged, df_remote)
+        df_merged = merge_conferences(df_merged, df_remote, source_name=SOURCE_NAME)
         logger.info(
             f"Merge conferences completed for year {y}. Final shape: {df_merged.shape}",
         )

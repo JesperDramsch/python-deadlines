@@ -29,6 +29,8 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  # actions: write lets the job start the TBA enrichment run
+  actions: write
   contents: write
   pull-requests: write
 
@@ -125,6 +127,9 @@ jobs:
         id: merge
         env:
           SOURCE: ${{ steps.source.outputs.source }}
+          # Questions the merge would ask a person are answered with their
+          # default here and written to this file for the desk to check.
+          DESK_QUEUE_OUT: ${{ runner.temp }}/desk-records.jsonl
         run: |
           echo "::group::Running merge for source: $SOURCE"
 
@@ -149,6 +154,15 @@ jobs:
 
           # Capture which source was processed for commit message
           echo "source_label=$SOURCE" >> $GITHUB_OUTPUT
+
+      # A queue problem must not hold back the data merge.
+      - name: Queue the merge's open questions for the desk
+        if: inputs.dry_run != true
+        continue-on-error: true
+        uses: ./.github/actions/desk-queue-write
+        with:
+          records: ${{ runner.temp }}/desk-records.jsonl
+          message: "Queue merge questions from canonical source ${{ steps.source.outputs.source }}"
 
       - name: Verify no conference data loss
         run: |
@@ -302,7 +316,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "::notice title=Triggering TBA Enrichment::Starting TBA conference enrichment workflow"
-          gh workflow run enrich-tba-conferences.yml -f enrichment_level=full || {
+          gh workflow run enrich-tba-conferences.yml || {
             echo "::warning title=Trigger Failed::Could not trigger TBA enrichment workflow"
           }
 

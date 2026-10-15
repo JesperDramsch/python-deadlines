@@ -1,5 +1,3 @@
-import json
-import os
 import re
 import time
 from datetime import datetime
@@ -10,6 +8,15 @@ from urllib.parse import urlparse
 
 import requests
 from tqdm import tqdm
+
+try:
+    from tidy_conf.queue_out import QUEUE_OUT_ENV
+    from tidy_conf.queue_out import append_queue_record
+    from tidy_conf.queue_out import utc_now
+except ImportError:
+    from .queue_out import QUEUE_OUT_ENV
+    from .queue_out import append_queue_record
+    from .queue_out import utc_now
 
 # Sub-page link fields that must point somewhere other than the main link.
 # A cfp_link/sponsor/finaid that is just the homepage again carries no
@@ -73,11 +80,8 @@ URL_SHORTENERS = frozenset({"bit.ly", "goo.gl", "tinyurl.com"})
 REDIRECT_RECORDS: list[dict] = []
 
 # When this environment variable names a file, every redirect record is also
-# appended to it as one JSON object per line, for a later job to pick up. The
-# lines are not complete queue items: the queue writer assigns each item its
-# "id" and the series key of the file it goes in when it adds the line, so
-# both are defined in one place.
-REDIRECT_RECORDS_ENV = "DESK_QUEUE_OUT"
+# appended to it as one JSON line for the desk queue (see queue_out.py).
+REDIRECT_RECORDS_ENV = QUEUE_OUT_ENV
 
 
 def normalize_url_pointer(url: str) -> tuple:
@@ -260,7 +264,7 @@ def record_redirect(
     record = {
         "source": "link-check",
         "kind": "redirect",
-        "received": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "received": utc_now(),
         "title": conference or url,
         "url": url,
         "year": year,
@@ -273,13 +277,7 @@ def record_redirect(
         },
     }
     REDIRECT_RECORDS.append(record)
-
-    out_path = os.environ.get(REDIRECT_RECORDS_ENV)
-    if out_path:
-        out_file = Path(out_path)
-        out_file.parent.mkdir(parents=True, exist_ok=True)
-        with out_file.open("a", encoding="utf-8", newline="\n") as f:
-            f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+    append_queue_record(record)
     return record
 
 

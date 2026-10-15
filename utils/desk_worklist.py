@@ -54,6 +54,8 @@ try:
     from cfp_candidates import find_candidates
     from cfp_candidates import load_data
     from cfp_candidates import series_key
+    from desk_queue import clean_watch_title
+    from desk_queue import record_names
     from sort_yaml import DATEFORMAT
     from sort_yaml import DEFAULT_CFP_TIME
     from tidy_conf.titles import normalize_conference_name
@@ -63,6 +65,8 @@ except ImportError:
     from .cfp_candidates import find_candidates
     from .cfp_candidates import load_data
     from .cfp_candidates import series_key
+    from .desk_queue import clean_watch_title
+    from .desk_queue import record_names
     from .sort_yaml import DATEFORMAT
     from .sort_yaml import DEFAULT_CFP_TIME
     from .tidy_conf.titles import normalize_conference_name
@@ -94,33 +98,8 @@ ROTATION_CFP = ("tba", "tbd")
 ROTATION_DAYS = 7
 AOE = timezone(timedelta(hours=-12), "AoE")
 
-WATCH_PREFIX = re.compile(r"^\s*\[conference\]\s*", re.IGNORECASE)
-WATCH_SUFFIX = re.compile(r"\s+(?:(?P<year>\d{4})\s+)?-\s+(?:main|cfp)\s*$", re.IGNORECASE)
 DATED = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?$")
 UTC_OFFSET = re.compile(r"^UTC([+-])(\d{1,2})$")
-
-
-def clean_watch_title(title: str) -> tuple[str, int | None]:
-    """Strip the decoration a changedetection watch title carries.
-
-    Parameters
-    ----------
-    title : str
-        Raw title, e.g. "[Conference] PyCon Greece 2027 - Main".
-
-    Returns
-    -------
-    tuple[str, int | None]
-        The bare name ("PyCon Greece") and the year from the suffix, if any.
-    """
-    name = WATCH_PREFIX.sub("", title)
-    year = None
-    match = WATCH_SUFFIX.search(name)
-    if match:
-        name = name[: match.start()]
-        if match["year"]:
-            year = int(match["year"])
-    return name.strip(), year
 
 
 def rotation_slot(text: str) -> int:
@@ -431,24 +410,12 @@ def _index(data: dict[str, list[dict]], known_mappings: dict) -> tuple[dict, dic
     return editions, lookup
 
 
-def _queue_names(item: dict, payload: dict) -> list[str]:
+def _queue_names(item: dict) -> list[str]:
     """Return the names a queue item can be matched by, most specific first."""
-    raw = []
-    matched = payload.get("matched")
-    if item.get("kind") == "candidate" and payload.get("classification") == "MISSING_EDITION":
-        raw.append(matched.get("conference") if isinstance(matched, dict) else None)
-    raw.append(payload.get("conference"))
-    fields = payload.get("fields")
-    if isinstance(fields, dict):
-        raw.append(fields.get("conference"))
-    if isinstance(payload.get("names"), list):
-        raw.extend(payload["names"])
-    raw.extend((item.get("title"), item.get("series")))
-    names = []
-    for value in raw:
-        if not isinstance(value, str):
-            continue
-        name = clean_watch_title(value)[0]
+    names = record_names(item)
+    series = item.get("series")
+    if isinstance(series, str):
+        name = clean_watch_title(series)[0]
         if name and name not in names:
             names.append(name)
     if not names and isinstance(item.get("file"), str):
@@ -521,7 +488,7 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
     payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
     reason = kind if kind in QUEUE_KINDS else "signal"
     year = _queue_year(item, payload)
-    name, matches = _match(_queue_names(item, payload), lookup, known_mappings)
+    name, matches = _match(_queue_names(item), lookup, known_mappings)
     upcoming = {key: [e for path, e in editions[key] if path == DATA_PATHS["conferences"]] for key in matches}
 
     if not matches:
