@@ -388,12 +388,13 @@
 
 - conference: PyCon Singapore
   year: 2026
-  link: http://pycon.sg/
+  link: https://pycon.sg/
   cfp: TBA
   place: Singapore, Singapore
   start: 2026-06-19
   end: 2026-06-21
-  sponsor: http://pycon.sg/index.html#sponsors
+  sponsor: https://pycon.sg/index.html#sponsors
+  coc: https://pycon.sg/coc.html
   sub: PY
   location:
   - title: PyCon Singapore 2026
