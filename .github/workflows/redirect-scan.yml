@@ -1,0 +1,67 @@
+name: Redirect Scan
+
+# Weekly and report-only. Runs the link check over the data and queues every
+# link that now redirects to a different site, for the desk to judge: a series
+# that moved to a new domain gets its link updated, a lapsed or hijacked domain
+# gets an archived copy. A 200 from another site is not a healthy link, and
+# lychee in link-check.yml cannot tell the two apart.
+#
+# Nothing is committed here. The link check's other edits (archived copies of
+# dead links, same-site redirects) stay with the data writers. As it always
+# does, the check also asks the Wayback Machine to save the pages of upcoming
+# conferences.
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'  # Sundays 03:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: redirect-scan
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.10.2
+
+      # Below the job timeout, so a slow scan still queues what it found.
+      - name: Check links
+        timeout-minutes: 150
+        env:
+          DESK_QUEUE_OUT: ${{ runner.temp }}/desk-records.jsonl
+        run: pixi run links
+
+      # Redirects found before a failure are still worth queueing.
+      - name: Write to the desk queue
+        id: queue
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/desk-queue-write
+        with:
+          records: ${{ runner.temp }}/desk-records.jsonl
+          message: Queue links that redirect to other sites
+
+      - name: Summary
+        if: ${{ !cancelled() }}
+        env:
+          RECORDS: ${{ runner.temp }}/desk-records.jsonl
+          ADDED: ${{ steps.queue.outputs.added }}
+        run: |
+          FOUND=0
+          if [ -s "$RECORDS" ]; then
+            FOUND=$(wc -l < "$RECORDS")
+          fi
+          echo "## Redirect scan" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Links redirecting to another site: $FOUND" >> "$GITHUB_STEP_SUMMARY"
+          echo "- New in the desk queue: ${ADDED:-0}" >> "$GITHUB_STEP_SUMMARY"

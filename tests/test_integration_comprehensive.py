@@ -277,6 +277,7 @@ class TestEndToEndPipeline:
                 "cfp_link": "https://cfp-link.com",
                 "sponsor": "https://sponsor-link.com",
                 "finaid": "https://finaid-link.com",
+                "coc": "https://coc-link.com",
                 "start": "2025-06-01",
             },
         ]
@@ -289,9 +290,10 @@ class TestEndToEndPipeline:
         assert result[0]["cfp_link"] == "https://updated-link.com"
         assert result[0]["sponsor"] == "https://updated-link.com"
         assert result[0]["finaid"] == "https://updated-link.com"
+        assert result[0]["coc"] == "https://updated-link.com"
 
-        # Should have checked all 4 links
-        assert mock_check_link.call_count == 4
+        # Should have checked all 5 links
+        assert mock_check_link.call_count == 5
 
 
 class TestDataConsistency:

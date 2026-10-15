@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """Build the deadline desk's daily worklist as JSON.
 
-Every piece of work is routed to one skill: ``enricher`` for a series with an
-entry in _data/conferences.yml, ``new-year-checker`` for a series known only
-from _data/archive.yml or _data/legacy.yml, and ``scouter`` for anything else.
-Work comes from four places, in this order in the output:
+Every piece of work is routed to one skill: ``enricher`` for an edition the
+data holds, ``new-year-checker`` for a tracked series whose edition the data
+lacks, and ``scouter`` for a series the data does not track. A signal goes to
+the enricher with the series' entry in _data/conferences.yml, or to the
+new-year-checker when the series is known only from _data/archive.yml or
+_data/legacy.yml. A candidate goes to the enricher when any of the three files
+holds the edition for its year, past editions included, else to the
+new-year-checker. Questions, redirects and drift always go to the enricher,
+registry changes to the scouter. Work comes from four places, in this order
+in the output:
 
 1. Deadline checks: entries whose effective deadline (cfp_ext, else cfp) fell
    1, 3 or 7 days before today. The deadline is read in the entry's timezone
@@ -14,9 +20,13 @@ Work comes from four places, in this order in the output:
 2. Queue items read from a checkout of the desk-queue branch, matched to a
    series by name the way cfp_candidates.py matches: after
    normalize_conference_name and the titles.yml mappings, ignoring case,
-   accents and whitespace. A matched item takes the year of the entry it is
-   bound to: the entry for its own year, else the next edition that has not
-   ended. A differing queue year is kept in context["queue_year"].
+   accents and whitespace. An enricher item takes the year of the entry it
+   is bound to: the entry for its own year, else the next edition that has
+   not ended. For the new-year-checker, year is the edition the data lacks,
+   and null means the next one, so a queue year naming an edition the data
+   holds gives a null year. A queue year that differs from the item's year
+   is kept in context["queue_year"]. Items whose next_check is a date after
+   today are left out until that date.
 3. Rotations: entries whose cfp is TBA or TBD (not None, which means no public
    CfP, or Cancelled) and stale series from cfp_candidates.py,
    each picked on one weekday in seven by a hash of its name.
@@ -54,6 +64,8 @@ try:
     from cfp_candidates import find_candidates
     from cfp_candidates import load_data
     from cfp_candidates import series_key
+    from desk_queue import clean_watch_title
+    from desk_queue import record_names
     from sort_yaml import DATEFORMAT
     from sort_yaml import DEFAULT_CFP_TIME
     from tidy_conf.titles import normalize_conference_name
@@ -63,6 +75,8 @@ except ImportError:
     from .cfp_candidates import find_candidates
     from .cfp_candidates import load_data
     from .cfp_candidates import series_key
+    from .desk_queue import clean_watch_title
+    from .desk_queue import record_names
     from .sort_yaml import DATEFORMAT
     from .sort_yaml import DEFAULT_CFP_TIME
     from .tidy_conf.titles import normalize_conference_name
@@ -87,6 +101,8 @@ REASONS = (
 )
 QUEUE_KINDS = ("signal", "question", "redirect", "drift", "candidate", "registry")
 ENRICHER_KINDS = ("question", "redirect", "drift")
+# A candidate whose names match one series is routed by the editions the data
+# holds. When they match several, the writer's classification decides.
 CANDIDATE_SKILLS = {"MISSING_EDITION": "new-year-checker", "NEW_SERIES": "scouter", "MAYBE": "scouter"}
 CHECK_DAYS = (1, 3, 7)
 # cfp values that mean the deadline is still to come. None (no public CfP) and Cancelled are settled.
@@ -94,33 +110,9 @@ ROTATION_CFP = ("tba", "tbd")
 ROTATION_DAYS = 7
 AOE = timezone(timedelta(hours=-12), "AoE")
 
-WATCH_PREFIX = re.compile(r"^\s*\[conference\]\s*", re.IGNORECASE)
-WATCH_SUFFIX = re.compile(r"\s+(?:(?P<year>\d{4})\s+)?-\s+(?:main|cfp)\s*$", re.IGNORECASE)
 DATED = re.compile(r"^\d{4}-\d{2}-\d{2}( \d{2}:\d{2}:\d{2})?$")
+DAY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 UTC_OFFSET = re.compile(r"^UTC([+-])(\d{1,2})$")
-
-
-def clean_watch_title(title: str) -> tuple[str, int | None]:
-    """Strip the decoration a changedetection watch title carries.
-
-    Parameters
-    ----------
-    title : str
-        Raw title, e.g. "[Conference] PyCon Greece 2027 - Main".
-
-    Returns
-    -------
-    tuple[str, int | None]
-        The bare name ("PyCon Greece") and the year from the suffix, if any.
-    """
-    name = WATCH_PREFIX.sub("", title)
-    year = None
-    match = WATCH_SUFFIX.search(name)
-    if match:
-        name = name[: match.start()]
-        if match["year"]:
-            year = int(match["year"])
-    return name.strip(), year
 
 
 def rotation_slot(text: str) -> int:
@@ -431,24 +423,12 @@ def _index(data: dict[str, list[dict]], known_mappings: dict) -> tuple[dict, dic
     return editions, lookup
 
 
-def _queue_names(item: dict, payload: dict) -> list[str]:
+def _queue_names(item: dict) -> list[str]:
     """Return the names a queue item can be matched by, most specific first."""
-    raw = []
-    matched = payload.get("matched")
-    if item.get("kind") == "candidate" and payload.get("classification") == "MISSING_EDITION":
-        raw.append(matched.get("conference") if isinstance(matched, dict) else None)
-    raw.append(payload.get("conference"))
-    fields = payload.get("fields")
-    if isinstance(fields, dict):
-        raw.append(fields.get("conference"))
-    if isinstance(payload.get("names"), list):
-        raw.extend(payload["names"])
-    raw.extend((item.get("title"), item.get("series")))
-    names = []
-    for value in raw:
-        if not isinstance(value, str):
-            continue
-        name = clean_watch_title(value)[0]
+    names = record_names(item)
+    series = item.get("series")
+    if isinstance(series, str):
+        name = clean_watch_title(series)[0]
         if name and name not in names:
             names.append(name)
     if not names and isinstance(item.get("file"), str):
@@ -496,6 +476,20 @@ def _pick_upcoming(upcoming: list[dict], year: int | None, today: date) -> dict:
     return max(upcoming, key=_edition_order)
 
 
+def _snoozed(item: dict, today: date) -> bool:
+    """Return True when a queue item's next_check is a date after today.
+
+    A missing or invalid next_check means the item is due.
+    """
+    value = item.get("next_check")
+    if not isinstance(value, str) or not DAY.match(value):
+        return False
+    try:
+        return date.fromisoformat(value) > today
+    except ValueError:
+        return False
+
+
 def _edition_for(editions: list[tuple[str, dict]], year: int | None) -> dict | None:
     """Return a series' edition for the year, from conferences.yml first, or None."""
     if year is None:
@@ -509,9 +503,20 @@ def _edition_for(editions: list[tuple[str, dict]], year: int | None) -> dict | N
 def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: dict, today: date) -> dict:
     """Turn one queue item into a worklist item.
 
-    A matched item takes its year from the entry it is bound to. Watch titles keep the year
-    of the edition they were created for, so a queue year that names no upcoming entry, or
-    an edition the new-year-checker already has, is moved to context["queue_year"].
+    An enricher item takes its year from the entry it is bound to. Watch titles keep the year
+    of the edition they were created for, so a queue year that names no upcoming entry is
+    moved to context["queue_year"].
+
+    For the new-year-checker, year is the edition the data lacks, and null means the next
+    one. A queue year naming an edition no data file holds stays the item's year, past
+    editions included, so each missing edition is its own item and never merges with the
+    series' stale-series item. A queue year naming an edition the data holds is moved to
+    context["queue_year"] with a null year, so the item merges with the stale-series item.
+
+    A candidate is routed by this match, whatever its classification: to the enricher with
+    the edition for its year when any data file holds it, else to the new-year-checker, and
+    to the scouter when nothing matches. Only a candidate matching several series is
+    routed by its classification (CANDIDATE_SKILLS).
 
     A question, redirect or drift always goes to the enricher. When its series has no
     upcoming entry, the item is bound to the edition for its year in any data file, and
@@ -521,7 +526,7 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
     payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
     reason = kind if kind in QUEUE_KINDS else "signal"
     year = _queue_year(item, payload)
-    name, matches = _match(_queue_names(item, payload), lookup, known_mappings)
+    name, matches = _match(_queue_names(item), lookup, known_mappings)
     upcoming = {key: [e for path, e in editions[key] if path == DATA_PATHS["conferences"]] for key in matches}
 
     if not matches:
@@ -534,7 +539,7 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
         skill = "enricher"
     elif kind == "registry":
         skill = "scouter"
-    elif kind == "candidate":
+    elif kind == "candidate" and len(matches) > 1:
         skill = CANDIDATE_SKILLS.get(payload.get("classification"), skill)
 
     refs = [{"file": item.get("file"), "id": item.get("id")}]
@@ -562,6 +567,11 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
         )
 
     key = matches[0]
+    if kind == "candidate":
+        edition = _edition_for(editions[key], year)
+        if edition is not None:
+            return _new_item("enricher", reason, edition.get("conference"), year, entry=edition, queue_refs=refs)
+        skill = "new-year-checker"
     latest = max(editions[key], key=lambda edition: _edition_order(edition[1]))[1]
     chosen = _pick_upcoming(upcoming[key], year, today) if upcoming[key] else None
     conference = (chosen or latest).get("conference")
@@ -571,7 +581,7 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
         return _new_item(skill, reason, conference, entry_year, entry=chosen, queue_refs=refs, context=context)
     if skill == "new-year-checker":
         context = {}
-        if year is not None and year <= (_as_year(latest.get("year")) or 0):
+        if _edition_for(editions[key], year) is not None:
             context, year = {"queue_year": year}, None
         return _new_item(skill, reason, conference, year, latest_edition=latest, queue_refs=refs, context=context)
     if skill == "enricher":
@@ -622,7 +632,8 @@ def build_worklist(
         Entries keyed "conferences", "archive" and "legacy", as from cfp_candidates.load_data.
     queue_items : Iterable[dict]
         Queue items as from load_queue: the queue schema fields plus "file"
-        ("queue/<key>.json") and "series" (the file's series name).
+        ("queue/<key>.json") and "series" (the file's series name). Items
+        whose "next_check" is a date after today are left out.
     today : date
         The UTC date the worklist is for.
     scout : bool
@@ -643,7 +654,8 @@ def build_worklist(
     editions, lookup = _index(data, known_mappings)
 
     items = deadline_checks(conferences, today)
-    queue_order = sorted(queue_items, key=lambda q: (str(q.get("file")), str(q.get("received")), str(q.get("id"))))
+    due = [queue_item for queue_item in queue_items if not _snoozed(queue_item, today)]
+    queue_order = sorted(due, key=lambda q: (str(q.get("file")), str(q.get("received")), str(q.get("id"))))
     items.extend(_route_queue_item(queue_item, editions, lookup, known_mappings, today) for queue_item in queue_order)
     items.extend(tba_rotation(conferences, today))
     items.extend(stale_series(data, today, known_mappings))

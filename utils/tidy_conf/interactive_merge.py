@@ -10,15 +10,19 @@ Merge Strategy:
 import contextlib
 import logging
 from collections import defaultdict
+from collections.abc import Iterable
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
+import yaml
 from thefuzz import fuzz
 from thefuzz import process
 
 try:
-    from tidy_conf.countries import COUNTRY_NORMALIZATION
     from tidy_conf.countries import normalize_place
     from tidy_conf.schema import get_schema
+    from tidy_conf.titles import normalize_conference_name
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import fold_name
     from tidy_conf.utils import query_yes_no
@@ -30,9 +34,9 @@ try:
     from tidy_conf.yaml import load_title_mappings
     from tidy_conf.yaml import update_title_mappings
 except ImportError:
-    from .countries import COUNTRY_NORMALIZATION
     from .countries import normalize_place
     from .schema import get_schema
+    from .titles import normalize_conference_name
     from .titles import tidy_df_names
     from .utils import fold_name
     from .utils import query_yes_no
@@ -99,6 +103,216 @@ def is_placeholder_value(value) -> bool:
         return False
     stripped = str(value).strip().upper()
     return stripped in ("TBA", "TBD", "NONE", "N/A", "") or not stripped
+
+
+def _row_year(row) -> int | None:
+    """Return a merge row's edition year as an int, or None."""
+    for key in ("year", "year_x", "year_y"):
+        value = row.get(key) if key in row.index else None
+        if value is None or pd.isna(value):
+            continue
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _row_link(row) -> str:
+    """Return a merge row's main link, preferring the YAML side, or ""."""
+    for key in ("link", "link_x", "link_y"):
+        value = row.get(key) if key in row.index else None
+        if isinstance(value, str) and value:
+            return value
+    return ""
+
+
+# The text of every query_yes_no prompt below, values included, goes into the id
+# of the queue item it becomes (tidy_conf.utils.record_question). Rewording a
+# prompt therefore queues every standing question again, once.
+def _question_context(row, conference, field, yaml_value, remote_value, source_name) -> dict:
+    """Describe a merge question for the desk (see tidy_conf.utils.record_question)."""
+    return {
+        "conference": conference,
+        "year": _row_year(row),
+        "field": field,
+        "yaml_value": yaml_value,
+        "remote_value": remote_value,
+        "source_name": source_name,
+        "url": _row_link(row),
+    }
+
+
+def is_empty_value(value: Any) -> bool:
+    """Check whether a merge value holds nothing.
+
+    None, NaN, a blank string and an empty list or mapping are empty. A list
+    is never passed to pd.isnull, which returns an array for it.
+
+    Parameters
+    ----------
+    value : Any
+        Value of one field of a merge row
+
+    Returns
+    -------
+    bool
+        True if the value holds nothing
+    """
+    if isinstance(value, list | tuple | dict):
+        return len(value) == 0
+    if isinstance(value, str):
+        return not value.strip()
+    return value is None or bool(pd.isna(value))
+
+
+def merge_container_values(
+    yaml_value: Any,
+    remote_value: Any,
+    column: str,
+    conference: str,
+    logger: logging.Logger,
+) -> Any:
+    """Merge a field that holds a list or a mapping, such as extra_places or location.
+
+    The YAML value is kept when it holds anything, and the remote value is
+    taken only when the YAML value is empty. Different values are logged.
+
+    Parameters
+    ----------
+    yaml_value : Any
+        Value from the YAML source (source of truth)
+    remote_value : Any
+        Value from the remote source
+    column : str
+        Field name, for the log
+    conference : str
+        Conference name, for the log
+    logger : logging.Logger
+        Logger for the conflict message
+
+    Returns
+    -------
+    Any
+        The value to keep
+    """
+    if is_empty_value(remote_value):
+        return yaml_value
+    if is_empty_value(yaml_value):
+        return remote_value
+    if yaml_value != remote_value:
+        logger.info(
+            f"Conflict [{conference}][{column}]: YAML={yaml_value!r} vs Remote={remote_value!r} -> keeping YAML",
+        )
+    return yaml_value
+
+
+def carry_over_earlier_editions(df_new: pd.DataFrame, path: Path | str, year: int) -> pd.DataFrame:
+    """Add the editions before ``year`` that the file at ``path`` holds.
+
+    Both importers rebuild conferences.yml from the editions of ``year`` and
+    later. In January, last year's editions are still in conferences.yml,
+    since the sort archives an edition only weeks after it ends. Rebuilding
+    the file without them would delete them, so they are carried over
+    unchanged and the sort archives them on schedule. Only this file is
+    read: the importers do not rebuild archive.yml or legacy.yml.
+
+    Parameters
+    ----------
+    df_new : pd.DataFrame
+        Rows the importer is about to write to ``path``
+    path : Path | str
+        The conferences.yml the importer overwrites
+    year : int
+        First year of the import
+
+    Returns
+    -------
+    pd.DataFrame
+        ``df_new`` with the earlier editions at the end
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        with Path(path).open(encoding="utf-8") as file:
+            entries = yaml.safe_load(file) or []
+    except FileNotFoundError:
+        return df_new
+    earlier = pd.DataFrame.from_dict(entries)
+    if earlier.empty or "year" not in earlier.columns:
+        return df_new
+    earlier = earlier[pd.to_numeric(earlier["year"], errors="coerce") < year]
+    if earlier.empty:
+        return df_new
+    logger.info(f"Carrying over {len(earlier)} editions from before {year} in {path}")
+    return pd.concat([df_new, earlier], ignore_index=True)
+
+
+def apply_alt_names(
+    df_yml: pd.DataFrame,
+    df_remote: pd.DataFrame,
+    known_names: Iterable[str] | None = None,
+) -> pd.DataFrame:
+    """Give remote rows named by a YAML entry's alt_name that entry's name.
+
+    A remote source may use a series' alternative name ("XtremePython" for the
+    entry "Xtreme Python" with that alt_name). Matching on conference names
+    alone would then add the edition a second time under the other name.
+    An alt_name shared by entries with different names is ambiguous and left
+    to the usual matching. A remote name that is itself the name of a series
+    in any year ("PyHEP" is a series of its own as well as the alt_name of
+    PyHEP.dev) is renamed only when the row starts on the same day as the
+    entry with that alt_name, which makes it the same edition.
+
+    Parameters
+    ----------
+    df_yml : pd.DataFrame
+        YAML rows, with "conference" and optionally "alt_name"
+    df_remote : pd.DataFrame
+        Remote rows, with "conference"
+    known_names : Iterable[str], optional
+        Series names from every year of the data, when df_yml holds only one
+
+    Returns
+    -------
+    pd.DataFrame
+        A copy of df_remote with the matching names replaced
+    """
+    if "alt_name" not in df_yml.columns or df_yml.empty or df_remote.empty:
+        return df_remote
+    _, known_mappings = load_title_mappings(reverse=True)
+    extra = [] if known_names is None else list(known_names)
+    names = [name for name in [*df_yml["conference"], *extra] if isinstance(name, str)]
+    yaml_names = {fold_name(name) for name in names}
+    yaml_names |= {fold_name(normalize_conference_name(name, known_mappings)) for name in names}
+    by_alt: dict[str, set[str]] = defaultdict(set)
+    starts: dict[str, set[str]] = defaultdict(set)
+    yaml_starts = df_yml["start"] if "start" in df_yml.columns else [None] * len(df_yml)
+    for name, alt, start in zip(df_yml["conference"], df_yml["alt_name"], yaml_starts, strict=False):
+        if not (isinstance(name, str) and isinstance(alt, str) and alt.strip()):
+            continue
+        by_alt[fold_name(alt)].add(name)
+        by_alt[fold_name(normalize_conference_name(alt, known_mappings))].add(name)
+        if start is not None and not pd.isna(start):
+            starts[name].add(str(start)[:10])
+
+    def rename(row):
+        remote_name = row["conference"]
+        if not isinstance(remote_name, str):
+            return remote_name
+        key = fold_name(remote_name)
+        names = by_alt.get(key, set())
+        if len(names) != 1:
+            return remote_name
+        name = next(iter(names))
+        if key in yaml_names:
+            start = row.get("start")
+            if start is None or pd.isna(start) or str(start)[:10] not in starts[name]:
+                return remote_name
+        return name
+
+    df_remote = df_remote.copy()
+    df_remote["conference"] = df_remote.apply(rename, axis=1)
+    return df_remote
 
 
 def resolve_conflict(
@@ -206,6 +420,8 @@ def fuzzy_match(
     df_yml: pd.DataFrame,
     df_remote: pd.DataFrame,
     report: MergeReport | None = None,
+    source_name: str | None = None,
+    known_names: Iterable[str] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, MergeReport]:
     """Fuzzy merge conferences from two pandas dataframes on title.
 
@@ -224,6 +440,12 @@ def fuzzy_match(
         Remote source DataFrame (CSV or ICS)
     report : MergeReport, optional
         Merge report for tracking operations
+    source_name : str, optional
+        Name of the remote source, recorded with questions asked where no
+        one can answer them
+    known_names : Iterable[str], optional
+        Series names from every year of the data, so a remote name that is
+        a series of its own is never taken for another series' alt_name
 
     Returns
     -------
@@ -252,6 +474,7 @@ def fuzzy_match(
     # Tidy conference names
     df_yml = tidy_df_names(df_yml)
     df_remote = tidy_df_names(df_remote)
+    df_remote = apply_alt_names(df_yml, df_remote, known_names)
 
     # Log state after tidying
     log_dataframe_state(df_yml, "df_yml after tidy_df_names")
@@ -397,6 +620,7 @@ def fuzzy_match(
             # Prompt user for fuzzy matches that aren't excluded
             elif not query_yes_no(
                 f"Do '{row['conference']}' and '{title}' match? (y/n): ",
+                context=_question_context(row, conference_name, "conference", row["conference"], title, source_name),
             ):
                 logger.info(
                     f"Fuzzy match rejected: '{conference_name}' vs '{title}' (score: {prob})",
@@ -476,6 +700,7 @@ def merge_conferences(
     df_yml: pd.DataFrame,
     df_remote: pd.DataFrame,
     report: MergeReport | None = None,
+    source_name: str | None = None,
 ) -> pd.DataFrame:
     """Merge two dataframes on title and interactively resolve conflicts.
 
@@ -493,6 +718,9 @@ def merge_conferences(
         Remote source DataFrame
     report : MergeReport, optional
         Merge report for tracking operations
+    source_name : str, optional
+        Name of the remote source, recorded with questions asked where no
+        one can answer them
 
     Returns
     -------
@@ -528,12 +756,6 @@ def merge_conferences(
     with contextlib.suppress(KeyError):
         logger.debug("Dropping 'conference' column from df_remote")
         df_remote = df_remote.drop(["conference"], axis=1)
-
-    # Use centralized country normalization mappings
-    # This ensures consistency with the rest of the codebase
-    # Note: For place fields, we use normalize_place() which uses PLACE_COUNTRY_NORMALIZATION
-    # For other fields, we use COUNTRY_NORMALIZATION (substring replacement)
-    replacements = COUNTRY_NORMALIZATION
 
     logger.info("Performing pandas merge on 'title_match'")
     df_merge = pd.merge(
@@ -574,20 +796,19 @@ def merge_conferences(
             # print(i,cx,cy,cx in df_merge.columns and cy in df_merge.columns,column in df_merge.columns,)
             if cx in df_merge.columns and cy in df_merge.columns:
                 rx, ry = row[cx], row[cy]
-                # For place fields, use the dedicated normalize_place function
-                # This prevents the "US of America" bug (substring replacement issues)
+                # Lists and mappings (extra_places, location) cannot go through
+                # the checks below: pd.isnull returns an array for a list.
+                if isinstance(rx, list | tuple | dict) or isinstance(ry, list | tuple | dict):
+                    df_new.at[i, column] = merge_container_values(rx, ry, column, conference_name, logger)
+                    continue
+                # Country names are normalised in the place field only.
+                # Replacing them inside other fields changes links ("GB" in a
+                # form id) and names ("PyCon Korea" grows a "South" each run).
                 if column == "place":
                     if isinstance(rx, str):
                         rx = normalize_place(rx)
                     if isinstance(ry, str):
                         ry = normalize_place(ry)
-                else:
-                    # For other columns, use substring replacement
-                    for orig, replacement in replacements.items():
-                        if isinstance(rx, str):
-                            rx = rx.replace(orig, replacement)
-                        if isinstance(ry, str):
-                            ry = ry.replace(orig, replacement)
                 # Prefer my sponsor info if exists
                 if column == "sponsor" and not pd.isnull(rx):
                     ry = rx
@@ -633,6 +854,7 @@ def merge_conferences(
                     else:
                         if query_yes_no(
                             f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?",
+                            context=_question_context(row, conference_name, column, rx, ry, source_name),
                         ):
                             df_new.loc[i, column] = ry
                         else:
@@ -681,10 +903,20 @@ def merge_conferences(
                                 f"For {i} in column '{column}' would you prefer "
                                 f"'{ry + cfp_time_y}' or keep '{rx + cfp_time_x}'?"
                             ),
+                            context=_question_context(
+                                row,
+                                conference_name,
+                                column,
+                                rx + cfp_time_x,
+                                ry + cfp_time_y,
+                                source_name,
+                            ),
                         ):
                             df_new.loc[i, column] = ry + cfp_time_y
                         else:
                             # Check if it's an extension of the deadline and update both
+                            # No context: the cfp question above already queued
+                            # both deadlines for the desk.
                             if query_yes_no("Is this an extension?"):
                                 rrx, rry = (
                                     int(rx.replace("-", "").split(" ")[0]),
@@ -722,6 +954,7 @@ def merge_conferences(
                     else:
                         if query_yes_no(
                             f"For {i} in column '{column}' would you prefer '{ryy}' or keep '{rxx}'?",
+                            context=_question_context(row, conference_name, column, rxx, ryy, source_name),
                         ):
                             df_new.loc[i, column] = ryy
                         else:
@@ -730,6 +963,7 @@ def merge_conferences(
                     # For everything else give a choice
                     if query_yes_no(
                         f"For {i} in column '{column}' would you prefer '{ry}' or keep '{rx}'?",
+                        context=_question_context(row, conference_name, column, rx, ry, source_name),
                     ):
                         df_new.loc[i, column] = ry
                     else:

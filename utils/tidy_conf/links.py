@@ -1,5 +1,3 @@
-import json
-import os
 import re
 import time
 from datetime import datetime
@@ -11,14 +9,24 @@ from urllib.parse import urlparse
 import requests
 from tqdm import tqdm
 
+try:
+    from tidy_conf.queue_out import QUEUE_OUT_ENV
+    from tidy_conf.queue_out import append_queue_record
+    from tidy_conf.queue_out import utc_now
+except ImportError:
+    from .queue_out import QUEUE_OUT_ENV
+    from .queue_out import append_queue_record
+    from .queue_out import utc_now
+
 # Sub-page link fields that must point somewhere other than the main link.
-# A cfp_link/sponsor/finaid that is just the homepage again carries no
+# A cfp_link/sponsor/finaid/coc that is just the homepage again carries no
 # information (e.g. "cfp_link: https://2027.pycon.de/" on the PyCon DE entry
 # whose link is https://2027.pycon.de/) - it should be a different page, a
 # subdomain, or at least a #anchor on the homepage. The bare root of the
 # series site (e.g. "cfp_link: https://pycon.de/" next to
-# "link: https://2027.pycon.de/") carries no information either.
-REDUNDANT_LINK_FIELDS = ("cfp_link", "sponsor", "finaid")
+# "link: https://2027.pycon.de/") carries no information either. A homepage
+# is not a Code of Conduct page, so coc is held to the same rule.
+REDUNDANT_LINK_FIELDS = ("cfp_link", "sponsor", "finaid", "coc")
 
 # Public suffixes with two labels, under which a registrable domain has three
 # labels (pycon.org.au rather than org.au). This is not the full Public Suffix
@@ -50,6 +58,15 @@ TWO_LEVEL_PUBLIC_SUFFIXES = frozenset(
         "co.il",
         "org.il",
         "or.tz",
+        "org.pl",
+        # Shared hosts, where each tenant is a site of its own:
+        # pyconx.github.io and squatter.github.io are different sites.
+        "github.io",
+        "gitlab.io",
+        "netlify.app",
+        "pages.dev",
+        "vercel.app",
+        "readthedocs.io",
     },
 )
 
@@ -73,11 +90,8 @@ URL_SHORTENERS = frozenset({"bit.ly", "goo.gl", "tinyurl.com"})
 REDIRECT_RECORDS: list[dict] = []
 
 # When this environment variable names a file, every redirect record is also
-# appended to it as one JSON object per line, for a later job to pick up. The
-# lines are not complete queue items: the queue writer assigns each item its
-# "id" and the series key of the file it goes in when it adds the line, so
-# both are defined in one place.
-REDIRECT_RECORDS_ENV = "DESK_QUEUE_OUT"
+# appended to it as one JSON line for the desk queue (see queue_out.py).
+REDIRECT_RECORDS_ENV = QUEUE_OUT_ENV
 
 
 def normalize_url_pointer(url: str) -> tuple:
@@ -123,7 +137,8 @@ def site_host(url: str) -> str:
 def is_parent_domain(parent: str, host: str) -> bool:
     """Check whether ``parent`` is a parent domain of ``host``.
 
-    A public suffix such as ``de`` or ``co.uk`` does not count as a parent.
+    A public suffix such as ``de``, ``co.uk`` or ``github.io`` does not count
+    as a parent.
 
     Parameters
     ----------
@@ -250,7 +265,7 @@ def record_redirect(
     year : int | None
         Conference year, when known
     field : str | None
-        Data field holding the URL (link, cfp_link, sponsor or finaid), when known
+        Data field holding the URL (link, cfp_link, sponsor, finaid or coc), when known
 
     Returns
     -------
@@ -260,7 +275,7 @@ def record_redirect(
     record = {
         "source": "link-check",
         "kind": "redirect",
-        "received": datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "received": utc_now(),
         "title": conference or url,
         "url": url,
         "year": year,
@@ -273,13 +288,7 @@ def record_redirect(
         },
     }
     REDIRECT_RECORDS.append(record)
-
-    out_path = os.environ.get(REDIRECT_RECORDS_ENV)
-    if out_path:
-        out_file = Path(out_path)
-        out_file.parent.mkdir(parents=True, exist_ok=True)
-        with out_file.open("a", encoding="utf-8", newline="\n") as f:
-            f.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+    append_queue_record(record)
     return record
 
 
@@ -315,7 +324,7 @@ def is_redundant_site_root(value: str, link: str) -> bool:
     Parameters
     ----------
     value : str
-        Sub-page link (cfp_link, sponsor or finaid)
+        Sub-page link (cfp_link, sponsor, finaid or coc)
     link : str
         Main conference link
 
@@ -335,7 +344,7 @@ def is_redundant_site_root(value: str, link: str) -> bool:
 def drop_redundant_link_fields(data: list) -> list:
     """Drop sub-page link fields that are the same pointer as the main link.
 
-    Goes through cfp_link/sponsor/finaid on each conference and
+    Goes through cfp_link/sponsor/finaid/coc on each conference and
     removes any that just repeat the conference's main link. This catches
     upstream sources that fill every URL column with the homepage. A field
     that is only the bare root of the same site (``https://pycon.de/`` next

@@ -18,6 +18,8 @@ try:
     from tidy_conf import merge_conferences
     from tidy_conf.date import create_nice_date
     from tidy_conf.deduplicate import deduplicate
+    from tidy_conf.denylist import drop_denied
+    from tidy_conf.interactive_merge import carry_over_earlier_editions
     from tidy_conf.titles import tidy_df_names
     from tidy_conf.utils import fill_missing_required
     from tidy_conf.yaml import load_title_mappings
@@ -29,12 +31,17 @@ except ImportError:
     from .tidy_conf import merge_conferences
     from .tidy_conf.date import create_nice_date
     from .tidy_conf.deduplicate import deduplicate
+    from .tidy_conf.denylist import drop_denied
+    from .tidy_conf.interactive_merge import carry_over_earlier_editions
     from .tidy_conf.titles import tidy_df_names
     from .tidy_conf.utils import fill_missing_required
     from .tidy_conf.yaml import load_title_mappings
     from .tidy_conf.yaml import write_df_yaml
 
 logger = get_tqdm_logger(__name__)
+
+# Recorded with merge questions handed to the desk queue
+SOURCE_NAME = "python.org"
 
 
 def fill_links_from_history(df_ics: pd.DataFrame, df_yml: pd.DataFrame) -> pd.DataFrame:
@@ -312,6 +319,9 @@ def main(year=None, base="") -> bool:
         if filtered_count > 0:
             logger.info(f"Filtered out {filtered_count} entries without valid links")
 
+        # Fake events and event farms reach the calendar too
+        df_ics = drop_denied(df_ics, SOURCE_NAME)
+
         if df_ics.empty:
             logger.warning("No conferences with valid links after filtering")
             return False
@@ -380,6 +390,8 @@ def main(year=None, base="") -> bool:
             df_merged, df_remote, merge_report = fuzzy_match(
                 df_yml[df_yml["year"] == y],
                 df_ics.loc[df_ics["year"] == y],
+                source_name=SOURCE_NAME,
+                known_names=df_yml["conference"],
             )
             logger.info(
                 f"Merge report: {merge_report.exact_matches} exact, "
@@ -391,7 +403,7 @@ def main(year=None, base="") -> bool:
             df_merged = df_merged.drop(["conference"], axis=1)
             df_merged = deduplicate(df_merged)
             df_remote = deduplicate(df_remote)
-            df_merged = merge_conferences(df_merged, df_remote)
+            df_merged = merge_conferences(df_merged, df_remote, source_name=SOURCE_NAME)
 
             # Concatenate the new data with the existing data
             df_new = pd.concat([df_new, df_merged], ignore_index=True)
@@ -440,6 +452,9 @@ END:VCALENDAR""",
         # Fill in missing required fields
         logger.info("Filling missing required fields")
         df_new = fill_missing_required(df_new)
+
+        # Editions from before this year stay until the sort archives them
+        df_new = carry_over_earlier_editions(df_new, target_file, year)
 
         # Write the new data to the YAML file
         logger.info(f"Writing {len(df_new)} conference entries to {target_file}")
