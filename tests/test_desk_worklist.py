@@ -101,7 +101,11 @@ def name_in_slot(base, slot, year=None):
     raise AssertionError("no name found")
 
 
-def days_ago(days, time="23:59:00"):
+def days_ago(days, time="11:00:00"):
+    """Return a deadline the given number of days before TODAY.
+
+    11:00 falls on the same UTC date in AoE, Tokyo, Los Angeles and UTC+5, so days_since is ``days``.
+    """
     return f"{TODAY - timedelta(days=days)} {time}"
 
 
@@ -340,10 +344,28 @@ class TestKindOverrides:
         assert item["entry"] is None
 
     @pytest.mark.parametrize("kind", ["question", "redirect", "drift"])
+    def test_archive_only_series_names_why_entry_is_empty(self, kind):
+        data = dataset(archive=[conf("PyCon Example", 2023)])
+
+        item = only(build(data, [queue_item(kind, "PyCon Example")]))
+
+        assert item["context"] == {"no_entry": "no data file holds an edition of this series for this year"}
+
+    @pytest.mark.parametrize("kind", ["question", "redirect", "drift"])
+    def test_archived_edition_for_the_year_is_bound(self, kind):
+        data = dataset(archive=[conf("PyCon Example", 2023), conf("PyCon Example", 2024)])
+
+        item = only(build(data, [queue_item(kind, "PyCon Example", year=2023)]))
+
+        assert (item["skill"], item["year"], item["context"]) == ("enricher", 2023, {})
+        assert (item["entry"]["conference"], item["entry"]["year"]) == ("PyCon Example", 2023)
+
+    @pytest.mark.parametrize("kind", ["question", "redirect", "drift"])
     def test_unknown_series_still_goes_to_enricher(self, kind):
         item = only(build(dataset(), [queue_item(kind, "PyCon Nowhere")]))
 
         assert item["skill"] == "enricher"
+        assert item["context"] == {"no_entry": "no data file holds this series"}
 
     def test_registry_goes_to_scouter(self):
         data = dataset([conf("PyCon Example", 2026)])
@@ -634,7 +656,7 @@ class TestDeadlineChecks:
         assert item["reasons"] == ["deadline-check"]
         assert item["entry"]["conference"] == "PyCon Example"
         assert item["context"] == {
-            "effective_deadline": f"{TODAY - timedelta(days=days)}T23:59:00-12:00",
+            "effective_deadline": f"{TODAY - timedelta(days=days)}T11:00:00-12:00",
             "deadline_field": "cfp",
             "timezone": "AoE",
             "days_since": days,
@@ -642,11 +664,11 @@ class TestDeadlineChecks:
 
     @pytest.mark.parametrize("days", [1, 3, 7])
     def test_explicit_timezone(self, days):
-        data = dataset([conf("PyCon Example", 2026, cfp=days_ago(days, "00:30:00"), timezone="Asia/Tokyo")])
+        data = dataset([conf("PyCon Example", 2026, cfp=days_ago(days, "12:00:00"), timezone="Asia/Tokyo")])
 
         item = only(build(data))
 
-        assert item["context"]["effective_deadline"] == f"{TODAY - timedelta(days=days)}T00:30:00+09:00"
+        assert item["context"]["effective_deadline"] == f"{TODAY - timedelta(days=days)}T12:00:00+09:00"
         assert item["context"]["timezone"] == "Asia/Tokyo"
         assert item["context"]["days_since"] == days
 
@@ -658,15 +680,21 @@ class TestDeadlineChecks:
 
         assert items(build(data)) == []
 
-    def test_counts_from_the_calendar_date_in_the_entry_zone(self):
-        """00:30 in Tokyo on the 13th is still the 12th in UTC: one day, not two."""
-        data = dataset([conf("PyCon Example", 2026, cfp="2026-10-13 00:30:00", timezone="Asia/Tokyo")])
+    def test_counts_from_the_utc_date(self):
+        """00:30 in Tokyo on the 14th is 15:30 UTC on the 13th, so a run on the 14th is one day after."""
+        data = dataset([conf("PyCon Example", 2026, cfp="2026-10-14 00:30:00", timezone="Asia/Tokyo")])
 
         assert only(build(data))["context"]["days_since"] == 1
 
-    def test_aoe_calendar_date_not_utc(self):
-        """23:59 AoE on the 12th is the 13th in UTC, but counts as two days."""
+    def test_aoe_deadline_counts_from_its_utc_date(self):
+        """23:59 AoE on the 12th closes at 11:59 UTC on the 13th, one day before the 14th."""
         data = dataset([conf("PyCon Example", 2026, cfp="2026-10-12 23:59:00")])
+
+        assert only(build(data))["context"]["days_since"] == 1
+
+    def test_no_check_while_an_aoe_deadline_is_open(self):
+        """23:59 AoE on the 13th closes at 11:59 UTC on the 14th, after a desk run early that day."""
+        data = dataset([conf("PyCon Example", 2026, cfp="2026-10-13 23:59:00")])
 
         assert items(build(data)) == []
 
@@ -688,11 +716,13 @@ class TestDeadlineChecks:
 
         assert items(build(data)) == []
 
-    @pytest.mark.parametrize("value", [str(TODAY - timedelta(days=1)), TODAY - timedelta(days=1)])
+    @pytest.mark.parametrize("value", [str(TODAY - timedelta(days=2)), TODAY - timedelta(days=2)])
     def test_date_only_deadline(self, value):
+        """A date-only deadline is 23:59 AoE, which falls on the next UTC date."""
         item = only(build(dataset([conf("PyCon Example", 2026, cfp=value)])))
 
-        assert item["context"]["effective_deadline"] == f"{TODAY - timedelta(days=1)}T23:59:00-12:00"
+        assert item["context"]["effective_deadline"] == f"{TODAY - timedelta(days=2)}T23:59:00-12:00"
+        assert item["context"]["days_since"] == 1
 
     def test_utc_offset_timezone(self):
         item = only(build(dataset([conf("PyCon Example", 2026, cfp=days_ago(1), timezone="UTC+5")])))
@@ -745,11 +775,19 @@ class TestTbaRotation:
 
         assert len(days) == 1
 
-    @pytest.mark.parametrize("word", ["TBA", "tbd", "None", "n/a"])
+    @pytest.mark.parametrize("word", ["TBA", "tbd", " Tba "])
     def test_tba_words(self, word):
         name = name_in_slot("PyCon TBA", TODAY.weekday(), 2027)
 
         assert items(build(dataset([conf(name, 2027, cfp=word)])))
+
+    @pytest.mark.parametrize("word", ["None", "Cancelled", None, "n/a"])
+    def test_settled_cfp_is_not_rotated(self, word):
+        """None means no public CfP and Cancelled a cancelled edition: no deadline to look for."""
+        name = name_in_slot("PyCon TBA", TODAY.weekday(), 2027)
+        data = dataset([conf(name, 2027, cfp=word)])
+
+        assert [item for day in range(7) for item in items(build(data, today=TODAY + timedelta(days=day)))] == []
 
     @pytest.mark.parametrize("start", [TODAY, TODAY - timedelta(days=1)])
     def test_started_event_excluded(self, start):

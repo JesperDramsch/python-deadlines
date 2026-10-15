@@ -13,8 +13,10 @@ registry changes to the scouter. Work comes from four places, in this order
 in the output:
 
 1. Deadline checks: entries whose effective deadline (cfp_ext, else cfp) fell
-   1, 3 or 7 days before today, counted from the deadline's calendar date in
-   the entry's timezone (AoE, UTC-12, when unset).
+   1, 3 or 7 days before today. The deadline is read in the entry's timezone
+   (AoE, UTC-12, when unset) and counted from the UTC date it falls on, so a
+   check never comes before the deadline has passed: 23:59 AoE on the 12th is
+   11:59 UTC on the 13th, and its 1-day check is on the 14th.
 2. Queue items read from a checkout of the desk-queue branch, matched to a
    series by name the way cfp_candidates.py matches: after
    normalize_conference_name and the titles.yml mappings, ignoring case,
@@ -25,7 +27,8 @@ in the output:
    holds gives a null year. A queue year that differs from the item's year
    is kept in context["queue_year"]. Items whose next_check is a date after
    today are left out until that date.
-3. Rotations: entries with a TBA cfp and stale series from cfp_candidates.py,
+3. Rotations: entries whose cfp is TBA or TBD (not None, which means no public
+   CfP, or Cancelled) and stale series from cfp_candidates.py,
    each picked on one weekday in seven by a hash of its name.
 4. One open-ended scouting item, unless --no-scout is given.
 
@@ -65,7 +68,6 @@ try:
     from desk_queue import record_names
     from sort_yaml import DATEFORMAT
     from sort_yaml import DEFAULT_CFP_TIME
-    from sort_yaml import TBA_WORDS
     from tidy_conf.titles import normalize_conference_name
     from tidy_conf.yaml import load_title_mappings
 except ImportError:
@@ -77,7 +79,6 @@ except ImportError:
     from .desk_queue import record_names
     from .sort_yaml import DATEFORMAT
     from .sort_yaml import DEFAULT_CFP_TIME
-    from .sort_yaml import TBA_WORDS
     from .tidy_conf.titles import normalize_conference_name
     from .tidy_conf.yaml import load_title_mappings
 
@@ -104,6 +105,8 @@ ENRICHER_KINDS = ("question", "redirect", "drift")
 # holds. When they match several, the writer's classification decides.
 CANDIDATE_SKILLS = {"MISSING_EDITION": "new-year-checker", "NEW_SERIES": "scouter", "MAYBE": "scouter"}
 CHECK_DAYS = (1, 3, 7)
+# cfp values that mean the deadline is still to come. None (no public CfP) and Cancelled are settled.
+ROTATION_CFP = ("tba", "tbd")
 ROTATION_DAYS = 7
 AOE = timezone(timedelta(hours=-12), "AoE")
 
@@ -282,6 +285,10 @@ def _by_name(item: dict) -> tuple[str, int]:
 def deadline_checks(conferences: Iterable[dict], today: date) -> list[dict]:
     """Return an enricher item for each entry whose deadline passed 1, 3 or 7 days ago.
 
+    Days are counted from the UTC date the deadline falls on. The desk runs early in the UTC day, and an
+    AoE deadline closes at noon UTC the day after its own date, so a count from that date could send a
+    check while the CfP is still open.
+
     Parameters
     ----------
     conferences : Iterable[dict]
@@ -299,7 +306,7 @@ def deadline_checks(conferences: Iterable[dict], today: date) -> list[dict]:
         deadline = effective_deadline(entry)
         if deadline is None:
             continue
-        days_since = (today - deadline["moment"].date()).days
+        days_since = (today - deadline["moment"].astimezone(timezone.utc).date()).days
         if days_since not in CHECK_DAYS:
             continue
         context = {
@@ -324,7 +331,9 @@ def deadline_checks(conferences: Iterable[dict], today: date) -> list[dict]:
 
 
 def tba_rotation(conferences: Iterable[dict], today: date) -> list[dict]:
-    """Return an enricher item for each TBA entry whose rotation slot is today.
+    """Return an enricher item for each TBA or TBD entry whose rotation slot is today.
+
+    An entry whose cfp is None (no public CfP) or Cancelled has no deadline to find, so it is not rotated.
 
     Parameters
     ----------
@@ -340,7 +349,7 @@ def tba_rotation(conferences: Iterable[dict], today: date) -> list[dict]:
     """
     items = []
     for entry in conferences:
-        if str(entry.get("cfp", "")).lower().strip() not in TBA_WORDS:
+        if str(entry.get("cfp", "")).lower().strip() not in ROTATION_CFP:
             continue
         start = _as_date(entry.get("start"))
         if start is None or start <= today:
@@ -508,6 +517,10 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
     the edition for its year when any data file holds it, else to the new-year-checker, and
     to the scouter when nothing matches. Only a candidate matching several series is
     routed by its classification (CANDIDATE_SKILLS).
+
+    A question, redirect or drift always goes to the enricher. When its series has no
+    upcoming entry, the item is bound to the edition for its year in any data file, and
+    otherwise context["no_entry"] says why entry is empty.
     """
     kind = item.get("kind")
     payload = item.get("payload") if isinstance(item.get("payload"), dict) else {}
@@ -542,7 +555,16 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
                 {"conference": entry.get("conference"), "year": _as_year(entry.get("year")), "file": path},
             )
         representatives.sort(key=lambda match: (match["conference"].casefold(), match["year"] or 0))
-        return _new_item(skill, reason, conference or name, year, queue_refs=refs, ambiguous_matches=representatives)
+        context = {"no_entry": "no data file holds this series"} if skill == "enricher" and not matches else {}
+        return _new_item(
+            skill,
+            reason,
+            conference or name,
+            year,
+            queue_refs=refs,
+            context=context,
+            ambiguous_matches=representatives,
+        )
 
     key = matches[0]
     if kind == "candidate":
@@ -562,6 +584,12 @@ def _route_queue_item(item: dict, editions: dict, lookup: dict, known_mappings: 
         if _edition_for(editions[key], year) is not None:
             context, year = {"queue_year": year}, None
         return _new_item(skill, reason, conference, year, latest_edition=latest, queue_refs=refs, context=context)
+    if skill == "enricher":
+        edition = _edition_for(editions[key], year)
+        if edition is not None:
+            return _new_item(skill, reason, edition.get("conference"), year, entry=edition, queue_refs=refs)
+        context = {"no_entry": "no data file holds an edition of this series for this year"}
+        return _new_item(skill, reason, conference, year, queue_refs=refs, context=context)
     return _new_item(skill, reason, conference, year, queue_refs=refs)
 
 
