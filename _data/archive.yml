@@ -574,8 +574,11 @@
   place: Petaluma, USA
   start: 2026-04-25
   end: 2026-04-26
+  sponsor: https://northbaypython.org/sponsor
+  coc: https://northbaypython.org/code-of-conduct
   mastodon: https://social.northbaypython.org/@NorthBayPython
   bluesky: https://bsky.app/profile/northbaypython.org
+  youtube: https://youtube.com/@northbaypython
   sub: PY
   location:
   - title: North Bay Python 2026
