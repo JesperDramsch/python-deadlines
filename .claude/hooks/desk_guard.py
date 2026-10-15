@@ -79,7 +79,8 @@ Rules for subagents in desk runs, on top of those:
 
 Commands are pattern matched, never run: the script splits the command line into simple commands, steps over
 shell reserved words (``do``, ``then``, ``!``, ``{``), variable assignments and wrappers with their options
-(``sudo -u bob``, ``timeout 120``, ``env -C dir``), follows ``cd``, ``sh -c`` and ``eval``, and reads the
+(``sudo -u bob``, ``timeout 120``, ``env -C dir``, ``env -iC dir``), follows ``cd``, ``sh -c`` and ``eval``,
+and reads the
 ``git`` (with ``-C``), ``gh`` and script invocations. A program named ``git-<sub>`` in any folder, such as
 ``/usr/lib/git-core/git-push``, counts as ``git <sub>``. Outside desk runs, an alias set with
 ``git -c alias.<name>=<value>`` is expanded before the rules apply, a shell alias (``!...``) included. The
@@ -92,8 +93,14 @@ variables, which are not expanded; config that sets push targets or options (``r
 commands git runs from its config, such as hooks, ``core.pager`` and ``core.sshCommand``. Desk runs block all
 of these by refusing config changes (rule 8). That covers git commands and the assignments rule 8 names. A file
 tool or another program that writes a config file directly is not inspected, and neither are other ways a shell
-sets or exports a variable, such as ``read``, ``printf -v`` or ``set -a``. The string ``env -S`` takes is not
-split, so neither a command nor an assignment inside it is inspected. Programs other than ``git`` and ``gh``,
+sets or exports a variable, such as ``read``, ``printf -v`` or ``set -a``. A desk run blocks an ``env``
+split-string option (``-S``, ``--split-string``, clustered or as ``--split-string=STRING``) outright. Outside
+desk runs the string it takes is split the way GNU env does, into whitespace-separated words with single and
+double quotes and backslash escapes (a backslash-underscore separates words, a backslash-c ends the string),
+and those words are read as the rest of the command line, so the push rule sees them; a ``${VAR}`` is left as a
+word that cannot be resolved, and a string that cannot be split, or that holds such a reference where the
+program or subcommand would stand, is blocked when any word could be ``git`` or ``push``. Programs other than
+``git`` and ``gh``,
 such as ``curl``, are not inspected beyond rules 3, 8 and 12, and neither is code a program runs on its own, such
 as ``python -c`` or a script file. The current branch comes from the repository's ``HEAD`` file. Unreadable hook
 input and internal errors block in a desk run and pass elsewhere. Only the Python standard library is used.
@@ -238,6 +245,8 @@ WRAPPERS: dict[str, tuple[frozenset[str], int]] = {
 }
 # Wrapper options that set the directory the command runs in
 WRAPPER_CHDIR = {"env": frozenset({"-C", "--chdir"}), "sudo": frozenset({"-D", "--chdir"})}
+# env options that take a command string and split it into the arguments that follow
+ENV_SPLIT_OPTIONS = frozenset({"-S", "--split-string"})
 SHELLS = frozenset({"bash", "dash", "ksh", "sh", "su", "zsh"})
 SHELL_COMMAND_FLAG = re.compile(r"^-[A-Za-z]*c[A-Za-z]*$")  # -c, -lc, -ec
 ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*\+?=")  # NAME=value or NAME+=value
@@ -434,7 +443,163 @@ def takes_value(option: str, options: frozenset[str]) -> bool:
     return False
 
 
-def command_start(words: list[str], directory: str) -> tuple[int, str]:
+def option_value(word: str, options: frozenset[str]) -> tuple[str | None, str | None, bool]:
+    """Return which option of ``word`` takes a value, its attached value and whether the next word is it.
+
+    Parameters
+    ----------
+    word : str
+        One option argument, such as ``-C``, ``--chdir=dir``, ``-iC`` or ``-Cdir``.
+    options : frozenset[str]
+        The options of the program that take a value.
+
+    Returns
+    -------
+    tuple[str | None, str | None, bool]
+        The option that takes a value (the word itself for a long option, the first value-taking short
+        option in a cluster, or None when none does), the value attached in the word (after ``=`` for a
+        long option, the rest of a short cluster, or None) and whether the following word is the value.
+    """
+    name, equals, attached = word.partition("=")
+    if name.startswith("--"):
+        if name in options:
+            return name, (attached if equals else None), not equals
+        return None, None, False
+    for position, char in enumerate(name[1:], start=2):
+        if f"-{char}" in options:
+            if position < len(name):
+                return f"-{char}", name[position:], False  # the value is attached in the cluster
+            return f"-{char}", None, True  # the value is the next word
+    return None, None, False
+
+
+def read_variable(string: str, index: int) -> tuple[str, int] | None:
+    """Return a ``${VAR}`` or ``$VAR`` reference at ``string[index]`` and the index after it, or None."""
+    if index + 1 < len(string) and string[index + 1] == "{":
+        end = string.find("}", index + 2)
+        if end != -1:
+            return string[index : end + 1], end + 1
+        return None
+    match = re.match(r"\$[A-Za-z_][A-Za-z0-9_]*", string[index:])
+    return (match.group(0), index + match.end()) if match else None
+
+
+def split_env_string(string: str) -> tuple[list[str], set[int], bool]:
+    """Split an ``env`` split-string the way GNU env does.
+
+    Words are separated by whitespace outside quotes. A single-quoted run is literal; a double-quoted run
+    takes backslash escapes before a double quote, a backslash and a dollar sign; outside quotes a backslash
+    escapes the next character, with a backslash-underscore separating words and a backslash-c stopping. A
+    ``${VAR}`` or ``$VAR`` reference cannot be resolved here, so it is kept verbatim and its word is marked.
+
+    Parameters
+    ----------
+    string : str
+        The string the option takes.
+
+    Returns
+    -------
+    tuple[list[str], set[int], bool]
+        The words, the indices of the words that hold an unresolved variable, and whether the split was
+        clean (an unbalanced quote leaves it unclean).
+    """
+    words: list[str] = []
+    variables: set[int] = set()
+    current: list[str] = []
+    has_word = False
+    has_variable = False
+    quote: str | None = None
+    index = 0
+
+    def flush() -> None:
+        nonlocal current, has_word, has_variable
+        if has_word:
+            if has_variable:
+                variables.add(len(words))
+            words.append("".join(current))
+            current, has_word, has_variable = [], False, False
+
+    while index < len(string):
+        char = string[index]
+        if quote == "'":
+            if char == "'":
+                quote = None
+            else:
+                current.append(char)
+            index += 1
+        elif quote == '"':
+            if char == '"':
+                quote = None
+                index += 1
+            elif char == "\\" and index + 1 < len(string) and string[index + 1] in '"\\$':
+                current.append(string[index + 1])
+                index += 2
+            elif char == "$" and (reference := read_variable(string, index)) is not None:
+                current.append(reference[0])
+                has_variable = True
+                index = reference[1]
+            else:
+                current.append(char)
+                index += 1
+        elif char in " \t\n\r\f\v":
+            flush()
+            index += 1
+            continue
+        elif char == "'":
+            quote = "'"
+            index += 1
+        elif char == '"':
+            quote = '"'
+            index += 1
+        elif char == "\\":
+            following = string[index + 1] if index + 1 < len(string) else ""
+            if following == "c":
+                break  # stop processing the rest of the string
+            if following == "_":
+                flush()  # a backslash-underscore separates words, like whitespace
+                index += 2
+                continue
+            current.append("\\" if following == "" else following)
+            index += 2 if following else 1
+        elif char == "$" and (reference := read_variable(string, index)) is not None:
+            current.append(reference[0])
+            has_variable = True
+            index = reference[1]
+        else:
+            current.append(char)
+            index += 1
+        has_word = True
+    flush()
+    return words, variables, quote is None
+
+
+def split_string_pieces(string: str) -> list[str]:
+    """Return the words of an ``env`` split-string, failing closed when it may hide ``git push``.
+
+    Parameters
+    ----------
+    string : str
+        The string the option takes.
+
+    Returns
+    -------
+    list[str]
+        The split words, to read as the rest of the command line.
+
+    Raises
+    ------
+    BlockError
+        When the string cannot be split cleanly, or holds a variable where the program or subcommand would
+        stand, and any word could be ``git`` or ``push``.
+    """
+    words, variables, clean = split_env_string(string)
+    variable_in_command = 0 in variables or (len(words) > 1 and words[0] == "git" and 1 in variables)
+    if (not clean or variable_in_command) and (variables or any(word in {"git", "push"} for word in words)):
+        raise BlockError("an env split-string that could run git push cannot be read, so it is blocked")
+    return words
+
+
+def command_start(words: list[str], directory: str, *, desk: bool = False) -> tuple[int, str, list[str]]:
     """Find the program of a simple command behind reserved words, assignments and wrappers.
 
     Parameters
@@ -443,12 +608,21 @@ def command_start(words: list[str], directory: str) -> tuple[int, str]:
         The words of one simple command.
     directory : str
         Directory the command starts in.
+    desk : bool
+        Whether this is a desk run, where an ``env`` split-string option is blocked outright.
 
     Returns
     -------
-    tuple[int, str]
-        The index of the program in ``words`` (``len(words)`` when there is none) and the directory it runs
-        in, which ``env -C`` and ``sudo -D`` change.
+    tuple[int, str, list[str]]
+        The index of the program (``len(words)`` when there is none), the directory it runs in, which
+        ``env -C`` and ``sudo -D`` change in their separate or clustered forms, and the words, which an
+        ``env`` split-string option rewrites into the command it carries.
+
+    Raises
+    ------
+    BlockError
+        When a desk run uses an ``env`` split-string option, or a split string outside a desk run may hide
+        ``git push``.
     """
     index = 0
     while index < len(words):
@@ -460,25 +634,38 @@ def command_start(words: list[str], directory: str) -> tuple[int, str]:
             index += 2  # the function's name follows
         elif name in WRAPPERS:
             options, operands = WRAPPERS[name]
+            chdir = WRAPPER_CHDIR.get(name, frozenset())
+            split_options = ENV_SPLIT_OPTIONS if name == "env" else frozenset()
+            start = index
             index += 1
+            restart = False
             while index < len(words) and words[index].startswith("-") and words[index] != "-":
-                option, equals, attached = words[index].partition("=")
+                argument = words[index]
                 index += 1
-                if option == "--":
+                if argument == "--":
                     break
-                value = attached if equals else None
-                if value is None and takes_value(option, options) and index < len(words):
+                consumed, value, next_is_value = option_value(argument, options)
+                if value is None and next_is_value and index < len(words):
                     value = words[index]
                     index += 1
-                if value is not None and option in WRAPPER_CHDIR.get(name, ()):
+                if consumed in split_options:
+                    if desk:
+                        raise BlockError(f"env {consumed} splits a command string, which is off limits in desk runs")
+                    words = [*words[:start], *split_string_pieces(value or ""), *words[index:]]
+                    index = start
+                    restart = True
+                    break
+                if value is not None and consumed in chdir:
                     directory = str(Path(directory, Path(value).expanduser()))
+            if restart:
+                continue
             index += operands
         else:
             break
-    return min(index, len(words)), directory
+    return min(index, len(words)), directory, words
 
 
-def simple_commands(command: str, cwd: str, depth: int = 0) -> list[SimpleCommand]:
+def simple_commands(command: str, cwd: str, depth: int = 0, *, desk: bool = False) -> list[SimpleCommand]:
     """List every simple command of a command line, with the directory it runs in.
 
     Parameters
@@ -489,6 +676,8 @@ def simple_commands(command: str, cwd: str, depth: int = 0) -> list[SimpleComman
         Directory the command line starts in; ``cd``, ``env -C`` and ``sudo -D`` move it.
     depth : int
         Nesting level of ``sh -c`` and ``eval`` strings already unwrapped.
+    desk : bool
+        Whether this is a desk run, passed through to ``command_start`` for the ``env`` split-string rule.
 
     Returns
     -------
@@ -500,7 +689,7 @@ def simple_commands(command: str, cwd: str, depth: int = 0) -> list[SimpleComman
     found: list[SimpleCommand] = []
     directory = cwd
     for words in split_commands(command):
-        start, command_directory = command_start(words, directory)
+        start, command_directory, words = command_start(words, directory, desk=desk)
         found.append(SimpleCommand(words[start:], command_directory, words[:start]))
         if start == len(words):
             continue
@@ -512,10 +701,10 @@ def simple_commands(command: str, cwd: str, depth: int = 0) -> list[SimpleComman
         elif program in SHELLS and depth < MAX_NESTING:
             for index, word in enumerate(rest[:-1]):
                 if SHELL_COMMAND_FLAG.match(word):
-                    found.extend(simple_commands(rest[index + 1], command_directory, depth + 1))
+                    found.extend(simple_commands(rest[index + 1], command_directory, depth + 1, desk=desk))
                     break
         elif program == "eval" and depth < MAX_NESTING:
-            found.extend(simple_commands(" ".join(rest), command_directory, depth + 1))
+            found.extend(simple_commands(" ".join(rest), command_directory, depth + 1, desk=desk))
     return found
 
 
@@ -1181,7 +1370,7 @@ def bash_reason(command: str, cwd: str, *, desk: bool, subagent: bool, depth: in
     str | None
         The block reason, or None.
     """
-    for words, directory, prefix in simple_commands(command, cwd, depth):
+    for words, directory, prefix in simple_commands(command, cwd, depth, desk=desk):
         if desk:
             assignment = git_config_assignment(prefix, words)
             if assignment:

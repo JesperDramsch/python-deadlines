@@ -268,7 +268,17 @@ def test_push_without_refspec_from_main_is_blocked(run_hook, make_repo, branch, 
 
 @pytest.mark.parametrize(
     "command",
-    ["cd <repo> && git push", "env -C <repo> git push", "env --chdir=<repo> git push", "sudo -D <repo> git push"],
+    [
+        "cd <repo> && git push",
+        "env -C <repo> git push",
+        "env --chdir=<repo> git push",
+        "sudo -D <repo> git push",
+        # a chdir option bundled into an option cluster moves the directory too
+        "env -iC <repo> git push",
+        "env -iC<repo> git push",
+        "env -i --chdir=<repo> git push",
+        "sudo -D<repo> git push",
+    ],
 )
 def test_push_after_moving_into_a_repository_on_main_is_blocked(run_hook, make_repo, tmp_path, command):
     repo = make_repo("main")
@@ -922,14 +932,105 @@ def test_git_config_variables_exported_by_name_push_main_with_real_git(run_hook,
         ("read GIT_CONFIG_COUNT <<< 1", "``read``"),
         ("printf -v GIT_CONFIG_COUNT 1", "``printf -v``"),
         ("set -a; printf -v GIT_CONFIG_COUNT 1", "``set -a``"),
-        ("env -S 'GIT_TRACE=1 GIT_CONFIG_COUNT=1' git status", "``env -S``"),
-        ("env -S 'git push origin HEAD:main'", "``env -S``"),
     ],
 )
 def test_routes_the_docstring_names_as_limits_are_not_inspected(run_hook, make_repo, command, named):
     docstring = " ".join(ast.get_docstring(ast.parse(HOOK.read_text(encoding="utf-8"))).split())
     assert named in docstring
     assert_allowed(run_hook("Bash", {"command": command}, cwd=make_repo(ROLLING), desk=True))
+
+
+# --- env split-string (any session) ---
+
+
+ENV_SPLIT_PUSHES = [
+    "env -S 'git push origin HEAD:main'",
+    "env -iS 'git push origin HEAD:main'",
+    "env -S 'git\\_push\\_origin\\_HEAD:main'",
+    "env -S 'git push origin \"HEAD:main\"'",
+    "env -S 'git push origin HEAD:refs/heads/main'",
+    "env --split-string='git push origin HEAD:main'",
+    "env --split-string 'git push origin HEAD:main'",
+    "env -S git push origin HEAD:main",
+    "timeout 120 env -S 'git push origin HEAD:main'",
+]
+
+
+@pytest.mark.parametrize("command", ENV_SPLIT_PUSHES)
+def test_env_split_string_push_to_main_is_blocked(run_hook, make_repo, command):
+    repo = make_repo("feature")
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo), "git push", "main")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "env -S '$GIT push origin HEAD:main'",
+        "env -S 'git $CMD origin HEAD:main'",
+        "env -S 'git push origin \"HEAD:main'",
+    ],
+)
+def test_env_split_string_that_cannot_be_read_is_blocked(run_hook, make_repo, command):
+    repo = make_repo("feature")
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo), "env split-string")
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "env -S 'git status'",
+        "env -S 'git push origin HEAD:feature'",
+        "env -S 'git push origin $BRANCH'",
+        "env -S 'echo git push origin main'",
+    ],
+)
+def test_env_split_string_harmless_commands_outside_desk_runs_are_allowed(run_hook, make_repo, command):
+    repo = make_repo("feature")
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=repo))
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "env -S 'git push origin HEAD:main'",
+        "env -S 'git status'",
+        "env -iS 'git push origin HEAD:main'",
+        "env --split-string='git status'",
+        "env --split-string 'git status'",
+    ],
+)
+@pytest.mark.parametrize(("fields", "scope"), [({}, "desk runs"), (SUBAGENT, "desk runs")])
+def test_env_split_string_in_a_desk_run_is_blocked(run_hook, make_repo, command, fields, scope):
+    repo = make_repo(ROLLING)
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=repo, desk=True, **fields), "split", scope)
+
+
+@pytest.mark.skipif(BASH is None, reason="bash runs the command")
+@pytest.mark.parametrize(
+    "command",
+    [
+        "env -S 'git push origin HEAD:main'",
+        "env -S 'git\\_push\\_origin\\_HEAD:main'",
+        "env -S 'git push origin \"HEAD:main\"'",
+        "env --split-string='git push origin HEAD:main'",
+    ],
+)
+def test_env_split_string_push_moves_main_with_real_git(run_hook, pytester, remote_clone, git_ref, command):
+    remote, clone = remote_clone
+    assert_blocked(run_hook("Bash", {"command": command}, cwd=clone), "git push", "main")
+    assert git_ref(remote, "refs/heads/main") != git_ref(clone, "HEAD")
+    result = pytester.run(BASH, "-c", f"cd {shlex.quote(str(clone))} && {command}", timeout=30)
+    assert result.ret == 0, result.errlines
+    assert git_ref(remote, "refs/heads/main") == git_ref(clone, "HEAD")
+
+
+@pytest.mark.skipif(BASH is None, reason="bash runs the command")
+def test_env_split_string_status_passes_outside_desk_runs_with_real_git(run_hook, pytester, remote_clone):
+    _, clone = remote_clone
+    command = "env -S 'git status --short'"
+    assert_allowed(run_hook("Bash", {"command": command}, cwd=clone))
+    result = pytester.run(BASH, "-c", f"cd {shlex.quote(str(clone))} && {command}", timeout=30)
+    assert result.ret == 0, result.errlines
 
 
 # --- subagents in a desk run ---
