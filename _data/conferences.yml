@@ -243,15 +243,18 @@
   link: https://na.pycon.org/2027/
   cfp_link: https://pretalx.com/pycon-namibia-2027/cfp
   cfp: '2026-09-21 23:59:00'
+  cfp_ext: '2026-10-15 17:00:00'
   timezone: Africa/Windhoek
   place: Windhoek, Namibia
   start: 2027-02-26
   end: 2027-03-04
   sponsor: https://na.pycon.org/2027/sponsors/prospectus/
   finaid: https://na.pycon.org/2027/grants/
+  coc: https://na.pycon.org/2027/coc/
   twitter: PyConNA
   mastodon: https://hachyderm.io/@PyConNA
   bluesky: https://bsky.app/profile/pyconna.bsky.social
+  youtube: https://www.youtube.com/@pythonnamibia4291
   sub: PY
   location:
   - title: PyCon Namibia 2027
