@@ -673,7 +673,7 @@
 
 - conference: PyCon Greece
   year: 2026
-  link: https://pycon.gr/
+  link: https://2026.pycon.gr/
   cfp_link: https://2026.pycon.gr/en/program/cfp-faq
   cfp: '2026-05-10 23:59:00'
   cfp_ext: '2026-05-17 23:59:00'
@@ -682,6 +682,7 @@
   start: 2026-10-12
   end: 2026-10-13
   sponsor: https://2026.pycon.gr/en/sponsors
+  coc: https://2026.pycon.gr/en/attend/code-of-conduct/
   youtube: https://www.youtube.com/@pycongreece
   sub: PY
   location:
