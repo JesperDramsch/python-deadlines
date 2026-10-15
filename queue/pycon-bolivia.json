@@ -1,0 +1,24 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "38d81a1aa6fce5893bf859bcaf37ac7e523ef7af",
+      "kind": "registry",
+      "payload": {
+        "change": "untracked",
+        "evidence_url": "https://raw.githubusercontent.com/PyCon/pycon.org/master/_national/pycon-bolivia.yml",
+        "names": [
+          "PyCon Bolivia"
+        ],
+        "registry": "pycon.org",
+        "website": "https://web.archive.org/web/20211221001342/http://pycon.bo/"
+      },
+      "received": "2026-10-15T12:13:19Z",
+      "source": "registry",
+      "title": "PyCon Bolivia",
+      "url": "https://web.archive.org/web/20211221001342/http://pycon.bo/",
+      "year": null
+    }
+  ],
+  "series": "PyCon Bolivia"
+}

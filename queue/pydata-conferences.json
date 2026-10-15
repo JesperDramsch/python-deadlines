@@ -1,0 +1,24 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "ea97dbcb124d274881931553f1c8ebb10aa17037",
+      "kind": "registry",
+      "payload": {
+        "change": "untracked",
+        "evidence_url": "https://raw.githubusercontent.com/PyCon/pycon.org/master/_regional/pydata-conferences.yml",
+        "names": [
+          "PyData conferences"
+        ],
+        "registry": "pycon.org",
+        "website": "https://pydata.org/events/"
+      },
+      "received": "2026-10-15T12:13:19Z",
+      "source": "registry",
+      "title": "PyData conferences",
+      "url": "https://pydata.org/events/",
+      "year": null
+    }
+  ],
+  "series": "PyData conferences"
+}

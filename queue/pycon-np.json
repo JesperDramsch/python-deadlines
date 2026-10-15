@@ -1,0 +1,24 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "b185799e71089707a71142862dafbc1fb5dfa8f3",
+      "kind": "registry",
+      "payload": {
+        "change": "untracked",
+        "evidence_url": "https://www.python.org/psf/trademarks/pycon/",
+        "names": [
+          "PyCon NP",
+          "PyCon Nepal"
+        ],
+        "registry": "psf-trademarks"
+      },
+      "received": "2026-10-15T12:13:19Z",
+      "source": "registry",
+      "title": "PyCon NP",
+      "url": "https://www.python.org/psf/trademarks/pycon/",
+      "year": null
+    }
+  ],
+  "series": "PyCon NP"
+}

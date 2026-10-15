@@ -57,6 +57,25 @@
       "title": "PyCon Namibia",
       "url": "https://na.pycon.org/2027/",
       "year": 2027
+    },
+    {
+      "id": "df6bf042629eccceabdf56304161c7708ac83993",
+      "kind": "drift",
+      "payload": {
+        "conference": "PyCon Namibia",
+        "diffs": {
+          "cfp": {
+            "data": "2026-09-21 23:59:00 Africa/Windhoek",
+            "source": "2026-10-15 17:00 (Africa/Windhoek)"
+          }
+        },
+        "year": 2027
+      },
+      "received": "2026-10-15T12:13:19Z",
+      "source": "pretalx",
+      "title": "PyCon Namibia",
+      "url": "https://pretalx.com/pycon-namibia-2027/cfp",
+      "year": 2027
     }
   ],
   "series": "PyCon Namibia"
