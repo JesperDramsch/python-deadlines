@@ -21,7 +21,7 @@ For each entry in `titles`, check:
 
 - `url`, fetched again, carries the quote verbatim, and the quote uses the variation for this series: the same event, site or organiser.
 - `key` is the series' `conference` as the data, or the new-series set, spells it.
-- The variation follows AGENTS.md "Names": no other series shares it, and, ignoring case and accents, it is not a key, `global` or variation in `utils/tidy_conf/data/titles.yml` yet, not the `conference` of any entry or another series' `alt_name` in the three data files, and not listed against the key, or the key against it, in `utils/tidy_conf/data/rejections.yml`.
+- The variation follows AGENTS.md "Names": no other series shares it, and, ignoring case and accents, it is not a key, `global` or variation in `utils/tidy_conf/data/titles.yml` yet, not the `conference` of any entry or another series' `alt_name` in the three data files, and not listed against the key, or the key against it, in `utils/tidy_conf/data/rejections.yml`. Check each of these again for the forms `load_title_mappings` in `utils/tidy_conf/yaml.py` also matches: the variation without years, without "Conference" or "Conf", without spaces and without punctuation. "PyDay Chile 2026" fails, since without its year it is the shared name "PyDay Chile".
 
 Done when: every change and every variation has pass or fail with a one-line reason.
 
