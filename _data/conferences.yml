@@ -446,22 +446,6 @@
     latitude: 50.8513682
     longitude: 5.6909725
 
-- conference: PyCon France
-  year: 2026
-  link: https://www.pycon.fr/2026/en/
-  cfp_link: https://cfp.pycon.fr/pyconfr-2026/cfp
-  cfp: '2026-07-31 23:59:00'
-  place: Biarritz, France
-  start: 2026-10-29
-  end: 2026-11-01
-  sponsor: https://www.pycon.fr/2026/en/support.html
-  mastodon: https://mamot.fr/@AFPy
-  sub: PY
-  location:
-  - title: PyCon France 2026
-    latitude: 43.4711437
-    longitude: -1.5527266
-
 - conference: PyBay
   year: 2026
   link: https://pybay.org/
@@ -494,6 +478,25 @@
   - title: PyCon Ireland 2026
     latitude: 53.3498006
     longitude: -6.2602964
+
+- conference: PyCon France
+  year: 2026
+  link: https://www.pycon.fr/2026/en/
+  cfp_link: https://cfp.pycon.fr/pyconfr-2026/cfp
+  cfp: '2026-07-31 23:59:00'
+  timezone: Europe/Paris
+  place: Biarritz, France
+  start: 2026-10-29
+  end: 2026-11-01
+  sponsor: https://www.pycon.fr/2026/en/support.html
+  finaid: https://www.pycon.fr/2026/en/financial.html
+  coc: https://www.pycon.fr/2026/en/conduct.html
+  mastodon: https://mamot.fr/@AFPy
+  sub: PY
+  location:
+  - title: PyCon France 2026
+    latitude: 43.4711437
+    longitude: -1.5527266
 
 - conference: Xtreme Python
   alt_name: XtremePython
