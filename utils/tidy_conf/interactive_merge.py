@@ -127,6 +127,9 @@ def _row_link(row) -> str:
     return ""
 
 
+# The text of every query_yes_no prompt below, values included, goes into the id
+# of the queue item it becomes (tidy_conf.utils.record_question). Rewording a
+# prompt therefore queues every standing question again, once.
 def _question_context(row, conference, field, yaml_value, remote_value, source_name) -> dict:
     """Describe a merge question for the desk (see tidy_conf.utils.record_question)."""
     return {

@@ -61,6 +61,8 @@ LIST_FIELDS = ("id", "source", "kind", "received", "next_check", "title")
 
 WATCH_PREFIX = re.compile(r"^\s*\[conference\]\s*", re.IGNORECASE)
 WATCH_SUFFIX = re.compile(r"\s+(?:(?P<year>\d{4})\s+)?-\s+(?:main|cfp)\s*$", re.IGNORECASE)
+# A trailing year with no watch suffix, as in a hand-typed "PyCon US 2027"
+TRAILING_YEAR = re.compile(r"\s+(?P<year>(?:19|20)\d{2})\s*$")
 
 README = """\
 # desk-queue
@@ -160,11 +162,12 @@ def clean_watch_title(title: str) -> tuple[str, int | None]:
     Returns
     -------
     tuple[str, int | None]
-        The bare name ("PyCon Greece") and the year from the suffix, if any.
+        The bare name ("PyCon Greece") and the year from the suffix, or from a
+        trailing year when there is no suffix ("PyCon Greece 2027"), if any.
     """
     name = WATCH_PREFIX.sub("", title)
     year = None
-    match = WATCH_SUFFIX.search(name)
+    match = WATCH_SUFFIX.search(name) or TRAILING_YEAR.search(name)
     if match:
         name = name[: match.start()]
         if match["year"]:
