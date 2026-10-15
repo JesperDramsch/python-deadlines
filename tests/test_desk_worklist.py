@@ -119,7 +119,10 @@ class TestCleanWatchTitle:
             ("[Conference] PyCon Greece - Main", ("PyCon Greece", None)),
             ("PyCon Greece 2027 - Main", ("PyCon Greece", 2027)),
             ("PyCon Greece", ("PyCon Greece", None)),
-            ("PyCon Greece 2027", ("PyCon Greece 2027", None)),
+            ("PyCon Greece 2027", ("PyCon Greece", 2027)),
+            ("PyCon US 2027 ", ("PyCon US", 2027)),
+            ("Python 3000", ("Python 3000", None)),
+            ("PyCon 2027 Online", ("PyCon 2027 Online", None)),
             ("[Conference] Python - Main Track 2027 - Main", ("Python - Main Track", 2027)),
         ],
     )

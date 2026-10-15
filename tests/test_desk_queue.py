@@ -212,6 +212,12 @@ class TestAddItems:
         add_items(tmp_path, [record], NOW)
         assert read(tmp_path / "queue" / "some-brand-new-conf.json")["series"] == "Some Brand New Conf"
 
+    def test_hand_typed_year_is_not_part_of_the_series(self, tmp_path):
+        """The manual check-conference-update run takes a name like "PyCon US 2027"."""
+        record = signal(title="PyCon US 2027", year=None, url="https://us.pycon.org/2027/")
+        add_items(tmp_path, [record], NOW)
+        assert read(tmp_path / "queue" / "pycon-us.json")["series"] == "PyCon US"
+
 
 class TestRemoveItems:
     def test_removes_and_remembers(self, tmp_path):
