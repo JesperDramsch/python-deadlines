@@ -41,6 +41,8 @@ Done when: every signal above has a noted outcome.
 
 ## Verdict
 
+A change set flagged `denylist-review` gets `needs-maintainer`, whatever its checks show.
+
 - `accept`: the changes pass and, for a new series, no signal against was found and at least one signal for was. A failing change goes in `drop` with its reason and the rest stand, as long as a new entry keeps every field `utils/tidy_conf/schema.py` requires.
 - `reject`: the domain is on the denylist's `reject` list; the find shows pay-to-present fees, paid publication or no Python content; or nothing usable passes. Give the reason.
 - `needs-maintainer`: everything in between, such as a page that did not render, the denylist's `review` list, mixed signals, or sources that disagree beyond the precedence rule in AGENTS.md.

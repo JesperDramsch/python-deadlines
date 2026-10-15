@@ -14,6 +14,10 @@ try:
     from tidy_conf import merge_conferences
     from tidy_conf.countries import get_country_alpha3
     from tidy_conf.deduplicate import deduplicate
+    from tidy_conf.denylist import drop_denied
+    from tidy_conf.interactive_merge import carry_over_earlier_editions
+    from tidy_conf.queue_out import append_queue_record
+    from tidy_conf.queue_out import utc_now
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import normalize_conference_name
     from tidy_conf.utils import fill_missing_required
@@ -25,6 +29,10 @@ except ImportError:
     from .tidy_conf import merge_conferences
     from .tidy_conf.countries import get_country_alpha3
     from .tidy_conf.deduplicate import deduplicate
+    from .tidy_conf.denylist import drop_denied
+    from .tidy_conf.interactive_merge import carry_over_earlier_editions
+    from .tidy_conf.queue_out import append_queue_record
+    from .tidy_conf.queue_out import utc_now
     from .tidy_conf.schema import get_schema
     from .tidy_conf.titles import normalize_conference_name
     from .tidy_conf.utils import fill_missing_required
@@ -33,6 +41,57 @@ except ImportError:
 
 # Recorded with merge questions handed to the desk queue
 SOURCE_NAME = "python-organizers"
+
+
+def drop_rows_without_link(df: pd.DataFrame) -> pd.DataFrame:
+    """Leave out merged rows that still have no link.
+
+    Without a terminal no one can supply a missing link, and an entry without
+    one fails validation, which stops the sort writing anything. Entries from
+    the YAML always have a link, so only rows that the sheet alone has, with
+    no website, are left out. Each is handed to the desk queue as a candidate
+    (see tidy_conf/queue_out.py), so the desk can look for a website.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Merged rows with "conference", "year" and "link".
+
+    Returns
+    -------
+    pd.DataFrame
+        The rows that have a link.
+    """
+    from logging_config import get_tqdm_logger
+
+    logger = get_tqdm_logger(__name__)
+    has_link = df["link"].apply(lambda value: isinstance(value, str) and bool(value.strip()))
+    for _, row in df[~has_link].iterrows():
+        year = int(row["year"]) if pd.notna(row["year"]) else None
+        logger.warning(f"Skipping {row['conference']} {year or ''}: no website in {SOURCE_NAME}")
+        fields = {"conference": row["conference"], "year": year}
+        for column in ("place", "start", "end"):
+            value = row.get(column)
+            fields[column] = str(value) if value is not None and not pd.isna(value) else None
+        append_queue_record(
+            {
+                "source": "canonical-import",
+                "kind": "candidate",
+                "received": utc_now(),
+                "title": f"{row['conference']} {year}" if year else str(row["conference"]),
+                "url": "",
+                "year": year,
+                "payload": {
+                    "classification": "MAYBE",
+                    "fields": fields,
+                    "source_id": SOURCE_NAME,
+                    "evidence_url": "https://github.com/python-organizers/conferences",
+                    "matched": None,
+                    "flags": ["no-website"],
+                },
+            },
+        )
+    return df[has_link]
 
 
 def load_remote(year: int) -> pd.DataFrame:
@@ -263,6 +322,9 @@ def main(year: int | None = None, base: str = "") -> None:
             break
         df_csv_raw = pd.concat([df_csv_raw, df], ignore_index=True)
 
+    # Fake events and event farms reach the shared sheet too
+    df_csv_raw = drop_denied(df_csv_raw, SOURCE_NAME)
+
     # Load old csv dataframe from cached data
     # try:
     #     df_csv_old = pd.read_csv(cache_file)
@@ -317,7 +379,12 @@ def main(year: int | None = None, base: str = "") -> None:
             f"Year {y}: df_yml_year shape: {df_yml_year.shape}, df_csv_year shape: {df_csv_year.shape}",
         )
 
-        df_merged, df_remote, merge_report = fuzzy_match(df_yml_year, df_csv_year, source_name=SOURCE_NAME)
+        df_merged, df_remote, merge_report = fuzzy_match(
+            df_yml_year,
+            df_csv_year,
+            source_name=SOURCE_NAME,
+            known_names=df_yml["conference"],
+        )
         logger.info(
             f"Merge report: {merge_report.exact_matches} exact, "
             f"{merge_report.fuzzy_matches} fuzzy, {merge_report.no_matches} no match",
@@ -345,6 +412,11 @@ def main(year: int | None = None, base: str = "") -> None:
 
     # Fill in missing required fields
     df_new = fill_missing_required(df_new)
+
+    df_new = drop_rows_without_link(df_new)
+
+    # Editions from before this year stay until the sort archives them
+    df_new = carry_over_earlier_editions(df_new, target_file, year)
 
     # Write the new data to the YAML file
     write_df_yaml(df_new, target_file)

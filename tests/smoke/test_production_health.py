@@ -522,7 +522,7 @@ class TestSemanticCorrectness:
             conferences = yaml.safe_load(f)
 
         errors = []
-        url_fields = ["link", "cfp_link", "finaid", "sponsor"]
+        url_fields = ["link", "cfp_link", "sponsor", "finaid", "coc"]
 
         for conf in conferences:
             name = f"{conf.get('conference')} {conf.get('year')}"

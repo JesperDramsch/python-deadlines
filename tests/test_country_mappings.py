@@ -198,11 +198,11 @@ class TestCountryCodeToNameMapping:
         assert COUNTRY_CODE_TO_NAME["DE"] == "Germany"
 
 
-class TestMergeReplacementsConsistency:
-    """Test that the merge replacements use the centralized mappings."""
+class TestCountryNormalizationMapping:
+    """Test the mapping of long country names to their short forms in titles."""
 
-    def test_interactive_merge_uses_country_normalization(self):
-        """interactive_merge.py should use COUNTRY_NORMALIZATION."""
+    def test_long_country_names_map_to_short_forms(self):
+        """COUNTRY_NORMALIZATION maps long country names to the short forms titles use."""
         from tidy_conf.countries import COUNTRY_NORMALIZATION
 
         # These should all be in COUNTRY_NORMALIZATION

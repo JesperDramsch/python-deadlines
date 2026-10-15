@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       },
@@ -15,16 +15,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       },
       {
-        "matcher": "mcp__claude-code-remote__.*",
+        "matcher": "mcp__.*|Cron.*|Remote.*|Schedule.*",
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       },
@@ -33,7 +33,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/desk_guard.py\" || { rc=$?; [ \"$DESK_ROUTINE\" = 1 ] && exit 2; exit $rc; }"
           }
         ]
       }

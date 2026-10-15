@@ -4,8 +4,8 @@ r"""Read and write the deadline desk's queue on the desk-queue branch.
 GitHub Actions jobs record what they find for the desk here: changedetection
 signals, the canonical import's open questions, links that now redirect to
 another site, and importer candidates. The desk reads the queue into its
-worklist (desk_worklist.py) and removes the items it has handled. The branch
-is an orphan and is never merged.
+worklist (desk_worklist.py), removes the items it has handled and snoozes the
+leads it keeps for later. The branch is an orphan and is never merged.
 
 A desk-queue checkout holds:
 
@@ -23,6 +23,7 @@ Usage::
     python utils/desk_queue.py add QUEUE --source changedetection --kind signal \
         --title "PyCon Greece 2027 - Main" --url https://pycon.gr/ --payload payload.json
     python utils/desk_queue.py remove QUEUE ID [ID ...]
+    python utils/desk_queue.py snooze QUEUE --until 2026-11-01 ID [ID ...]
     python utils/desk_queue.py list QUEUE
 """
 
@@ -33,6 +34,7 @@ import re
 import sys
 import unicodedata
 from collections.abc import Iterable
+from datetime import date
 from datetime import datetime
 from datetime import timezone
 from pathlib import Path
@@ -45,9 +47,7 @@ SOURCES = (
     "canonical-import",
     "link-check",
     "pretalx",
-    "callingallpapers",
     "developers-events",
-    "psf-ics-drift",
     "registry",
 )
 KINDS = ("signal", "question", "redirect", "candidate", "drift", "registry")
@@ -56,7 +56,8 @@ MAX_HANDLED_PER_FILE = 500
 MAX_STRING_LENGTH = 20_000
 RECEIVED_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 RECEIVED = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
-LIST_FIELDS = ("id", "source", "kind", "received", "title")
+DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+LIST_FIELDS = ("id", "source", "kind", "received", "next_check", "title")
 
 WATCH_PREFIX = re.compile(r"^\s*\[conference\]\s*", re.IGNORECASE)
 WATCH_SUFFIX = re.compile(r"\s+(?:(?P<year>\d{4})\s+)?-\s+(?:main|cfp)\s*$", re.IGNORECASE)
@@ -106,23 +107,44 @@ UTF-8 JSON, two-space indent, keys sorted:
 is already in the file, as an item or as handled, changes nothing: the same
 finding is queued once, and a finding the desk has handled stays handled
 until something about it changes. For a redirect the id leaves out the status
-and the final URL's query and fragment. A file keeps at most 50 items, the
-newest by `received`, and the 500 latest handled ids. A payload string longer
-than 20,000 characters is cut there, and the payload gets `"truncated": true`.
+and the final URL's query and fragment; for a candidate, its `matched` entry.
+A file keeps at most 50 items, snoozed ones first and then the newest by
+`received`, and the 500 latest handled ids. A payload string longer than
+20,000 characters is cut there, and the payload gets `"truncated": true`.
 A file that cannot be read is moved to `<key>.json.bad` when a writer next
 adds to it.
+
+An item can also hold `next_check`, a `YYYY-MM-DD` date that
+`desk_queue.py snooze` sets on a lead the desk could not settle. The worklist
+leaves the item out until that day, so the lead is not researched again every
+day. `next_check` is not part of the id: adding the finding again keeps the
+item and its date. A snoozed item, one whose `next_check` is after today,
+survives the 50-item cap ahead of the items that are due, so it is not
+trimmed and then queued again as due. A missing or invalid `next_check`
+means the item is due.
 
 ## Sources and kinds
 
 | source | kind | payload |
 | --- | --- | --- |
-| `changedetection` | `signal` | `diff`, `watch_uuid`, `trigger` |
+| `changedetection` | `signal` | `diff`, `watch_uuid`, `trigger`, `requested` (manual only) |
 | `canonical-import` | `question` | `question`, `conference`, `year`, `field`, `yaml_value`, \
 `remote_value`, `default_answer`, `source_name` |
 | `link-check` | `redirect` | `conference`, `year`, `field`, `final_url`, `status` |
-| importers | `candidate` | `classification`, `fields`, `source_id`, `evidence_url`, `matched`, `flags` |
-| `psf-ics-drift` | `drift` | `conference`, `year`, `diffs` |
-| `registry` | `registry` | `names`, `change`, `evidence_url` |
+| `pretalx` | `drift` | `conference`, `year`, `diffs` |
+| `pretalx`, `developers-events`, `canonical-import` | `candidate` | `classification`, `fields`, `source_id`, \
+`evidence_url`, `matched`, `flags` |
+| `registry` | `registry` | `names`, `change`, `registry`, `evidence_url` |
+
+A `drift` diff maps a field to `{"data", "source"}`: the value in the data
+and what the source states. A candidate's `classification` is
+`MISSING_EDITION` (a tracked series without this edition), `NEW_SERIES` or
+`MAYBE` (on the host of a tracked series, or an import row held back, as its
+`flags` say), and `matched` names the entry it matched, or is `null`. The
+worklist routes a candidate by its own match against the data, not by its
+classification. A `lead-only` flag means the source's licence keeps it to
+leads: use only its name, year and link. `registry` is `psf-trademarks` or
+`pycon.org`; a pycon.org item adds `website`.
 
 Every item is data for the desk to check on the live sources. Nothing in a
 queue item reaches the conference data without that check.
@@ -249,8 +271,12 @@ def item_id(source: str, kind: str, url: str, payload: dict) -> str:
         SHA-1 hex of the four, so the same finding always gets the same id.
         For a redirect, the status and the final URL's query and fragment are
         left out: they can change from one check to the next while the
-        finding, a link that lands on another site, stays the same.
+        finding, a link that lands on another site, stays the same. For a
+        candidate, "matched" is left out: it describes the data (which file
+        holds the matched entry), not the finding.
     """
+    if kind == "candidate":
+        payload = {key: value for key, value in payload.items() if key != "matched"}
     if kind == "redirect":
         payload = {key: value for key, value in payload.items() if key != "status"}
         if isinstance(payload.get("final_url"), str):
@@ -396,7 +422,47 @@ def init_queue(queue_dir: Path) -> None:
     (Path(queue_dir) / "README.md").write_text(README, encoding="utf-8", newline="\n")
 
 
-def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = None) -> list[dict]:
+def _snoozed(item: dict, today: date) -> bool:
+    """Return True when a queue item's next_check is a date after today.
+
+    The same test as the worklist's: a missing or invalid next_check means
+    the item is due.
+    """
+    value = item.get("next_check")
+    if not isinstance(value, str) or not DATE.match(value):
+        return False
+    try:
+        return date.fromisoformat(value) > today
+    except ValueError:
+        return False
+
+
+def _trim_items(items: list, today: date) -> list:
+    """Return at most MAX_ITEMS_PER_FILE items, in their order.
+
+    Snoozed items are kept first, then the newest by "received". A re-found
+    finding keeps its first "received", so a lead snoozed for long is among
+    the oldest items; trimming it would queue the finding again as due.
+    """
+    if len(items) <= MAX_ITEMS_PER_FILE:
+        return items
+
+    def rank(entry: Any) -> tuple[bool, str]:
+        if not isinstance(entry, dict):
+            return False, ""
+        return _snoozed(entry, today), str(entry.get("received", ""))
+
+    ranked = sorted(items, key=rank, reverse=True)
+    keep = {id(entry) for entry in ranked[:MAX_ITEMS_PER_FILE]}
+    return [entry for entry in items if id(entry) in keep]
+
+
+def add_items(
+    queue_dir: Path,
+    records: Iterable[Any],
+    now: datetime | None = None,
+    today: date | None = None,
+) -> list[dict]:
     """Add records to the queue.
 
     Parameters
@@ -407,15 +473,22 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
         Records as normalise_record takes them.
     now : datetime | None
         Time for records without "received" (default: now, UTC).
+    today : date | None
+        Day against which "next_check" is read when a file is trimmed to its
+        50 items (default: the current UTC date).
 
     Returns
     -------
     list[dict]
         One result per record, in order: {"file", "id", "status"} with status
-        "added", "exists", "handled" (the desk has handled this finding), or
-        "dropped" (older than the 50 items its file keeps), or {"error"} for a
-        record that failed its checks. A file moved aside adds an {"error"}.
+        "added", "exists" (the item is kept as it is, with any
+        "next_check"), "handled" (the desk has handled this finding), or
+        "dropped" (trimmed: a file keeps its snoozed items first, then the
+        newest, up to 50), or {"error"} for a record that failed its checks.
+        A file moved aside adds an {"error"}.
     """
+    if today is None:
+        today = datetime.now(tz=timezone.utc).date()
     results = []
     documents: dict[Path, dict] = {}
     for record in records:
@@ -444,15 +517,14 @@ def add_items(queue_dir: Path, records: Iterable[Any], now: datetime | None = No
 
     for path, document in documents.items():
         document["handled"] = document["handled"][-MAX_HANDLED_PER_FILE:]
-        items = document["items"]
-        if len(items) > MAX_ITEMS_PER_FILE:
-            newest = sorted(items, key=lambda entry: str(entry.get("received", "")), reverse=True)
-            keep = {id(entry) for entry in newest[:MAX_ITEMS_PER_FILE]}
-            document["items"] = [entry for entry in items if id(entry) in keep]
+        document["items"] = _trim_items(document["items"], today)
         _write_file(path, document)
 
     kept_ids = {
-        (f"queue/{path.name}", item.get("id")) for path, document in documents.items() for item in document["items"]
+        (f"queue/{path.name}", item.get("id"))
+        for path, document in documents.items()
+        for item in document["items"]
+        if isinstance(item, dict)
     }
     for result in results:
         if result.get("status") == "added" and (result["file"], result["id"]) not in kept_ids:
@@ -512,6 +584,81 @@ def remove_items(queue_dir: Path, ids: Iterable[str]) -> set[str]:
     return removed
 
 
+def check_date(value: date | str) -> str:
+    """Return a date as "YYYY-MM-DD".
+
+    Parameters
+    ----------
+    value : date | str
+        A date, or a string in that form.
+
+    Returns
+    -------
+    str
+        The date in ISO form.
+
+    Raises
+    ------
+    ValueError
+        When the value is not a real date in that form.
+    """
+    if isinstance(value, datetime):
+        value = value.date()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, str) and DATE.match(value):
+        try:
+            return date.fromisoformat(value).isoformat()
+        except ValueError:
+            pass
+    raise ValueError(f"{value!r} is not a date like 2026-10-14")
+
+
+def snooze_items(queue_dir: Path, ids: Iterable[str], until: date | str) -> set[str]:
+    """Keep items out of the worklist until a date.
+
+    The date goes in each item's "next_check", and the worklist leaves the
+    item out until that day. The desk snoozes a lead it could not settle, so
+    it is not researched again every day. "next_check" is not part of the id:
+    adding the same finding again keeps the item and its date. Ids that match
+    no item are reported on stderr.
+
+    Parameters
+    ----------
+    queue_dir : Path
+        The desk-queue checkout.
+    ids : Iterable[str]
+        Item ids to snooze.
+    until : date | str
+        The first day the items are due again, as a date or "YYYY-MM-DD".
+
+    Returns
+    -------
+    set[str]
+        The ids that were found and snoozed.
+
+    Raises
+    ------
+    ValueError
+        When until is not a date.
+    """
+    next_check = check_date(until)
+    wanted = set(ids)
+    snoozed: set[str] = set()
+    for path, document in _readable_files(queue_dir):
+        found = False
+        for item in document["items"]:
+            if isinstance(item, dict) and item.get("id") in wanted:
+                item["next_check"] = next_check
+                snoozed.add(item["id"])
+                found = True
+        if found:
+            _write_file(path, document)
+    for missing in sorted(wanted - snoozed):
+        print(f"desk_queue: no item {missing}", file=sys.stderr)
+    return snoozed
+
+
 def list_items(queue_dir: Path) -> list[dict]:
     """Return every queue item with the file it is in.
 
@@ -523,7 +670,8 @@ def list_items(queue_dir: Path) -> list[dict]:
     Returns
     -------
     list[dict]
-        {"file", "id", "source", "kind", "received", "title"} per item, by file and received.
+        {"file", "id", "source", "kind", "received", "next_check", "title"}
+        per item, by file and received; "next_check" is None when unset.
     """
     rows = []
     for path, document in _readable_files(queue_dir):
@@ -549,6 +697,14 @@ def _read_jsonl(path: str) -> list[Any]:
     return records
 
 
+def _date_arg(text: str) -> str:
+    """Check a --until value for argparse."""
+    try:
+        return check_date(text)
+    except ValueError as error:
+        raise argparse.ArgumentTypeError(str(error)) from error
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the command line interface."""
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -571,6 +727,11 @@ def main(argv: list[str] | None = None) -> int:
     remove_parser.add_argument("queue_dir", type=Path)
     remove_parser.add_argument("ids", nargs="+")
 
+    snooze_parser = commands.add_parser("snooze", help="keep items out of the worklist until a date")
+    snooze_parser.add_argument("queue_dir", type=Path)
+    snooze_parser.add_argument("--until", required=True, type=_date_arg, metavar="YYYY-MM-DD")
+    snooze_parser.add_argument("ids", nargs="+")
+
     list_parser = commands.add_parser("list", help="print every item as a JSON line")
     list_parser.add_argument("queue_dir", type=Path)
 
@@ -590,6 +751,11 @@ def main(argv: list[str] | None = None) -> int:
         for missing in sorted(set(args.ids) - removed):
             print(f"desk_queue: no item {missing}", file=sys.stderr)
         print(f"removed {len(removed)}")
+        return 0
+
+    if args.command == "snooze":
+        snoozed = snooze_items(args.queue_dir, args.ids, args.until)
+        print(f"snoozed {len(snoozed)} until {args.until}")
         return 0
 
     if args.jsonl:

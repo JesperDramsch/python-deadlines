@@ -191,7 +191,7 @@ class TestDataConsistency:
 
         url_errors = []
         for conf in all_conferences[:100]:  # Test subset to avoid timeout
-            for url_field in ["link", "cfp_link", "sponsor", "finaid"]:
+            for url_field in ["link", "cfp_link", "sponsor", "finaid", "coc"]:
                 url = conf.get(url_field)
                 if url and isinstance(url, str) and not url.startswith(("http://", "https://")):
                     url_errors.append(f"{conf.get('conference')}: Invalid {url_field} - {url}")

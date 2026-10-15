@@ -9,8 +9,9 @@ on:
     paths:
       - '_data/conferences.yml'
 
+# Keyed by ref, so desk pushes to the rolling branch do not cancel the weekly run on main
 concurrency:
-  group: link-check
+  group: link-check-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
