@@ -2,6 +2,21 @@
   "handled": [
     "d3c98f56fc1fc094fd6466eed7dde5991773619d"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "b8ffdf35c444110c0850b71ab5d6d69351f868fe",
+      "kind": "signal",
+      "payload": {
+        "diff": "30 /150 人 31 /150 人 参加者（40人） 参加者（41人） 参加者一覧（40人） 広告 広告 参加者一覧（41人） 広告 広告",
+        "trigger": "website_change",
+        "watch_uuid": "e8acf674-c93f-4b9c-8c6c-252944146a57"
+      },
+      "received": "2026-10-16T22:17:28Z",
+      "source": "changedetection",
+      "title": "PyCon mini Tokyo 2026 - Main",
+      "url": "https://pyconjp.connpass.com/event/404336/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon mini Tokyo"
 }
