@@ -5,6 +5,45 @@
     "4627831594370c8daea2908058da36ec2ba277e1",
     "8c16d6b7c09e00318d1df34763edd3aa0515ac7e"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "7ff8f2f2e6110f1083fd22ef1ceeeff951e99478",
+      "kind": "question",
+      "payload": {
+        "conference": "Python Nordeste",
+        "default_answer": false,
+        "field": "place",
+        "question": "For Python Nordeste in column 'place' would you prefer 'Fortaleza, Brasil' or keep 'Fortaleza, Brazil'?",
+        "remote_value": "Fortaleza, Brasil",
+        "source_name": "python-organizers",
+        "yaml_value": "Fortaleza, Brazil",
+        "year": 2026
+      },
+      "received": "2026-10-16T10:05:17Z",
+      "source": "canonical-import",
+      "title": "Python Nordeste",
+      "url": "https://2026.pythonnordeste.org/",
+      "year": 2026
+    },
+    {
+      "id": "fc17cada17626feb122dda054a0e6152387439ed",
+      "kind": "question",
+      "payload": {
+        "conference": "Python Nordeste",
+        "default_answer": false,
+        "field": "end",
+        "question": "For Python Nordeste in column 'end' would you prefer '2026-08-16' or keep '2026-08-15'?",
+        "remote_value": "2026-08-16",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-08-15",
+        "year": 2026
+      },
+      "received": "2026-10-16T10:05:17Z",
+      "source": "canonical-import",
+      "title": "Python Nordeste",
+      "url": "https://2026.pythonnordeste.org/",
+      "year": 2026
+    }
+  ],
   "series": "Python Nordeste"
 }

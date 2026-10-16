@@ -2,6 +2,26 @@
   "handled": [
     "1fa1078d93cf1324107058f83fbdd5a05b1e7eda"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "3ef80a48008d973c62c3358db51d529c55b2fbd9",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Singapore",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Singapore in column 'link' would you prefer 'http://pycon.sg/' or keep 'https://pycon.sg/'?",
+        "remote_value": "http://pycon.sg/",
+        "source_name": "python.org",
+        "yaml_value": "https://pycon.sg/",
+        "year": 2026
+      },
+      "received": "2026-10-16T10:05:03Z",
+      "source": "canonical-import",
+      "title": "PyCon Singapore",
+      "url": "https://pycon.sg/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Singapore"
 }

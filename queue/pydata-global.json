@@ -2,6 +2,26 @@
   "handled": [
     "a5b6d20c858c25f2516eb5ffce4390898fc3549a"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "79b29ab2d4aa0ab40a97c61365806d54235bb8b6",
+      "kind": "question",
+      "payload": {
+        "conference": "PyData Global",
+        "default_answer": false,
+        "field": "start",
+        "question": "For PyData Global in column 'start' would you prefer '2026-12-08' or keep '2026-12-09'?",
+        "remote_value": "2026-12-08",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-12-09",
+        "year": 2026
+      },
+      "received": "2026-10-16T10:05:17Z",
+      "source": "canonical-import",
+      "title": "PyData Global",
+      "url": "https://pydata.org/global2026/",
+      "year": 2026
+    }
+  ],
   "series": "PyData Global"
 }

@@ -4,6 +4,26 @@
     "ebfb2683d1e966a38aa1fdddc0c1adfb48395dd4",
     "43486ae4faa089036eb733bccccd681bc34d290d"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "8af5c7f4ae08f707abffc18875c9a01c71fa46fb",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Japan",
+        "default_answer": false,
+        "field": "cfp",
+        "question": "For PyCon Japan in column 'cfp' would you prefer '2026-05-31 21:00:00' or keep '2026-06-01 21:00:00'?",
+        "remote_value": "2026-05-31 21:00:00",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-06-01 21:00:00",
+        "year": 2026
+      },
+      "received": "2026-10-16T10:05:17Z",
+      "source": "canonical-import",
+      "title": "PyCon Japan",
+      "url": "https://2026.pycon.jp/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Japan"
 }
