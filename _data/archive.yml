@@ -715,6 +715,19 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyCamp Argentina
+  year: 2026
+  link: https://pyar.discourse.group/t/pycamp-2026/1526
+  cfp: None
+  place: Villa La Angostura, Argentina
+  start: 2026-03-21
+  end: 2026-03-24
+  sub: CAMP
+  location:
+  - title: PyCamp Argentina 2026
+    latitude: -40.7620693
+    longitude: -71.6472306
+
 - conference: PyCascades
   year: 2026
   link: https://2026.pycascades.com/
