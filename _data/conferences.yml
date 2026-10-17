@@ -988,6 +988,20 @@
     latitude: 49.7477415
     longitude: 13.3775249
 
+- conference: Black Python Devs Leadership Summit
+  year: 2027
+  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
+  cfp: TBA
+  place: Austin, USA
+  start: 2027-04-16
+  end: 2027-04-16
+  coc: https://blackpythondevs.com/code-of-conduct.html
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2027
+    latitude: 30.2711286
+    longitude: -97.7436995
+
 - conference: PyCon Austria
   year: 2027
   link: https://pycon.at/
