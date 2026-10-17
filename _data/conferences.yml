@@ -414,21 +414,6 @@
     latitude: 50.0478
     longitude: 12.5604627
 
-- conference: PyHEP.dev
-  alt_name: PyHEP
-  year: 2026
-  link: https://indico.nikhef.nl/event/7873/
-  cfp: '2026-08-14 23:59:00'
-  timezone: Europe/Amsterdam
-  place: Amsterdam, Netherlands
-  start: 2026-09-07
-  end: 2026-09-09
-  sub: SCIPY
-  location:
-  - title: PyHEP.dev 2026
-    latitude: 52.4111289
-    longitude: 4.877231604293446
-
 - conference: PyCon South Africa
   alt_name: PyCon ZA
   year: 2026
@@ -1010,6 +995,7 @@
   place: Eisenstadt, Austria
   start: 2027-04-11
   end: 2027-04-12
+  sponsor: https://2027.pycon.at/sponsor-information/
   coc: https://2027.pycon.at/code-of-conduct/
   mastodon: https://mastodon.social/@pycon_austria
   youtube: https://www.youtube.com/@PyConAustria
