@@ -108,6 +108,7 @@
     longitude: -87.6244212
 
 - conference: PyCon Japan
+  alt_name: PyCon JP
   year: 2026
   link: https://2026.pycon.jp/
   cfp_link: https://pretalx.com/pyconjp2026/cfp
