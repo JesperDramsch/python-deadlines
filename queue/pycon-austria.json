@@ -2,47 +2,10 @@
   "handled": [
     "888ba63a158935a66e743efa498dfd9602a88c83",
     "e4c3b1ad3914554c82c1ab88f9faf47a279f1a2e",
-    "21cacefdd74c1353aa59974fcc6987ffbf57fbed"
+    "21cacefdd74c1353aa59974fcc6987ffbf57fbed",
+    "427f256717bbdb34171bef1dfa9c616ee8755b85",
+    "865683257fe33b897057a2bced79e5def6bbf886"
   ],
-  "items": [
-    {
-      "id": "427f256717bbdb34171bef1dfa9c616ee8755b85",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Austria",
-        "default_answer": false,
-        "field": "start",
-        "question": "For PyCon Austria in column 'start' would you prefer '2027-04-25' or keep '2027-04-11'?",
-        "remote_value": "2027-04-25",
-        "source_name": "python-organizers",
-        "yaml_value": "2027-04-11",
-        "year": 2027
-      },
-      "received": "2026-10-16T10:05:17Z",
-      "source": "canonical-import",
-      "title": "PyCon Austria",
-      "url": "https://pycon.at/",
-      "year": 2027
-    },
-    {
-      "id": "865683257fe33b897057a2bced79e5def6bbf886",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Austria",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Austria in column 'end' would you prefer '2027-04-27' or keep '2027-04-12'?",
-        "remote_value": "2027-04-27",
-        "source_name": "python-organizers",
-        "yaml_value": "2027-04-12",
-        "year": 2027
-      },
-      "received": "2026-10-16T10:05:17Z",
-      "source": "canonical-import",
-      "title": "PyCon Austria",
-      "url": "https://pycon.at/",
-      "year": 2027
-    }
-  ],
+  "items": [],
   "series": "PyCon Austria"
 }

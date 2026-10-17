@@ -1,47 +1,10 @@
 {
   "handled": [
     "23318fada0c233301063c11615f0a0de7a16ce59",
-    "04845e128cb94f574ebe9f084dc73f08c9404ca7"
+    "04845e128cb94f574ebe9f084dc73f08c9404ca7",
+    "6bbccbb9169f7395e66668378adac9433070d267",
+    "7c9c7c2c86175083b344b2b31c23a04fe19cdea0"
   ],
-  "items": [
-    {
-      "id": "6bbccbb9169f7395e66668378adac9433070d267",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Kenya",
-        "default_answer": false,
-        "field": "start",
-        "question": "For PyCon Kenya in column 'start' would you prefer '2026-08-28' or keep '2026-10-02'?",
-        "remote_value": "2026-08-28",
-        "source_name": "python.org",
-        "yaml_value": "2026-10-02",
-        "year": 2026
-      },
-      "received": "2026-10-16T10:05:03Z",
-      "source": "canonical-import",
-      "title": "PyCon Kenya",
-      "url": "https://www.pycon.ke/",
-      "year": 2026
-    },
-    {
-      "id": "7c9c7c2c86175083b344b2b31c23a04fe19cdea0",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Kenya",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Kenya in column 'end' would you prefer '2026-08-29' or keep '2026-10-03'?",
-        "remote_value": "2026-08-29",
-        "source_name": "python.org",
-        "yaml_value": "2026-10-03",
-        "year": 2026
-      },
-      "received": "2026-10-16T10:05:03Z",
-      "source": "canonical-import",
-      "title": "PyCon Kenya",
-      "url": "https://www.pycon.ke/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyCon Kenya"
 }

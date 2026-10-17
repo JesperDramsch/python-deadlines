@@ -1,27 +1,8 @@
 {
   "handled": [
-    "103e01861d996d6751493aa1da7ae433a12edc27"
+    "103e01861d996d6751493aa1da7ae433a12edc27",
+    "b977ca32b654ed549ba89020dd65111a35baae64"
   ],
-  "items": [
-    {
-      "id": "b977ca32b654ed549ba89020dd65111a35baae64",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Greece",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Greece in column 'link' would you prefer 'https://pycon.gr/' or keep 'https://2026.pycon.gr/'?",
-        "remote_value": "https://pycon.gr/",
-        "source_name": "python.org",
-        "yaml_value": "https://2026.pycon.gr/",
-        "year": 2026
-      },
-      "received": "2026-10-16T10:05:03Z",
-      "source": "canonical-import",
-      "title": "PyCon Greece",
-      "url": "https://2026.pycon.gr/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyCon Greece"
 }
