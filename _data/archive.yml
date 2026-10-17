@@ -1,5 +1,20 @@
 ---
 
+- conference: PyHEP.dev
+  alt_name: PyHEP
+  year: 2026
+  link: https://indico.nikhef.nl/event/7873/
+  cfp: '2026-08-14 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2026-09-07
+  end: 2026-09-09
+  sub: SCIPY
+  location:
+  - title: PyHEP.dev 2026
+    latitude: 52.4111289
+    longitude: 4.877231604293446
+
 - conference: PyCon Portugal
   alt_name: PyCon PT
   year: 2026
