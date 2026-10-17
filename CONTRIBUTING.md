@@ -7,29 +7,29 @@ Thank you for your interest in contributing to Python Deadlines! This guide will
 ## Table of Contents
 
 - [Contributing to Python Deadlines](#contributing-to-python-deadlines)
-  - [Table of Contents](#table-of-contents)
-  - [Ways to Contribute](#ways-to-contribute)
-  - [Adding or Updating Conference Information](#adding-or-updating-conference-information)
-    - [Optional Fields](#optional-fields)
-  - [Development Setup](#development-setup)
-  - [Making Changes](#making-changes)
-  - [Pull Request Guidelines](#pull-request-guidelines)
-  - [Using All-Contributors Bot](#using-all-contributors-bot)
-    - [Contributors](#contributors)
-  - [Code Quality](#code-quality)
-  - [Getting Help](#getting-help)
-  - [Code of Conduct](#code-of-conduct)
-  - [License](#license)
+    - [Table of Contents](#table-of-contents)
+    - [Ways to Contribute](#ways-to-contribute)
+    - [Adding or Updating Conference Information](#adding-or-updating-conference-information)
+        - [Optional Fields](#optional-fields)
+    - [Development Setup](#development-setup)
+    - [Making Changes](#making-changes)
+    - [Pull Request Guidelines](#pull-request-guidelines)
+    - [Using All-Contributors Bot](#using-all-contributors-bot)
+        - [Contributors](#contributors)
+    - [Code Quality](#code-quality)
+    - [Getting Help](#getting-help)
+    - [Code of Conduct](#code-of-conduct)
+    - [License](#license)
 
 ## Ways to Contribute
 
 You can contribute in several ways:
 
--   Adding or updating conference information
--   Improving documentation
--   Fixing bugs
--   Adding new features
--   Reviewing pull requests
+- Adding or updating conference information
+- Improving documentation
+- Fixing bugs
+- Adding new features
+- Reviewing pull requests
 
 ## Adding or Updating Conference Information
 
@@ -50,41 +50,41 @@ You can contribute in several ways:
 
 Required fields:
 
--   `conference`: Conference name
--   `year`: Conference year
--   `link`: Conference website URL
--   `cfp`: Call for Proposals deadline
--   `place`: Location
--   `start`: Conference start date
--   `end`: Conference end date
--   `sub`: Conference type
+- `conference`: Conference name
+- `year`: Conference year
+- `link`: Conference website URL
+- `cfp`: Call for Proposals deadline
+- `place`: Location
+- `start`: Conference start date
+- `end`: Conference end date
+- `sub`: Conference type
 
 Conference types (`sub`):
 
--   `PY`: General Python
--   `SCIPY`: Scientific Python
--   `DATA`: Python for Data
--   `WEB`: Python for Web
--   `BIZ`: Python for Business
--   `GEO`: Python for Earth
+- `PY`: General Python
+- `SCIPY`: Scientific Python
+- `DATA`: Python for Data
+- `WEB`: Python for Web
+- `BIZ`: Python for Business
+- `GEO`: Python for Earth
 
 ### Optional Fields
 
 You can enhance your entry with these optional fields:
 
--   `alt_name`: Alternative conference name
--   `cfp_link`: Specific CFP page URL
--   `cfp_ext`: Extended deadline
--   `workshop_deadline`: Workshop submission deadline
--   `tutorial_deadline`: Tutorial submission deadline
--   `timezone`: IANA timezone (defaults to AoE if omitted)
--   `sponsor`: Sponsorship page URL
--   `finaid`: Financial aid information URL
--   `coc`: Code of Conduct URL
--   `twitter`: Conference Twitter handle
--   `mastodon`: Conference Mastodon URL
--   `note`: Additional important information
--   `location`: Venue coordinates for the map
+- `alt_name`: Alternative conference name
+- `cfp_link`: Specific CFP page URL
+- `cfp_ext`: Extended deadline
+- `workshop_deadline`: Workshop submission deadline
+- `tutorial_deadline`: Tutorial submission deadline
+- `timezone`: IANA timezone (defaults to AoE if omitted)
+- `sponsor`: Sponsorship page URL
+- `finaid`: Financial aid information URL
+- `coc`: Code of Conduct URL
+- `twitter`: Conference Twitter handle
+- `mastodon`: Conference Mastodon URL
+- `note`: Additional important information
+- `location`: Venue coordinates for the map
 
 ## Development Setup
 
@@ -141,11 +141,11 @@ git push origin add-conference-name
 
 ## Pull Request Guidelines
 
--   Use a clear, descriptive title
--   Reference any related issues
--   Include screenshots for UI changes
--   Update documentation if needed
--   Verify all tests pass
+- Use a clear, descriptive title
+- Reference any related issues
+- Include screenshots for UI changes
+- Update documentation if needed
+- Verify all tests pass
 
 ## Using All-Contributors Bot
 
@@ -159,13 +159,13 @@ We use the All-Contributors bot to recognize all contributors, not just code con
 
 Available contribution types:
 
--   `code`: Code or tests
--   `doc`: Documentation
--   `content`: Conference data
--   `review`: Pull Request reviews
--   `bug`: Bug reports
--   `ideas`: Ideas and feedback
--   `tool`: Tools and utilities
+- `code`: Code or tests
+- `doc`: Documentation
+- `content`: Conference data
+- `review`: Pull Request reviews
+- `bug`: Bug reports
+- `ideas`: Ideas and feedback
+- `tool`: Tools and utilities
 
 2. The bot will create a PR to add the contributor
 3. Once merged, they'll appear in the README 🎉
@@ -208,7 +208,7 @@ Example:
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/raviselker"><img src="https://avatars.githubusercontent.com/u/4669197?v=4?s=100" width="100px;" alt="Ravi Selker"/><br /><sub><b>Ravi Selker</b></sub></a><br /><a href="#conference-raviselker" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://bardiharborow.com/"><img src="https://avatars.githubusercontent.com/u/1073681?v=4?s=100" width="100px;" alt="Bardi Harborow"/><br /><sub><b>Bardi Harborow</b></sub></a><br /><a href="#conference-bardiharborow" title="Python conference (Added or updated)">📆</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/coolandsmartrr"><img src="https://avatars.githubusercontent.com/u/905436?v=4?s=100" width="100px;" alt="Ricky"/><br /><sub><b>Ricky</b></sub></a><br /><a href="#conference-coolandsmartrr" title="Python conference (Added or updated)">📆</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://bruhin.software/"><img src="https://avatars.githubusercontent.com/u/625793?v=4?s=100" width="100px;" alt="Florian Bruhin"/><br /><sub><b>Florian Bruhin</b></sub></a><br /><a href="#conference-The-Compiler" title="Python conference (Added or updated)">📆</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://bruhin.software/"><img src="https://avatars.githubusercontent.com/u/625793?v=4?s=100" width="100px;" alt="Freya Bruhin"/><br /><sub><b>Freya Bruhin</b></sub></a><br /><a href="#conference-The-Compiler" title="Python conference (Added or updated)">📆</a></td>
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/jungmir"><img src="https://avatars.githubusercontent.com/u/61821253?v=4?s=100" width="100px;" alt="jungmir"/><br /><sub><b>jungmir</b></sub></a><br /><a href="#conference-jungmir" title="Python conference (Added or updated)">📆</a></td>
@@ -228,17 +228,17 @@ Example:
 
 ## Code Quality
 
--   Follow PEP 8 for Python code
--   Use meaningful variable names
--   Add comments for complex logic
--   Include docstrings for functions
--   Validate YAML files before committing
+- Follow PEP 8 for Python code
+- Use meaningful variable names
+- Add comments for complex logic
+- Include docstrings for functions
+- Validate YAML files before committing
 
 ## Getting Help
 
--   Open an issue for questions
--   Join discussions in existing issues
--   Contact maintainers for guidance
+- Open an issue for questions
+- Join discussions in existing issues
+- Contact maintainers for guidance
 
 ## Code of Conduct
 

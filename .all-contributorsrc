@@ -1,285 +1,227 @@
 {
-  "projectName": "python-deadlines",
-  "projectOwner": "JesperDramsch",
-  "skipCi": true,
-  "files": [
-    "README.md",
-    "CONTRIBUTING.md"
-  ],
-  "imageSize": 100,
-  "commitType": "docs",
-  "commitConvention": "angular",
-  "contributorsPerLine": 7,
-  "types": {
-    "conference": {
-      "symbol": "📆",
-      "description": "Python conference (Added or updated)",
-      "link": "#conference-<%= contributor.login %>"
-    }
-  },
-  "contributors": [
-    {
-      "login": "JesperDramsch",
-      "name": "Jesper Dramsch",
-      "avatar_url": "https://avatars.githubusercontent.com/u/2620316?v=4",
-      "profile": "http://dramsch.net",
-      "contributions": [
-        "a11y",
-        "bug",
-        "blog",
-        "code",
-        "conference",
-        "content",
-        "doc",
-        "design",
-        "financial",
-        "ideas",
-        "infra",
-        "promotion",
-        "review",
-        "security",
-        "tool",
-        "translation",
-        "talk"
-      ]
-    },
-    {
-      "login": "abhshkdz",
-      "name": "Abhishek Das",
-      "avatar_url": "https://avatars.githubusercontent.com/u/1156489?v=4",
-      "profile": "https://abhishekdas.com/",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
-      "login": "john-sandall",
-      "name": "John Sandall",
-      "avatar_url": "https://avatars.githubusercontent.com/u/2884159?v=4",
-      "profile": "https://coefficient.ai",
-      "contributions": [
-        "conference",
-        "bug"
-      ]
-    },
-    {
-      "login": "thibaudcolas",
-      "name": "Thibaud Colas",
-      "avatar_url": "https://avatars.githubusercontent.com/u/877585?v=4",
-      "profile": "https://thib.me/",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "tankala",
-      "name": "Tankala Ashok",
-      "avatar_url": "https://avatars.githubusercontent.com/u/29096822?v=4",
-      "profile": "http://tanka.la",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "RCdeWit",
-      "name": "Rob de Wit",
-      "avatar_url": "https://avatars.githubusercontent.com/u/7165065?v=4",
-      "profile": "http://robdewit.nl",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "takanory",
-      "name": "Takanori Suzuki",
-      "avatar_url": "https://avatars.githubusercontent.com/u/988241?v=4",
-      "profile": "https://slides.takanory.net/",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "alanderex",
-      "name": "Alexander CS Hendorf",
-      "avatar_url": "https://avatars.githubusercontent.com/u/1356401?v=4",
-      "profile": "https://github.com/alanderex",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "radujica",
-      "name": "Radu",
-      "avatar_url": "https://avatars.githubusercontent.com/u/8166962?v=4",
-      "profile": "https://github.com/radujica",
-      "contributions": [
-        "bug"
-      ]
-    },
-    {
-      "login": "isabelizimm",
-      "name": "Isabel Zimmerman",
-      "avatar_url": "https://avatars.githubusercontent.com/u/54685329?v=4",
-      "profile": "http://isabelizimm.me",
-      "contributions": [
-        "bug"
-      ]
-    },
-    {
-      "login": "jeroenjanssens",
-      "name": "Jeroen Janssens",
-      "avatar_url": "https://avatars.githubusercontent.com/u/1368256?v=4",
-      "profile": "https://jeroenjanssens.com/",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "systematicguy",
-      "name": "David Horvath",
-      "avatar_url": "https://avatars.githubusercontent.com/u/12820811?v=4",
-      "profile": "https://github.com/systematicguy",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "ogrisel",
-      "name": "Olivier Grisel",
-      "avatar_url": "https://avatars.githubusercontent.com/u/89061?v=4",
-      "profile": "https://ogrisel.com/",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "mtsokol",
-      "name": "Mateusz Sokół",
-      "avatar_url": "https://avatars.githubusercontent.com/u/8431159?v=4",
-      "profile": "https://github.com/mtsokol",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "theopinard",
-      "name": "Theodore Meynard",
-      "avatar_url": "https://avatars.githubusercontent.com/u/16977967?v=4",
-      "profile": "https://github.com/theopinard",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "kgawda",
-      "name": "Konrad Gawda",
-      "avatar_url": "https://avatars.githubusercontent.com/u/3084325?v=4",
-      "profile": "https://github.com/kgawda",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "egeakman",
-      "name": "Ege Akman",
-      "avatar_url": "https://avatars.githubusercontent.com/u/75242929?v=4",
-      "profile": "https://github.com/egeakman",
-      "contributions": [
-        "bug",
-        "conference",
-        "code"
-      ]
-    },
-    {
-      "login": "raviselker",
-      "name": "Ravi Selker",
-      "avatar_url": "https://avatars.githubusercontent.com/u/4669197?v=4",
-      "profile": "https://github.com/raviselker",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "bardiharborow",
-      "name": "Bardi Harborow",
-      "avatar_url": "https://avatars.githubusercontent.com/u/1073681?v=4",
-      "profile": "https://bardiharborow.com/",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "coolandsmartrr",
-      "name": "Ricky",
-      "avatar_url": "https://avatars.githubusercontent.com/u/905436?v=4",
-      "profile": "https://github.com/coolandsmartrr",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "The-Compiler",
-      "name": "Florian Bruhin",
-      "avatar_url": "https://avatars.githubusercontent.com/u/625793?v=4",
-      "profile": "https://bruhin.software/",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "jungmir",
-      "name": "jungmir",
-      "avatar_url": "https://avatars.githubusercontent.com/u/61821253?v=4",
-      "profile": "https://github.com/jungmir",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "drnlm",
-      "name": "Neil Muller",
-      "avatar_url": "https://avatars.githubusercontent.com/u/642056?v=4",
-      "profile": "https://github.com/drnlm",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "mrswats",
-      "name": "Ferran Jovell",
-      "avatar_url": "https://avatars.githubusercontent.com/u/3410779?v=4",
-      "profile": "https://github.com/mrswats",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "agriyakhetarpal",
-      "name": "Agriya Khetarpal",
-      "avatar_url": "https://avatars.githubusercontent.com/u/74401230?v=4",
-      "profile": "https://github.com/agriyakhetarpal",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "rodrigogiraoserrao",
-      "name": "Rodrigo Girão Serrão",
-      "avatar_url": "https://avatars.githubusercontent.com/u/5621605?v=4",
-      "profile": "https://mathspp.com/",
-      "contributions": [
-        "conference"
-      ]
-    },
-    {
-      "login": "Haleshot",
-      "name": "Srihari Thyagarajan",
-      "avatar_url": "https://avatars.githubusercontent.com/u/57552973?v=4",
-      "profile": "https://haleshot.github.io/",
-      "contributions": [
-        "conference"
-      ]
-    }
-  ],
-  "repoType": "github"
+	"projectName": "python-deadlines",
+	"projectOwner": "JesperDramsch",
+	"skipCi": true,
+	"files": ["README.md", "CONTRIBUTING.md"],
+	"imageSize": 100,
+	"commitType": "docs",
+	"commitConvention": "angular",
+	"contributorsPerLine": 7,
+	"types": {
+		"conference": {
+			"symbol": "📆",
+			"description": "Python conference (Added or updated)",
+			"link": "#conference-<%= contributor.login %>"
+		}
+	},
+	"contributors": [
+		{
+			"login": "JesperDramsch",
+			"name": "Jesper Dramsch",
+			"avatar_url": "https://avatars.githubusercontent.com/u/2620316?v=4",
+			"profile": "http://dramsch.net",
+			"contributions": [
+				"a11y",
+				"bug",
+				"blog",
+				"code",
+				"conference",
+				"content",
+				"doc",
+				"design",
+				"financial",
+				"ideas",
+				"infra",
+				"promotion",
+				"review",
+				"security",
+				"tool",
+				"translation",
+				"talk"
+			]
+		},
+		{
+			"login": "abhshkdz",
+			"name": "Abhishek Das",
+			"avatar_url": "https://avatars.githubusercontent.com/u/1156489?v=4",
+			"profile": "https://abhishekdas.com/",
+			"contributions": ["code"]
+		},
+		{
+			"login": "john-sandall",
+			"name": "John Sandall",
+			"avatar_url": "https://avatars.githubusercontent.com/u/2884159?v=4",
+			"profile": "https://coefficient.ai",
+			"contributions": ["conference", "bug"]
+		},
+		{
+			"login": "thibaudcolas",
+			"name": "Thibaud Colas",
+			"avatar_url": "https://avatars.githubusercontent.com/u/877585?v=4",
+			"profile": "https://thib.me/",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "tankala",
+			"name": "Tankala Ashok",
+			"avatar_url": "https://avatars.githubusercontent.com/u/29096822?v=4",
+			"profile": "http://tanka.la",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "RCdeWit",
+			"name": "Rob de Wit",
+			"avatar_url": "https://avatars.githubusercontent.com/u/7165065?v=4",
+			"profile": "http://robdewit.nl",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "takanory",
+			"name": "Takanori Suzuki",
+			"avatar_url": "https://avatars.githubusercontent.com/u/988241?v=4",
+			"profile": "https://slides.takanory.net/",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "alanderex",
+			"name": "Alexander CS Hendorf",
+			"avatar_url": "https://avatars.githubusercontent.com/u/1356401?v=4",
+			"profile": "https://github.com/alanderex",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "radujica",
+			"name": "Radu",
+			"avatar_url": "https://avatars.githubusercontent.com/u/8166962?v=4",
+			"profile": "https://github.com/radujica",
+			"contributions": ["bug"]
+		},
+		{
+			"login": "isabelizimm",
+			"name": "Isabel Zimmerman",
+			"avatar_url": "https://avatars.githubusercontent.com/u/54685329?v=4",
+			"profile": "http://isabelizimm.me",
+			"contributions": ["bug"]
+		},
+		{
+			"login": "jeroenjanssens",
+			"name": "Jeroen Janssens",
+			"avatar_url": "https://avatars.githubusercontent.com/u/1368256?v=4",
+			"profile": "https://jeroenjanssens.com/",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "systematicguy",
+			"name": "David Horvath",
+			"avatar_url": "https://avatars.githubusercontent.com/u/12820811?v=4",
+			"profile": "https://github.com/systematicguy",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "ogrisel",
+			"name": "Olivier Grisel",
+			"avatar_url": "https://avatars.githubusercontent.com/u/89061?v=4",
+			"profile": "https://ogrisel.com/",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "mtsokol",
+			"name": "Mateusz Sokół",
+			"avatar_url": "https://avatars.githubusercontent.com/u/8431159?v=4",
+			"profile": "https://github.com/mtsokol",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "theopinard",
+			"name": "Theodore Meynard",
+			"avatar_url": "https://avatars.githubusercontent.com/u/16977967?v=4",
+			"profile": "https://github.com/theopinard",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "kgawda",
+			"name": "Konrad Gawda",
+			"avatar_url": "https://avatars.githubusercontent.com/u/3084325?v=4",
+			"profile": "https://github.com/kgawda",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "egeakman",
+			"name": "Ege Akman",
+			"avatar_url": "https://avatars.githubusercontent.com/u/75242929?v=4",
+			"profile": "https://github.com/egeakman",
+			"contributions": ["bug", "conference", "code"]
+		},
+		{
+			"login": "raviselker",
+			"name": "Ravi Selker",
+			"avatar_url": "https://avatars.githubusercontent.com/u/4669197?v=4",
+			"profile": "https://github.com/raviselker",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "bardiharborow",
+			"name": "Bardi Harborow",
+			"avatar_url": "https://avatars.githubusercontent.com/u/1073681?v=4",
+			"profile": "https://bardiharborow.com/",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "coolandsmartrr",
+			"name": "Ricky",
+			"avatar_url": "https://avatars.githubusercontent.com/u/905436?v=4",
+			"profile": "https://github.com/coolandsmartrr",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "The-Compiler",
+			"name": "Freya Bruhin",
+			"avatar_url": "https://avatars.githubusercontent.com/u/625793?v=4",
+			"profile": "https://bruhin.software/",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "jungmir",
+			"name": "jungmir",
+			"avatar_url": "https://avatars.githubusercontent.com/u/61821253?v=4",
+			"profile": "https://github.com/jungmir",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "drnlm",
+			"name": "Neil Muller",
+			"avatar_url": "https://avatars.githubusercontent.com/u/642056?v=4",
+			"profile": "https://github.com/drnlm",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "mrswats",
+			"name": "Ferran Jovell",
+			"avatar_url": "https://avatars.githubusercontent.com/u/3410779?v=4",
+			"profile": "https://github.com/mrswats",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "agriyakhetarpal",
+			"name": "Agriya Khetarpal",
+			"avatar_url": "https://avatars.githubusercontent.com/u/74401230?v=4",
+			"profile": "https://github.com/agriyakhetarpal",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "rodrigogiraoserrao",
+			"name": "Rodrigo Girão Serrão",
+			"avatar_url": "https://avatars.githubusercontent.com/u/5621605?v=4",
+			"profile": "https://mathspp.com/",
+			"contributions": ["conference"]
+		},
+		{
+			"login": "Haleshot",
+			"name": "Srihari Thyagarajan",
+			"avatar_url": "https://avatars.githubusercontent.com/u/57552973?v=4",
+			"profile": "https://haleshot.github.io/",
+			"contributions": ["conference"]
+		}
+	],
+	"repoType": "github"
 }
