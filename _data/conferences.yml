@@ -1028,6 +1028,7 @@
   place: Tokyo, Japan
   start: 2026-12-12
   end: 2026-12-12
+  coc: https://www.pycon.jp/policies/code-of-conduct.html
   sub: PY
   location:
   - title: PyCon mini Tokyo 2026
