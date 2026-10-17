@@ -215,6 +215,7 @@
   start: 2026-11-20
   end: 2026-11-21
   sponsor: https://www.pyconwroclaw.com/#sponsors
+  finaid: https://forms.gle/jQVrF3sXSQKBCHcM7
   twitter: pyconwroclaw
   youtube: https://www.youtube.com/embed/NL9296S0mkM
   sub: PY
@@ -412,21 +413,6 @@
   - title: Django Day Copenhagen 2026
     latitude: 50.0478
     longitude: 12.5604627
-
-- conference: PyHEP.dev
-  alt_name: PyHEP
-  year: 2026
-  link: https://indico.nikhef.nl/event/7873/
-  cfp: '2026-08-14 23:59:00'
-  timezone: Europe/Amsterdam
-  place: Amsterdam, Netherlands
-  start: 2026-09-07
-  end: 2026-09-09
-  sub: SCIPY
-  location:
-  - title: PyHEP.dev 2026
-    latitude: 52.4111289
-    longitude: 4.877231604293446
 
 - conference: PyCon South Africa
   alt_name: PyCon ZA
@@ -826,6 +812,7 @@
   place: Numazu, Japan
   start: 2027-09-24
   end: 2027-09-26
+  coc: https://www.pycon.jp/policies/code-of-conduct.html
   twitter: pyconjapan
   sub: PY
   location:
@@ -982,6 +969,20 @@
     latitude: 49.4093582
     longitude: 8.694724
 
+- conference: Black Python Devs Leadership Summit
+  year: 2027
+  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
+  cfp: TBA
+  place: Austin, USA
+  start: 2027-04-16
+  end: 2027-04-16
+  coc: https://blackpythondevs.com/code-of-conduct.html
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2027
+    latitude: 30.2711286
+    longitude: -97.7436995
+
 - conference: PyCon Czechia
   alt_name: PyCon CZ
   year: 2027
@@ -991,6 +992,7 @@
   start: 2027-04-16
   end: 2027-04-18
   sponsor: https://cz.pycon.org/2027/sponsorship/
+  coc: https://cz.pycon.org/2027/coc/
   twitter: pyconcz
   mastodon: https://floss.social/@pyconcz
   youtube: https://www.youtube.com/@PyConCZ
@@ -1008,6 +1010,7 @@
   place: Eisenstadt, Austria
   start: 2027-04-11
   end: 2027-04-12
+  sponsor: https://2027.pycon.at/sponsor-information/
   coc: https://2027.pycon.at/code-of-conduct/
   mastodon: https://mastodon.social/@pycon_austria
   youtube: https://www.youtube.com/@PyConAustria
@@ -1017,6 +1020,22 @@
     latitude: 47.8454821
     longitude: 16.5249288
 
+- conference: Python BarCamp Karlsruhe
+  year: 2027
+  link: https://barcamps.eu/pythonbarcamp-karlsruhe-2027/
+  cfp: TBA
+  timezone: Europe/Berlin
+  place: Karlsruhe, Germany
+  start: 2027-02-27
+  end: 2027-02-28
+  coc: https://barcamps.eu/pythonbarcamp-karlsruhe-2027/coc
+  twitter: BarcampPythonKA
+  sub: CAMP
+  location:
+  - title: Python BarCamp Karlsruhe 2027
+    latitude: 49.0068705
+    longitude: 8.4034195
+
 - conference: FOSDEM
   alt_name: 'FOSDEM: Python Dev Room'
   year: 2027
@@ -1025,11 +1044,25 @@
   place: Brussels, Belgium
   start: 2027-01-30
   end: 2027-01-31
+  coc: https://fosdem.org/2027/practical/conduct/
   sub: PY
   location:
   - title: FOSDEM 2027
     latitude: 50.8465573
     longitude: 4.351697
+
+- conference: PyCon Côte d'Ivoire
+  year: 2027
+  link: https://pycon.ci/
+  cfp: TBA
+  place: Abidjan, Côte d'Ivoire
+  start: 2027-01-22
+  end: 2027-01-23
+  sub: PY
+  location:
+  - title: PyCon Côte d'Ivoire 2027
+    latitude: 5.320357
+    longitude: -4.016107
 
 - conference: PyCon mini Tokyo
   alt_name: PyCon mini Tokyo with PythonAsia conference
@@ -1039,6 +1072,7 @@
   place: Tokyo, Japan
   start: 2026-12-12
   end: 2026-12-12
+  coc: https://www.pycon.jp/policies/code-of-conduct.html
   sub: PY
   location:
   - title: PyCon mini Tokyo 2026
@@ -1052,6 +1086,7 @@
   place: Beijing, China
   start: 2026-12-12
   end: 2026-12-12
+  coc: https://www.lfopensource.cn/pytorch-day-china/attend/code-of-conduct/
   youtube: https://www.youtube.com/pytorch
   sub: DATA,DAY
   location:
@@ -1098,6 +1133,7 @@
   start: 2026-11-14
   end: 2026-11-16
   sponsor: https://pycon.or.tz/sponsor/
+  coc: https://pycon.or.tz/conduct/
   twitter: PyconTanzania
   sub: PY
   location:
