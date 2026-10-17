@@ -1020,6 +1020,22 @@
     latitude: 47.8454821
     longitude: 16.5249288
 
+- conference: Python BarCamp Karlsruhe
+  year: 2027
+  link: https://barcamps.eu/pythonbarcamp-karlsruhe-2027/
+  cfp: TBA
+  timezone: Europe/Berlin
+  place: Karlsruhe, Germany
+  start: 2027-02-27
+  end: 2027-02-28
+  coc: https://barcamps.eu/pythonbarcamp-karlsruhe-2027/coc
+  twitter: BarcampPythonKA
+  sub: CAMP
+  location:
+  - title: Python BarCamp Karlsruhe 2027
+    latitude: 49.0068705
+    longitude: 8.4034195
+
 - conference: FOSDEM
   alt_name: 'FOSDEM: Python Dev Room'
   year: 2027
