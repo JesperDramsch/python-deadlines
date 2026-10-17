@@ -969,6 +969,20 @@
     latitude: 49.4093582
     longitude: 8.694724
 
+- conference: Black Python Devs Leadership Summit
+  year: 2027
+  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
+  cfp: TBA
+  place: Austin, USA
+  start: 2027-04-16
+  end: 2027-04-16
+  coc: https://blackpythondevs.com/code-of-conduct.html
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2027
+    latitude: 30.2711286
+    longitude: -97.7436995
+
 - conference: PyCon Czechia
   alt_name: PyCon CZ
   year: 2027
@@ -987,20 +1001,6 @@
   - title: PyCon Czechia 2027
     latitude: 49.7477415
     longitude: 13.3775249
-
-- conference: Black Python Devs Leadership Summit
-  year: 2027
-  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
-  cfp: TBA
-  place: Austin, USA
-  start: 2027-04-16
-  end: 2027-04-16
-  coc: https://blackpythondevs.com/code-of-conduct.html
-  sub: PY
-  location:
-  - title: Black Python Devs Leadership Summit 2027
-    latitude: 30.2711286
-    longitude: -97.7436995
 
 - conference: PyCon Austria
   year: 2027
@@ -1050,6 +1050,19 @@
   - title: FOSDEM 2027
     latitude: 50.8465573
     longitude: 4.351697
+
+- conference: PyCon Côte d'Ivoire
+  year: 2027
+  link: https://pycon.ci/
+  cfp: TBA
+  place: Abidjan, Côte d'Ivoire
+  start: 2027-01-22
+  end: 2027-01-23
+  sub: PY
+  location:
+  - title: PyCon Côte d'Ivoire 2027
+    latitude: 5.320357
+    longitude: -4.016107
 
 - conference: PyCon mini Tokyo
   alt_name: PyCon mini Tokyo with PythonAsia conference
