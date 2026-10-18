@@ -1,5 +1,20 @@
 ---
 
+- conference: PyHEP.dev
+  alt_name: PyHEP
+  year: 2026
+  link: https://indico.nikhef.nl/event/7873/
+  cfp: '2026-08-14 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2026-09-07
+  end: 2026-09-09
+  sub: SCIPY
+  location:
+  - title: PyHEP.dev 2026
+    latitude: 52.4111289
+    longitude: 4.877231604293446
+
 - conference: PyCon Portugal
   alt_name: PyCon PT
   year: 2026
@@ -93,6 +108,7 @@
     longitude: -87.6244212
 
 - conference: PyCon Japan
+  alt_name: PyCon JP
   year: 2026
   link: https://2026.pycon.jp/
   cfp_link: https://pretalx.com/pyconjp2026/cfp
@@ -715,6 +731,19 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyCamp Argentina
+  year: 2026
+  link: https://pyar.discourse.group/t/pycamp-2026/1526
+  cfp: None
+  place: Villa La Angostura, Argentina
+  start: 2026-03-21
+  end: 2026-03-24
+  sub: CAMP
+  location:
+  - title: PyCamp Argentina 2026
+    latitude: -40.7620693
+    longitude: -71.6472306
+
 - conference: PyCascades
   year: 2026
   link: https://2026.pycascades.com/
@@ -745,6 +774,7 @@
   sponsor: https://bit.ly/PythonAsia2026-CallForSponsors
   finaid: https://2026.pythonasia.org/aid-scholarships/
   coc: https://2026.pythonasia.org/code-of-conduct/
+  twitter: pythonph
   sub: PY
   location:
   - title: PythonAsia 2026
@@ -1322,6 +1352,7 @@
   place: Utrecht, Netherlands
   start: 2025-10-16
   end: 2025-10-16
+  mastodon: https://mastodon.social/@pycon_nl/
   sub: PY
   location:
   - title: PyCon Netherlands 2025
