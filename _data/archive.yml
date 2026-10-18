@@ -1678,6 +1678,7 @@
   place: Cinema City, Israel
   start: 2025-09-09
   end: 2025-09-09
+  coc: https://pycon.org.il/2025/pages/code-of-conduct.html
   mastodon: https://tooot.im/@pyconil/
   sub: PY
   location:
