@@ -2,6 +2,23 @@
   "handled": [
     "b0498ea3a93c383ee92d6b18199949dcdeca0014"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "24b6fd5ef9acd32139a487994b7ac642e7d02537",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon US",
+        "field": "sponsor",
+        "final_url": "https://pycon-archive.python.org/2023/sponsorship/why-sponsor/",
+        "status": 200,
+        "year": 2023
+      },
+      "received": "2026-10-18T09:07:38Z",
+      "source": "link-check",
+      "title": "PyCon US",
+      "url": "https://us.pycon.org/2023/sponsorship/why-sponsor",
+      "year": 2023
+    }
+  ],
   "series": "PyCon US"
 }
