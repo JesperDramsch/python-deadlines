@@ -620,6 +620,20 @@
     latitude: -23.4761271
     longitude: -51.1179013
 
+- conference: PyCamp España
+  year: 2026
+  link: https://pycamp.es/2026/
+  cfp: TBA
+  place: Castilblanco de los Arroyos, Spain
+  start: 2026-04-30
+  end: 2026-05-03
+  twitter: pycampes
+  sub: CAMP
+  location:
+  - title: PyCamp España 2026
+    latitude: 37.6750431
+    longitude: -5.9889206
+
 - conference: North Bay Python
   year: 2026
   link: https://northbaypython.org/
