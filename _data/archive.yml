@@ -2323,6 +2323,7 @@
   start: 2025-04-18
   end: 2025-04-19
   sponsor: https://pydata.org/virginia2025/sponsorship-opportunites
+  coc: https://pydata.org/virginia2025/about#conduct
   sub: DATA
   location:
   - title: PyData Virginia 2025
