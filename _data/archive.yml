@@ -15,6 +15,28 @@
     latitude: 52.4111289
     longitude: 4.877231604293446
 
+- conference: PyCon China
+  year: 2026
+  link: https://cn.pycon.org/2026/
+  cfp: TBA
+  place: Shanghai, China
+  extra_places:
+  - Shenzhen, China
+  start: 2026-09-05
+  end: 2026-09-05
+  sponsor: https://cn.pycon.org/2026/en/supporter/
+  coc: https://cn.pycon.org/2026/en/coc/
+  twitter: PyConChina
+  youtube: https://www.youtube.com/channel/UC6wdANyncX4Bc59wTVKrUlw
+  sub: PY
+  location:
+  - title: PyCon China 2026
+    latitude: 31.2323437
+    longitude: 121.4691024
+  - title: PyCon China 2026
+    latitude: 22.5445741
+    longitude: 114.0545429
+
 - conference: PyCon Portugal
   alt_name: PyCon PT
   year: 2026
