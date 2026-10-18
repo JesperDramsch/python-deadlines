@@ -137,6 +137,9 @@
   start: 2026-08-20
   end: 2026-08-22
   sponsor: https://gh.pycon.org/2026/sponsors/
+  finaid: https://gh.pycon.org/2026/fin_aid/
+  coc: https://gh.pycon.org/2026/coc/
+  twitter: PyConGhana
   sub: PY
   location:
   - title: PyCon Ghana 2026
