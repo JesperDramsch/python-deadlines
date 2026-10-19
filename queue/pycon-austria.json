@@ -4,23 +4,9 @@
     "e4c3b1ad3914554c82c1ab88f9faf47a279f1a2e",
     "21cacefdd74c1353aa59974fcc6987ffbf57fbed",
     "427f256717bbdb34171bef1dfa9c616ee8755b85",
-    "865683257fe33b897057a2bced79e5def6bbf886"
+    "865683257fe33b897057a2bced79e5def6bbf886",
+    "55808f058769118130e8bc9ee25f6da9b777e1d1"
   ],
-  "items": [
-    {
-      "id": "55808f058769118130e8bc9ee25f6da9b777e1d1",
-      "kind": "signal",
-      "payload": {
-        "diff": "Social Media (#PyConAT26) Social Media",
-        "trigger": "website_change",
-        "watch_uuid": "e59caba9-cbfb-4e99-b120-f69d513cd68a"
-      },
-      "received": "2026-10-18T02:28:35Z",
-      "source": "changedetection",
-      "title": "PyCon Austria 2026 - Main",
-      "url": "https://pycon.at/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyCon Austria"
 }

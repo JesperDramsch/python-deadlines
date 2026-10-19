@@ -1,22 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "1f0b510017fe9081c93a8bf54453c4c180832405",
-      "kind": "redirect",
-      "payload": {
-        "conference": "PackagingCon",
-        "field": "sponsor",
-        "final_url": "https://static1.squarespace.com/static/64773d21fb83b8109e01aad5/t/647e61366bb95e712ecefe24/1686004023484/sponsorship_prospectus_packagingcon_2023.pdf",
-        "status": 200,
-        "year": 2023
-      },
-      "received": "2026-10-18T09:06:26Z",
-      "source": "link-check",
-      "title": "PackagingCon",
-      "url": "https://packaging-con.org/s/sponsorship_prospectus_packagingcon_2023.pdf",
-      "year": 2023
-    }
+  "handled": [
+    "1f0b510017fe9081c93a8bf54453c4c180832405"
   ],
+  "items": [],
   "series": "PackagingCon"
 }

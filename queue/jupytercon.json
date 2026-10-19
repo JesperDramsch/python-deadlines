@@ -1,38 +1,8 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "428c460d5713872453a83cfc48dbb0b8788cea88",
-      "kind": "redirect",
-      "payload": {
-        "conference": "JupyterCon",
-        "field": "sponsor",
-        "final_url": "https://events.linuxfoundation.org/jupytercon/",
-        "status": 200,
-        "year": 2023
-      },
-      "received": "2026-10-18T09:07:38Z",
-      "source": "link-check",
-      "title": "JupyterCon",
-      "url": "https://jupytercon.com/s/JupyterCon-2023-Prospectus-v3.pdf",
-      "year": 2023
-    },
-    {
-      "id": "dc4aca663456382123d1d46f04679dd7f7de265a",
-      "kind": "redirect",
-      "payload": {
-        "conference": "JupyterCon",
-        "field": "finaid",
-        "final_url": "https://events.linuxfoundation.org/jupytercon/",
-        "status": 200,
-        "year": 2023
-      },
-      "received": "2026-10-18T09:07:38Z",
-      "source": "link-check",
-      "title": "JupyterCon",
-      "url": "https://www.jupytercon.com/scholarships/",
-      "year": 2023
-    }
+  "handled": [
+    "428c460d5713872453a83cfc48dbb0b8788cea88",
+    "dc4aca663456382123d1d46f04679dd7f7de265a"
   ],
+  "items": [],
   "series": "JupyterCon"
 }

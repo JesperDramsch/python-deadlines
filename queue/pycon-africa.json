@@ -1,54 +1,9 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "1a748ca5ade16540bef7af6620fbf9c3ab37db19",
-      "kind": "redirect",
-      "payload": {
-        "conference": "PyCon Africa",
-        "field": "link",
-        "final_url": "https://pyconafrica.pythonanywhere.com/2024/",
-        "status": 200,
-        "year": 2024
-      },
-      "received": "2026-10-18T09:03:04Z",
-      "source": "link-check",
-      "title": "PyCon Africa",
-      "url": "https://africa.pycon.org/2024/",
-      "year": 2024
-    },
-    {
-      "id": "72ef2e847a65a4853bf7d13438820653a1b4b6c2",
-      "kind": "redirect",
-      "payload": {
-        "conference": "PyCon Africa",
-        "field": "cfp_link",
-        "final_url": "https://pyconafrica.pythonanywhere.com/2024/talks/speaking/",
-        "status": 200,
-        "year": 2024
-      },
-      "received": "2026-10-18T09:03:04Z",
-      "source": "link-check",
-      "title": "PyCon Africa",
-      "url": "https://africa.pycon.org/2024/talks/speaking/",
-      "year": 2024
-    },
-    {
-      "id": "a5a4452fd79352433e689994e71194f9a3bca814",
-      "kind": "redirect",
-      "payload": {
-        "conference": "PyCon Africa",
-        "field": "sponsor",
-        "final_url": "https://pyconafrica.pythonanywhere.com/2024/sponsor-us/",
-        "status": 200,
-        "year": 2024
-      },
-      "received": "2026-10-18T09:03:05Z",
-      "source": "link-check",
-      "title": "PyCon Africa",
-      "url": "https://africa.pycon.org/2024/sponsor-us/",
-      "year": 2024
-    }
+  "handled": [
+    "1a748ca5ade16540bef7af6620fbf9c3ab37db19",
+    "72ef2e847a65a4853bf7d13438820653a1b4b6c2",
+    "a5a4452fd79352433e689994e71194f9a3bca814"
   ],
+  "items": [],
   "series": "PyCon Africa"
 }

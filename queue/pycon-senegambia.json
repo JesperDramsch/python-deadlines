@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "711b3d2e77b57e8b08429ec53aee48ca843ac078",
-      "kind": "signal",
-      "payload": {
-        "diff": "Dakar, Sénégal · Novembre 2026 27–28 November 2026 · Dakar, Senegal Uniting Python developers from Gambia and Senegal . Empowering the next generation of Python developers across West Africa Register Now Call for Proposals 2 Countries United Where Python communities meet, ideas become projects, and borders disappear. The regional Python conference connecting developers, builders and technology leaders across Senegal & The Gambia. Meet our speakers Explore Program Call for Proposals · Call for Sponsors 2 DAYS Conference Duration 300–500 Expected Attendees 500+ Python Developers November 2026 Dakar, Senegal 500+ Developers ◆ Python 3.13 ◆ Django ◆ FastAPI ◆ NumPy ◆ Pandas ◆ TensorFlow ◆ PyTorch ◆ Scikit-learn ◆ Jupyter ◆ Matplotlib ◆ Flask ◆ LangChain ◆ Hugging Face ◆ OpenCV ◆ Pydantic ◆ Polars ◆ Streamlit ◆ Gradio ◆ Celery ◆ SQLAlchemy ◆ Ruff ◆ uv ◆ Pytest ◆ Beautiful Soup ◆ Python 3.13 ◆ Django ◆ FastAPI ◆ NumPy ◆ Pandas ◆ TensorFlow ◆ PyTorch ◆ Scikit-learn ◆ Jupyter ◆ Matplotlib ◆ Flask ◆ LangChain ◆ Hugging Face ◆ OpenCV ◆ Pydantic ◆ Polars ◆ Streamlit ◆ Gradio ◆ Celery ◆ SQLAlchemy ◆ Ruff ◆ uv ◆ Pytest ◆ Beautiful Soup Limited Time Opportunity SENEGAL × GAMBIA Countries United SAVE THE DATE Contact SupportJoin Our Community Contact Support Call for Volunteers 2026 Join the Volunteer Team Help us welcome the community at PyCon Senegambia 2026 — registration, speaker support, logistics and more. No prior experience needed. Become a Volunteer Support the 2026 edition Help us bring PyCon Senegambia 2026 to life — every contribution goes toward speakers, venue, and community access. Contribute to PyCon Senegambia Senegal Office +221 773174391 Senegal Office +221 78 524 93 05",
-        "trigger": "website_change",
-        "watch_uuid": "fa60b81b-6435-4192-a8f8-3cf377826f6b"
-      },
-      "received": "2026-10-18T21:42:01Z",
-      "source": "changedetection",
-      "title": "PyCon Senegambia 2026 - Main",
-      "url": "https://www.pyconsenegambia.org/",
-      "year": 2026
-    }
+  "handled": [
+    "711b3d2e77b57e8b08429ec53aee48ca843ac078"
   ],
+  "items": [],
   "series": "PyCon Senegambia"
 }
