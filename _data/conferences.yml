@@ -221,6 +221,7 @@
 - conference: PyCon Senegambia
   year: 2026
   link: https://www.pyconsenegambia.org/
+  cfp_link: https://www.pyconsenegambia.org/en/proposal
   cfp: '2026-09-30 23:59:00'
   timezone: Africa/Dakar
   place: Dakar, Senegal
@@ -228,6 +229,8 @@
   end: 2026-11-28
   sponsor: https://www.pyconsenegambia.org/en/sponsorship
   finaid: https://www.pyconsenegambia.org/en/#diversity
+  coc: https://www.pyconsenegambia.org/en/conduct
+  twitter: PyconSenegambia
   sub: PY
   location:
   - title: PyCon Senegambia 2026
