@@ -82,6 +82,20 @@
     latitude: -12.1352054
     longitude: -77.0221411
 
+- conference: PyCon Côte d'Ivoire
+  year: 2027
+  link: https://pycon.ci/
+  cfp: '2026-11-15 23:59:59'
+  timezone: Africa/Abidjan
+  place: Abidjan, Côte d'Ivoire
+  start: 2027-01-22
+  end: 2027-01-23
+  sub: PY
+  location:
+  - title: PyCon Côte d'Ivoire 2027
+    latitude: 5.320357
+    longitude: -4.016107
+
 - conference: DjangoCon Europe
   year: 2027
   link: https://2027.djangocon.eu/
@@ -1053,20 +1067,6 @@
   - title: FOSDEM 2027
     latitude: 50.8465573
     longitude: 4.351697
-
-- conference: PyCon Côte d'Ivoire
-  year: 2027
-  link: https://pycon.ci/
-  cfp: "2026-11-15 23:59:59"
-  timezone: Africa/Abidjan
-  place: Abidjan, Côte d'Ivoire
-  start: 2027-01-22
-  end: 2027-01-23
-  sub: PY
-  location:
-  - title: PyCon Côte d'Ivoire 2027
-    latitude: 5.320357
-    longitude: -4.016107
 
 - conference: PyCon mini Tokyo
   alt_name: PyCon mini Tokyo with PythonAsia conference
