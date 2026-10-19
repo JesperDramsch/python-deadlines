@@ -40,7 +40,7 @@ FREE_TEXT_FIELDS = set(Conference.model_fields) - FORMATTED_FIELDS
 # Filters whose output is safe in JavaScript: a full string literal, or [a-z0-9-].
 SAFE_FILTERS = {"jsonify", "slugify"}
 
-SCRIPT = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>", re.DOTALL | re.IGNORECASE)
+SCRIPT = re.compile(r"<script(?![^>]*\bsrc=)[^>]*>(.*?)</script\b[^>]*>", re.DOTALL | re.IGNORECASE)
 OUTPUT_TAG = re.compile(r"\{\{-?(.*?)-?\}\}", re.DOTALL)
 FIELD_REF = re.compile(r"\.(" + "|".join(sorted(FREE_TEXT_FIELDS)) + r")\b")
 
