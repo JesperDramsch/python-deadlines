@@ -5,17 +5,17 @@ page.cfp_ext | default: page.cfp %}
 <div
 	class="conference-actions"
 	data-conf-id="{{ conf_id }}"
-	data-conf-name="{{ page.conference }}"
+	data-conf-name="{{ page.conference | escape }}"
 	data-conf-year="{{ page.year }}"
 	data-conf-cfp="{{ cfp_date }}"
-	data-conf-place="{{ page.place }}"
+	data-conf-place="{{ page.place | escape }}"
 >
 	<!-- Save to Favorites Button -->
 	<button
 		class="btn-action btn-action-secondary btn-save-conference"
 		data-action="save"
 		data-conf-id="{{ conf_id }}"
-		aria-label="Save {{ page.conference }} {{ page.year }} to favorites"
+		aria-label="Save {{ page.conference | escape }} {{ page.year }} to favorites"
 	>
 		<i class="far fa-bookmark"></i>
 		<span class="btn-text">Save</span>
@@ -24,9 +24,9 @@ page.cfp_ext | default: page.cfp %}
 	<!-- Follow Series Button (Primary CTA) -->
 	<button
 		class="btn-action btn-action-primary btn-follow-series"
-		data-series="{{ page.conference }}"
+		data-series="{{ page.conference | escape }}"
 		data-conf-id="{{ conf_id }}"
-		aria-label="Follow {{ page.conference }} series"
+		aria-label="Follow {{ page.conference | escape }} series"
 	>
 		<i class="fas fa-bell"></i>
 		<span class="btn-text">Follow Series</span>
@@ -38,7 +38,7 @@ page.cfp_ext | default: page.cfp %}
 			class="btn-action btn-action-secondary btn-add-calendar"
 			data-action="calendar"
 			data-conf-id="{{ conf_id }}"
-			aria-label="Add {{ page.conference }} {{ page.year }} to calendar"
+			aria-label="Add {{ page.conference | escape }} {{ page.year }} to calendar"
 		>
 			<i class="far fa-calendar-plus"></i>
 			<span class="btn-text">Add to Calendar</span>

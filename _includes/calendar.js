@@ -124,6 +124,7 @@ function load_conference_list() {
       {% assign extended = "(extended)" %}
 		{% else %}
 			{% assign cfp = conf.cfp %}
+			{% assign extended = "" %}
 		{% endif %}
     {% capture conf_date %}{%- translate_file dates/pretty_dates.html start=conf.start end=conf.end -%}{% endcapture %}
     // add deadlines in red

@@ -10,9 +10,9 @@
 <html>
 <head>
   {% include head.html %}
-  <meta name="description" content="Call for Proposals deadline for {{ page.conference }} {{ page.year }} in {{ page.place }}. Conference dates: {{ page.start | date: '%B %e' }} - {{ page.end | date: '%B %e, %Y' }}.">
-  <meta property="og:title" content="{{ page.conference }} {{ page.year }} - CFP Deadline">
-  <meta property="og:description" content="Call for Proposals deadline for {{ page.conference }} {{ page.year }} in {{ page.place }}. Submit your talk before {{ page.cfp_ext | default: page.cfp | date: '%B %e, %Y' }}.">
+  <meta name="description" content="Call for Proposals deadline for {{ page.conference | escape }} {{ page.year }} in {{ page.place | escape }}. Conference dates: {{ page.start | date: '%B %e' }} - {{ page.end | date: '%B %e, %Y' }}.">
+  <meta property="og:title" content="{{ page.conference | escape }} {{ page.year }} - CFP Deadline">
+  <meta property="og:description" content="Call for Proposals deadline for {{ page.conference | escape }} {{ page.year }} in {{ page.place | escape }}. Submit your talk before {{ page.cfp_ext | default: page.cfp | date: '%B %e, %Y' }}.">
   <meta property="og:url" content="{{ site.url }}/conference/{{ page.conference | slugify: 'latin' }}-{{ page.year }}/">
   <meta property="og:type" content="website">
   <script type="application/ld+json">
@@ -77,9 +77,9 @@
     </div>
     <div id="page-content"
          data-conf-id="{{page.conference | slugify: "latin"}}-{{page.year}}"
-         data-conf-name="{{page.conference}}"
+         data-conf-name="{{ page.conference | escape }}"
          data-conf-year="{{page.year}}"
-         data-location="{{page.place}}"
+         data-location="{{ page.place | escape }}"
          data-cfp="{{page.cfp}}"
          data-cfp-ext="{{page.cfp_ext}}"
          data-start="{{page.start}}"
@@ -93,7 +93,7 @@
                  data-timezone="{{ page.timezone | default: 'UTC-12' }}"
                  role="timer"
                  aria-live="off"
-                 aria-label="Countdown to {{ page.conference }} {{ page.year }} CFP deadline">
+                 aria-label="Countdown to {{ page.conference | escape }} {{ page.year }} CFP deadline">
               {% if cfp == "TBA" or cfp == "Cancelled" or cfp == "None" %}{{cfp}}{%endif%}
             </div>
           </div>
@@ -112,7 +112,7 @@
               <div>
                 <img src="/static/img/072-location.svg" class="badge-link" alt="Location icon" width="16" height="16" loading="lazy" />
                 <a id="conf-place" target="_blank" rel="noopener noreferrer"
-                  href="{% if page.place == 'Online' %}#{% else %}https://maps.google.com/?q={{page.place}}{% endif %}">{{page.place}}</a>
+                  href="{% if page.place == 'Online' %}#{% else %}https://maps.google.com/?q={{ page.place | url_encode }}{% endif %}">{{page.place}}</a>
               </div>
               <div>
                 <img src="/static/img/203-earth.svg" class="badge-link" alt="Earth Icon" width="16" height="16" loading="lazy" />
@@ -153,7 +153,7 @@
               {% if page.twitter %}
               <div>
                 <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" loading="lazy" />
-                <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{page.twitter}}">@{{page.twitter}}</a>
+                <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{ page.twitter | url_encode }}">@{{page.twitter}}</a>
               </div>
               {% endif %}
               {% if page.mastodon %}
@@ -165,7 +165,7 @@
               {% if page.bluesky %}
               <div>
                 <i class="fa-brands fa-bluesky" style="width:16px;height:16px;" aria-hidden="true"></i>
-                <a id="conf-bluesky" target="_blank" rel="noopener noreferrer" href="{{page.bluesky}}">Bluesky</a>
+                <a id="conf-bluesky" target="_blank" rel="noopener noreferrer" href="{{ page.bluesky | escape }}">Bluesky</a>
               </div>
               {% endif %}
               {% if page.youtube %}
@@ -194,7 +194,7 @@
           </div>
           <div class="row" id="conf-share-links">
             <div class="col-12">
-                  <a href="https://twitter.com/share?url={{site.url}}{{page.url}}&via=jesperdramsch&text=I%20found%20this%20Python%20conference:%20{{ page.conference }}%20{{page.year}}"
+                  <a href="https://twitter.com/share?url={{site.url}}{{page.url}}&via=jesperdramsch&text=I%20found%20this%20Python%20conference:%20{{ page.conference | url_encode | replace: "+", "%20" }}%20{{page.year}}"
                     data-toggle="tooltip" title="Tweet on Twitter!">
                     {% t social.twitter %}
                   </a> |
@@ -202,15 +202,15 @@
                     title="Share on Linkedin!">
                     {% t social.linkedin %}
                   </a> |
-                  <a href="https://www.facebook.com/sharer/sharer.php?u={{site.url}}{{page.url}}&t={{ page.conference }}%20{{page.year}}"
+                  <a href="https://www.facebook.com/sharer/sharer.php?u={{site.url}}{{page.url}}&t={{ page.conference | url_encode | replace: "+", "%20" }}%20{{page.year}}"
                     data-toggle="tooltip" title="Share of Facebook!">
                     {% t social.facebook %}
                   </a> |
-                  <a href="https://api.whatsapp.com/send?text=I%20found%20this%20Python%20conference:%20{{ page.conference }}%20{{page.year}}%20{{site.url}}{{page.url}}"
+                  <a href="https://api.whatsapp.com/send?text=I%20found%20this%20Python%20conference:%20{{ page.conference | url_encode | replace: "+", "%20" }}%20{{page.year}}%20{{site.url}}{{page.url}}"
                     data-action="share/whatsapp/share" data-toggle="tooltip" title="Text on Whatsapp!">
                     {% t social.whatsapp %}
                   </a> |
-                  <a href="mailto:?subject=Do%20you%20want%20to%20speak%20at%20{{ page.conference }}%20{{page.year}}&body=Hey,%20the%20CfP%20deadline%20for%20{{ page.conference }}%20{{page.year}}%20is%20approaching!%20%20{{site.url}}{{page.url}}"
+                  <a href="mailto:?subject=Do%20you%20want%20to%20speak%20at%20{{ page.conference | url_encode | replace: "+", "%20" }}%20{{page.year}}&body=Hey,%20the%20CfP%20deadline%20for%20{{ page.conference | url_encode | replace: "+", "%20" }}%20{{page.year}}%20is%20approaching!%20%20{{site.url}}{{page.url}}"
                     data-toggle="tooltip" title="Email to a Friend!">
                     {% t social.email %}
                   </a>

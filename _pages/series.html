@@ -57,7 +57,7 @@ title: titles.series
                   </span>
                   {% elsif conf.items[0].twitter %}
                   <span class="conf-title-icon">
-                    <a title="Twitter for Conference" href="https://twitter.com/{{conf.items[0].twitter}}" target="_blank"><img src="/static/img/407-twitter.svg" class="badge-link" alt="Link to Conference Twitter" width="16" height="16" /></a>
+                    <a title="Twitter for Conference" href="https://twitter.com/{{ conf.items[0].twitter | url_encode }}" target="_blank"><img src="/static/img/407-twitter.svg" class="badge-link" alt="Link to Conference Twitter" width="16" height="16" /></a>
                     &ZeroWidthSpace;
                   </span>
                   {% endif %}
@@ -82,7 +82,7 @@ title: titles.series
                     {% if conf.items[idx].place == "Online" %}
                     <a href="#">{{conf.items[idx].place}}</a>
                     {% else %}
-                    <a href="http://maps.google.com/?q={{conf.items[idx].place}}">{{conf.items[idx].place}}</a>
+                    <a href="http://maps.google.com/?q={{ conf.items[idx].place | url_encode }}">{{conf.items[idx].place}}</a>
                     {% endif %}
                   </span>
                 </div>
