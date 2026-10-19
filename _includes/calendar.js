@@ -124,15 +124,16 @@ function load_conference_list() {
       {% assign extended = "(extended)" %}
 		{% else %}
 			{% assign cfp = conf.cfp %}
+			{% assign extended = "" %}
 		{% endif %}
     {% capture conf_date %}{%- translate_file dates/pretty_dates.html start=conf.start end=conf.end -%}{% endcapture %}
     // add deadlines in red
     conf_list_all.push({
       id: "{{conf.conference | slugify: "latin"}}-{{conf.year}}-deadline",
       abbreviation: "{{conf.conference | slugify: "latin"}}-{{conf.year}}",
-      name: "{{conf.conference}} {{conf.year}} CfP {{extended}}",
+      name: {{ conf.conference | append: " " | append: conf.year | append: " CfP " | append: extended | jsonify }},
       color: "red",
-      location: "{{conf.place}}",
+      location: {{ conf.place | jsonify }},
       date: "{{conf_date | strip}}",
       subject: "{{conf.sub}}",
       startDate: Date.parse("{{cfp}}"),
@@ -142,9 +143,9 @@ function load_conference_list() {
     conf_list_all.push({
       id: "{{conf.conference | slugify: "latin"}}-{{conf.year}}-deadline",
       abbreviation: "{{conf.conference | slugify: "latin"}}-{{conf.year}}",
-      name: "{{conf.conference}} {{conf.year}} Workshop Deadline",
+      name: {{ conf.conference | append: " " | append: conf.year | append: " Workshop Deadline" | jsonify }},
       color: "red",
-      location: "{{conf.place}}",
+      location: {{ conf.place | jsonify }},
       date: "{{ conf_date | strip }}",
       subject: "{{conf.sub}}",
       startDate: Date.parse("{{conf.workshop_deadline}}"),
@@ -155,9 +156,9 @@ function load_conference_list() {
     conf_list_all.push({
       id: "{{conf.conference | slugify: "latin"}}-{{conf.year}}-deadline",
       abbreviation: "{{conf.conference | slugify: "latin"}}-{{conf.year}}",
-      name: "{{conf.conference}} {{conf.year}} Tutorial Deadline",
+      name: {{ conf.conference | append: " " | append: conf.year | append: " Tutorial Deadline" | jsonify }},
       color: "red",
-      location: "{{conf.place}}",
+      location: {{ conf.place | jsonify }},
       date: "{{ conf_date | strip }}",
       subject: "{{conf.sub}}",
       startDate: Date.parse("{{cfp}}"),
@@ -177,9 +178,9 @@ function load_conference_list() {
       conf_list_all.push({
         id: "{{conf.conference | slugify: "latin"}}-{{conf.year}}-conference",
         abbreviation: "{{conf.conference | slugify: "latin"}}-{{conf.year}}",
-        name: "{{conf.conference}} {{conf.year}}",
+        name: {{ conf.conference | append: " " | append: conf.year | jsonify }},
         color: color,
-        location: "{{conf.place}}",
+        location: {{ conf.place | jsonify }},
         date: "{{ conf_date | strip }}",
         subject: "{{conf.sub}}",
         startDate: Date.parse("{{conf.start}}"),

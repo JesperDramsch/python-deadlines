@@ -21,10 +21,10 @@
                 {% if conf.mastodon %}
                 <a title="Mastodon" href="{{conf.mastodon}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/407-mastodon.svg" alt="Mastodon" width="14" height="14" /></a>
                 {% elsif conf.twitter %}
-                <a title="Twitter" href="https://twitter.com/{{conf.twitter}}" target="_blank" rel="noopener noreferrer"><img src="/static/img/407-twitter.svg" alt="Twitter" width="14" height="14" /></a>
+                <a title="Twitter" href="https://twitter.com/{{ conf.twitter | url_encode }}" target="_blank" rel="noopener noreferrer"><img src="/static/img/407-twitter.svg" alt="Twitter" width="14" height="14" /></a>
                 {% endif %}
                 {% if conf.bluesky %}
-                <a title="Bluesky" href="{{conf.bluesky}}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-bluesky" style="width:14px;height:14px;" aria-hidden="true"></i></a>
+                <a title="Bluesky" href="{{ conf.bluesky | escape }}" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-bluesky" style="width:14px;height:14px;" aria-hidden="true"></i></a>
                 {% endif %}
             </span>
         </div>
@@ -36,7 +36,7 @@
             <span class="timer-small">{{cfp_deadline}}</span>
         {% else %}
             <span class="timer">
-                <span class="countdown-display" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}" role="timer" aria-live="off" aria-label="Countdown to {{conf.conference}} {{conf.year}} CFP deadline">{{cfp_deadline | date: "%b %e, %Y"}}</span>
+                <span class="countdown-display" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}" role="timer" aria-live="off" aria-label="Countdown to {{ conf.conference | escape }} {{conf.year}} CFP deadline">{{cfp_deadline | date: "%b %e, %Y"}}</span>
             </span>
             <span class="timer-small">
                 <span class="countdown-display countdown-small" data-deadline="{{cfp_deadline}}" data-timezone="{% if conf.timezone %}{{conf.timezone}}{% else %}UTC-12{% endif %}" aria-hidden="true">{{cfp_deadline | date: "%b %e"}}</span>

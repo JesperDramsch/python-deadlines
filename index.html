@@ -10,9 +10,9 @@ layout: home
           <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
                class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}"
                data-conf-id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
-               data-conf-name="{{conf.conference}}"
+               data-conf-name="{{ conf.conference | escape }}"
                data-conf-year="{{conf.year}}"
-               data-location="{{conf.place}}"
+               data-location="{{ conf.place | escape }}"
                data-format="{% if conf.extra_places %}hybrid{% elsif conf.link contains 'virtual' or conf.place contains 'Virtual' or conf.place contains 'Online' %}virtual{% else %}in-person{% endif %}"
                data-topics="{{conf.sub}}"
                data-cfp="{{conf.cfp}}"
@@ -120,11 +120,11 @@ layout: home
           try {
           var myCalendar = createCalendarFromObject({
             id:  '{{conf.conference | slugify: "latin"}}-{{conf.year}}',
-            title: '{{conf.conference}} {{conf.year}} deadline',
+            title: {{ conf.conference | append: " " | append: conf.year | append: " deadline" | jsonify }},
             start_date: cfpDate.toJSDate(),
             duration: 60,
-            place: '{{conf.place}}',
-            link: '{{conf.link}}'
+            place: {{ conf.place | jsonify }},
+            link: {{ conf.link | jsonify }}
           });
           var calendarContainer = document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar');
           if (calendarContainer) {

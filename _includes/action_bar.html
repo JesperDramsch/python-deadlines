@@ -10,9 +10,9 @@
      role="button"
      tabindex="0"
      data-conf-id="{{ conf_id }}"
-     data-conf-name="{{ include.conf_name }}"
+     data-conf-name="{{ include.conf_name | escape }}"
      data-conf-cfp="{{ include.conf_cfp }}"
-     data-conf-place="{{ include.conf_place }}"
+     data-conf-place="{{ include.conf_place | escape }}"
      aria-label="Conference actions">
     <i class="fas fa-bookmark action-icon"></i>
 </div>

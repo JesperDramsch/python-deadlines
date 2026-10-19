@@ -6,9 +6,9 @@
 				{% if include.place == "Online" %}
 				<a href="#">{{include.place}}</a>
 				{% else %}
-				<a href="http://maps.google.com/?q={{include.place}}">{{include.place}}</a>
+				<a href="http://maps.google.com/?q={{ include.place | url_encode }}">{{include.place}}</a>
 				{% if include.extra_places %} {% for place in include.extra_places %} &
-				<a href="http://maps.google.com/?q={{place}}">{{place}}</a>
+				<a href="http://maps.google.com/?q={{ place | url_encode }}">{{place}}</a>
 				{% endfor %} {% endif %} {% endif %}
 			</span>
 		</div>

@@ -26,7 +26,7 @@ description: Summary of the conference and its instances throughout the years.
           <h1>
             <span id="conf-title-href" href="{{site.baseurl_root}}/summary/{{page.conference | slugify: 'latin'}}/">{{title}}</span>
             <span id="twitter-box"><a href="https://twitter.com/share" class="twitter-share-button"
-                data-text="Conference instances for the #{{ page.conference }} conference!" data-show-count="false"
+                data-text="Conference instances for the #{{ page.conference | escape }} conference!" data-show-count="false"
                 style="font-size:13px;">Tweet</a>
               <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
             </span>
@@ -62,7 +62,7 @@ description: Summary of the conference and its instances throughout the years.
               {% if confs[0].twitter %}
               <div>
                 <img src="/static/img/407-twitter.svg" class="badge-link" alt="Twitter icon" width="16" height="16" />
-                <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{confs[0].twitter}}">@{{confs[0].twitter}}</a>
+                <a id="conf-twitter" target="_blank" rel="noopener noreferrer" href="https://twitter.com/{{ confs[0].twitter | url_encode }}">@{{confs[0].twitter}}</a>
               </div>
               {% endif %}
               {% if confs[0].mastodon %}
@@ -74,7 +74,7 @@ description: Summary of the conference and its instances throughout the years.
               {% if confs[0].bluesky %}
               <div>
                 <i class="fa-brands fa-bluesky" style="width:16px;height:16px;" aria-hidden="true"></i>
-                <a id="conf-bluesky" target="_blank" rel="noopener noreferrer" href="{{confs[0].bluesky}}">Bluesky</a>
+                <a id="conf-bluesky" target="_blank" rel="noopener noreferrer" href="{{ confs[0].bluesky | escape }}">Bluesky</a>
               </div>
               {% endif %}
               {% if confs[0].youtube %}
@@ -91,9 +91,9 @@ description: Summary of the conference and its instances throughout the years.
             <div id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
                  class="ConfItem {% for sub in subs %} {{sub | strip}}-conf {% endfor %}"
                  data-conf-id="{{conf.conference | slugify: "latin"}}-{{conf.year}}"
-                 data-conf-name="{{conf.conference}}"
+                 data-conf-name="{{ conf.conference | escape }}"
                  data-conf-year="{{conf.year}}"
-                 data-location="{{conf.place}}"
+                 data-location="{{ conf.place | escape }}"
                  data-format="{% if conf.extra_places %}hybrid{% elsif conf.link contains 'virtual' or conf.place contains 'Virtual' or conf.place contains 'Online' %}virtual{% else %}in-person{% endif %}"
                  data-topics="{{conf.sub}}"
                  data-cfp="{{conf.cfp}}"
