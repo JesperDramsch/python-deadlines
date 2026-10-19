@@ -486,10 +486,12 @@
   link: https://2026.ploneconf.org/
   cfp_link: https://2026.ploneconf.org/call-for-proposals
   cfp: '2026-07-31 23:59:00'
+  cfp_ext: '2026-08-16 23:59:00'
   place: Maastricht, Netherlands
   start: 2026-09-21
   end: 2026-09-27
   sponsor: https://2026.ploneconf.org/sponsors
+  coc: https://2026.ploneconf.org/about/contact/code-of-conduct
   twitter: ploneconf
   mastodon: https://plone.social/@ploneconf
   bluesky: https://bsky.app/profile/plone.org
