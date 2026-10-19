@@ -1,5 +1,42 @@
 ---
 
+- conference: PyHEP.dev
+  alt_name: PyHEP
+  year: 2026
+  link: https://indico.nikhef.nl/event/7873/
+  cfp: '2026-08-14 23:59:00'
+  timezone: Europe/Amsterdam
+  place: Amsterdam, Netherlands
+  start: 2026-09-07
+  end: 2026-09-09
+  sub: SCIPY
+  location:
+  - title: PyHEP.dev 2026
+    latitude: 52.4111289
+    longitude: 4.877231604293446
+
+- conference: PyCon China
+  year: 2026
+  link: https://cn.pycon.org/2026/
+  cfp: TBA
+  place: Shanghai, China
+  extra_places:
+  - Shenzhen, China
+  start: 2026-09-05
+  end: 2026-09-05
+  sponsor: https://cn.pycon.org/2026/en/supporter/
+  coc: https://cn.pycon.org/2026/en/coc/
+  twitter: PyConChina
+  youtube: https://www.youtube.com/channel/UC6wdANyncX4Bc59wTVKrUlw
+  sub: PY
+  location:
+  - title: PyCon China 2026
+    latitude: 31.2323437
+    longitude: 121.4691024
+  - title: PyCon China 2026
+    latitude: 22.5445741
+    longitude: 114.0545429
+
 - conference: PyCon Portugal
   alt_name: PyCon PT
   year: 2026
@@ -93,6 +130,7 @@
     longitude: -87.6244212
 
 - conference: PyCon Japan
+  alt_name: PyCon JP
   year: 2026
   link: https://2026.pycon.jp/
   cfp_link: https://pretalx.com/pyconjp2026/cfp
@@ -121,6 +159,9 @@
   start: 2026-08-20
   end: 2026-08-22
   sponsor: https://gh.pycon.org/2026/sponsors/
+  finaid: https://gh.pycon.org/2026/fin_aid/
+  coc: https://gh.pycon.org/2026/coc/
+  twitter: PyConGhana
   sub: PY
   location:
   - title: PyCon Ghana 2026
@@ -601,6 +642,20 @@
     latitude: -23.4761271
     longitude: -51.1179013
 
+- conference: PyCamp España
+  year: 2026
+  link: https://pycamp.es/2026/
+  cfp: TBA
+  place: Castilblanco de los Arroyos, Spain
+  start: 2026-04-30
+  end: 2026-05-03
+  twitter: pycampes
+  sub: CAMP
+  location:
+  - title: PyCamp España 2026
+    latitude: 37.6750431
+    longitude: -5.9889206
+
 - conference: North Bay Python
   year: 2026
   link: https://northbaypython.org/
@@ -715,6 +770,19 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyCamp Argentina
+  year: 2026
+  link: https://pyar.discourse.group/t/pycamp-2026/1526
+  cfp: None
+  place: Villa La Angostura, Argentina
+  start: 2026-03-21
+  end: 2026-03-24
+  sub: CAMP
+  location:
+  - title: PyCamp Argentina 2026
+    latitude: -40.7620693
+    longitude: -71.6472306
+
 - conference: PyCascades
   year: 2026
   link: https://2026.pycascades.com/
@@ -745,6 +813,7 @@
   sponsor: https://bit.ly/PythonAsia2026-CallForSponsors
   finaid: https://2026.pythonasia.org/aid-scholarships/
   coc: https://2026.pythonasia.org/code-of-conduct/
+  twitter: pythonph
   sub: PY
   location:
   - title: PythonAsia 2026
@@ -1322,6 +1391,7 @@
   place: Utrecht, Netherlands
   start: 2025-10-16
   end: 2025-10-16
+  mastodon: https://mastodon.social/@pycon_nl/
   sub: PY
   location:
   - title: PyCon Netherlands 2025
@@ -1644,6 +1714,7 @@
   place: Cinema City, Israel
   start: 2025-09-09
   end: 2025-09-09
+  coc: https://pycon.org.il/2025/pages/code-of-conduct.html
   mastodon: https://tooot.im/@pyconil/
   sub: PY
   location:
@@ -2288,6 +2359,7 @@
   start: 2025-04-18
   end: 2025-04-19
   sponsor: https://pydata.org/virginia2025/sponsorship-opportunites
+  coc: https://pydata.org/virginia2025/about#conduct
   sub: DATA
   location:
   - title: PyData Virginia 2025
@@ -2942,7 +3014,7 @@
 - conference: PyCon Netherlands
   alt_name: PyCon NL
   year: 2024
-  link: https://nl.pycon.org/
+  link: https://pycon-nl.org/
   cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSe6ZmARu1Vfj-th4nIHYiIqzzwLio3wY7e8nM3GQ-52d2kDrQ/closedform
   cfp: '2024-07-31 23:59:00'
   place: Utrecht, Netherlands
@@ -3117,13 +3189,15 @@
 - conference: PyCon Africa
   year: 2024
   link: https://africa.pycon.org/2024/
-  cfp_link: https://africa.pycon.org/2024/talks/speaking/
+  cfp_link: https://pyconafrica.pythonanywhere.com/2024/talks/speaking/
   cfp: '2024-07-08 23:59:00'
   tutorial_deadline: '2024-07-08 23:59:00'
   place: Accra, Ghana
   start: 2024-09-24
   end: 2024-09-28
-  sponsor: https://africa.pycon.org/2024/sponsor-us/
+  sponsor: https://pyconafrica.pythonanywhere.com/2024/sponsor-us/
+  finaid: https://pyconafrica.pythonanywhere.com/2024/fin-aid/
+  coc: https://pyconafrica.pythonanywhere.com/2024/coc/
   twitter: pyconafrica
   mastodon: https://mastodon.social/@pyconafrica
   sub: PY
@@ -3304,7 +3378,7 @@
 
 - conference: EARL
   year: 2024
-  link: https://datacove.co.uk/earl-2024-tech-conference/
+  link: https://earl-conference.com/
   cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSf7QY-VFFWB5FtKl3dENcNSDnzhvqS2GL43bv6GjKCyYIrHKw/viewform
   cfp: '2024-03-31 23:59:00'
   timezone: Europe/Zurich
@@ -4636,6 +4710,8 @@
   sponsor: https://kiwipycon.nz/s/Kiwi-Pycon-XII-Sponsorship-Prospectus.pdf
   finaid: https://web.archive.org/web/20220721015137/https://kiwipycon.nz/financial-aid
   twitter: KiwiPyCon
+  mastodon: https://mastodon.social/@kiwipycon
+  bluesky: https://bsky.app/profile/kiwipycon.nz
   sub: PY
   location:
   - title: Kiwi PyCon 2023
@@ -5118,7 +5194,7 @@
   place: Salt Lake City, USA
   start: 2023-04-19
   end: 2023-04-27
-  sponsor: https://us.pycon.org/2023/sponsorship/why-sponsor
+  sponsor: https://pycon-archive.python.org/2023/sponsorship/why-sponsor/
   twitter: pycon
   mastodon: https://fosstodon.org/@pycon
   sub: PY
@@ -6666,7 +6742,7 @@
   place: Online
   start: 2021-05-12
   end: 2021-05-21
-  sponsor: https://us.pycon.org/2021/sponsorship/why-sponsor
+  sponsor: https://pycon-archive.python.org/2021/sponsorship/why-sponsor/
   sub: PY
 
 - conference: PyCon Israel
