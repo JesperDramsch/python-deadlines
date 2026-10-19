@@ -347,10 +347,10 @@
         const calendarType = $(this).data('calendar');
 
         // Get conference data from page
-        const confName = '{{ page.conference }}';
+        const confName = {{ page.conference | jsonify }};
         const confYear = '{{ page.year }}';
         const cfpDate = '{{ page.cfp_ext | default: page.cfp }}';
-        const confPlace = '{{ page.place }}';
+        const confPlace = {{ page.place | jsonify }};
 
         // Format the date for calendar
         const eventDate = new Date(cfpDate);
@@ -417,7 +417,7 @@
 
       // Initialize button states on page load
       const confId = '{{ page.conference | slugify: "latin" }}-{{ page.year }}';
-      const seriesName = '{{ page.conference }}';
+      const seriesName = {{ page.conference | jsonify }};
 
       if (window.confManager) {
         // Update Follow Series button state

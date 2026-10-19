@@ -120,11 +120,11 @@ layout: home
           try {
           var myCalendar = createCalendarFromObject({
             id:  '{{conf.conference | slugify: "latin"}}-{{conf.year}}',
-            title: '{{conf.conference}} {{conf.year}} deadline',
+            title: {{ conf.conference | append: " " | append: conf.year | append: " deadline" | jsonify }},
             start_date: cfpDate.toJSDate(),
             duration: 60,
-            place: '{{conf.place}}',
-            link: '{{conf.link}}'
+            place: {{ conf.place | jsonify }},
+            link: {{ conf.link | jsonify }}
           });
           var calendarContainer = document.querySelector('#{{conf.conference | slugify: "latin"}}-{{conf.year}} .calendar');
           if (calendarContainer) {
