@@ -2,6 +2,21 @@
   "handled": [
     "a07018ffc5a3b6756746baff3a0fb2c589a7748f"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "79f702001bf3dbc31a41c564876cb0fa0a7ee9e9",
+      "kind": "signal",
+      "payload": {
+        "diff": "",
+        "trigger": "website_change",
+        "watch_uuid": "28658791-4328-41b0-b8cc-f06702933807"
+      },
+      "received": "2026-10-19T00:03:15Z",
+      "source": "changedetection",
+      "title": "[Conference] PyCon Indonesia",
+      "url": "https://pycon.id",
+      "year": null
+    }
+  ],
   "series": "PyCon Indonesia"
 }
