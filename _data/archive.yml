@@ -3189,13 +3189,15 @@
 - conference: PyCon Africa
   year: 2024
   link: https://africa.pycon.org/2024/
-  cfp_link: https://africa.pycon.org/2024/talks/speaking/
+  cfp_link: https://pyconafrica.pythonanywhere.com/2024/talks/speaking/
   cfp: '2024-07-08 23:59:00'
   tutorial_deadline: '2024-07-08 23:59:00'
   place: Accra, Ghana
   start: 2024-09-24
   end: 2024-09-28
-  sponsor: https://africa.pycon.org/2024/sponsor-us/
+  sponsor: https://pyconafrica.pythonanywhere.com/2024/sponsor-us/
+  finaid: https://pyconafrica.pythonanywhere.com/2024/fin-aid/
+  coc: https://pyconafrica.pythonanywhere.com/2024/coc/
   twitter: pyconafrica
   mastodon: https://mastodon.social/@pyconafrica
   sub: PY
