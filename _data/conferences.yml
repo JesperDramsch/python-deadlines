@@ -819,6 +819,7 @@
   place: San Jose, USA
   start: 2027-10-06
   end: 2027-10-07
+  sponsor: https://events.linuxfoundation.org/sponsor-pytconf27
   sub: DATA
   location:
   - title: PyTorch Conference 2027
