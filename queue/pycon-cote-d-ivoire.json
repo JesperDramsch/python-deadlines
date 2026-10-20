@@ -1,0 +1,25 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "494aee9b3bd0fb58f5ab0533cd1b93947f15f9ae",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Côte d’Ivoire",
+        "default_answer": false,
+        "field": "conference",
+        "question": "Do 'PyCon Côte d’Ivoire' and 'PyCon Côte d'Ivoire' match? (y/n): ",
+        "remote_value": "PyCon Côte d'Ivoire",
+        "source_name": "python.org",
+        "yaml_value": "PyCon Côte d’Ivoire",
+        "year": 2027
+      },
+      "received": "2026-10-20T10:23:18Z",
+      "source": "canonical-import",
+      "title": "PyCon Côte d’Ivoire",
+      "url": "https://pycon.ci/",
+      "year": 2027
+    }
+  ],
+  "series": "PyCon Côte d’Ivoire"
+}
