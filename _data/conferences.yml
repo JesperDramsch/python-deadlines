@@ -894,6 +894,7 @@
     longitude: -81.6936772
 
 - conference: PyCon Armenia
+  alt_name: PyData PyCon Yerevan
   year: 2027
   link: https://pycon.am/
   cfp: TBA
@@ -901,7 +902,8 @@
   start: 2027-06-18
   end: 2027-06-19
   sponsor: https://pycon.am/#sponsors
-  sub: PY
+  coc: https://pycon.am/CoC.html
+  sub: PY,DATA
   location:
   - title: PyCon Armenia 2027
     latitude: 40.1777112

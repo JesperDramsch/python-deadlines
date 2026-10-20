@@ -332,7 +332,8 @@
   alt_name: PyData PyCon Yerevan
   year: 2026
   link: https://pycon.am/
-  cfp: TBA
+  cfp_link: https://pretalx.pycon.am/pydata-pycon-2026/cfp
+  cfp: '2026-04-19 23:59:00'
   timezone: Asia/Yerevan
   place: Yerevan, Armenia
   start: 2026-07-24
