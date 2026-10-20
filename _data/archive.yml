@@ -2121,6 +2121,21 @@
     latitude: -5.0874608
     longitude: -42.8049571
 
+- conference: PyCon Singapore
+  year: 2025
+  link: https://pythonsingapore.github.io/pyconsg-2025/
+  cfp: TBA
+  place: Singapore, Singapore
+  start: 2025-06-18
+  end: 2025-06-20
+  sponsor: https://pythonsingapore.github.io/pyconsg-2025/sponsor.html
+  coc: https://pythonsingapore.github.io/pyconsg-2025/coc.html
+  sub: PY
+  location:
+  - title: PyCon Singapore 2025
+    latitude: 1.2899175
+    longitude: 103.8519072
+
 - conference: AfroPython Conf
   year: 2025
   link: https://afropythonconf.org/
