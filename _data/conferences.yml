@@ -1061,6 +1061,19 @@
     latitude: 50.8465573
     longitude: 4.351697
 
+- conference: PyCon Côte d'Ivoire
+  year: 2027
+  link: https://pycon.ci/
+  cfp: TBA
+  place: Abidjan, Côte d'Ivoire
+  start: 2027-01-22
+  end: 2027-01-23
+  sub: PY
+  location:
+  - title: PyCon Côte d'Ivoire 2027
+    latitude: 5.320357
+    longitude: -4.016107
+
 - conference: PyCon mini Tokyo
   alt_name: PyCon mini Tokyo with PythonAsia conference
   year: 2026
