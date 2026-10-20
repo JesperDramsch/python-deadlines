@@ -774,22 +774,6 @@
     latitude: 3.8689867
     longitude: 11.5213344
 
-- conference: PyData Amsterdam
-  year: 2026
-  link: https://amsterdam.pydata.org/
-  cfp_link: https://pretalx.com/pydata-amsterdam2026/cfp
-  cfp: '2026-04-19 23:59:00'
-  timezone: Europe/Amsterdam
-  place: Amsterdam, Netherlands
-  start: 2026-09-10
-  end: 2026-09-12
-  twitter: pydataamsterdam
-  sub: DATA
-  location:
-  - title: PyData Amsterdam 2026
-    latitude: 52.4036
-    longitude: 4.8901
-
 - conference: PyCon Africa
   year: 2026
   link: https://africa.pycon.org/
@@ -1264,17 +1248,3 @@
   - title: Pythoncamp Rügen 2026
     latitude: 54.4529015
     longitude: 13.3882344
-
-- conference: PyDay Boyacá
-  year: 2026
-  link: https://www.pyday.co/
-  cfp: None
-  place: Sogamoso, Colombia
-  start: 2026-09-12
-  end: 2026-09-12
-  sponsor: https://www.pyday.co/#sponsors
-  sub: DAY
-  location:
-  - title: PyDay Boyacá 2026
-    latitude: 5.7148307
-    longitude: -72.9279328
