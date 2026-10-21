@@ -74,6 +74,8 @@ alt_name:
     global: PyCon FR
   PyCon Germany:
     global: PyCon DE
+    variations:
+    - PyConDE & PyData Darmstadt
   PyCon Germany & PyData Berlin:
     global: PyCon DE & PyData Berlin
   PyCon Germany & PyData Conference:
