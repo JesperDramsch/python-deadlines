@@ -29,7 +29,7 @@ The desk hands you one tracked series and the edition it lacks, which step 1 set
    - Nothing found: `no-change`, listing what was tried.
    - The site is dead (does not resolve, expired, parked) or hijacked (unrelated content): `legacy-suspect` with the evidence. The data stays as it is; `utils/sort_yaml.py` owns the legacy split.
    Done when: the edition has exactly one of these outcomes.
-4. **Fill past editions.** Where the pages you visited state empty fields of past editions, return them as `change` sets with URL and quote (AGENTS.md "Complete data").
+4. **Fill past editions.** Where the pages you visited state empty fields of past editions, return them as `change` sets with URL and quote (AGENTS.md "Complete data"). Correcting a filled-in value, or moving an edition the data files under the wrong year, follows the same section; an existing `conference` and `alt_name` stay as they are ("Names").
    Done when: every empty field you saw stated has a change.
 5. **Return** every change set. Flag a missing CoC (`no-coc`) and pages that did not render.
    Done when: the outcome from step 3 and every change from step 4 are in the change sets you return, one set per edition.

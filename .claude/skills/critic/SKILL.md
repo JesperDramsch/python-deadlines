@@ -16,6 +16,9 @@ For each entry in `changes`, check:
 - Socials are the conference's own accounts: linked from its site, or naming it in their profile.
 - The name follows AGENTS.md "Names": spelled as the data spells the series, (`conference`, `year`) unique, the series not tracked under another name.
 - A carried-over field matches the edition it cites.
+- A change to an existing entry's `conference`, or one that replaces or clears its `alt_name`, fails (AGENTS.md "Names").
+- A replaced value: `old` is what the data holds, and the source shows it wrong for its own edition, not only for another one (AGENTS.md "Complete data").
+- A set that moves an entry to another year loses no value: every field the entry held is in the moved entry or stays on the edition it belongs to.
 
 For each entry in `titles`, check:
 
