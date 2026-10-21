@@ -1394,6 +1394,8 @@
   start: 2025-10-17
   end: 2025-10-17
   sponsor: https://2025.ploneconf.org/sponsors
+  coc: https://2025.ploneconf.org/about/code-of-conduct
+  mastodon: https://fosstodon.org/@pyconfi
   sub: PY
   note: Part of Plone Conf
   location:
