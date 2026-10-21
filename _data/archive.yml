@@ -4012,8 +4012,12 @@
   cfp_link: https://docs.google.com/forms/d/e/1FAIpQLScnUVAZxseEr8a3p7jUj7D6q-U3LoiFA3Z1I4mAqR0ovUW1-g/closedform
   cfp: '2024-03-20 23:59:00'
   place: Kyiv, Ukraine
+  extra_places:
+  - Online
   start: 2024-04-20
   end: 2024-04-20
+  sponsor: https://fwdays.com/en/page/partners-offer
+  coc: https://fwdays.com/en/page/code-of-conduct
   sub: PY
   location:
   - title: Python fwdays 2024
