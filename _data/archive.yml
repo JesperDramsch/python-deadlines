@@ -970,6 +970,7 @@
   place: Tokyo, Japan
   start: 2026-01-24
   end: 2026-01-24
+  coc: https://github.com/sf-jp-engineers/code-of-conduct/blob/195590fac4909eefb0589fa230f4ce503668163d/code_of_conduct.md
   sub: SCIPY,DATA
   location:
   - title: SciPyData Japan 2026
