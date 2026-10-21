@@ -1161,12 +1161,13 @@
   start: 2026-10-28
   end: 2026-10-28
   sponsor: https://fastapiconf.com/#sponsors
+  coc: https://fastapiconf.com/code-of-conduct
   sub: PY
   note: Inaugural event with invited speakers only; no Call for Proposals.
   location:
-  - title: FastAPI Conf 2026
-    latitude: 52.3730796
-    longitude: 4.8924534
+  - title: FastAPI Conference 2026
+    latitude: 52.386807
+    longitude: 4.8698442
 
 - conference: PyCon Davao
   year: 2026
