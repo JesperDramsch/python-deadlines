@@ -725,6 +725,25 @@
     latitude: 47.223987
     longitude: 8.8173
 
+- conference: Compute! Paris
+  year: 2026
+  link: https://compute.events/paris2026/
+  cfp_link: https://pretalx.com/compute-paris-2026/cfp
+  cfp: '2026-05-24 23:59:00'
+  cfp_ext: '2026-06-07 23:59:00'
+  place: Paris, France
+  start: 2026-11-25
+  end: 2026-11-26
+  sponsor: https://compute.events/paris2026/sponsors.html
+  coc: https://compute.events/paris2026/code-of-conduct
+  mastodon: https://mastodon.social/@computeparis
+  bluesky: https://bsky.app/profile/computeparis.bsky.social
+  sub: DATA
+  location:
+  - title: Compute! Paris 2026
+    latitude: 48.8588897
+    longitude: 2.3200410217200766
+
 - conference: Python Brasil
   year: 2026
   link: https://2026.pythonbrasil.org.br/
