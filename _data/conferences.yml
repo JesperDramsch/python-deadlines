@@ -44,6 +44,28 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyCon Germany
+  alt_name: PyCon Germany
+  year: 2027
+  link: https://2027.pycon.de/
+  cfp_link: https://pycon.de/call-for-proposals/
+  cfp: '2026-12-20 23:59:00'
+  timezone: Europe/Berlin
+  place: Heidelberg, Germany
+  start: 2027-04-20
+  end: 2027-04-22
+  sponsor: https://pycon.de/sponsoring/
+  finaid: https://pycon.de/financial-aid/
+  coc: https://pioneershub.github.io/pyconde-conference/code-of-conduct/
+  twitter: PyConDE
+  mastodon: https://fosstodon.org/@pyconde
+  bluesky: https://bsky.app/profile/pyconde.bsky.social
+  sub: PY,DATA
+  location:
+  - title: PyCon Germany & PyData Conference 2027
+    latitude: 49.4093582
+    longitude: 8.694724
+
 - conference: PyTexas
   year: 2027
   link: https://www.pytexas.org/2027/
@@ -958,27 +980,6 @@
   - title: PyCon US 2027
     latitude: 33.7690164
     longitude: -118.191604
-
-- conference: PyCon Germany
-  alt_name: PyCon Germany
-  year: 2027
-  link: https://2027.pycon.de/
-  cfp: TBA
-  timezone: Europe/Berlin
-  place: Heidelberg, Germany
-  start: 2027-04-20
-  end: 2027-04-22
-  sponsor: https://pycon.de/sponsoring/
-  finaid: https://pycon.de/financial-aid/
-  coc: https://pioneershub.github.io/pyconde-conference/code-of-conduct/
-  twitter: PyConDE
-  mastodon: https://fosstodon.org/@pyconde
-  bluesky: https://bsky.app/profile/pyconde.bsky.social
-  sub: PY,DATA
-  location:
-  - title: PyCon Germany & PyData Conference 2027
-    latitude: 49.4093582
-    longitude: 8.694724
 
 - conference: Black Python Devs Leadership Summit
   year: 2027
