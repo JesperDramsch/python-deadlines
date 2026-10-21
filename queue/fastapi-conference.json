@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "187e62693a53e37ef3c64a170cb3dc48e9cd4a33",
-      "kind": "signal",
-      "payload": {
-        "diff": "Schedule One day, one track. October 28, 2026. Add to calendar Time in Amsterdam Session 1. – to Doors open Registration, coffee, and badge pickup. 2. – to Welcome 3. – to What's new in FastAPI and friends Sebastián Ramírez 4. – to Building with FastAPI in Codex Jason Liu 5. – to Coffee break 6. – to From Light to Byte: Who Delivers the Data? Ben Falk 7. – to What's new and what's next from Google DeepMind Paige Bailey 8. – to Your Agent Needs More Than an API Pieter Cailliau 9. – to Lunch break 10. – to Then, Now, Next: The Speed Story of FastAPI Marcelo Trylesinski 11. – to You don’t need /v2: API Versioning with FastAPI François Voron 12. – to Coffee break 13. – to Constrained Optimism Samuel Colvin 14. – to Lightning talks 15. – to What's next for FastAPI and friends Sebastián Ramírez 16. – to Closing 17. – to After party All times are local to Amsterdam. The schedule may change.",
-        "trigger": "website_change",
-        "watch_uuid": "52257547-ffdc-42a9-8c11-484c544f209f"
-      },
-      "received": "2026-10-20T22:35:18Z",
-      "source": "changedetection",
-      "title": "FastAPI Conference 2026 - Main",
-      "url": "https://fastapiconf.com/",
-      "year": 2026
-    }
+  "handled": [
+    "187e62693a53e37ef3c64a170cb3dc48e9cd4a33"
   ],
+  "items": [],
   "series": "FastAPI Conference"
 }

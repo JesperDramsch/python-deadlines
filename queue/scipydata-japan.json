@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "8c0dbe02c0914cf72a5002cb3d32fb0833aa4f86",
-      "kind": "signal",
-      "payload": {
-        "diff": "お知らせ 11/6(金)開催「TechLead Conference 2026 Autumn powered by connpass」にconnpassが特別協力します。詳しくはこちらをご覧ください。 お知らせ 11/6(金)開催「TechLead Conference 2026 Autumn powered by connpass」にconnpassが特別協力します。詳細はイベント参加ページをご覧ください",
-        "trigger": "website_change",
-        "watch_uuid": "22e940ba-07ef-4ed8-ae03-0b81da67ecfb"
-      },
-      "received": "2026-10-20T22:05:19Z",
-      "source": "changedetection",
-      "title": "SciPyData Japan 2026 - Main",
-      "url": "https://scipydata.connpass.com/event/364718/",
-      "year": 2026
-    }
+  "handled": [
+    "8c0dbe02c0914cf72a5002cb3d32fb0833aa4f86"
   ],
+  "items": [],
   "series": "SciPyData Japan"
 }
