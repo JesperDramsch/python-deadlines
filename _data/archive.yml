@@ -2596,12 +2596,15 @@
     longitude: 78.34854697544472
 
 - conference: Python BarCamp Karlsruhe
-  year: 2024
+  year: 2025
   link: https://barcamps.eu/python-barcamp-karlsruhe-2025/
-  cfp: '2024-02-14 23:59:00'
+  cfp: None
   place: Karlsruhe, Germany
   start: 2025-02-15
   end: 2025-02-16
+  sponsor: https://barcamps.eu/python-barcamp-karlsruhe-2025/sponsoren
+  coc: https://barcamps.eu/python-barcamp-karlsruhe-2025/code-of-conduct
+  twitter: BarcampPythonKA
   sub: CAMP
   location:
   - title: Python BarCamp Karlsruhe 2025
@@ -4115,6 +4118,22 @@
   - title: PyCamp España 2024
     latitude: 41.6147605
     longitude: 0.6267842
+
+- conference: Python BarCamp Karlsruhe
+  year: 2024
+  link: https://barcamps.eu/pythonbarcamp-karlsruhe-2024/
+  cfp: None
+  place: Karlsruhe, Germany
+  start: 2024-03-23
+  end: 2024-03-24
+  sponsor: https://barcamps.eu/pythonbarcamp-karlsruhe-2024/sponsoren
+  coc: https://barcamps.eu/pythonbarcamp-karlsruhe-2024/code-of-conduct
+  twitter: BarcampPythonKA
+  sub: CAMP
+  location:
+  - title: Python BarCamp Karlsruhe 2024
+    latitude: 49.0068705
+    longitude: 8.4034195
 
 - conference: PyCon Slovakia
   alt_name: PyCon SK
