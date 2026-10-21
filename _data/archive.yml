@@ -2371,6 +2371,7 @@
   start: 2025-04-26
   end: 2025-04-27
   sponsor: https://2025.northbaypython.org/sponsor
+  coc: https://2025.northbaypython.org/code-of-conduct
   mastodon: https://social.northbaypython.org/@NorthBayPython
   sub: PY
   location:
@@ -3720,10 +3721,13 @@
 - conference: North Bay Python
   year: 2024
   link: https://2024.northbaypython.org/
+  cfp_link: https://pretalx.northbaypython.org/nbpy-2024/cfp
   cfp: '2024-04-12 23:59:00'
   place: Petaluma, USA
   start: 2024-06-29
   end: 2024-06-30
+  sponsor: https://2024.northbaypython.org/sponsor
+  coc: https://2024.northbaypython.org/code-of-conduct
   twitter: northbaypython
   mastodon: https://social.northbaypython.org/@NorthBayPython
   sub: PY

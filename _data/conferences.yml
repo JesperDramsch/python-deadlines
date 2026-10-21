@@ -917,6 +917,22 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: North Bay Python
+  year: 2027
+  link: https://northbaypython.org/
+  cfp: TBA
+  place: Petaluma, USA
+  start: 2027-06-19
+  end: 2027-06-20
+  mastodon: https://social.northbaypython.org/@NorthBayPython
+  bluesky: https://bsky.app/profile/northbaypython.org
+  youtube: https://youtube.com/@northbaypython
+  sub: PY
+  location:
+  - title: North Bay Python 2027
+    latitude: 38.2325829
+    longitude: -122.636465
+
 - conference: PyCon Armenia
   alt_name: PyData PyCon Yerevan
   year: 2027
