@@ -600,11 +600,16 @@
   link: https://2026.pycon.it/en
   cfp_link: https://pycon.it/cfp
   cfp: '2026-01-06 23:59:59'
+  cfp_ext: '2026-01-12 23:59:00'
   place: Bologna, Italy
   start: 2026-05-27
   end: 2026-05-30
   sponsor: https://2026.pycon.it/sponsor/
+  finaid: https://2026.pycon.it/en/grants-info
+  coc: https://2026.pycon.it/en/code-of-conduct
+  twitter: PyConIT
   mastodon: https://social.python.it/@pycon
+  youtube: https://www.youtube.com/playlist?list=PLUWPlMGp2t18
   sub: PY
   location:
   - title: PyCon Italy 2026
