@@ -1960,7 +1960,10 @@
   end: 2025-08-15
   sponsor: https://2025.djangocon.africa/sponsor_us
   finaid: https://2025.djangocon.africa/opportunity_grants
+  coc: https://2025.djangocon.africa/coc
   twitter: djcafrica
+  mastodon: https://fosstodon.org/@djangoconafrica
+  bluesky: https://bsky.app/profile/djcafrica.bsky.social
   sub: WEB
   location:
   - title: DjangoCon Africa 2025
@@ -4429,6 +4432,7 @@
   end: 2023-11-11
   sponsor: https://2023.djangocon.africa/sponsor-us/
   finaid: https://2023.djangocon.africa/grant/
+  coc: https://2023.djangocon.africa/conduct/
   twitter: djcafrica
   sub: WEB
   location:
