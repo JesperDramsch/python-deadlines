@@ -732,6 +732,12 @@
   start: 2026-04-17
   end: 2026-04-19
   sponsor: https://www.pytexas.org/2026/sponsors/sponsor-us/
+  finaid: https://www.pytexas.org/2026/attend/grants/
+  coc: https://www.pytexas.org/2026/about/#code-of-conduct
+  twitter: pytexas
+  mastodon: https://fosstodon.org/@pytexas
+  bluesky: https://bsky.app/profile/pytexas.org
+  youtube: https://www.youtube.com/c/pytexas
   sub: PY
   location:
   - title: PyTexas 2026
