@@ -625,7 +625,12 @@
   start: 2026-05-13
   end: 2026-05-19
   sponsor: https://us.pycon.org/2026/sponsorship/why-sponsor/
+  finaid: https://us.pycon.org/2026/attend/travel-grants/
+  coc: https://policies.python.org/us.pycon.org/code-of-conduct/
+  twitter: pycon
   mastodon: https://fosstodon.org/@pycon
+  bluesky: https://bsky.app/profile/pycon.us
+  youtube: https://www.youtube.com/c/pyconus
   sub: PY
   location:
   - title: PyCon US 2026
