@@ -24,7 +24,9 @@ Out: meetups, webinars, courses and trainings, vendor sales events.
 ## Names
 
 - `conference` is the series name without the year, spelled the way the data already spells it. Before choosing a spelling, search `conference` and `alt_name` in all three data files and the keys and variations in `titles.yml`.
-- `alt_name` holds an official alternative name, such as PyCon SK for PyCon Slovakia.
+- `alt_name` holds an official alternative name, such as PyCon SK for PyCon Slovakia, or the series an edition belongs to under another name, such as PyCon Germany for PyMunich 2016.
+- Each edition keeps the `conference` it ran under: when a series is renamed, its earlier editions keep the old name.
+- Never change an existing entry's `conference`, and never replace or clear an existing `alt_name`. A rename is the maintainer's call.
 - A series that runs in several cities takes the qualifier the event itself uses ("Python Pizza Istanbul", "Pytorch Day Japan"), so that (`conference`, `year`) stays unique.
 - A primary source that names a series in a way its `conference`, its `alt_name` and `titles.yml` all miss (an older or longer name, another language, a national prefix such as "PyDay Chile Santiago") gives a variation: the other name under the series' `conference` as key, so the importers and the sort fold that spelling into the series. It goes in the change set's `titles`. A name other series share ("PyDay Chile"), the `conference` of any entry in the data files, or another series' `alt_name` is never a variation.
 - A find is tracked when it is the same series as an entry in any of the three data files: its name matches, ignoring case and accents, the entry's `conference` or `alt_name` or a `titles.yml` key or variation that maps to it, or its link matches the entry's `link` once years are taken out of the host and path (`2027.pycon.gr` matches `2026.pycon.gr`). A shared domain alone proves nothing: grep the data files for it to find entries to compare. On hosts that carry many series (`pydata.org`, `events.linuxfoundation.org`, `pretalx.com`, `sessionize.com`, and `web.archive.org`, where the archived URL counts) only the path tells them apart: `pydata.org/lagos2027/` is not `pydata.org/berlin2026/`.
@@ -46,6 +48,8 @@ Out: meetups, webinars, courses and trainings, vendor sales events.
 ## Complete data
 
 Past editions are recorded too. Whenever you visit a conference for any reason, fill every empty field its sources state, on the past editions you see as well as the upcoming one. Completion is visit-driven: the archive gets no sweeps.
+
+The data is a historical record. Filling an empty field is always fine. Replacing a filled-in value needs a primary source showing it is wrong for that edition, and the change set gives the value it replaces as `old`. Never delete an entry or drop a value: when data moves between editions, such as an entry filed under the wrong year, every value lands on the edition it belongs to.
 
 ## Evidence and sources
 

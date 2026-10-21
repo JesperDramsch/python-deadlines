@@ -20,6 +20,7 @@ The desk hands you one worklist item about an edition the data holds in any of t
    - `twitter`, `mastodon`, `bluesky` and `youtube`: the conference's own accounts, as its site links them.
    - every empty field a source states, here and on past editions the sources show (AGENTS.md "Complete data").
    - the names the sources give the series: one that gives a variation (AGENTS.md "Names") goes in `titles`.
+   - a filled-in value: correcting it, or moving the edition to another year, follows AGENTS.md "Complete data"; an existing `conference` and `alt_name` stay as they are ("Names").
    Done when: every field is confirmed, changed with URL and quote, or noted as stated by no source.
 4. **Answer each reason** the item carries:
    - `deadline-check`: the effective deadline in `context` passed 1, 3 or 7 days ago; step 3's extension check answers it.
