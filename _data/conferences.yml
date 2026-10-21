@@ -902,6 +902,22 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: Python Nordeste
+  alt_name: PyNE
+  year: 2027
+  link: https://2027.pythonnordeste.org/
+  cfp: TBA
+  place: Parnaíba, Brazil
+  start: 2027-08-13
+  end: 2027-08-15
+  coc: https://2027.pythonnordeste.org/cdc.html
+  youtube: https://www.youtube.com/@pythonnordeste
+  sub: PY
+  location:
+  - title: Python Nordeste 2027
+    latitude: -2.9147515
+    longitude: -41.7661953
+
 - conference: PyOhio
   year: 2027
   link: https://www.pyohio.org/
