@@ -387,7 +387,9 @@
 - conference: Python Sudeste
   year: 2026
   link: https://ingressos.python.org.br/sudeste/ingressos
-  cfp: TBA
+  cfp_link: https://talks.python.org.br/pyse26/cfp
+  cfp: '2026-04-13 23:59:00'
+  timezone: America/Sao_Paulo
   place: Rio de Janeiro, RJ
   start: 2026-07-24
   end: 2026-07-26
