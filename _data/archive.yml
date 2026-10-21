@@ -130,8 +130,10 @@
   end: 2026-08-30
   sponsor: https://2026.pycon.org.au/sponsor
   finaid: https://2026.pycon.org.au/attend/financial-assistance
+  coc: https://2026.pycon.org.au/conduct
   mastodon: https://mastodon.pycon.org.au/@pyconau
   bluesky: https://bsky.app/profile/pyconau.bsky.social
+  youtube: https://youtube.com/pyconau
   sub: PY
   location:
   - title: PyCon Australia 2026
@@ -1719,7 +1721,10 @@
   start: 2025-09-12
   end: 2025-09-16
   sponsor: https://2025.pycon.org.au/sponsor/
+  coc: https://2025.pycon.org.au/safety
   mastodon: https://mastodon.pycon.org.au/@pyconau
+  bluesky: https://bsky.app/profile/pyconau.bsky.social
+  youtube: https://www.youtube.com/user/PyConAU
   sub: PY
   location:
   - title: PyCon Australia 2025
