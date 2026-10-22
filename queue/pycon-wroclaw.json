@@ -1,23 +1,9 @@
 {
   "handled": [
     "c64f9c59c4cd21dc8af638eaf2cb2ec451155e67",
-    "cd532ad3990dd3dc42101d3fea3ac01b54f59221"
+    "cd532ad3990dd3dc42101d3fea3ac01b54f59221",
+    "a88836fcd6716c8bc536d0848794aee852593036"
   ],
-  "items": [
-    {
-      "id": "a88836fcd6716c8bc536d0848794aee852593036",
-      "kind": "signal",
-      "payload": {
-        "diff": "* Schedule",
-        "trigger": "website_change",
-        "watch_uuid": "1fd40b87-6637-4fe1-8e7b-4824b00d2b88"
-      },
-      "received": "2026-10-21T21:42:48Z",
-      "source": "changedetection",
-      "title": "PyCon Wroclaw 2026 - Main",
-      "url": "https://www.pyconwroclaw.com/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyCon Wroclaw"
 }

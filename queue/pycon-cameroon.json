@@ -1,66 +1,9 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "79e571f5665723324f8219e7cc750e0fc59781e0",
-      "kind": "question",
-      "next_check": "2026-10-22",
-      "payload": {
-        "conference": "PyCon Cameroon",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Cameroon in column 'link' would you prefer 'https://cm.pycon.org' or keep 'https://pycon.pythoncameroon.org/'?",
-        "remote_value": "https://cm.pycon.org",
-        "source_name": "python-organizers",
-        "yaml_value": "https://pycon.pythoncameroon.org/",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Cameroon",
-      "url": "https://pycon.pythoncameroon.org/",
-      "year": 2026
-    },
-    {
-      "id": "f8cd4affb80677ffce349c14737c08387e7ce227",
-      "kind": "question",
-      "next_check": "2026-10-22",
-      "payload": {
-        "conference": "PyCon Cameroon",
-        "default_answer": false,
-        "field": "cfp",
-        "question": "For PyCon Cameroon in column 'cfp' would you prefer '2026-08-26 23:59:00' or keep '2026-04-20 23:59:00'?",
-        "remote_value": "2026-08-26 23:59:00",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-04-20 23:59:00",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Cameroon",
-      "url": "https://pycon.pythoncameroon.org/",
-      "year": 2026
-    },
-    {
-      "id": "d94c7a12946ffa2d6baa0348eb2b51bdacee4d79",
-      "kind": "question",
-      "next_check": "2026-10-22",
-      "payload": {
-        "conference": "PyCon Cameroon",
-        "default_answer": false,
-        "field": "place",
-        "question": "For PyCon Cameroon in column 'place' would you prefer 'Yaounde, Cameroon' or keep 'Yaoundé, Cameroon'?",
-        "remote_value": "Yaounde, Cameroon",
-        "source_name": "python-organizers",
-        "yaml_value": "Yaoundé, Cameroon",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "PyCon Cameroon",
-      "url": "https://pycon.pythoncameroon.org/",
-      "year": 2026
-    }
+  "handled": [
+    "79e571f5665723324f8219e7cc750e0fc59781e0",
+    "f8cd4affb80677ffce349c14737c08387e7ce227",
+    "d94c7a12946ffa2d6baa0348eb2b51bdacee4d79"
   ],
+  "items": [],
   "series": "PyCon Cameroon"
 }

@@ -1,26 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "cf58de7acefa60932556436e29b4c4b3681ae0ef",
-      "kind": "question",
-      "next_check": "2026-10-22",
-      "payload": {
-        "conference": "GeoPython",
-        "default_answer": false,
-        "field": "cfp_link",
-        "question": "For GeoPython in column 'cfp_link' would you prefer 'https://2026.geopython.net/app/callforspeakers' or keep 'https://submit.geopython.net/geopython-2026/cfp'?",
-        "remote_value": "https://2026.geopython.net/app/callforspeakers",
-        "source_name": "python-organizers",
-        "yaml_value": "https://submit.geopython.net/geopython-2026/cfp",
-        "year": 2026
-      },
-      "received": "2026-10-15T12:09:25Z",
-      "source": "canonical-import",
-      "title": "GeoPython",
-      "url": "https://2026.geopython.net/",
-      "year": 2026
-    }
+  "handled": [
+    "cf58de7acefa60932556436e29b4c4b3681ae0ef"
   ],
+  "items": [],
   "series": "GeoPython"
 }
