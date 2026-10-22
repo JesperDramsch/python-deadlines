@@ -79,6 +79,8 @@
   end: 2026-09-05
   sponsor: https://pycon.pt/sponsors/sponsorship/
   finaid: https://2026.pycon.pt/information/grants/
+  coc: https://2026.pycon.pt/conduct/code_of_conduct/
+  twitter: PyConPT
   youtube: https://www.youtube.com/@pyconportugal
   sub: PY
   location:
@@ -2055,7 +2057,9 @@
   end: 2025-07-26
   sponsor: https://2025.pycon.pt/sponsors/sponsorship/
   finaid: https://2025.pycon.pt/information/grants/
+  coc: https://2025.pycon.pt/conduct/code_of_conduct/
   twitter: PyConPT
+  youtube: https://www.youtube.com/@pyconportugal
   sub: PY
   location:
   - title: PyCon Portugal 2024
@@ -3062,6 +3066,9 @@
   start: 2024-10-17
   end: 2024-10-19
   sponsor: https://2024.pycon.pt/sponsors/sponsorship/
+  finaid: https://2024.pycon.pt/information/grants/
+  coc: https://2024.pycon.pt/conduct/code_of_conduct/
+  twitter: PyConPT
   sub: PY
   location:
   - title: PyCon Portugal 2024
@@ -4896,6 +4903,7 @@
   end: 2023-09-09
   sponsor: https://2023.pycon.pt/sponsors/sponsorship/
   finaid: https://2023.pycon.pt/information/grants/
+  coc: https://2023.pycon.pt/conduct/code_of_conduct/
   twitter: PyConPT
   sub: PY
   location:
@@ -5906,6 +5914,9 @@
   start: 2022-09-24
   end: 2022-09-25
   sponsor: https://2022.pycon.pt/sponsors/sponsorship/
+  finaid: https://2022.pycon.pt/information/grants/
+  coc: https://2022.pycon.pt/conduct/code_of_conduct/
+  twitter: PyConPT
   sub: PY
   location:
   - title: PyCon Portugal 2022
