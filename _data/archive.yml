@@ -969,6 +969,7 @@
   place: Bengaluru, India
   start: 2026-02-07
   end: 2026-02-07
+  coc: https://events.linuxfoundation.org/pytorch-day-india/attend/code-of-conduct/
   sub: DATA,DAY
   location:
   - title: Pytorch Day 2026
@@ -2394,7 +2395,7 @@
   link: https://events.linuxfoundation.org/pytorch-day-france/
   cfp: None
   place: Paris, France
-  start: 2025-05-06
+  start: 2025-05-07
   end: 2025-05-07
   sponsor: https://paris2025.gosim.org/sponsors/
   sub: DATA,DAY
