@@ -310,6 +310,7 @@
   start: 2026-07-25
   end: 2026-07-26
   sponsor: https://www.pyohio.org/2026/PyOhio-2026-Sponsorship-Prospectus.pdf
+  coc: https://www.pyohio.org/2026/about/code-of-conduct/
   mastodon: https://fosstodon.org/@pyohio
   sub: PY
   location:
@@ -2021,6 +2022,7 @@
   start: 2025-07-26
   end: 2025-07-27
   sponsor: https://www.pyohio.org/2025/PyOhio-2025-Sponsorship-Prospectus.pdf
+  coc: https://www.pyohio.org/2025/about/code-of-conduct/
   sub: PY
   location:
   - title: PyOhio 2025
