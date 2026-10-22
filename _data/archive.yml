@@ -3073,6 +3073,7 @@
   place: Cali, Colombia
   start: 2024-10-19
   end: 2024-10-19
+  coc: https://www.calidev.co/codigo-de-conducta/
   sub: DAY
   location:
   - title: PyDay Cali 2024
@@ -4623,6 +4624,7 @@
   place: Cali, Colombia
   start: 2023-10-21
   end: 2023-10-21
+  coc: https://www.calidev.co/codigo-de-conducta/
   sub: DAY
   location:
   - title: PyDay Cali 2023
