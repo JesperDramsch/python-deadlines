@@ -1061,6 +1061,21 @@
   sponsor: https://2025.conference.pyladies.com/en/sponsors/
   sub: PY
 
+- conference: PyDay Hurlingham
+  year: 2025
+  link: https://eventos.python.org.ar/events/pyday-hurlingham-2025/
+  cfp: '2025-11-17 23:59:00'
+  place: Hurlingham, Argentina
+  start: 2025-11-29
+  end: 2025-11-29
+  twitter: pydayhurlingham
+  mastodon: https://rebel.ar/@PydayHurlingham
+  sub: DAY
+  location:
+  - title: PyDay Hurlingham 2025
+    latitude: -34.5933423
+    longitude: -58.6378405
+
 - conference: PyCon Senegambia
   year: 2025
   link: https://www.pyconsenegambia.org/en
@@ -2981,6 +2996,21 @@
   - title: PyCon Balkan 2024
     latitude: 44.8178131
     longitude: 20.4568974
+
+- conference: PyDay Hurlingham
+  year: 2024
+  link: https://eventos.python.org.ar/events/pyday-hurlingham-2024/
+  cfp: TBA
+  place: Hurlingham, Argentina
+  start: 2024-10-26
+  end: 2024-10-26
+  twitter: pydayhurlingham
+  mastodon: https://rebel.ar/@PydayHurlingham
+  sub: DAY
+  location:
+  - title: PyDay Hurlingham 2024
+    latitude: -34.5933423
+    longitude: -58.6378405
 
 - conference: PyCon Asia Pacific
   alt_name: PyCon Indonesia
