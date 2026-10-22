@@ -14,6 +14,25 @@
     latitude: 55.625578
     longitude: 37.6063916
 
+- conference: PyCon Austria
+  year: 2027
+  link: https://pycon.at/
+  cfp_link: https://sessionize.com/pycon-austria-2027/
+  cfp: '2027-02-16 23:59:00'
+  timezone: Europe/Vienna
+  place: Eisenstadt, Austria
+  start: 2027-04-11
+  end: 2027-04-12
+  sponsor: https://2027.pycon.at/sponsor-information/
+  coc: https://2027.pycon.at/code-of-conduct/
+  mastodon: https://mastodon.social/@pycon_austria
+  youtube: https://www.youtube.com/@PyConAustria
+  sub: PY
+  location:
+  - title: PyCon Austria 2027
+    latitude: 47.8454821
+    longitude: 16.5249288
+
 - conference: PyCon Thailand
   year: 2027
   link: https://th.pycon.org/
@@ -1067,24 +1086,6 @@
   - title: PyCon Czechia 2027
     latitude: 49.7477415
     longitude: 13.3775249
-
-- conference: PyCon Austria
-  year: 2027
-  link: https://pycon.at/
-  cfp: TBA
-  timezone: Europe/Vienna
-  place: Eisenstadt, Austria
-  start: 2027-04-11
-  end: 2027-04-12
-  sponsor: https://2027.pycon.at/sponsor-information/
-  coc: https://2027.pycon.at/code-of-conduct/
-  mastodon: https://mastodon.social/@pycon_austria
-  youtube: https://www.youtube.com/@PyConAustria
-  sub: PY
-  location:
-  - title: PyCon Austria 2027
-    latitude: 47.8454821
-    longitude: 16.5249288
 
 - conference: Python BarCamp Karlsruhe
   year: 2027

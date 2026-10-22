@@ -731,6 +731,10 @@
   place: Eisenstadt, Austria
   start: 2026-04-19
   end: 2026-04-20
+  sponsor: https://2026.pycon.at/sponsor-information/
+  coc: https://2026.pycon.at/code-of-conduct/
+  mastodon: https://mastodon.social/@pycon_austria
+  youtube: https://www.youtube.com/@PyConAustria
   sub: PY
   location:
   - title: PyCon Austria 2026
@@ -2497,6 +2501,9 @@
   start: 2025-04-06
   end: 2025-04-07
   sponsor: https://pycon25.uber.space/en/sponsor-information/
+  coc: https://2025.pycon.at/code-of-conduct/
+  mastodon: https://mastodon.social/@pycon_austria
+  youtube: https://www.youtube.com/@PyConAustria
   sub: PY
   location:
   - title: PyCon Austria 2025
