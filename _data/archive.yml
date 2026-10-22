@@ -114,6 +114,11 @@
   place: Gliwice, Poland
   start: 2026-08-27
   end: 2026-08-30
+  sponsor: https://pl.pycon.org/2026/en/sponsors
+  coc: https://pl.pycon.org/2026/en/code-of-conduct
+  twitter: pyconpl
+  bluesky: https://bsky.app/profile/pyconpl.bsky.social
+  youtube: https://www.youtube.com/user/pyconpl
   sub: PY
   location:
   - title: PyCon Poland 2026
@@ -1928,6 +1933,11 @@
   place: Gliwice, Poland
   start: 2025-08-28
   end: 2025-08-31
+  sponsor: https://pl.pycon.org/2025/en/sponsors
+  finaid: https://pl.pycon.org/2025/en/financial-aid
+  coc: https://pl.pycon.org/2025/en/code-of-conduct
+  twitter: pyconpl
+  youtube: https://www.youtube.com/user/pyconpl
   sub: PY
   location:
   - title: PyCon Poland 2025
