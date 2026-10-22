@@ -1715,7 +1715,12 @@
   start: 2025-09-19
   end: 2025-09-22
   sponsor: https://2025.pyconuk.org/sponsorship/
+  finaid: https://2025.pyconuk.org/financial-assistance/
+  coc: https://2025.pyconuk.org/code-of-conduct/
+  twitter: pyconuk
   mastodon: https://fosstodon.org/@PyConUK
+  bluesky: https://bsky.app/profile/pyconuk.org
+  youtube: https://www.youtube.com/@PyconUKSoc
   sub: PY
   location:
   - title: PyCon UK 2025
