@@ -85,6 +85,23 @@
     latitude: 49.4093582
     longitude: 8.694724
 
+- conference: Black Python Devs Leadership Summit
+  year: 2027
+  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
+  cfp_link: https://pretalx.com/pytexas-2027/cfp
+  cfp: '2026-12-11 17:00:00'
+  timezone: America/Chicago
+  place: Austin, USA
+  start: 2027-04-16
+  end: 2027-04-16
+  coc: https://blackpythondevs.com/code-of-conduct.html
+  twitter: blackpythondevs
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2027
+    latitude: 30.2711286
+    longitude: -97.7436995
+
 - conference: PyTexas
   year: 2027
   link: https://www.pytexas.org/2027/
@@ -104,23 +121,6 @@
   sub: PY
   location:
   - title: PyTexas 2027
-    latitude: 30.2711286
-    longitude: -97.7436995
-
-- conference: Black Python Devs Leadership Summit
-  year: 2027
-  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
-  cfp_link: https://pretalx.com/pytexas-2027/cfp
-  cfp: '2026-12-11 17:00:00'
-  timezone: America/Chicago
-  place: Austin, USA
-  start: 2027-04-16
-  end: 2027-04-16
-  coc: https://blackpythondevs.com/code-of-conduct.html
-  twitter: blackpythondevs
-  sub: PY
-  location:
-  - title: Black Python Devs Leadership Summit 2027
     latitude: 30.2711286
     longitude: -97.7436995
 
