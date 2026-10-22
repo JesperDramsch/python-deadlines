@@ -2214,7 +2214,9 @@
   start: 2025-06-07
   end: 2025-06-07
   sponsor: https://docs.google.com/forms/d/e/1FAIpQLScT25fVpVkQ18lzrvclcvGWkwe2vO0Cm4YiV8gV5X9_Q5pEyQ/viewform
+  coc: https://afropython.org/codigo-de-conduta/
   twitter: AfroPython
+  youtube: https://www.youtube.com/channel/UC33mgJJCwa9OvVJ8HvAVe2g
   sub: PY
   location:
   - title: AfroPython Conf 2023
