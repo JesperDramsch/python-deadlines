@@ -2935,6 +2935,7 @@
   end: 2024-11-08
   sponsor: https://pydata.org/nyc2024/sponsorship-opportunites
   finaid: https://docs.google.com/forms/d/e/1FAIpQLSdv0gkemT9Q-4O6D0b9By6VWSz_ZFvzSfH0jBphiIyXjwNX2g/closedform
+  coc: https://pydata.org/code-of-conduct/
   sub: DATA
   location:
   - title: PyData NYC 2024
@@ -4576,6 +4577,21 @@
   - title: DjangoCon Africa 2023
     latitude: -6.09994425
     longitude: 39.32094431715264
+
+- conference: PyData NYC
+  year: 2023
+  link: https://pydata.org/nyc2023/
+  cfp: TBA
+  place: New York, USA
+  start: 2023-11-01
+  end: 2023-11-03
+  sponsor: https://pydata.org/nyc2023/sponsor
+  coc: https://pydata.org/code-of-conduct/
+  sub: DATA
+  location:
+  - title: PyData NYC 2023
+    latitude: 40.7127281
+    longitude: -74.0060152
 
 - conference: Python Brasil
   alt_name: PythonBrasil
