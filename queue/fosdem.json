@@ -2,6 +2,21 @@
   "handled": [
     "4e57393810301288132bad6f6d400699c7c0a65f"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "0325125c44ed743f6c11566370707c5d50e66f9a",
+      "kind": "signal",
+      "payload": {
+        "diff": "* Accepted developer rooms",
+        "trigger": "website_change",
+        "watch_uuid": "cdc6d2bc-03cb-4e59-9643-ea4b2498c43e"
+      },
+      "received": "2026-10-23T01:40:33Z",
+      "source": "changedetection",
+      "title": "FOSDEM 2026 - Main",
+      "url": "https://fosdem.org/{% now 'utc' + 'months=13', '%Y' %}/",
+      "year": 2026
+    }
+  ],
   "series": "FOSDEM"
 }
