@@ -61,6 +61,9 @@ alt_name:
     global: PyCon CZ
     variations:
     - PyCon Czech Republic
+  PyCon Côte d’Ivoire:
+    variations:
+    - PyCon CI
   PyCon Estonia:
     global: PyCon EE
   PyCon Finland:
