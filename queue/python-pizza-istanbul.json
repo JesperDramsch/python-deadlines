@@ -2,6 +2,21 @@
   "handled": [
     "06d1afd6aa0e75e8e9dedf75c8b32be55c6224c4"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "59ca013efbcb14901f4daaee71b2ef041af878f2",
+      "kind": "signal",
+      "payload": {
+        "diff": "About 🍕Keynoters 🎙️Venue 🏰Sponsors 💛CFP 🙋🏻‍♀️Organizers 👩🏻CoC 💂 About 🍕Schedule 📅Venue 🏰Sponsors 💛Organizers 👩🏻CoC 💂 * Keynoters 🎙️ * Schedule 📅 Meet our keynoters 🎙️Get your ticket! 🎟️ See the schedule 📅Get your ticket! 🎟️ Cemrehan Çavdar Ege Akman Kader Miyanyedi",
+        "trigger": "website_change",
+        "watch_uuid": "48cc2da3-a555-4867-8463-dd4f0b4dd964"
+      },
+      "received": "2026-10-23T22:07:10Z",
+      "source": "changedetection",
+      "title": "Python Pizza Istanbul 2026 - Main",
+      "url": "https://istanbul.python.pizza/",
+      "year": 2026
+    }
+  ],
   "series": "Python Pizza Istanbul"
 }
