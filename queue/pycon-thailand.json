@@ -1,0 +1,20 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "3ce98b5dd6c0bcf4979bd8eb364984fa2098ee07",
+      "kind": "signal",
+      "payload": {
+        "diff": "opens in 4 days open, 3 months left Submit a session Login with your preferred account Facebook Google Microsoft Office 365 X / Twitter Classic Login If you haven't logged in before, you'll be able to register. Using social networks to login is faster and simpler, but if you prefer username/password account - use Classic Login. × Close Classic login Remember me on this computer Login Forgot password? Create new classic account",
+        "trigger": "website_change",
+        "watch_uuid": "2759ab6a-39eb-45c7-a9d1-715a4feb23f2"
+      },
+      "received": "2026-10-24T05:24:15Z",
+      "source": "changedetection",
+      "title": "PyCon Thailand 2027 - CFP",
+      "url": "https://sessionize.com/pycon-thailand-{% now 'utc' + 'months=6', '%Y' %}",
+      "year": 2027
+    }
+  ],
+  "series": "PyCon Thailand"
+}
