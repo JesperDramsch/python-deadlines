@@ -1717,7 +1717,9 @@
   start: 2025-09-20
   end: 2025-09-20
   sponsor: https://cn.pycon.org/2025/en/supporter/
+  coc: https://cn.pycon.org/2025/en/coc/
   twitter: PyConChina
+  youtube: https://www.youtube.com/channel/UC6wdANyncX4Bc59wTVKrUlw
   sub: PY
   location:
   - title: PyCon China 2025
