@@ -3773,6 +3773,8 @@
   start: 2024-07-11
   end: 2024-07-11
   sponsor: https://pydata.org/eindhoven2024/sponsorship-opportunities
+  coc: https://pydata.org/code-of-conduct/
+  twitter: PydataEindhoven
   sub: DATA
   location:
   - title: PyData Eindhoven 2024
