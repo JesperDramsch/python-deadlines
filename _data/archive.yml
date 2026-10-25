@@ -1687,6 +1687,8 @@
   start: 2025-09-25
   end: 2025-09-27
   sponsor: https://gh.pycon.org/2025/support-us/
+  coc: https://gh.pycon.org/2025/coc/
+  twitter: PyConGhana
   sub: PY
   location:
   - title: PyCon Ghana 2025
