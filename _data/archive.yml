@@ -1638,6 +1638,8 @@
   start: 2025-09-30
   end: 2025-10-02
   sponsor: https://pydata.org/paris2025/sponsorship-opportunites#tiers
+  finaid: https://pydata.org/paris2025/about
+  coc: https://numfocus.org/code-of-conduct
   mastodon: https://mastodon.social/@PyDataParis
   bluesky: https://bsky.app/profile/pydataparis.bsky.social
   sub: DATA
@@ -3378,7 +3380,9 @@
   start: 2024-09-25
   end: 2024-09-26
   sponsor: https://pydata.org/paris2024/sponsorship-opportunites
+  coc: https://numfocus.org/code-of-conduct
   twitter: PyDataParis
+  mastodon: https://mastodon.social/@pydataparis
   sub: DATA
   location:
   - title: PyData Paris 2024
