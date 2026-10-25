@@ -1,22 +1,8 @@
 {
   "handled": [
-    "187e62693a53e37ef3c64a170cb3dc48e9cd4a33"
+    "187e62693a53e37ef3c64a170cb3dc48e9cd4a33",
+    "c21db77ce8eb6ed59b71f70c854b8f7bfdf2b881"
   ],
-  "items": [
-    {
-      "id": "c21db77ce8eb6ed59b71f70c854b8f7bfdf2b881",
-      "kind": "signal",
-      "payload": {
-        "diff": "What's new in FastAPI and friends FastAPI and All the Things What's next for FastAPI and friends FastAPI and Friends: Big Plans",
-        "trigger": "website_change",
-        "watch_uuid": "52257547-ffdc-42a9-8c11-484c544f209f"
-      },
-      "received": "2026-10-23T21:58:18Z",
-      "source": "changedetection",
-      "title": "FastAPI Conference 2026 - Main",
-      "url": "https://fastapiconf.com/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "FastAPI Conference"
 }

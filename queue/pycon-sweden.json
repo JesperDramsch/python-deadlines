@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "3e68f42680df021671d452d8dfb9130b9ecafada",
-      "kind": "signal",
-      "payload": {
-        "diff": "SPONSORED BY This year's PyCon Sweden is kindly sponsored by: GOLD SILVER",
-        "trigger": "website_change",
-        "watch_uuid": "ddb66379-3d74-4c6a-b492-c0f323eea9b8"
-      },
-      "received": "2026-10-24T21:37:15Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCon Sweden",
-      "url": "https://pycon.se/",
-      "year": null
-    }
+  "handled": [
+    "3e68f42680df021671d452d8dfb9130b9ecafada"
   ],
+  "items": [],
   "series": "PyCon Sweden"
 }

@@ -1,27 +1,8 @@
 {
   "handled": [
-    "18dd95e81f2ffb0a08d41f6bc9c59dacb049c50d"
+    "18dd95e81f2ffb0a08d41f6bc9c59dacb049c50d",
+    "c5121588b7e16ec0b66e89db2d4ae4d3961914be"
   ],
-  "items": [
-    {
-      "id": "c5121588b7e16ec0b66e89db2d4ae4d3961914be",
-      "kind": "drift",
-      "payload": {
-        "conference": "PyCascades",
-        "diffs": {
-          "cfp": {
-            "data": "2026-10-26 23:59:00 AoE",
-            "source": "2026-10-27 05:00 (America/Los_Angeles)"
-          }
-        },
-        "year": 2027
-      },
-      "received": "2026-10-23T09:26:14Z",
-      "source": "pretalx",
-      "title": "PyCascades",
-      "url": "https://pretalx.com/pycascades-2027/cfp",
-      "year": 2027
-    }
-  ],
+  "items": [],
   "series": "PyCascades"
 }
