@@ -481,6 +481,8 @@
   start: 2026-11-19
   end: 2026-11-20
   sponsor: https://pycon.se/#sponsorship
+  coc: https://pycon.se/assets/docs/code_of_conduct.pdf
+  twitter: pyconse
   mastodon: https://fosstodon.org/@pyconsweden
   youtube: https://www.youtube.com/c/PyConSweden
   sub: PY
