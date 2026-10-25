@@ -195,6 +195,9 @@ alt_name:
     variations:
     - Scipy
     - SciPy
+  Wagtail Space Netherlands:
+    variations:
+    - Wagtail Space NL
 spelling:
 - DjangoCon
 - EuroPython
