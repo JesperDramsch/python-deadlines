@@ -2639,8 +2639,13 @@
   link: https://djangocongress.jp/
   cfp: None
   place: Tokyo, Japan
+  extra_places:
+  - Online
   start: 2025-02-22
   end: 2025-02-22
+  coc: https://github.com/django-ja/DjangoConJP/blob/master/CodeOfConduct_en.md
+  twitter: django_ja
+  youtube: https://www.youtube.com/@djangocongressjp3623
   sub: WEB
   location:
   - title: DjangoCongress Japan 2025
