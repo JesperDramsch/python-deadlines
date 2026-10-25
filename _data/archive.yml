@@ -987,11 +987,14 @@
   alt_name: 'FOSDEM: Python Dev Room'
   year: 2026
   link: https://fosdem.org/2026/schedule/track/python
-  cfp: TBA
+  cfp_link: https://pretalx.fosdem.org/fosdem-2026/cfp
+  cfp: '2025-12-01 23:59:00'
+  timezone: Europe/Brussels
   place: Brussels, Belgium
   start: 2026-01-31
   end: 2026-01-31
   sponsor: https://fosdem.org/2026/about/sponsors/
+  coc: https://archive.fosdem.org/2026/practical/conduct/
   sub: PY
   location:
   - title: 'FOSDEM: Python Dev Room 2026'
