@@ -2743,6 +2743,7 @@
   start: 2025-01-24
   end: 2025-01-25
   sponsor: https://www.pyconweb.com/sponsorship
+  coc: https://www.pyconweb.com/code-of-conduct.html
   twitter: PyconWeb
   sub: WEB
   location:
