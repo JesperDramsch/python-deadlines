@@ -663,6 +663,9 @@
   start: 2026-05-09
   end: 2026-05-09
   sponsor: https://warsaw.python.pizza/#sponsors
+  coc: https://warsaw.python.pizza/#coc
+  twitter: pythonpizzaconf
+  mastodon: https://fosstodon.org/@pythonpizza
   sub: PY
   location:
   - title: Warsaw Python Pizza 2026
