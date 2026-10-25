@@ -1827,12 +1827,15 @@
   link: https://pycon.org.il/2025/
   cfp_link: https://cfp.pycon.org.il/pycon-2025/cfp
   cfp: '2025-05-01 23:59:00'
+  cfp_ext: '2025-05-10 23:59:00'
   timezone: Asia/Jerusalem
-  place: Cinema City, Israel
+  place: Gelilot, Israel
   start: 2025-09-09
   end: 2025-09-09
   coc: https://pycon.org.il/2025/pages/code-of-conduct.html
+  twitter: PyConIL
   mastodon: https://tooot.im/@pyconil/
+  youtube: https://www.youtube.com/@PyConIsrael
   sub: PY
   location:
   - title: PyCon Israel 2025
@@ -3535,12 +3538,17 @@
 - conference: PyCon Israel
   year: 2024
   link: https://pycon.org.il/2024/
+  cfp_link: https://cfp.pycon.org.il/pycon-2024/cfp
   cfp: '2024-06-01 23:59:00'
+  cfp_ext: '2024-06-08 23:59:00'
   timezone: Asia/Jerusalem
   place: Gelilot, Israel
   start: 2024-09-16
   end: 2024-09-16
+  coc: https://pycon.org.il/2024/pages/code-of-conduct.html
   twitter: PyConIL
+  mastodon: https://tooot.im/@pyconil/
+  youtube: https://www.youtube.com/@PyConIsrael
   sub: PY
   location:
   - title: PyCon Israel 2024
