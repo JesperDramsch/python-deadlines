@@ -14,6 +14,25 @@
     latitude: 55.625578
     longitude: 37.6063916
 
+- conference: PyCon Austria
+  year: 2027
+  link: https://pycon.at/
+  cfp_link: https://sessionize.com/pycon-austria-2027/
+  cfp: '2027-02-16 23:59:00'
+  timezone: Europe/Vienna
+  place: Eisenstadt, Austria
+  start: 2027-04-11
+  end: 2027-04-12
+  sponsor: https://2027.pycon.at/sponsor-information/
+  coc: https://2027.pycon.at/code-of-conduct/
+  mastodon: https://mastodon.social/@pycon_austria
+  youtube: https://www.youtube.com/@PyConAustria
+  sub: PY
+  location:
+  - title: PyCon Austria 2027
+    latitude: 47.8454821
+    longitude: 16.5249288
+
 - conference: PyCon Thailand
   year: 2027
   link: https://th.pycon.org/
@@ -44,6 +63,45 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyCon Germany
+  alt_name: PyCon Germany
+  year: 2027
+  link: https://2027.pycon.de/
+  cfp_link: https://pycon.de/call-for-proposals/
+  cfp: '2026-12-20 23:59:00'
+  timezone: Europe/Berlin
+  place: Heidelberg, Germany
+  start: 2027-04-20
+  end: 2027-04-22
+  sponsor: https://pycon.de/sponsoring/
+  finaid: https://pycon.de/financial-aid/
+  coc: https://pioneershub.github.io/pyconde-conference/code-of-conduct/
+  twitter: PyConDE
+  mastodon: https://fosstodon.org/@pyconde
+  bluesky: https://bsky.app/profile/pyconde.bsky.social
+  sub: PY,DATA
+  location:
+  - title: PyCon Germany & PyData Conference 2027
+    latitude: 49.4093582
+    longitude: 8.694724
+
+- conference: Black Python Devs Leadership Summit
+  year: 2027
+  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
+  cfp_link: https://pretalx.com/pytexas-2027/cfp
+  cfp: '2026-12-11 17:00:00'
+  timezone: America/Chicago
+  place: Austin, USA
+  start: 2027-04-16
+  end: 2027-04-16
+  coc: https://blackpythondevs.com/code-of-conduct.html
+  twitter: blackpythondevs
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2027
+    latitude: 30.2711286
+    longitude: -97.7436995
+
 - conference: PyTexas
   year: 2027
   link: https://www.pytexas.org/2027/
@@ -55,6 +113,7 @@
   end: 2027-04-18
   sponsor: https://www.pytexas.org/2027/sponsors/sponsor-us/
   finaid: https://www.pytexas.org/2027/attend/grants/
+  coc: https://www.pytexas.org/2027/about/#code-of-conduct
   twitter: pytexas
   mastodon: https://fosstodon.org/@pytexas
   bluesky: https://bsky.app/profile/pytexas.org
@@ -138,6 +197,7 @@
   start: 2027-03-20
   end: 2027-03-21
   sponsor: https://2027.pycascades.com/sponsors/become-a-sponsor/
+  finaid: https://2027.pycascades.com/about/grants/
   coc: https://2027.pycascades.com/about/code-of-conduct/
   mastodon: https://hachyderm.io/@pycascades
   sub: PY
@@ -422,6 +482,8 @@
   start: 2026-11-19
   end: 2026-11-20
   sponsor: https://pycon.se/#sponsorship
+  coc: https://pycon.se/assets/docs/code_of_conduct.pdf
+  twitter: pyconse
   mastodon: https://fosstodon.org/@pyconsweden
   youtube: https://www.youtube.com/c/PyConSweden
   sub: PY
@@ -702,6 +764,25 @@
     latitude: 47.223987
     longitude: 8.8173
 
+- conference: Compute! Paris
+  year: 2026
+  link: https://compute.events/paris2026/
+  cfp_link: https://pretalx.com/compute-paris-2026/cfp
+  cfp: '2026-05-24 23:59:00'
+  cfp_ext: '2026-06-07 23:59:00'
+  place: Paris, France
+  start: 2026-11-25
+  end: 2026-11-26
+  sponsor: https://compute.events/paris2026/sponsors.html
+  coc: https://compute.events/paris2026/code-of-conduct
+  mastodon: https://mastodon.social/@computeparis
+  bluesky: https://bsky.app/profile/computeparis.bsky.social
+  sub: DATA
+  location:
+  - title: Compute! Paris 2026
+    latitude: 48.8588897
+    longitude: 2.3200410217200766
+
 - conference: Python Brasil
   year: 2026
   link: https://2026.pythonbrasil.org.br/
@@ -774,22 +855,6 @@
     latitude: 3.8689867
     longitude: 11.5213344
 
-- conference: PyData Amsterdam
-  year: 2026
-  link: https://amsterdam.pydata.org/
-  cfp_link: https://pretalx.com/pydata-amsterdam2026/cfp
-  cfp: '2026-04-19 23:59:00'
-  timezone: Europe/Amsterdam
-  place: Amsterdam, Netherlands
-  start: 2026-09-10
-  end: 2026-09-12
-  twitter: pydataamsterdam
-  sub: DATA
-  location:
-  - title: PyData Amsterdam 2026
-    latitude: 52.4036
-    longitude: 4.8901
-
 - conference: PyCon Africa
   year: 2026
   link: https://africa.pycon.org/
@@ -835,6 +900,7 @@
   place: San Jose, USA
   start: 2027-10-06
   end: 2027-10-07
+  sponsor: https://events.linuxfoundation.org/sponsor-pytconf27
   sub: DATA
   location:
   - title: PyTorch Conference 2027
@@ -894,6 +960,22 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: Python Nordeste
+  alt_name: PyNE
+  year: 2027
+  link: https://2027.pythonnordeste.org/
+  cfp: TBA
+  place: Parnaíba, Brazil
+  start: 2027-08-13
+  end: 2027-08-15
+  coc: https://2027.pythonnordeste.org/cdc.html
+  youtube: https://www.youtube.com/@pythonnordeste
+  sub: PY
+  location:
+  - title: Python Nordeste 2027
+    latitude: -2.9147515
+    longitude: -41.7661953
+
 - conference: PyOhio
   year: 2027
   link: https://www.pyohio.org/
@@ -909,7 +991,25 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
+- conference: North Bay Python
+  year: 2027
+  link: https://northbaypython.org/
+  cfp: TBA
+  place: Petaluma, USA
+  start: 2027-06-19
+  end: 2027-06-20
+  sponsor: https://northbaypython.org/sponsor
+  mastodon: https://social.northbaypython.org/@NorthBayPython
+  bluesky: https://bsky.app/profile/northbaypython.org
+  youtube: https://youtube.com/@northbaypython
+  sub: PY
+  location:
+  - title: North Bay Python 2027
+    latitude: 38.2325829
+    longitude: -122.636465
+
 - conference: PyCon Armenia
+  alt_name: PyData PyCon Yerevan
   year: 2027
   link: https://pycon.am/
   cfp: TBA
@@ -917,7 +1017,8 @@
   start: 2027-06-18
   end: 2027-06-19
   sponsor: https://pycon.am/#sponsors
-  sub: PY
+  coc: https://pycon.am/CoC.html
+  sub: PY,DATA
   location:
   - title: PyCon Armenia 2027
     latitude: 40.1777112
@@ -932,6 +1033,7 @@
   start: 2027-06-02
   end: 2027-06-05
   sponsor: https://2027.pycon.it/en/sponsor
+  coc: https://2027.pycon.it/en/code-of-conduct
   twitter: PyConIT
   mastodon: https://social.python.it/@pycon
   youtube: https://www.youtube.com/playlist?list=PLUWPlMGp2t18
@@ -972,41 +1074,6 @@
     latitude: 33.7690164
     longitude: -118.191604
 
-- conference: PyCon Germany
-  alt_name: PyCon Germany
-  year: 2027
-  link: https://2027.pycon.de/
-  cfp: TBA
-  timezone: Europe/Berlin
-  place: Heidelberg, Germany
-  start: 2027-04-20
-  end: 2027-04-22
-  sponsor: https://pycon.de/sponsoring/
-  finaid: https://pycon.de/financial-aid/
-  coc: https://pioneershub.github.io/pyconde-conference/code-of-conduct/
-  twitter: PyConDE
-  mastodon: https://fosstodon.org/@pyconde
-  bluesky: https://bsky.app/profile/pyconde.bsky.social
-  sub: PY,DATA
-  location:
-  - title: PyCon Germany & PyData Conference 2027
-    latitude: 49.4093582
-    longitude: 8.694724
-
-- conference: Black Python Devs Leadership Summit
-  year: 2027
-  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
-  cfp: TBA
-  place: Austin, USA
-  start: 2027-04-16
-  end: 2027-04-16
-  coc: https://blackpythondevs.com/code-of-conduct.html
-  sub: PY
-  location:
-  - title: Black Python Devs Leadership Summit 2027
-    latitude: 30.2711286
-    longitude: -97.7436995
-
 - conference: PyCon Czechia
   alt_name: PyCon CZ
   year: 2027
@@ -1026,28 +1093,10 @@
     latitude: 49.7477415
     longitude: 13.3775249
 
-- conference: PyCon Austria
-  year: 2027
-  link: https://pycon.at/
-  cfp: TBA
-  timezone: Europe/Vienna
-  place: Eisenstadt, Austria
-  start: 2027-04-11
-  end: 2027-04-12
-  sponsor: https://2027.pycon.at/sponsor-information/
-  coc: https://2027.pycon.at/code-of-conduct/
-  mastodon: https://mastodon.social/@pycon_austria
-  youtube: https://www.youtube.com/@PyConAustria
-  sub: PY
-  location:
-  - title: PyCon Austria 2027
-    latitude: 47.8454821
-    longitude: 16.5249288
-
 - conference: Python BarCamp Karlsruhe
   year: 2027
   link: https://barcamps.eu/pythonbarcamp-karlsruhe-2027/
-  cfp: TBA
+  cfp: None
   timezone: Europe/Berlin
   place: Karlsruhe, Germany
   start: 2027-02-27
@@ -1068,6 +1117,7 @@
   place: Brussels, Belgium
   start: 2027-01-30
   end: 2027-01-31
+  sponsor: https://fosdem.org/2027/support/sponsors/
   coc: https://fosdem.org/2027/practical/conduct/
   sub: PY
   location:
@@ -1161,12 +1211,13 @@
   start: 2026-10-28
   end: 2026-10-28
   sponsor: https://fastapiconf.com/#sponsors
-  sub: PY
+  coc: https://fastapiconf.com/code-of-conduct
+  sub: WEB
   note: Inaugural event with invited speakers only; no Call for Proposals.
   location:
-  - title: FastAPI Conf 2026
-    latitude: 52.3730796
-    longitude: 4.8924534
+  - title: FastAPI Conference 2026
+    latitude: 52.386807
+    longitude: 4.8698442
 
 - conference: PyCon Davao
   year: 2026
@@ -1264,17 +1315,3 @@
   - title: Pythoncamp Rügen 2026
     latitude: 54.4529015
     longitude: 13.3882344
-
-- conference: PyDay Boyacá
-  year: 2026
-  link: https://www.pyday.co/
-  cfp: None
-  place: Sogamoso, Colombia
-  start: 2026-09-12
-  end: 2026-09-12
-  sponsor: https://www.pyday.co/#sponsors
-  sub: DAY
-  location:
-  - title: PyDay Boyacá 2026
-    latitude: 5.7148307
-    longitude: -72.9279328

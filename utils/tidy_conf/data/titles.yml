@@ -14,6 +14,9 @@ alt_name:
     - Python devroom @ FOSDEM
     - 'FOSDEM: Python Dev Room'
     - 'FOSDEM: Python Devroom'
+  FastAPI Conference:
+    variations:
+    - FastAPI Conf
   Kiwi PyCon:
     global: PyCon NZ
     regexes:
@@ -61,6 +64,9 @@ alt_name:
     global: PyCon CZ
     variations:
     - PyCon Czech Republic
+  PyCon Côte d’Ivoire:
+    variations:
+    - PyCon CI
   PyCon Estonia:
     global: PyCon EE
   PyCon Finland:
@@ -189,6 +195,9 @@ alt_name:
     variations:
     - Scipy
     - SciPy
+  Wagtail Space Netherlands:
+    variations:
+    - Wagtail Space NL
 spelling:
 - DjangoCon
 - EuroPython
