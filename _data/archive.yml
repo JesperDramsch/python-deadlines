@@ -503,7 +503,7 @@
 - conference: PyCon Singapore
   year: 2026
   link: https://pycon.sg/
-  cfp: "2026-05-01 23:59:59"
+  cfp: '2026-05-01 23:59:59'
   place: Singapore, Singapore
   start: 2026-06-19
   end: 2026-06-21
@@ -2244,7 +2244,7 @@
 - conference: PyCon Singapore
   year: 2025
   link: https://pythonsingapore.github.io/pyconsg-2025/
-  cfp: "2015-04-30 23:59:59"
+  cfp: '2015-04-30 23:59:59'
   place: Singapore, Singapore
   start: 2025-06-18
   end: 2025-06-20
@@ -4619,7 +4619,7 @@
 - conference: PyData NYC
   year: 2023
   link: https://pydata.org/nyc2023/
-  cfp: "2023-09-23 23:59:59"
+  cfp: '2023-09-23 23:59:59'
   place: New York, USA
   start: 2023-11-01
   end: 2023-11-03
