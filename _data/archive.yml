@@ -503,7 +503,7 @@
 - conference: PyCon Singapore
   year: 2026
   link: https://pycon.sg/
-  cfp: TBA
+  cfp: "2026-05-01 23:59:59"
   place: Singapore, Singapore
   start: 2026-06-19
   end: 2026-06-21
@@ -2244,7 +2244,7 @@
 - conference: PyCon Singapore
   year: 2025
   link: https://pythonsingapore.github.io/pyconsg-2025/
-  cfp: TBA
+  cfp: "2015-04-30 23:59:59"
   place: Singapore, Singapore
   start: 2025-06-18
   end: 2025-06-20
