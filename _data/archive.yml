@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Cameroon
+  year: 2026
+  link: https://pycon.pythoncameroon.org/
+  cfp_link: https://sessionize.com/pycon-camerooon-2026/
+  cfp: '2026-04-20 23:59:00'
+  cfp_ext: '2026-05-15 23:59:00'
+  timezone: Africa/Douala
+  place: Yaoundé, Cameroon
+  start: 2026-09-17
+  end: 2026-09-19
+  sponsor: https://cm.pycon.org/en/sponsor
+  sub: PY
+  location:
+  - title: PyCon Cameroon 2026
+    latitude: 3.8689867
+    longitude: 11.5213344
+
 - conference: PyDay Boyacá
   year: 2026
   link: https://www.pyday.co/
