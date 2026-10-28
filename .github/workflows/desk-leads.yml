@@ -1,7 +1,7 @@
 name: Desk Leads
 
-# Report-only. Looks for leads on pretalx, developers.events and the PyCon
-# registries and queues them for the desk, which checks each one on the
+# Report-only. Looks for leads on pretalx, developers.events and the pycon.org
+# registry and queues them for the desk, which checks each one on the
 # conference's own pages. Nothing here writes the conference data.
 #
 # Sources run when changedetection.io sees them change, with a slow schedule
@@ -12,11 +12,13 @@ name: Desk Leads
 #   robots.txt on pretalx.com disallows /api/. A watch on one CfP page sends
 #   pretalx-change with that page's URL, and only its entries are checked.
 #   Weekly, all of them and the next-edition guess.
-# - developers.events (CC BY-NC data, used for leads only), the PSF PyCon
-#   trademark list and the pycon.org registry: a watch on each (the Python
-#   rows of TAGS.csv, the trademark page, the registry's latest commit) sends
-#   registry-change naming its source, and that source is read in full.
-#   Monthly, all three.
+# - developers.events (CC BY-NC data, used for leads only) and the pycon.org
+#   registry: a watch on each (the Python rows of TAGS.csv, the registry's
+#   latest commit) sends registry-change naming its source, and that source
+#   is read in full. Monthly, both.
+#
+# The PSF PyCon trademark list is a listing page: its watch sends
+# listing-change to check-conference-update.yml, which checks each added line.
 #
 # A finding the desk has handled is not queued again until it changes, so a
 # lead that comes back every run adds nothing.
@@ -24,7 +26,7 @@ name: Desk Leads
 on:
   schedule:
     - cron: '23 4 * * 1'  # Mondays 04:23 UTC: pretalx
-    - cron: '41 4 1 * *'  # the 1st of the month, 04:41 UTC: developers-events and both registries
+    - cron: '41 4 1 * *'  # the 1st of the month, 04:41 UTC: developers-events and pycon-org
   repository_dispatch:
     types: [registry-change, pretalx-change]
   workflow_dispatch:
@@ -36,8 +38,6 @@ on:
           - all
           - pretalx
           - developers-events
-          - registry
-          - psf-trademarks
           - pycon-org
         default: all
 
@@ -76,7 +76,7 @@ jobs:
           if [ "$EVENT_NAME" = "schedule" ]; then
             case "$SCHEDULE" in
               '23 4 * * 1') SELECTED="pretalx" ;;
-              '41 4 1 * *') SELECTED="developers-events psf-trademarks pycon-org" ;;
+              '41 4 1 * *') SELECTED="developers-events pycon-org" ;;
               *) echo "::error title=Desk leads::Unknown schedule $SCHEDULE"; exit 1 ;;
             esac
           elif [ "$EVENT_NAME" = "repository_dispatch" ] && [ "$ACTION" = "pretalx-change" ]; then
@@ -89,32 +89,22 @@ jobs:
             esac
           elif [ "$EVENT_NAME" = "repository_dispatch" ]; then
             case "$PAYLOAD_SOURCE" in
-              developers-events|psf-trademarks|pycon-org) SELECTED="$PAYLOAD_SOURCE" ;;
+              developers-events|pycon-org) SELECTED="$PAYLOAD_SOURCE" ;;
               *) echo "::error title=Desk leads::registry-change names no known source"; exit 1 ;;
             esac
           elif [ "${CHOSEN:-all}" = "all" ]; then
-            SELECTED="pretalx developers-events psf-trademarks pycon-org"
-          elif [ "$CHOSEN" = "registry" ]; then
-            SELECTED="psf-trademarks pycon-org"
+            SELECTED="pretalx developers-events pycon-org"
           else
             SELECTED="$CHOSEN"
           fi
           echo "Sources: $SELECTED"
-          for source in pretalx developers-events; do
+          for source in pretalx developers-events pycon-org; do
             case " $SELECTED " in
               *" $source "*) RUN=true ;;
               *) RUN=false ;;
             esac
             echo "${source//-/_}=$RUN" >> "$GITHUB_OUTPUT"
           done
-          # The registries run in one step, each on its own
-          REGISTRIES=""
-          for registry in psf-trademarks pycon-org; do
-            case " $SELECTED " in
-              *" $registry "*) REGISTRIES="$REGISTRIES $registry" ;;
-            esac
-          done
-          echo "registries=${REGISTRIES# }" >> "$GITHUB_OUTPUT"
           echo "page=$PAGE" >> "$GITHUB_OUTPUT"
 
       # A source that fails gets a warning; the other sources still run.
@@ -156,22 +146,18 @@ jobs:
           echo "count=$((AFTER - BEFORE))" >> "$GITHUB_OUTPUT"
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
 
-      - name: PyCon registries
-        id: registry
-        if: steps.plan.outputs.registries != ''
-        env:
-          REGISTRIES: ${{ steps.plan.outputs.registries }}
+      - name: pycon.org
+        id: pycon_org
+        if: steps.plan.outputs.pycon_org == 'true'
         run: |
           set -uo pipefail
           touch "$RUNNER_TEMP/desk-records.jsonl"
           BEFORE=$(wc -l < "$RUNNER_TEMP/desk-records.jsonl")
           STATUS=ok
-          for registry in $REGISTRIES; do
-            if ! pixi run python utils/desk_leads.py "$registry" --out "$RUNNER_TEMP/desk-records.jsonl"; then
-              STATUS=failed
-              echo "::warning title=Desk leads::$registry failed; what it found is still queued"
-            fi
-          done
+          if ! pixi run python utils/desk_leads.py pycon-org --out "$RUNNER_TEMP/desk-records.jsonl"; then
+            STATUS=failed
+            echo "::warning title=Desk leads::pycon-org failed; what it found is still queued"
+          fi
           AFTER=$(wc -l < "$RUNNER_TEMP/desk-records.jsonl")
           echo "count=$((AFTER - BEFORE))" >> "$GITHUB_OUTPUT"
           echo "status=$STATUS" >> "$GITHUB_OUTPUT"
@@ -183,7 +169,7 @@ jobs:
         uses: ./.github/actions/desk-queue-write
         with:
           records: ${{ runner.temp }}/desk-records.jsonl
-          message: Queue leads from pretalx, developers.events and the PyCon registries
+          message: Queue leads from pretalx, developers.events and pycon.org
 
       - name: Summary
         if: ${{ !cancelled() }}
@@ -192,8 +178,8 @@ jobs:
           PRETALX_STATUS: ${{ steps.pretalx.outputs.status }}
           DEVELOPERS_EVENTS_COUNT: ${{ steps.developers_events.outputs.count }}
           DEVELOPERS_EVENTS_STATUS: ${{ steps.developers_events.outputs.status }}
-          REGISTRY_COUNT: ${{ steps.registry.outputs.count }}
-          REGISTRY_STATUS: ${{ steps.registry.outputs.status }}
+          PYCON_ORG_COUNT: ${{ steps.pycon_org.outputs.count }}
+          PYCON_ORG_STATUS: ${{ steps.pycon_org.outputs.status }}
           ADDED: ${{ steps.queue.outputs.added }}
         run: |
           row() {
@@ -210,7 +196,7 @@ jobs:
             echo "| --- | --- | --- |"
             row pretalx "$PRETALX_COUNT" "$PRETALX_STATUS"
             row developers-events "$DEVELOPERS_EVENTS_COUNT" "$DEVELOPERS_EVENTS_STATUS"
-            row registry "$REGISTRY_COUNT" "$REGISTRY_STATUS"
+            row pycon-org "$PYCON_ORG_COUNT" "$PYCON_ORG_STATUS"
             echo ""
             echo "- New in the desk queue: ${ADDED:-0}"
           } >> "$GITHUB_STEP_SUMMARY"
@@ -219,7 +205,7 @@ jobs:
       - name: Fail when a source failed
         if: ${{ !cancelled() }}
         env:
-          STATUSES: ${{ steps.pretalx.outputs.status }} ${{ steps.developers_events.outputs.status }} ${{ steps.registry.outputs.status }}
+          STATUSES: ${{ steps.pretalx.outputs.status }} ${{ steps.developers_events.outputs.status }} ${{ steps.pycon_org.outputs.status }}
         run: |
           case " $STATUSES " in
             *" failed "*) echo "::error title=Desk leads::a source failed, see the warnings above"; exit 1 ;;

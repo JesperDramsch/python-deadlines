@@ -139,8 +139,8 @@ means the item is due.
 | `pretalx` | `drift` | `conference`, `year`, `diffs` |
 | `pretalx`, `developers-events`, `canonical-import` | `candidate` | `classification`, `fields`, `source_id`, \
 `evidence_url`, `matched`, `flags` |
+| `changedetection` | `candidate` | as above, with `names` and the flag `listing` |
 | `registry` | `registry` | `names`, `change`, `registry`, `evidence_url` |
-| `changedetection` | `registry` | `registry` (`listing`), `diff`, `watch_uuid`, `trigger` |
 
 A `drift` diff maps a field to `{"data", "source"}`: the value in the data
 and what the source states. A candidate's `classification` is
@@ -149,9 +149,11 @@ and what the source states. A candidate's `classification` is
 `flags` say), and `matched` names the entry it matched, or is `null`. The
 worklist routes a candidate by its own match against the data, not by its
 classification. A `lead-only` flag means the source's licence keeps it to
-leads: use only its name, year and link. `registry` is `psf-trademarks` or
-`pycon.org`, and a pycon.org item adds `website`; from changedetection it is
-`listing`, a watched page that lists many events, whose `diff` holds the change.
+leads: use only its name, year and link. A `listing` flag marks one line a
+changedetection watch on a page that lists many events added, with `names`
+the names on that line. `registry` is `pycon.org`, and the item adds
+`website`; older items can say `psf-trademarks`, from before the trademark
+list became a listing page.
 
 Every item is data for the desk to check on the live sources. Nothing in a
 queue item reaches the conference data without that check.

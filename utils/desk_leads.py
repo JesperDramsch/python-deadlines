@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Find leads for the deadline desk on pretalx, developers.events and the PyCon registries.
+"""Find leads for the deadline desk on pretalx, developers.events and the pycon.org registry.
 
 Each source writes queue records as JSON lines, which utils/desk_queue.py adds
 to the desk-queue branch. Nothing here writes the data files: the desk checks
@@ -12,9 +12,12 @@ every record on the primary source before anything changes.
   robots.txt of pretalx.com disallows ``/api/``.
 - ``developers-events``: upcoming Python events on developers.events that the
   data does not track (kind ``candidate``).
-- ``registry``: PyCon names on the PSF trademark list, and events in the
-  pycon.org registry, that the data does not track (kind ``registry``).
-  ``psf-trademarks`` and ``pycon-org`` read one of the two each.
+- ``pycon-org``: events in the pycon.org registry that the data does not
+  track (kind ``registry``).
+- ``listing``: the lines a changedetection watch on a page that lists many
+  events saw added, one event per line (kind ``candidate``, flag ``listing``),
+  for the editions and series the data does not track. ``--lines`` names the
+  file, ``--url`` the page. The PSF PyCon trademark list comes this way.
 
 A find is tracked when it is the same series as an entry in any of the three
 data files, by the rules in AGENTS.md "Names": its name (year and a trailing
@@ -33,11 +36,10 @@ Usage::
 
     python utils/desk_leads.py pretalx --out records.jsonl
     python utils/desk_leads.py developers-events --today 2026-10-14
-    python utils/desk_leads.py registry --base . --out records.jsonl
+    python utils/desk_leads.py pycon-org --base . --out records.jsonl
 """
 
 import argparse
-import html
 import json
 import re
 import sys
@@ -71,9 +73,7 @@ except ImportError:
     from .sort_yaml import DATEFORMAT
     from .tidy_conf.yaml import load_title_mappings
 
-SOURCES = ("pretalx", "developers-events", "registry", "psf-trademarks", "pycon-org")
-# The two registries "registry" reads together; each also runs on its own
-REGISTRIES = ("psf-trademarks", "pycon-org")
+SOURCES = ("pretalx", "developers-events", "pycon-org")
 DATA_FILES = ("conferences", "archive", "legacy")
 USER_AGENT = "pythondeadlin.es desk leads (+https://pythondeadlin.es)"
 TIMEOUT = 20
@@ -93,9 +93,6 @@ TBA_VALUES = ("tba", "tbd")
 
 PRETALX_CFP = "https://pretalx.com/{slug}/cfp"
 DEVELOPERS_EVENTS = "https://developers.events/all-events.json"
-PSF_TRADEMARKS = "https://www.python.org/psf/trademarks/pycon/"
-PSF_TRADEMARKS_API = "https://www.python.org/api/v1/pages/page/852/?format=json"
-PSF_LIST_MARKER = "national-level and regional authorized PyCon conferences"
 PYCON_ORG_FILES = "https://data.jsdelivr.com/v1/packages/gh/PyCon/pycon.org@master?structure=flat"
 PYCON_ORG_RAW = "https://raw.githubusercontent.com/PyCon/pycon.org/master"
 
@@ -1093,6 +1090,87 @@ def developers_events_records(events: Iterable[Any], index: TrackingIndex, today
     return records
 
 
+def listing_names(line: str) -> list[str]:
+    """Return the event names on one line of a watched listing page.
+
+    Parameters
+    ----------
+    line : str
+        One line, e.g. "PyData Amsterdam" or ``"PyCon AT", "PyCon Austria" in Austria``.
+
+    Returns
+    -------
+    list[str]
+        The quoted names when the line quotes any, else the whole line.
+    """
+    quoted = [name.strip() for name in re.findall(r"[\"“]([^\"“”]+)[\"”]", line) if name.strip()]
+    return quoted or [line.strip()]
+
+
+def listing_records(lines: Iterable[str], page_url: str, index: TrackingIndex) -> list[dict]:
+    """Turn the lines a watched listing page added into candidate records.
+
+    A changedetection watch on a page that lists many events keeps one event
+    per line, so each added line is one find. A line with a year is checked
+    edition by edition; a line without one (a series registry, or a list
+    that names no years) only says whether the series exists.
+
+    Parameters
+    ----------
+    lines : Iterable[str]
+        The added lines.
+    page_url : str
+        The watched page, which is where each find came from.
+    index : TrackingIndex
+        The data's series.
+
+    Returns
+    -------
+    list[dict]
+        One record per line whose series, or whose edition for the line's
+        year, the data does not track, in line order.
+    """
+    records = []
+    seen: set[str] = set()
+    for raw in lines:
+        # diff_added_clean has no markers; strip them anyway in case a body sends diff_added
+        line = re.sub(r"^(?:\(added\)|\+)\s*", "", " ".join(raw.split()))
+        if not line or line in seen:
+            continue
+        seen.add(line)
+        names = listing_names(line)
+        match = NAME_YEAR.search(line)
+        year = int(match[0]) if match else None
+        if year is None:
+            if any(index.is_tracked_name(name) for name in names):
+                continue
+            found = {"classification": "NEW_SERIES", "matched": None}
+        else:
+            results = [index.classify(name, year, None) for name in names]
+            if any(result is None for result in results):
+                continue
+            found = next((r for r in results if r["classification"] != "NEW_SERIES"), results[0])
+        records.append(
+            {
+                "source": "changedetection",
+                "kind": "candidate",
+                "title": line[:200],
+                "url": page_url,
+                "year": year,
+                "payload": {
+                    "classification": found["classification"],
+                    "fields": {"conference": clean_name(names[0]), "year": year},
+                    "source_id": f"{page_url}#{line}",
+                    "evidence_url": page_url,
+                    "matched": found["matched"],
+                    "flags": ["listing"],
+                    "names": names,
+                },
+            },
+        )
+    return records
+
+
 def developers_events_leads(index: TrackingIndex, today: date) -> list[dict]:
     """Fetch developers.events and return its candidate records.
 
@@ -1117,73 +1195,6 @@ def developers_events_leads(index: TrackingIndex, today: date) -> list[dict]:
     if not isinstance(events, list):
         raise SourceError(f"{DEVELOPERS_EVENTS}: not a list of events")
     return developers_events_records(events, index, today)
-
-
-def trademark_items(content: str) -> list[list[str]]:
-    """Read the authorised PyCon names from the PSF trademark page.
-
-    Parameters
-    ----------
-    content : str
-        The page HTML.
-
-    Returns
-    -------
-    list[list[str]]
-        The quoted names of each list item after "national-level and regional
-        authorized PyCon conferences", in page order.
-
-    Raises
-    ------
-    ValueError
-        When the page has no such list.
-    """
-    start = content.find(PSF_LIST_MARKER)
-    list_start = content.find("<ul", start) if start >= 0 else -1
-    list_end = content.find("</ul>", list_start) if list_start >= 0 else -1
-    if list_end < 0:
-        raise ValueError("no list of authorised PyCon conferences")
-    items = []
-    for raw in re.findall(r"<li[^>]*>(.*?)</li>", content[list_start:list_end], re.DOTALL):
-        text = re.sub(r"<[^>]+>", "", html.unescape(raw))
-        names = [" ".join(name.split()) for name in re.findall(r'"([^"]+)"', text)]
-        if names:
-            items.append(names)
-    return items
-
-
-def psf_records(items: Iterable[list[str]], index: TrackingIndex) -> list[dict]:
-    """Return a registry record for each trademark list item the data does not track.
-
-    Parameters
-    ----------
-    items : Iterable[list[str]]
-        Names per list item, from trademark_items.
-    index : TrackingIndex
-        The data's series.
-
-    Returns
-    -------
-    list[dict]
-        Records for items none of whose names is tracked.
-    """
-    return [
-        {
-            "source": "registry",
-            "kind": "registry",
-            "title": names[0],
-            "url": PSF_TRADEMARKS,
-            "year": None,
-            "payload": {
-                "names": list(names),
-                "change": "untracked",
-                "registry": "psf-trademarks",
-                "evidence_url": PSF_TRADEMARKS,
-            },
-        }
-        for names in items
-        if names and not any(index.is_tracked_name(name) for name in names)
-    ]
 
 
 def front_matter(text: str) -> dict | None:
@@ -1276,63 +1287,45 @@ def pycon_org_record(meta: dict, raw_url: str, index: TrackingIndex) -> dict | N
     }
 
 
-def registry_leads(index: TrackingIndex, parts: Iterable[str] = REGISTRIES) -> list[dict]:
-    """Read the PSF trademark list, the pycon.org registry, or both.
+def pycon_org_leads(index: TrackingIndex) -> list[dict]:
+    """Read the pycon.org registry.
 
     Parameters
     ----------
     index : TrackingIndex
         The data's series.
-    parts : Iterable[str], optional
-        Which registries to read, of REGISTRIES; by default both.
 
     Returns
     -------
     list[dict]
-        Registry records: the trademark list's, then pycon.org's.
+        Registry records for the events the data does not track.
 
     Raises
     ------
     SourceError
-        When a registry cannot be read, carrying the other's records.
+        When the registry's file listing cannot be read.
     """
-    parts = set(parts)
-    records: list[dict] = []
-    errors = []
-    if "psf-trademarks" in parts:
-        try:
-            page = fetch_json(PSF_TRADEMARKS_API)
-            content = page.get("content") if isinstance(page, dict) else None
-            if not isinstance(content, str):
-                raise ValueError("no content in the page JSON")
-            records.extend(psf_records(trademark_items(content), index))
-        except (SourceError, ValueError) as error:
-            errors.append(f"psf-trademarks: {error}")
-
-    paths = []
-    if "pycon-org" in parts:
-        try:
-            paths = registry_paths(fetch_json(PYCON_ORG_FILES))
-        except (SourceError, ValueError) as error:
-            errors.append(f"pycon.org: {error}")
+    listing = fetch_json(PYCON_ORG_FILES)
+    try:
+        paths = registry_paths(listing)
+    except ValueError as error:
+        raise SourceError(f"{PYCON_ORG_FILES}: {error}") from error
+    records = []
     for path in paths:
         raw_url = f"{PYCON_ORG_RAW}{path}"
         try:
             response = fetch(raw_url)
             response.raise_for_status()
         except requests.RequestException as error:
-            report(f"registry: {raw_url}: {first_line(error)}, skipped")
+            report(f"pycon-org: {raw_url}: {first_line(error)}, skipped")
             continue
         meta = front_matter(response.text)
         if meta is None:
-            report(f"registry: {raw_url} has no front matter, skipped")
+            report(f"pycon-org: {raw_url} has no front matter, skipped")
             continue
         record = pycon_org_record(meta, raw_url, index)
         if record is not None:
             records.append(record)
-
-    if errors:
-        raise SourceError("; ".join(errors), records)
     return records
 
 
@@ -1364,10 +1357,8 @@ def collect(source: str, data: dict[str, list[dict]], index: TrackingIndex, toda
         records = pretalx_leads(data, index, today)
     elif source == "developers-events":
         records = developers_events_leads(index, today)
-    elif source == "registry":
-        records = registry_leads(index)
-    elif source in REGISTRIES:
-        records = registry_leads(index, (source,))
+    elif source == "pycon-org":
+        records = pycon_org_leads(index)
     else:
         raise ValueError(f"unknown source {source!r}")
     return _unique(records)
@@ -1419,7 +1410,8 @@ def main(argv: list[str] | None = None) -> int:
         before the failure are still written.
     """
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("source", choices=SOURCES)
+    # listing reads the lines a watch saw added, not a source of its own, so collect() leaves it out
+    parser.add_argument("source", choices=(*SOURCES, "listing"))
     parser.add_argument("--base", type=Path, default=Path(), help="Repository root (default: current directory)")
     parser.add_argument(
         "--today",
@@ -1429,14 +1421,32 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, help="File to append the records to (default: stdout)")
     parser.add_argument(
         "--url",
-        help="pretalx only: check just the entries on this CfP page, which may carry a watch's year template",
+        help=(
+            "pretalx: check just the entries on this CfP page, which may carry a watch's year template; "
+            "listing: the watched page the lines came from"
+        ),
     )
+    parser.add_argument("--lines", type=Path, help="listing only: file with the lines the watched page added")
     args = parser.parse_args(argv)
+
+    if args.source == "listing":
+        if args.lines is None or args.url is None:
+            parser.error("the listing source needs --lines and --url")
+        try:
+            lines = args.lines.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError) as error:
+            parser.error(f"cannot read {args.lines}: {error}")
+        records = listing_records(lines, args.url, TrackingIndex.from_data(load_data(args.base)))
+        write_records(records, args.out)
+        print(f"desk_leads: listing: {len(records)} record(s)", file=sys.stderr)
+        return 0
+    if args.lines is not None:
+        parser.error("--lines works with the listing source only")
 
     slug = None
     if args.url is not None:
         if args.source != "pretalx":
-            parser.error("--url works with the pretalx source only")
+            parser.error("--url works with the pretalx and listing sources only")
         slug = pretalx_slug(resolve_watch_url(args.url))
         if slug is None:
             print(f"desk_leads: pretalx: {args.url} is not a pretalx.com event page, nothing to check", file=sys.stderr)
