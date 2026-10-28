@@ -16,6 +16,7 @@ import pytest
 import requests
 import responses
 import yaml
+from freezegun import freeze_time
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -929,6 +930,33 @@ class TestCli:
         out = tmp_path / "records.jsonl"
         assert main(["pretalx", "--base", str(tmp_path), "--today", "2026-10-14", "--out", str(out)]) == 1
         assert "every one of 8 page fetches failed" in capsys.readouterr().err
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://pretalx.com/pycascades-2027/cfp",
+            "https://pretalx.com/pycascades-{% now 'utc' + 'months=3', '%Y' %}/cfp",
+        ],
+    )
+    def test_url_checks_only_that_page(self, tmp_path, web, sleeps, url):
+        write_data(tmp_path)
+        pretalx_web(web)
+        out = tmp_path / "records.jsonl"
+        with freeze_time("2026-10-14"):
+            assert main(["pretalx", "--base", str(tmp_path), "--today", "2026-10-14", "--url", url, "--out", str(out)]) == 0
+        records = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+        assert [(record["kind"], record["title"]) for record in records] == [("drift", "PyCascades")]
+        assert [call.request.url for call in web.calls] == ["https://pretalx.com/pycascades-2027/cfp"]
+
+    def test_url_off_pretalx_checks_nothing(self, tmp_path, web, capsys):
+        write_data(tmp_path)
+        assert main(["pretalx", "--base", str(tmp_path), "--url", "https://pretalx.example.org/x/cfp"]) == 0
+        assert "not a pretalx.com event page" in capsys.readouterr().err
+        assert len(web.calls) == 0
+
+    def test_url_needs_the_pretalx_source(self, tmp_path):
+        with pytest.raises(SystemExit):
+            main(["registry", "--base", str(tmp_path), "--url", "https://pretalx.com/x/cfp"])
 
     def test_failed_registry_still_writes_the_other(self, tmp_path, web, capsys):
         write_data(tmp_path)

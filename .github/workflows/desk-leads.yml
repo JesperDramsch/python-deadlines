@@ -4,23 +4,29 @@ name: Desk Leads
 # registries and queues them for the desk, which checks each one on the
 # conference's own pages. Nothing here writes the conference data.
 #
-# Daily, pretalx: deadline drift on upcoming entries, and the next edition's
-# CfP page guessed from the latest slug. Only /<slug>/cfp pages are read;
-# robots.txt on pretalx.com disallows /api/.
-# Weekly, developers.events (CC BY-NC data, used for leads only) and the
-# pycon.org registry.
-# On change, the PSF PyCon trademark list: a changedetection.io watch on the
-# page sends a registry-change dispatch, and the whole list is read again.
+# Sources run when changedetection.io sees them change, with a slow schedule
+# as a fallback for a change a watch missed:
+#
+# - pretalx: deadline drift on upcoming entries, and the next edition's CfP
+#   page guessed from the latest slug. Only /<slug>/cfp pages are read;
+#   robots.txt on pretalx.com disallows /api/. A watch on one CfP page sends
+#   pretalx-change with that page's URL, and only its entries are checked.
+#   Weekly, all of them and the next-edition guess.
+# - developers.events (CC BY-NC data, used for leads only), the PSF PyCon
+#   trademark list and the pycon.org registry: a watch on each (the Python
+#   rows of TAGS.csv, the trademark page, the registry's latest commit) sends
+#   registry-change naming its source, and that source is read in full.
+#   Monthly, all three.
 #
 # A finding the desk has handled is not queued again until it changes, so a
 # lead that comes back every run adds nothing.
 
 on:
   schedule:
-    - cron: '23 4 * * *'  # daily 04:23 UTC: pretalx
-    - cron: '41 4 * * 0'  # Sundays 04:41 UTC: developers-events and pycon.org
+    - cron: '23 4 * * 1'  # Mondays 04:23 UTC: pretalx
+    - cron: '41 4 1 * *'  # the 1st of the month, 04:41 UTC: developers-events and both registries
   repository_dispatch:
-    types: [registry-change]  # the trademark list changed
+    types: [registry-change, pretalx-change]
   workflow_dispatch:
     inputs:
       sources:
@@ -60,16 +66,30 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           SCHEDULE: ${{ github.event.schedule }}
           CHOSEN: ${{ inputs.sources }}
+          ACTION: ${{ github.event.action }}
+          # From the changedetection notification: checked below, never run as code
+          PAYLOAD_SOURCE: ${{ github.event.client_payload.source }}
+          PAYLOAD_URL: ${{ github.event.client_payload.url }}
         run: |
           set -euo pipefail
+          PAGE=""
           if [ "$EVENT_NAME" = "schedule" ]; then
             case "$SCHEDULE" in
-              '23 4 * * *') SELECTED="pretalx" ;;
-              '41 4 * * 0') SELECTED="developers-events pycon-org" ;;
+              '23 4 * * 1') SELECTED="pretalx" ;;
+              '41 4 1 * *') SELECTED="developers-events psf-trademarks pycon-org" ;;
               *) echo "::error title=Desk leads::Unknown schedule $SCHEDULE"; exit 1 ;;
             esac
+          elif [ "$EVENT_NAME" = "repository_dispatch" ] && [ "$ACTION" = "pretalx-change" ]; then
+            case "$PAYLOAD_URL" in
+              *[[:space:]]*) echo "::error title=Desk leads::pretalx-change url holds whitespace"; exit 1 ;;
+              https://*) SELECTED="pretalx"; PAGE="$PAYLOAD_URL" ;;
+              *) echo "::error title=Desk leads::pretalx-change needs an https url"; exit 1 ;;
+            esac
           elif [ "$EVENT_NAME" = "repository_dispatch" ]; then
-            SELECTED="psf-trademarks"
+            case "$PAYLOAD_SOURCE" in
+              developers-events|psf-trademarks|pycon-org) SELECTED="$PAYLOAD_SOURCE" ;;
+              *) echo "::error title=Desk leads::registry-change names no known source"; exit 1 ;;
+            esac
           elif [ "${CHOSEN:-all}" = "all" ]; then
             SELECTED="pretalx developers-events psf-trademarks pycon-org"
           elif [ "$CHOSEN" = "registry" ]; then
@@ -93,17 +113,24 @@ jobs:
             esac
           done
           echo "registries=${REGISTRIES# }" >> "$GITHUB_OUTPUT"
+          echo "page=$PAGE" >> "$GITHUB_OUTPUT"
 
       # A source that fails gets a warning; the other sources still run.
       - name: pretalx
         id: pretalx
         if: steps.plan.outputs.pretalx == 'true'
+        env:
+          PAGE: ${{ steps.plan.outputs.page }}
         run: |
           set -uo pipefail
           touch "$RUNNER_TEMP/desk-records.jsonl"
           BEFORE=$(wc -l < "$RUNNER_TEMP/desk-records.jsonl")
           STATUS=ok
-          if ! pixi run python utils/desk_leads.py pretalx --out "$RUNNER_TEMP/desk-records.jsonl"; then
+          ARGS=(pretalx --out "$RUNNER_TEMP/desk-records.jsonl")
+          if [ -n "$PAGE" ]; then
+            ARGS+=(--url "$PAGE")
+          fi
+          if ! pixi run python utils/desk_leads.py "${ARGS[@]}"; then
             STATUS=failed
             echo "::warning title=Desk leads::pretalx failed; what it found is still queued"
           fi

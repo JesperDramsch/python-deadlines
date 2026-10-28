@@ -58,6 +58,7 @@ try:
     from cfp_candidates import entry_keys
     from cfp_candidates import load_data
     from cfp_candidates import series_key
+    from desk_queue import resolve_watch_url
     from desk_worklist import effective_deadline
     from sort_yaml import DATEFORMAT
     from tidy_conf.yaml import load_title_mappings
@@ -65,6 +66,7 @@ except ImportError:
     from .cfp_candidates import entry_keys
     from .cfp_candidates import load_data
     from .cfp_candidates import series_key
+    from .desk_queue import resolve_watch_url
     from .desk_worklist import effective_deadline
     from .sort_yaml import DATEFORMAT
     from .tidy_conf.yaml import load_title_mappings
@@ -943,8 +945,8 @@ def pretalx_probe(index: TrackingIndex, today: date, pages: PageFetcher) -> list
     return records
 
 
-def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date) -> list[dict]:
-    """Run both pretalx checks.
+def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date, slug: str | None = None) -> list[dict]:
+    """Run both pretalx checks, or the deadline check for one CfP page.
 
     Parameters
     ----------
@@ -954,6 +956,10 @@ def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date
         The data's series.
     today : date
         The date the run is for.
+    slug : str | None, optional
+        A pretalx event slug. When given, only the upcoming entries on that
+        event's CfP page get the deadline check, and no next edition is
+        probed: a changedetection watch saw that one page change.
 
     Returns
     -------
@@ -966,8 +972,12 @@ def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date
         When pages were fetched and every one failed.
     """
     pages = PageFetcher()
-    records = pretalx_drift(data.get("conferences") or [], today, pages)
-    records.extend(pretalx_probe(index, today, pages))
+    conferences = data.get("conferences") or []
+    if slug is not None:
+        conferences = [entry for entry in conferences if (entry_slug(entry) or "").lower() == slug.lower()]
+    records = pretalx_drift(conferences, today, pages)
+    if slug is None:
+        records.extend(pretalx_probe(index, today, pages))
     if pages.all_failed():
         raise SourceError(f"every one of {pages.attempts} page fetches failed", records)
     return records
@@ -1412,14 +1422,27 @@ def main(argv: list[str] | None = None) -> int:
         help="Date to run for, YYYY-MM-DD (default: today in UTC)",
     )
     parser.add_argument("--out", type=Path, help="File to append the records to (default: stdout)")
+    parser.add_argument(
+        "--url",
+        help="pretalx only: check just the entries on this CfP page, which may carry a watch's year template",
+    )
     args = parser.parse_args(argv)
+
+    slug = None
+    if args.url is not None:
+        if args.source != "pretalx":
+            parser.error("--url works with the pretalx source only")
+        slug = pretalx_slug(resolve_watch_url(args.url))
+        if slug is None:
+            print(f"desk_leads: pretalx: {args.url} is not a pretalx.com event page, nothing to check", file=sys.stderr)
+            return 0
 
     today = args.today or datetime.now(tz=timezone.utc).date()
     data = load_data(args.base)
     index = TrackingIndex.from_data(data)
     status = 0
     try:
-        records = collect(args.source, data, index, today)
+        records = pretalx_leads(data, index, today, slug) if slug else collect(args.source, data, index, today)
     except SourceError as error:
         report(f"{args.source}: {error}")
         records, status = _unique(error.records), 1
