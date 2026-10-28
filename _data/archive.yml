@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Cameroon
+  year: 2026
+  link: https://pycon.pythoncameroon.org/
+  cfp_link: https://sessionize.com/pycon-camerooon-2026/
+  cfp: '2026-04-20 23:59:00'
+  cfp_ext: '2026-05-15 23:59:00'
+  timezone: Africa/Douala
+  place: Yaoundé, Cameroon
+  start: 2026-09-17
+  end: 2026-09-19
+  sponsor: https://cm.pycon.org/en/sponsor
+  sub: PY
+  location:
+  - title: PyCon Cameroon 2026
+    latitude: 3.8689867
+    longitude: 11.5213344
+
 - conference: PyDay Boyacá
   year: 2026
   link: https://www.pyday.co/
@@ -34,11 +51,13 @@
   alt_name: PyHEP
   year: 2026
   link: https://indico.nikhef.nl/event/7873/
+  cfp_link: https://indico.nikhef.nl/event/7873/abstracts/
   cfp: '2026-08-14 23:59:00'
   timezone: Europe/Amsterdam
   place: Amsterdam, Netherlands
   start: 2026-09-07
   end: 2026-09-09
+  coc: https://indico.nikhef.nl/event/7873/page/141-code-of-conduct
   sub: SCIPY
   location:
   - title: PyHEP.dev 2026
@@ -91,11 +110,15 @@
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
+  cfp_link: https://pycontg.pytogo.org/2026/call-for-speakers
   cfp: '2026-06-04 18:00:00'
+  timezone: UTC
   place: Lomé, Togo
   start: 2026-08-28
   end: 2026-08-30
   sponsor: https://pycontg.pytogo.org/partners
+  finaid: https://pycontg.pytogo.org/2026/access-grant
+  coc: https://pycontg.pytogo.org/2026/coc
   youtube: https://www.youtube.com/@KwekuTech
   sub: PY
   location:
@@ -297,7 +320,7 @@
   year: 2026
   link: https://barcamps.eu/python-barcamp-leipzig-2026/
   cfp_link: https://barcamps.eu/python-barcamp-leipzig-2026/sessions
-  cfp: TBA
+  cfp: None
   timezone: Europe/Berlin
   place: Leipzig, Germany
   start: 2026-08-01
@@ -334,7 +357,7 @@
   place: Cleveland, USA
   start: 2026-07-24
   end: 2026-07-24
-  coc: https://blackpythondevs.com/code-of-conduct.html
+  coc: https://blackpythondevs.org/code-of-conduct/
   twitter: blackpythondevs
   youtube: https://youtube.com/@blackpythondevs
   sub: PY
@@ -503,7 +526,7 @@
 - conference: PyCon Singapore
   year: 2026
   link: https://pycon.sg/
-  cfp: "2026-05-01 23:59:59"
+  cfp: '2026-05-01 23:59:59'
   place: Singapore, Singapore
   start: 2026-06-19
   end: 2026-06-21
@@ -586,7 +609,9 @@
   alt_name: PyDay Chile Valparaiso
   year: 2026
   link: https://pyday.cl/valparaiso
-  cfp: TBA
+  cfp_link: https://sessionize.com/pyday-valparaiso-2026/
+  cfp: '2026-05-08 23:59:00'
+  timezone: America/Santiago
   place: Valparaiso, Chile
   start: 2026-06-05
   end: 2026-06-05
@@ -1338,6 +1363,8 @@
   cfp: '2025-10-13 23:59:00'
   timezone: Europe/Zurich
   place: CERN, Switzerland
+  extra_places:
+  - Online
   start: 2025-10-27
   end: 2025-10-30
   coc: https://indico.cern.ch/event/1566263/page/40057-code-of-conduct
@@ -2140,6 +2167,7 @@
   place: Seattle, USA
   start: 2025-07-14
   end: 2025-07-17
+  coc: https://indico.cern.ch/event/1515852/page/37992-code-of-conduct
   sub: SCIPY
   location:
   - title: PyHEP.dev 2025
@@ -2194,6 +2222,22 @@
     latitude: 45.3349238
     longitude: 14.3067834
 
+- conference: PyCamp Leipzig
+  year: 2025
+  link: https://barcamps.eu/python-barcamp-leipzig-2025/
+  cfp_link: https://barcamps.eu/python-barcamp-leipzig-2025/sessions
+  cfp: None
+  place: Leipzig, Germany
+  start: 2025-06-28
+  end: 2025-06-29
+  sponsor: https://barcamps.eu/python-barcamp-leipzig-2025/sponsoren
+  coc: https://barcamps.eu/python-barcamp-leipzig-2025/coc
+  sub: CAMP
+  location:
+  - title: PyCamp Leipzig 2025
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: PyDay Copiapó
   year: 2025
   link: https://pyday.cl/2025/copiapo/
@@ -2210,20 +2254,6 @@
   - title: PyDay Copiapó 2025
     latitude: -27.5406034
     longitude: -70.4441348
-
-- conference: PyCamp Leipzig
-  year: 2025
-  link: https://barcamps.eu/python-barcamp-leipzig-2025/
-  cfp_link: https://barcamps.eu/python-barcamp-leipzig-2025/sessions
-  cfp: None
-  place: Leipzig, Germany
-  start: 2025-06-21
-  end: 2025-06-24
-  sub: CAMP
-  location:
-  - title: PyCamp Leipzig 2025
-    latitude: 51.3406321
-    longitude: 12.3747329
 
 - conference: Python Nordeste
   year: 2025
@@ -2244,7 +2274,7 @@
 - conference: PyCon Singapore
   year: 2025
   link: https://pythonsingapore.github.io/pyconsg-2025/
-  cfp: "2015-04-30 23:59:59"
+  cfp: '2015-04-30 23:59:59'
   place: Singapore, Singapore
   start: 2025-06-18
   end: 2025-06-20
@@ -2255,6 +2285,24 @@
   - title: PyCon Singapore 2025
     latitude: 1.2899175
     longitude: 103.8519072
+
+- conference: PyDay Valparaiso
+  alt_name: PyDay Chile Valparaiso
+  year: 2025
+  link: https://pyday.cl/2025/valparaiso/
+  cfp_link: https://sessionize.com/pyday-valparaiso-2025/
+  cfp: '2025-05-25 23:59:00'
+  timezone: America/Santiago
+  place: Valparaiso, Chile
+  start: 2025-06-13
+  end: 2025-06-13
+  sponsor: https://pyday.cl/2025/sponsors/
+  coc: https://pyday.cl/2025/conduct/
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2025
+    latitude: -32.5976089
+    longitude: -70.8529753
 
 - conference: AfroPython Conf
   year: 2025
@@ -2331,6 +2379,7 @@
   end: 2025-05-31
   sponsor: https://2025.pycon.it/en/sponsor
   finaid: https://2025.pycon.it/en/grants-info/
+  coc: https://2025.pycon.it/en/code-of-conduct
   twitter: PyConIT
   mastodon: https://social.python.it/@pycon
   sub: PY
@@ -2720,6 +2769,7 @@
   start: 2025-02-02
   end: 2025-02-02
   sponsor: https://fosdem.org/2025/about/sponsors/
+  coc: https://archive.fosdem.org/2025/practical/conduct/
   sub: PY
   location:
   - title: FOSDEM 2025
@@ -3664,11 +3714,13 @@
   alt_name: PyHEP
   year: 2024
   link: https://indico.cern.ch/event/1375573/
+  cfp_link: https://indico.cern.ch/event/1375573/abstracts/
   cfp: '2024-06-25 05:59:00'
   timezone: Europe/Brussels
   place: Aachen, Germany
   start: 2024-08-26
   end: 2024-08-30
+  coc: https://indico.cern.ch/event/1375573/page/32447-code-of-conduct
   sub: SCIPY
   location:
   - title: PyHEP.dev 2024
@@ -3900,6 +3952,22 @@
     latitude: 39.9533
     longitude: -75.198
 
+- conference: PyCamp Leipzig
+  year: 2024
+  link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/
+  cfp_link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/sessions
+  cfp: None
+  place: Leipzig, Germany
+  start: 2024-06-15
+  end: 2024-06-16
+  sponsor: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/sponsoren
+  coc: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/code-of-conduct
+  sub: CAMP
+  location:
+  - title: PyCamp Leipzig 2024
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: PyData London
   year: 2024
   link: https://pydata.org/london2024/
@@ -3922,6 +3990,7 @@
   link: https://www.pyday.cl/valparaiso.html
   cfp_link: https://sessionize.com/pyday-2024/
   cfp: '2024-05-24 23:59:00'
+  timezone: America/Santiago
   place: Valparaiso, Chile
   start: 2024-06-14
   end: 2024-06-14
@@ -4056,6 +4125,8 @@
   start: 2024-05-22
   end: 2024-05-25
   sponsor: https://2024.pycon.it/en/sponsor
+  finaid: https://2024.pycon.it/en/grants-info
+  coc: https://2024.pycon.it/en/code-of-conduct
   twitter: PyConIT
   mastodon: https://social.python.it/@pycon
   sub: PY
@@ -4619,7 +4690,7 @@
 - conference: PyData NYC
   year: 2023
   link: https://pydata.org/nyc2023/
-  cfp: "2023-09-23 23:59:59"
+  cfp: '2023-09-23 23:59:59'
   place: New York, USA
   start: 2023-11-01
   end: 2023-11-03
@@ -5161,6 +5232,22 @@
     latitude: 37.5666791
     longitude: 126.9782914
 
+- conference: PyCamp Leipzig
+  year: 2023
+  link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/
+  cfp_link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/sessions
+  cfp: None
+  place: Leipzig, Germany
+  start: 2023-07-29
+  end: 2023-07-30
+  sponsor: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/sponsoren
+  coc: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/code-of-conduct
+  sub: CAMP
+  location:
+  - title: PyCamp Leipzig 2023
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: North Bay Python
   year: 2023
   link: https://2023.northbaypython.org/
@@ -5283,6 +5370,22 @@
   - title: PyCon Poland 2023
     latitude: 50.294113
     longitude: 18.6657306
+
+- conference: PyDay Valparaiso
+  alt_name: PyDay Chile Valparaiso
+  year: 2023
+  link: https://pyday.cl/2023
+  cfp_link: https://sessionize.com/pyday-chile-2023/
+  cfp: '2023-06-09 23:59:00'
+  timezone: America/Santiago
+  place: Valparaiso, Chile
+  start: 2023-06-16
+  end: 2023-06-16
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2023
+    latitude: -32.5976089
+    longitude: -70.8529753
 
 - conference: PyCon Colombia
   year: 2023
@@ -6240,6 +6343,20 @@
     latitude: 55.625578
     longitude: 37.6063916
 
+- conference: PyDay Valparaiso
+  alt_name: PyDay Chile Valparaiso
+  year: 2022
+  link: https://pyday.cl/2022
+  cfp: TBA
+  place: Valparaiso, Chile
+  start: 2022-07-15
+  end: 2022-07-15
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2022
+    latitude: -32.5976089
+    longitude: -70.8529753
+
 - conference: EuroPython
   year: 2022
   link: https://ep2022.europython.eu/
@@ -6535,8 +6652,9 @@
 - conference: PyCamp Leipzig
   year: 2022
   link: https://barcamps.eu/pycamp-leipzig-2022/
+  cfp_link: https://barcamps.eu/pycamp-leipzig-2022/sessions
   cfp: '2022-01-28 23:59:00'
-  place: Leipzig, Germany
+  place: Online
   start: 2022-01-29
   end: 2022-01-30
   sub: CAMP
@@ -7803,7 +7921,7 @@
   cfp: '2020-04-01 23:59:59'
   place: Online
   start: 2020-05-16
-  end: 2020-05-16
+  end: 2020-05-23
   sub: WEB
 
 - conference: PyGrunn

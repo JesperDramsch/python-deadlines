@@ -87,14 +87,14 @@
 
 - conference: Black Python Devs Leadership Summit
   year: 2027
-  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
+  link: https://blackpythondevs.org/events/python-community-leadership-summit-2027-at-pytexas/
   cfp_link: https://pretalx.com/pytexas-2027/cfp
   cfp: '2026-12-11 17:00:00'
   timezone: America/Chicago
   place: Austin, USA
   start: 2027-04-16
   end: 2027-04-16
-  coc: https://blackpythondevs.com/code-of-conduct.html
+  coc: https://blackpythondevs.org/code-of-conduct/
   twitter: blackpythondevs
   sub: PY
   location:
@@ -193,6 +193,8 @@
   link: https://2027.pycascades.com/
   cfp_link: https://pretalx.com/pycascades-2027/cfp
   cfp: '2026-10-26 23:59:00'
+  cfp_ext: '2026-11-09 05:00:00'
+  timezone: America/Los_Angeles
   place: Seattle, USA
   start: 2027-03-20
   end: 2027-03-21
@@ -838,23 +840,6 @@
     latitude: 37.9755648
     longitude: 23.7348324
 
-- conference: PyCon Cameroon
-  year: 2026
-  link: https://pycon.pythoncameroon.org/
-  cfp_link: https://sessionize.com/pycon-camerooon-2026/
-  cfp: '2026-04-20 23:59:00'
-  cfp_ext: '2026-05-15 23:59:00'
-  timezone: Africa/Douala
-  place: Yaoundé, Cameroon
-  start: 2026-09-17
-  end: 2026-09-19
-  sponsor: https://cm.pycon.org/en/sponsor
-  sub: PY
-  location:
-  - title: PyCon Cameroon 2026
-    latitude: 3.8689867
-    longitude: 11.5213344
-
 - conference: PyCon Africa
   year: 2026
   link: https://africa.pycon.org/
@@ -999,6 +984,7 @@
   start: 2027-06-19
   end: 2027-06-20
   sponsor: https://northbaypython.org/sponsor
+  coc: https://northbaypython.org/code-of-conduct
   mastodon: https://social.northbaypython.org/@NorthBayPython
   bluesky: https://bsky.app/profile/northbaypython.org
   youtube: https://youtube.com/@northbaypython
@@ -1065,6 +1051,8 @@
   end: 2027-05-18
   sponsor: https://us.pycon.org/2027/sponsorship/
   finaid: https://us.pycon.org/2027/about/diversity/
+  coc: https://policies.python.org/us.pycon.org/code-of-conduct/
+  twitter: pycon
   mastodon: https://fosstodon.org/@pycon
   bluesky: https://bsky.app/profile/pycon.us
   youtube: https://www.youtube.com/c/pyconus
@@ -1196,6 +1184,7 @@
   sponsor: https://pycon.or.tz/sponsor/
   coc: https://pycon.or.tz/conduct/
   twitter: PyconTanzania
+  youtube: https://youtube.com/@pycontanzania
   sub: PY
   location:
   - title: PyCon Tanzania 2026

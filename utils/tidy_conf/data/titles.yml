@@ -1,4 +1,7 @@
 alt_name:
+  Python Community Leadership Summit:
+    variations:
+    - Black Python Devs Leadership Summit
   DjangoCon Australia:
     global: DjangoCon AU
   DjangoCongress Japan:
@@ -45,6 +48,10 @@ alt_name:
     - Plone Conference & PyCon Finland
   PyCamp Czechia:
     global: PyCamp CZ
+  PyCamp Leipzig:
+    variations:
+    - Python BarCamp der Leipzig Python User Group
+    - Python BarCamp Leipzig
   PyCon Armenia:
     global: PyData PyCon Yerevan
     variations:
