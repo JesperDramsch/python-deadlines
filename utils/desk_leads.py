@@ -14,6 +14,7 @@ every record on the primary source before anything changes.
   data does not track (kind ``candidate``).
 - ``registry``: PyCon names on the PSF trademark list, and events in the
   pycon.org registry, that the data does not track (kind ``registry``).
+  ``psf-trademarks`` and ``pycon-org`` read one of the two each.
 
 A find is tracked when it is the same series as an entry in any of the three
 data files, by the rules in AGENTS.md "Names": its name (year and a trailing
@@ -68,7 +69,9 @@ except ImportError:
     from .sort_yaml import DATEFORMAT
     from .tidy_conf.yaml import load_title_mappings
 
-SOURCES = ("pretalx", "developers-events", "registry")
+SOURCES = ("pretalx", "developers-events", "registry", "psf-trademarks", "pycon-org")
+# The two registries "registry" reads together; each also runs on its own
+REGISTRIES = ("psf-trademarks", "pycon-org")
 DATA_FILES = ("conferences", "archive", "legacy")
 USER_AGENT = "pythondeadlin.es desk leads (+https://pythondeadlin.es)"
 TIMEOUT = 20
@@ -1258,13 +1261,15 @@ def pycon_org_record(meta: dict, raw_url: str, index: TrackingIndex) -> dict | N
     }
 
 
-def registry_leads(index: TrackingIndex) -> list[dict]:
-    """Read the PSF trademark list and the pycon.org registry.
+def registry_leads(index: TrackingIndex, parts: Iterable[str] = REGISTRIES) -> list[dict]:
+    """Read the PSF trademark list, the pycon.org registry, or both.
 
     Parameters
     ----------
     index : TrackingIndex
         The data's series.
+    parts : Iterable[str], optional
+        Which registries to read, of REGISTRIES; by default both.
 
     Returns
     -------
@@ -1274,24 +1279,27 @@ def registry_leads(index: TrackingIndex) -> list[dict]:
     Raises
     ------
     SourceError
-        When either registry cannot be read, carrying the other's records.
+        When a registry cannot be read, carrying the other's records.
     """
+    parts = set(parts)
     records: list[dict] = []
     errors = []
-    try:
-        page = fetch_json(PSF_TRADEMARKS_API)
-        content = page.get("content") if isinstance(page, dict) else None
-        if not isinstance(content, str):
-            raise ValueError("no content in the page JSON")
-        records.extend(psf_records(trademark_items(content), index))
-    except (SourceError, ValueError) as error:
-        errors.append(f"psf-trademarks: {error}")
+    if "psf-trademarks" in parts:
+        try:
+            page = fetch_json(PSF_TRADEMARKS_API)
+            content = page.get("content") if isinstance(page, dict) else None
+            if not isinstance(content, str):
+                raise ValueError("no content in the page JSON")
+            records.extend(psf_records(trademark_items(content), index))
+        except (SourceError, ValueError) as error:
+            errors.append(f"psf-trademarks: {error}")
 
-    try:
-        paths = registry_paths(fetch_json(PYCON_ORG_FILES))
-    except (SourceError, ValueError) as error:
-        errors.append(f"pycon.org: {error}")
-        paths = []
+    paths = []
+    if "pycon-org" in parts:
+        try:
+            paths = registry_paths(fetch_json(PYCON_ORG_FILES))
+        except (SourceError, ValueError) as error:
+            errors.append(f"pycon.org: {error}")
     for path in paths:
         raw_url = f"{PYCON_ORG_RAW}{path}"
         try:
@@ -1343,6 +1351,8 @@ def collect(source: str, data: dict[str, list[dict]], index: TrackingIndex, toda
         records = developers_events_leads(index, today)
     elif source == "registry":
         records = registry_leads(index)
+    elif source in REGISTRIES:
+        records = registry_leads(index, (source,))
     else:
         raise ValueError(f"unknown source {source!r}")
     return _unique(records)

@@ -865,6 +865,21 @@ class TestRegistry:
             desk_leads.registry_leads(index)
         assert [record["title"] for record in raised.value.records] == ["PyGotham"]
 
+    @pytest.mark.parametrize(
+        ("source", "titles"),
+        [("psf-trademarks", ["PyCon NP", "PyCon VE"]), ("pycon-org", ["PyGotham"])],
+    )
+    def test_each_registry_on_its_own(self, index, web, source, titles):
+        registry_web(web)
+        records = desk_leads.collect(source, dataset(), index, TODAY)
+        assert [record["title"] for record in records] == titles
+
+    def test_one_registry_failing_alone_is_an_error(self, index, web):
+        registry_web(web, psf_status=500)
+        with pytest.raises(SourceError, match="psf-trademarks") as raised:
+            desk_leads.collect("psf-trademarks", dataset(), index, TODAY)
+        assert raised.value.records == []
+
 
 def write_data(base, data=None):
     folder = base / "_data"
@@ -933,7 +948,8 @@ class TestQueueRoundTrip:
         data = dataset()
         index = TrackingIndex.from_data(data)
         records = []
-        for source in desk_leads.SOURCES:
+        # "registry" reads both registries, so their own sources would only repeat it
+        for source in ("pretalx", "developers-events", "registry"):
             records.extend(desk_leads.collect(source, data, index, TODAY))
 
         for record in records:

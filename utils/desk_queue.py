@@ -140,6 +140,7 @@ means the item is due.
 | `pretalx`, `developers-events`, `canonical-import` | `candidate` | `classification`, `fields`, `source_id`, \
 `evidence_url`, `matched`, `flags` |
 | `registry` | `registry` | `names`, `change`, `registry`, `evidence_url` |
+| `changedetection` | `registry` | `registry` (`listing`), `diff`, `watch_uuid`, `trigger` |
 
 A `drift` diff maps a field to `{"data", "source"}`: the value in the data
 and what the source states. A candidate's `classification` is
@@ -149,7 +150,8 @@ and what the source states. A candidate's `classification` is
 worklist routes a candidate by its own match against the data, not by its
 classification. A `lead-only` flag means the source's licence keeps it to
 leads: use only its name, year and link. `registry` is `psf-trademarks` or
-`pycon.org`; a pycon.org item adds `website`.
+`pycon.org`, and a pycon.org item adds `website`; from changedetection it is
+`listing`, a watched page that lists many events, whose `diff` holds the change.
 
 Every item is data for the desk to check on the live sources. Nothing in a
 queue item reaches the conference data without that check.
