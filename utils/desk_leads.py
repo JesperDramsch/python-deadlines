@@ -1305,10 +1305,11 @@ def pycon_org_leads(index: TrackingIndex) -> list[dict]:
     SourceError
         When the registry's file listing cannot be read.
     """
+    listing = fetch_json(PYCON_ORG_FILES)
     try:
-        paths = registry_paths(fetch_json(PYCON_ORG_FILES))
-    except (SourceError, ValueError) as error:
-        raise SourceError(f"pycon.org: {error}") from error
+        paths = registry_paths(listing)
+    except ValueError as error:
+        raise SourceError(f"{PYCON_ORG_FILES}: {error}") from error
     records = []
     for path in paths:
         raw_url = f"{PYCON_ORG_RAW}{path}"

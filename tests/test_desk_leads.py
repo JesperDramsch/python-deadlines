@@ -813,7 +813,7 @@ class TestPyconOrg:
 
     def test_failed_listing_is_an_error(self, index, web):
         registry_web(web, listing_status=500)
-        with pytest.raises(SourceError, match="pycon.org") as raised:
+        with pytest.raises(SourceError, match="500 Server Error") as raised:
             desk_leads.collect("pycon-org", dataset(), index, TODAY)
         assert raised.value.records == []
 
@@ -974,7 +974,7 @@ class TestCli:
         registry_web(web, listing_status=500)
         out = tmp_path / "records.jsonl"
         assert main(["pycon-org", "--base", str(tmp_path), "--out", str(out)]) == 1
-        assert "pycon.org" in capsys.readouterr().err
+        assert "pycon-org: 0 record(s)" in capsys.readouterr().err
 
 
 class TestQueueRoundTrip:
