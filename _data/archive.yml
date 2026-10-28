@@ -51,11 +51,13 @@
   alt_name: PyHEP
   year: 2026
   link: https://indico.nikhef.nl/event/7873/
+  cfp_link: https://indico.nikhef.nl/event/7873/abstracts/
   cfp: '2026-08-14 23:59:00'
   timezone: Europe/Amsterdam
   place: Amsterdam, Netherlands
   start: 2026-09-07
   end: 2026-09-09
+  coc: https://indico.nikhef.nl/event/7873/page/141-code-of-conduct
   sub: SCIPY
   location:
   - title: PyHEP.dev 2026
@@ -2157,6 +2159,7 @@
   place: Seattle, USA
   start: 2025-07-14
   end: 2025-07-17
+  coc: https://indico.cern.ch/event/1515852/page/37992-code-of-conduct
   sub: SCIPY
   location:
   - title: PyHEP.dev 2025
@@ -3682,11 +3685,13 @@
   alt_name: PyHEP
   year: 2024
   link: https://indico.cern.ch/event/1375573/
+  cfp_link: https://indico.cern.ch/event/1375573/abstracts/
   cfp: '2024-06-25 05:59:00'
   timezone: Europe/Brussels
   place: Aachen, Germany
   start: 2024-08-26
   end: 2024-08-30
+  coc: https://indico.cern.ch/event/1375573/page/32447-code-of-conduct
   sub: SCIPY
   location:
   - title: PyHEP.dev 2024
