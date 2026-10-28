@@ -155,10 +155,12 @@ def render(blocks: dict[str, str]) -> str:
     parts = [wrap("HEAD:desk", blocks)]
     if not blocks.get("HEAD:desk"):
         parts.append("_The desk has not run on this PR yet._")
-    parts.extend((
-        "## Needs you",
-        "_Answer in a PR comment to have the desk act on an item; tick its box once it needs nothing more._",
-    ))
+    parts.extend(
+        (
+            "## Needs you",
+            "_Answer in a PR comment to have the desk act on an item; tick its box once it needs nothing more._",
+        ),
+    )
     parts.extend(wrap(name, blocks) for name in needs)
     if not any(blocks.get(name) for name in needs):
         parts.append("Nothing waiting.")
@@ -168,11 +170,13 @@ def render(blocks: dict[str, str]) -> str:
         parts.append("Nothing yet.")
     parts.append(wrap("MORE:desk", blocks))
     if blocks.get("LEGACY"):
-        parts.extend((
-            "<details><summary>Body before the current layout</summary>\n",
-            wrap("LEGACY", blocks),
-            "</details>",
-        ))
+        parts.extend(
+            (
+                "<details><summary>Body before the current layout</summary>\n",
+                wrap("LEGACY", blocks),
+                "</details>",
+            ),
+        )
     return "\n\n".join(parts) + "\n"
 
 
