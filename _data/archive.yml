@@ -1363,6 +1363,8 @@
   cfp: '2025-10-13 23:59:00'
   timezone: Europe/Zurich
   place: CERN, Switzerland
+  extra_places:
+  - Online
   start: 2025-10-27
   end: 2025-10-30
   coc: https://indico.cern.ch/event/1566263/page/40057-code-of-conduct
