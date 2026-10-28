@@ -1,0 +1,20 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "d07b630c695f323a8179b9b6f0532e1f30aaf5fd",
+      "kind": "signal",
+      "payload": {
+        "diff": "* Become a Member * Login Join us for Python Community Leadership Summit at PyTexas - 2027 Helping build communities for Black Pythonistas around the world. Our Principles Diverse Leadership We build and support diverse leadership in Python globally. Community Support We provide financial support for Python communities in Black communities, in predominantly Black spaces or spaces where there is a desire to improve accessibility to Black audiences. A Louder Collective Voice We speak as a collective of Black leaders in the Python Community and how decisions impact developers across all career levels. Community & Belonging We provide a global community where developers can build strong bonds in the tech space. Learn More Recently on the blog Temporal is now a corporate sponsor of Black Python Devs Black Python Devs is happy to announce that Temporal has made the decision to become a corporate sponsor of Black Python Devs 27 Oct 2026 Didas Mbarushimana Added to BPD Council The BPD Council has recognized the work of Didas Mbarushimana and invited them to join the Council. 17 Sep 2026 Python Community Leadership Summit 2026 Recap A recap of BPD's second and newly-focused leadership summit. 08 Aug 2026",
+        "trigger": "website_change",
+        "watch_uuid": "cf4532ed-6038-4cc5-8185-2998c47ed3d7"
+      },
+      "received": "2026-10-28T01:13:40Z",
+      "source": "changedetection",
+      "title": "Black Python Devs Leadership Summit 2026 - Main",
+      "url": "https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html",
+      "year": 2026
+    }
+  ],
+  "series": "Black Python Devs Leadership Summit"
+}
