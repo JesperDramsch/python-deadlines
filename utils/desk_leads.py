@@ -945,7 +945,9 @@ def pretalx_probe(index: TrackingIndex, today: date, pages: PageFetcher) -> list
     return records
 
 
-def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date, slug: str | None = None) -> list[dict]:
+def pretalx_leads(
+    data: dict[str, list[dict]], index: TrackingIndex, today: date, slug: str | None = None,
+) -> list[dict]:
     """Run both pretalx checks, or the deadline check for one CfP page.
 
     Parameters

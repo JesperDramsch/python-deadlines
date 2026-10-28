@@ -943,7 +943,10 @@ class TestCli:
         pretalx_web(web)
         out = tmp_path / "records.jsonl"
         with freeze_time("2026-10-14"):
-            assert main(["pretalx", "--base", str(tmp_path), "--today", "2026-10-14", "--url", url, "--out", str(out)]) == 0
+            assert (
+                main(["pretalx", "--base", str(tmp_path), "--today", "2026-10-14", "--url", url, "--out", str(out)])
+                == 0
+            )
         records = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
         assert [(record["kind"], record["title"]) for record in records] == [("drift", "PyCascades")]
         assert [call.request.url for call in web.calls] == ["https://pretalx.com/pycascades-2027/cfp"]
