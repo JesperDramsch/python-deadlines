@@ -36,6 +36,20 @@
       "title": "PyCascades",
       "url": "https://pretalx.com/pycascades-2027/cfp",
       "year": 2027
+    },
+    {
+      "id": "166687c02c8493327b5a2cd9c14821249c1fc65b",
+      "kind": "signal",
+      "payload": {
+        "diff": "* CFP Closes: October 26, 2026 Anywhere on Earth (UTC -12:00) * Speaker Invitations Sent: Week of November 20th, 2026 * CFP Closes (Extended): November 9, 2026 Anywhere on Earth (UTC -12:00) * Speaker Invitations Sent: Week of December 4th, 2026 Submissions close on 2026-10-26 05:00 (America/Los_Angeles), 2 weeks, 5 days from now. Submissions close on 2026-11-09 05:00 (America/Los_Angeles), 1 week, 4 days from now.",
+        "trigger": "website_change",
+        "watch_uuid": "174eb15b-c670-4f59-933e-6768d3d141aa"
+      },
+      "received": "2026-10-28T19:57:30Z",
+      "source": "changedetection",
+      "title": "PyCascades 2027 - CFP",
+      "url": "https://pretalx.com/pycascades-2027/cfp",
+      "year": 2027
     }
   ],
   "series": "PyCascades"
