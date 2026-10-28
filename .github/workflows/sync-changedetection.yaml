@@ -268,6 +268,9 @@ jobs:
           from urllib.parse import urlparse
           from typing import Optional
 
+          sys.path.insert(0, "utils")
+          from watch_templates import rollover_offset
+
           LAST_SHA = os.environ.get('LAST_SHA', '')
 
           # Tag UUIDs
@@ -327,21 +330,7 @@ jobs:
                   return loc.get('latitude'), loc.get('longitude')
               return None, None
 
-          def get_start_month(conf: dict) -> Optional[int]:
-              start = conf.get('start')
-              if not start:
-                  return None
-              if hasattr(start, 'month'):
-                  return start.month
-              try:
-                  parts = str(start).split('-')
-                  if len(parts) >= 2:
-                      return int(parts[1])
-              except (ValueError, IndexError):
-                  pass
-              return None
-
-          def template_url(url: str, start_month: Optional[int]) -> str:
+          def template_url(url: str, offset: Optional[int]) -> str:
               """Template years in URL (subdomain or path) with Jinja expressions.
 
               Examples:
@@ -353,11 +342,15 @@ jobs:
                   https://pycon.de/2026/ -> https://pycon.de/{% now ... %}/
                   https://pretalx.com/conference-2026/ -> https://pretalx.com/conference-{% now ... %}/
                   https://pydata.org/london2026/ -> https://pydata.org/london{% now ... %}/
+
+              The offset sets when the watch moves on to the next edition
+              (utils/watch_templates.py): two weeks after the CfP closes, at
+              the latest when the conference starts.
               """
-              if not start_month:
+              if offset is None:
                   return url
 
-              template = f"{{% now 'utc' + 'months={start_month}', '%Y' %}}"
+              template = f"{{% now 'utc' + 'months={offset}', '%Y' %}}"
               parsed = urlparse(url)
               netloc_parts = parsed.netloc.split('.')
 
@@ -580,7 +573,7 @@ jobs:
 
           for conf in new_conferences:
               conf_name = f"{conf.get('conference', 'Unknown')} {conf.get('year', '')}".strip()
-              start_month = get_start_month(conf)
+              offset = rollover_offset(conf)
 
               for field, label in URL_FIELDS.items():
                   url = conf.get(field)
@@ -604,7 +597,7 @@ jobs:
                       skipped.append(f"{title}: {reason}")
                       continue
 
-                  final_url = template_url(url, start_month)
+                  final_url = template_url(url, offset)
                   watches_to_add.append({
                       'url': final_url,
                       'original_url': url if final_url != url else None,
