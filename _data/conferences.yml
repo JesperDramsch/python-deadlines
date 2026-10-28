@@ -87,14 +87,14 @@
 
 - conference: Black Python Devs Leadership Summit
   year: 2027
-  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2027-texas.html
+  link: https://blackpythondevs.org/events/python-community-leadership-summit-2027-at-pytexas/
   cfp_link: https://pretalx.com/pytexas-2027/cfp
   cfp: '2026-12-11 17:00:00'
   timezone: America/Chicago
   place: Austin, USA
   start: 2027-04-16
   end: 2027-04-16
-  coc: https://blackpythondevs.com/code-of-conduct.html
+  coc: https://blackpythondevs.org/code-of-conduct/
   twitter: blackpythondevs
   sub: PY
   location:

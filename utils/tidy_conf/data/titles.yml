@@ -1,4 +1,7 @@
 alt_name:
+  Black Python Devs Leadership Summit:
+    variations:
+    - Python Community Leadership Summit
   DjangoCon Australia:
     global: DjangoCon AU
   DjangoCongress Japan:
