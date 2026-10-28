@@ -52,6 +52,7 @@ jobs:
 
           sys.path.insert(0, "utils")
           from desk_queue import clean_watch_title
+          from desk_queue import resolve_watch_url
 
           event_name = os.environ["GITHUB_EVENT_NAME"]
           with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as f:
@@ -101,7 +102,8 @@ jobs:
               "source": "changedetection",
               "kind": "signal",
               "title": title.strip(),
-              "url": url.strip(),
+              # A watch that follows a series sends its URL with the year template in it
+              "url": resolve_watch_url(url.strip()),
               "year": year,
               "payload": payload,
           }

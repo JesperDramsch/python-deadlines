@@ -84,14 +84,6 @@ jobs:
 
           echo "Testing API connectivity..."
 
-          # Debug: Verify secrets are being read (show length, first 4 chars)
-          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            CLIENT_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
-            CLIENT_SECRET="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
-            echo "Debug: CF Access Client ID length: ${#CLIENT_ID} chars, starts with: ${CLIENT_ID:0:4}..."
-            echo "Debug: CF Access Client Secret length: ${#CLIENT_SECRET} chars, starts with: ${CLIENT_SECRET:0:4}..."
-          fi
-
           CURL_OUTPUT=$(mktemp)
           CURL_HEADERS=$(mktemp)
 
@@ -296,6 +288,18 @@ jobs:
           }
 
           CFP_TAG = "5799f798-2b44-452e-aefa-43874f6c3e1e"
+
+          # Hosts that carry many series, where only the path tells two series
+          # apart (AGENTS.md "Names"): a watch on one series' page there says
+          # nothing about another's, so these never match by domain.
+          MULTI_SERIES_HOSTS = {
+              "pydata.org",
+              "events.linuxfoundation.org",
+              "pretalx.com",
+              "sessionize.com",
+              "web.archive.org",
+              "barcamps.eu",
+          }
 
           URL_FIELDS = {'link': 'Main', 'cfp_link': 'CFP'}
           YEAR_PATTERN = re.compile(r'/(20(?:2[4-9]|3[0-5]))/')
@@ -516,7 +520,8 @@ jobs:
           def url_exists(url: str, use_base_url: bool = True) -> tuple[bool, str]:
               if url.lower() in existing_urls:
                   return True, "exact URL match"
-              if use_base_url:
+              host = urlparse(url).netloc.lower().removeprefix("www.")
+              if use_base_url and host not in MULTI_SERIES_HOSTS:
                   base = get_base_url(url)
                   if base and base.lower() in existing_urls:
                       return True, "base URL match"
