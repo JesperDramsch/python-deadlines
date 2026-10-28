@@ -313,80 +313,43 @@ jobs:
           echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
           echo "commit_msg=$COMMIT_MSG" >> "$GITHUB_OUTPUT"
 
+      # The rolling PR body has one block per writer (utils/desk_pr_body.py).
+      # This job owns COMMITTED:canonical and adds one line per commit there,
+      # naming the editions the commit changed. A commit that changed none,
+      # such as a re-quote or the sort moving entries between files, adds no
+      # line. The script comes from the commit this run started on: the
+      # accumulator branch checked out here may not have it yet.
       - name: Create or update PR
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true
-        uses: actions/github-script@v9
         env:
-          UPDATE_BRANCH: ${{ env.UPDATE_BRANCH }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
           SOURCE: ${{ steps.source.outputs.source }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
-          COMMIT_MSG: ${{ steps.commit.outputs.commit_msg }}
-        with:
-          script: |
-            const branch = process.env.UPDATE_BRANCH;
-            const source = process.env.SOURCE;
-            const sha = process.env.COMMIT_SHA.substring(0, 7);
-            const date = new Date().toISOString().split('T')[0];
+        run: |
+          SCRIPT="$RUNNER_TEMP/desk_pr_body.py"
+          git show "$GITHUB_SHA:utils/desk_pr_body.py" > "$SCRIPT"
+          case "$SOURCE" in
+            ics) LABEL="📊 PSF Calendar" ;;
+            csv) LABEL="📊 python-organizers" ;;
+            *) LABEL="📊 Canonical sources" ;;
+          esac
 
-            // Source labels for the "Conference" column (matches existing workflow format)
-            // Using 📊 emoji to distinguish canonical source updates from website scrapes
-            const sourceLabels = {
-              'ics': '📊 PSF Calendar',
-              'csv': '📊 python-organizers',
-              'all': '📊 Canonical sources'
-            };
-            const sourceLabel = sourceLabels[source] || `📊 ${source}`;
+          PR=$(gh api "repos/$REPO/pulls?head=${REPO%%/*}:$UPDATE_BRANCH&state=open" --jq '.[0].number // empty')
+          if [ -z "$PR" ]; then
+            pixi run python "$SCRIPT" skeleton > "$RUNNER_TEMP/body.md"
+            PR=$(gh api "repos/$REPO/pulls" -f title='🐍 Conference updates' -f head="$UPDATE_BRANCH" -f base=main \
+              -F body=@"$RUNNER_TEMP/body.md" --jq .number)
+            gh api "repos/$REPO/issues/$PR/labels" -f 'labels[]=automated' -f 'labels[]=conference-update' --silent
+            echo "::notice title=PR Created::Opened #$PR for the canonical source merge"
+          fi
 
-            // Check for existing PR from the update branch
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              head: `${context.repo.owner}:${branch}`,
-              state: 'open'
-            });
-
-            // Use same table format as check-conference-update.yml (Conference | Commit | Date)
-            const entry = `| ${sourceLabel} | [${sha}](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${process.env.COMMIT_SHA}) | ${date} |`;
-
-            if (prs.length > 0) {
-              // Update existing PR - append to table
-              const pr = prs[0];
-              let body = pr.body || '';
-
-              // Add entry before the END_UPDATES marker
-              body = body.replace(/(<!-- END_UPDATES -->)/, `${entry}\n$1`);
-
-              await github.rest.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pr.number,
-                body
-              });
-
-              console.log(`Updated PR #${pr.number}`);
-              core.notice(`Updated PR #${pr.number} with canonical source merge`);
-            } else {
-              // Create new PR - use EXACT same format as check-conference-update.yml
-              const { data: newPr } = await github.rest.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: '🐍 Conference updates',
-                head: branch,
-                base: 'main',
-                body: `## 🐍 Automated Conference Updates\n\n| Conference | Commit | Date |\n|------------|--------|------|\n${entry}\n<!-- END_UPDATES -->`
-              });
-
-              // Add labels
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: newPr.number,
-                labels: ['automated', 'conference-update']
-              });
-
-              console.log(`Created PR #${newPr.number}`);
-              core.notice(`Created PR #${newPr.number} for canonical source merge`);
-            }
+          pixi run python "$SCRIPT" --repo "$REPO" commit-line --sha "$COMMIT_SHA" --label "$LABEL" > "$RUNNER_TEMP/line.md"
+          if [ -s "$RUNNER_TEMP/line.md" ]; then
+            pixi run python "$SCRIPT" --repo "$REPO" --pr "$PR" append COMMITTED:canonical "$RUNNER_TEMP/line.md"
+          else
+            echo "::notice title=No Edition Changed::$COMMIT_SHA changed no edition, so #$PR gets no line for it"
+          fi
 
       - name: Trigger TBA enrichment
         if: steps.check_changes.outputs.changed == 'true' && inputs.dry_run != true

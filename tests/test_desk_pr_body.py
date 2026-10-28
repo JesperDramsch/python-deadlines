@@ -1,6 +1,6 @@
-"""Tests for desk_pr_body: the desk's write of the rolling PR body, which keeps the writers' part."""
+"""Tests for desk_pr_body: the writers' blocks of the rolling PR body."""
 
-import os
+import io
 import sys
 from pathlib import Path
 
@@ -11,342 +11,260 @@ from hypothesis import strategies as st
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
 import desk_pr_body
-from desk_pr_body import MARKER
-from desk_pr_body import reserved_in
-from desk_pr_body import splice
-from desk_pr_body import writers_part
+from desk_pr_body import BLOCKS
+from desk_pr_body import WRITABLE
+from desk_pr_body import describe
+from desk_pr_body import parse
+from desk_pr_body import render
+from desk_pr_body import update
 
-END_UPDATES = "<!-- END_UPDATES -->"
-REVIEW_ITEMS = "<!-- REVIEW_ITEMS -->"
-
-DESK = "Desk last ran: 2026-10-14 06:00 UTC, model claude-opus-5-5, 3 checked, 1 changed\n\n### Evidence\n"
-WRITERS = (
+HEAD = "Desk last ran: 2026-10-31 01:22 UTC, model claude-opus-5-5, 3 checked, 1 committed, 1 needs you"
+OLD_BODY = (
+    "Desk last ran: 2026-10-28 01:22 UTC, model claude-opus-5-5, 27 checked, 11 changed\n\n"
+    "### Evidence\n\n<!-- DESK_END -->\n"
     "## 🐍 Automated Conference Updates\n\n"
-    "| Conference | Commit | Date |\n"
-    "|------------|--------|------|\n"
+    "| Conference | Commit | Date |\n|------------|--------|------|\n"
     "| 📊 Canonical sources | [abc1234](https://github.com/x/y/commit/abc1234) | 2026-10-13 |\n"
+    "<!-- REVIEW_ITEMS -->\n- [ ] ⚠️ North Bay Python 2027: bluesky differs\n<!-- END_REVIEW_ITEMS -->\n"
     "<!-- END_UPDATES -->"
 )
-ROW = "| TBA Enrichment | [def5678](https://github.com/x/y/commit/def5678) | 2026-10-14 |\n"
+# Content a block can hold: no line of it may be a block marker
+block_text = st.text().filter(lambda text: not any(desk_pr_body.MARKER_LINE.match(line) for line in text.splitlines()))
 
 
-def body(desk=DESK, writers=WRITERS):
-    return f"{desk.rstrip()}\n{MARKER}\n{writers}"
+class TestParse:
+    def test_empty_body_has_no_blocks(self):
+        assert parse("") == {}
+
+    def test_body_before_the_layout_is_kept_whole_as_legacy(self):
+        assert parse(OLD_BODY) == {"LEGACY": OLD_BODY.strip()}
+
+    def test_old_markers_are_not_blocks(self):
+        assert "DESK_END" not in parse(render({"HEAD:desk": HEAD, "LEGACY": OLD_BODY}))
+
+    def test_round_trip(self):
+        blocks = {"HEAD:desk": HEAD, "NEEDS:enrich": "- [ ] a\n- [x] b", "COMMITTED:canonical": "- line"}
+        assert parse(render(blocks)) == blocks
+
+    def test_unknown_and_unterminated_markers_are_layout_text(self):
+        body = render({"HEAD:desk": HEAD}) + "<!-- NEEDS:other -->\nx\n<!-- /NEEDS:other -->\n<!-- MORE:desk -->\n"
+        assert parse(body) == {"HEAD:desk": HEAD}
+
+    def test_markers_tolerate_spaces_and_carriage_returns(self):
+        body = "  <!-- HEAD:desk -->\t\r\nhead\r\n<!-- /HEAD:desk -->\r\n"
+        assert parse(body) == {"HEAD:desk": "head"}
+
+    def test_a_repeated_block_keeps_its_first_copy(self):
+        body = render({"HEAD:desk": "first"}) + "<!-- HEAD:desk -->\nsecond\n<!-- /HEAD:desk -->\n"
+        assert parse(body)["HEAD:desk"] == "first"
 
 
-class TestWritersPart:
-    def test_returns_text_after_the_marker_line(self):
-        assert writers_part(body()) == WRITERS
+class TestRender:
+    def test_skeleton_has_every_block_and_empty_states(self):
+        skeleton = render({})
+        for name in BLOCKS[:-1]:
+            assert f"<!-- {name} -->" in skeleton
+        assert "LEGACY" not in skeleton
+        assert "Nothing waiting." in skeleton
+        assert "Nothing yet." in skeleton
+        assert "has not run on this PR yet" in skeleton
 
-    def test_none_without_a_marker_line(self):
-        assert writers_part(WRITERS) is None
+    def test_empty_states_go_once_a_block_has_content(self):
+        body = render({"HEAD:desk": HEAD, "NEEDS:canonical": "- [ ] x", "COMMITTED:enrich": "- y"})
+        assert "Nothing waiting." not in body
+        assert "Nothing yet." not in body
+        assert "has not run" not in body
 
-    def test_marker_inside_a_line_is_not_a_marker_line(self):
-        assert writers_part(f"see {MARKER} here\n{WRITERS}") is None
+    def test_sections_come_in_order(self):
+        body = render({"HEAD:desk": HEAD, "LEGACY": "old"})
+        order = ["<!-- HEAD:desk -->", "## Needs you", "## Committed", "<!-- MORE:desk -->", "<!-- LEGACY -->"]
+        positions = [body.index(mark) for mark in order]
+        assert positions == sorted(positions)
 
-    def test_marker_line_may_carry_spaces_and_a_carriage_return(self):
-        assert writers_part(f"desk\r\n  {MARKER}\t\r\nrest\r\n") == "rest\r\n"
-
-    def test_marker_as_last_line_leaves_nothing(self):
-        assert writers_part(f"desk\n{MARKER}") == ""
-        assert writers_part(f"desk\n{MARKER}\n") == ""
-
-    def test_marker_as_first_line(self):
-        assert writers_part(f"{MARKER}\nrest") == "rest"
+    def test_legacy_is_folded(self):
+        body = render({"LEGACY": "old"})
+        assert body.index("<details>") < body.index("<!-- LEGACY -->") < body.index("</details>")
 
 
-class TestSplice:
-    def test_replaces_the_desk_part_and_keeps_the_writers_part(self):
-        new_desk = "Desk last ran: 2026-10-15 06:00 UTC\n"
-        assert splice(new_desk, body()) == f"Desk last ran: 2026-10-15 06:00 UTC\n{MARKER}\n{WRITERS}"
+class TestUpdate:
+    def test_set_replaces_only_its_block(self):
+        body = render({"HEAD:desk": HEAD, "NEEDS:enrich": "- [ ] keep"})
+        result = parse(update(body, "NEEDS:desk", "- [ ] new"))
+        assert result == {"HEAD:desk": HEAD, "NEEDS:enrich": "- [ ] keep", "NEEDS:desk": "- [ ] new"}
 
-    def test_keeps_a_row_a_writer_added_after_the_desk_read_the_body(self):
-        """The race the CLI closes: the body the splice sees already holds the writer's new row."""
-        with_row = WRITERS.replace("<!-- END_UPDATES -->", ROW + "<!-- END_UPDATES -->")
-        result = splice("new desk part", body(writers=with_row))
-        assert result.endswith(f"\n{MARKER}\n{with_row}")
-        assert ROW in result
+    def test_append_adds_below(self):
+        body = render({"HEAD:desk": HEAD, "COMMITTED:canonical": "- one"})
+        result = parse(update(body, "COMMITTED:canonical", "- two\n", append=True))
+        assert result["COMMITTED:canonical"] == "- one\n- two"
 
-    def test_keeps_the_writers_part_byte_for_byte(self):
-        writers = "line one\r\nline two  \n\n\n  indented\t\n\u00a0\u2028odd\n\n"
-        assert splice("desk", body(writers=writers)) == f"desk\n{MARKER}\n{writers}"
+    def test_append_to_an_empty_block(self):
+        assert parse(update(render({}), "COMMITTED:enrich", "- one", append=True))["COMMITTED:enrich"] == "- one"
 
-    def test_trims_trailing_whitespace_of_the_desk_part_only(self):
-        assert splice("  desk\n\n \t\n", body()) == f"  desk\n{MARKER}\n{WRITERS}"
+    def test_a_ticked_box_survives_another_writers_update(self):
+        body = render({"HEAD:desk": HEAD, "NEEDS:desk": "- [x] PyCascades: take pretalx\n- [ ] FOSDEM"})
+        assert parse(update(body, "COMMITTED:canonical", "- c", append=True))["NEEDS:desk"].startswith("- [x]")
 
-    def test_body_without_a_marker_follows_the_marker_whole(self):
-        assert splice("desk", WRITERS) == f"desk\n{MARKER}\n{WRITERS}"
+    def test_first_update_of_an_old_body_keeps_it_as_legacy(self):
+        result = parse(update(OLD_BODY, "HEAD:desk", HEAD))
+        assert result == {"HEAD:desk": HEAD, "LEGACY": OLD_BODY.strip()}
 
-    def test_empty_body(self):
-        assert splice("desk", "") == f"desk\n{MARKER}\n"
+    def test_a_writer_before_the_desk_keeps_the_old_body_too(self):
+        # An Actions writer may be first to write after the layout lands; HEAD:desk then exists, empty
+        once = update(OLD_BODY, "COMMITTED:canonical", "- c", append=True)
+        assert parse(once)["LEGACY"] == OLD_BODY.strip()
+        assert parse(update(once, "HEAD:desk", HEAD))["LEGACY"] == OLD_BODY.strip()
 
-    def test_only_the_first_marker_line_splits(self):
-        current = f"old desk\n{MARKER}\nwriters\n{MARKER}\nmore writers\n"
-        assert splice("desk", current) == f"desk\n{MARKER}\nwriters\n{MARKER}\nmore writers\n"
+    def test_refuses_legacy_and_unknown_blocks(self):
+        for name in ("LEGACY", "NEEDS:other", "DESK_END"):
+            with pytest.raises(ValueError, match="not a writable block"):
+                update(render({}), name, "x")
 
-    def test_old_desk_part_is_dropped(self):
-        result = splice("new", body(desk="old ledger rows\n| a | b |\n"))
-        assert "old ledger rows" not in result
+    def test_refuses_content_with_a_marker_line(self):
+        with pytest.raises(ValueError, match="marker line"):
+            update(render({}), "NEEDS:desk", "- [ ] x\n<!-- /NEEDS:desk -->\n<!-- HEAD:desk -->")
 
-    def test_refuses_a_desk_part_with_the_marker(self):
-        with pytest.raises(ValueError, match="DESK_END"):
-            splice(f"desk\n{MARKER}\n", body())
-
-    @pytest.mark.parametrize("marker", [END_UPDATES, REVIEW_ITEMS])
-    def test_refuses_a_desk_part_with_a_marker_the_writers_add_rows_at(self, marker):
-        """A writer adds at the first such marker, which would be in the desk's part, and the next splice drops it."""
-        with pytest.raises(ValueError, match=f"the desk part contains {marker}"):
-            splice(f"ledger\n{marker}\n", body())
-
-    def test_reserved_in_names_every_marker_found(self):
-        assert reserved_in(DESK) == []
-        assert reserved_in(f"{REVIEW_ITEMS} {MARKER} {END_UPDATES}") == [MARKER, END_UPDATES, REVIEW_ITEMS]
-        assert reserved_in("<!-- END_REVIEW_ITEMS -->") == []
+    def test_marker_text_inside_a_line_is_fine(self):
+        assert parse(update(render({}), "MORE:desk", "see <!-- HEAD:desk --> here"))["MORE:desk"] == (
+            "see <!-- HEAD:desk --> here"
+        )
 
     def test_is_idempotent(self):
-        once = splice(DESK, body(desk="old"))
-        assert splice(DESK, once) == once
+        once = update(OLD_BODY, "HEAD:desk", HEAD)
+        assert update(once, "HEAD:desk", HEAD) == once
 
-    def test_second_splice_keeps_what_the_first_kept(self):
-        first = splice("first", WRITERS)
-        assert splice("second", first) == f"second\n{MARKER}\n{WRITERS}"
-
-    @given(
-        desk=st.text().filter(lambda text: not reserved_in(text)),
-        before=st.text().filter(lambda text: MARKER not in text),
-        writers=st.text(),
-    )
-    def test_any_writers_part_survives(self, desk, before, writers):
-        current = f"{before}\n{MARKER}\n{writers}"
-        result = splice(desk, current)
-        assert result == f"{desk.rstrip()}\n{MARKER}\n{writers}"
-        assert writers_part(result) == writers
-
-    @given(desk=st.text().filter(lambda text: not reserved_in(text)), current=st.text())
-    def test_result_always_starts_with_the_desk_part_and_one_marker_line(self, desk, current):
-        result = splice(desk, current)
-        head = f"{desk.rstrip()}\n{MARKER}\n"
-        assert result.startswith(head)
-        rest = writers_part(current)
-        assert result[len(head) :] == (current if rest is None else rest)
+    @given(content=block_text, other=block_text, name=st.sampled_from(WRITABLE))
+    def test_any_content_round_trips_and_leaves_other_blocks(self, content, other, name):
+        keep = "NEEDS:canonical" if name != "NEEDS:canonical" else "NEEDS:enrich"
+        body = render({"HEAD:desk": HEAD, keep: other.strip("\r\n")})
+        result = parse(update(body, name, content))
+        assert result.get(name, "") == content.strip("\r\n")
+        if name != "HEAD:desk":
+            assert result.get(keep, "") == other.strip("\r\n")
 
 
-class FakeGh:
-    """Stand in for subprocess.run, answering the body read and recording the PATCH.
+class TestDescribe:
+    def test_names_added_removed_and_changed_fields(self):
+        before = {("A", 2026): {"cfp": "TBA", "location": [1]}, ("B", 2025): {"cfp": "x"}}
+        after = {("A", 2026): {"cfp": "2026-01-01 23:59:00", "coc": "u", "location": [2]}, ("C", 2027): {}}
+        assert describe(before, after) == ["A 2026 (cfp, coc)", "B 2025 (removed)", "C 2027 (added)"]
 
-    Like subprocess.run without text mode, it returns bytes: ``body_output``
-    is encoded as UTF-8 unless it is bytes already.
-    """
+    def test_an_unchanged_or_moved_entry_is_not_named(self):
+        entry = {("A", 2026): {"cfp": "TBA"}}
+        assert describe(entry, dict(entry)) == []
 
-    def __init__(self, body_output="", read_code=0, patch_code=0):
-        self.body_output = body_output
-        self.read_code = read_code
-        self.patch_code = patch_code
-        self.stderr = b"HTTP 404: Not Found"
+
+class FakeTools:
+    """Stand in for subprocess.run: answer the body read and record the PATCH, as bytes like the real one."""
+
+    def __init__(self, body=""):
+        self.body = body
+        self.read_code = 0
+        self.patch_code = 0
         self.calls = []
-        self.options = []
         self.patched = None
-        self.patch_file = None
 
     def __call__(self, args, **kwargs):
         self.calls.append(args)
-        self.options.append(kwargs)
+        assert "text" not in kwargs
         if "PATCH" in args:
-            field = args[-1]
-            assert field.startswith("body=@")
-            self.patch_file = Path(field.removeprefix("body=@"))
-            self.patched = self.patch_file.read_bytes().decode("utf-8")
-            code, stdout = self.patch_code, b'{"number": 7}'
+            self.patched = Path(args[args.index("-F") + 1].removeprefix("body=@")).read_bytes().decode("utf-8")
+            code, stdout = self.patch_code, b""
         else:
-            code, stdout = self.read_code, self.body_output
-        if isinstance(stdout, str):
-            stdout = stdout.encode("utf-8")
+            code, stdout = self.read_code, f"{self.body}\n".encode()
         if code:
-            raise desk_pr_body.subprocess.CalledProcessError(code, args, output=b"", stderr=self.stderr)
+            raise desk_pr_body.subprocess.CalledProcessError(code, args, output=b"", stderr=b"HTTP 404: Not Found")
         return desk_pr_body.subprocess.CompletedProcess(args, 0, stdout=stdout, stderr=b"")
 
 
 @pytest.fixture()
-def gh(monkeypatch):
-    """Install a FakeGh and a gh on PATH; set its fields before running the CLI."""
-    fake = FakeGh()
+def tools(monkeypatch):
+    fake = FakeTools()
     monkeypatch.setattr(desk_pr_body.shutil, "which", lambda name: f"/usr/bin/{name}")
     monkeypatch.setattr(desk_pr_body.subprocess, "run", fake)
     return fake
 
 
 @pytest.fixture()
-def desk_file(tmp_path):
-    path = tmp_path / "desk.md"
-    path.write_text(DESK, encoding="utf-8")
+def content(tmp_path):
+    path = tmp_path / "content.md"
+    path.write_text(f"{HEAD}\n", encoding="utf-8")
     return path
 
 
 class TestCommandLine:
-    def test_reads_splices_and_patches(self, gh, desk_file, capsys):
-        gh.body_output = body(desk="old ledger") + "\n"
+    def test_set_reads_updates_and_patches(self, tools, content, capsys):
+        tools.body = OLD_BODY
+        assert desk_pr_body.main(["--pr", "7", "set", "HEAD:desk", str(content)]) == 0
+        assert tools.calls[0][1:] == ["api", "repos/JesperDramsch/python-deadlines/pulls/7", "--jq", '.body // ""']
+        assert tools.calls[1][1:5] == ["api", "-X", "PATCH", "repos/JesperDramsch/python-deadlines/pulls/7"]
+        assert parse(tools.patched) == {"HEAD:desk": HEAD, "LEGACY": OLD_BODY}
+        assert "wrote HEAD:desk" in capsys.readouterr().out
 
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
+    def test_append_from_stdin(self, tools, monkeypatch):
+        tools.body = render({"COMMITTED:canonical": "- one"})
+        monkeypatch.setattr(sys, "stdin", io.TextIOWrapper(io.BytesIO(b"- two\n"), encoding="utf-8"))
+        assert desk_pr_body.main(["--pr", "7", "append", "COMMITTED:canonical", "-"]) == 0
+        assert parse(tools.patched)["COMMITTED:canonical"] == "- one\n- two"
 
-        assert gh.calls[0] == ["/usr/bin/gh", "api", "repos/JesperDramsch/python-deadlines/pulls/7", "--jq", ".body"]
-        assert gh.calls[1][:6] == [
-            "/usr/bin/gh",
-            "api",
-            "-X",
-            "PATCH",
-            "repos/JesperDramsch/python-deadlines/pulls/7",
-            "-F",
-        ]
-        assert len(gh.calls) == 2
-        assert gh.patched == body()
-        assert not gh.patch_file.exists()
-        assert "updated the body of JesperDramsch/python-deadlines#7" in capsys.readouterr().out
+    def test_get_prints_a_block(self, tools, capsys):
+        tools.body = render({"HEAD:desk": HEAD})
+        assert desk_pr_body.main(["--pr", "7", "get", "HEAD:desk"]) == 0
+        assert capsys.readouterr().out == f"{HEAD}\n"
+        assert len(tools.calls) == 1
 
-    def test_runs_gh_without_text_mode(self, gh, desk_file):
-        """Text mode would turn the CRLF line ends of a body edited on GitHub into LF."""
-        gh.body_output = "\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
-        for options in gh.options:
-            assert not {"text", "encoding", "errors", "universal_newlines"} & options.keys()
+    def test_print_does_not_patch(self, tools, content, capsysbinary):
+        assert desk_pr_body.main(["--pr", "7", "set", "HEAD:desk", str(content), "--print"]) == 0
+        assert parse(capsysbinary.readouterr().out.decode("utf-8"))["HEAD:desk"] == HEAD
+        assert len(tools.calls) == 1
 
-    def test_keeps_carriage_returns_in_the_writers_part(self, gh, desk_file):
-        writers = "| row |\r\n| lone \r return |\r\n<!-- END_UPDATES -->\r\n"
-        gh.body_output = f"old\r\n{MARKER}\r\n{writers}\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
-        assert gh.patch_file is not None
-        assert gh.patched == f"{DESK.rstrip()}\n{MARKER}\n{writers}"
+    def test_skeleton_needs_no_pr(self, tools, capsys):
+        assert desk_pr_body.main(["skeleton"]) == 0
+        assert capsys.readouterr().out == render({})
+        assert tools.calls == []
 
-    def test_print_keeps_carriage_returns(self, gh, desk_file, capsysbinary):
-        writers = "| row |\r\n<!-- END_UPDATES -->\r\n"
-        gh.body_output = f"old\r\n{MARKER}\r\n{writers}\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file), "--print"]) == 0
-        assert capsysbinary.readouterr().out == f"{DESK.rstrip()}\n{MARKER}\n{writers}".encode()
+    def test_refuses_marker_content_without_patching(self, tools, tmp_path, capsys):
+        bad = tmp_path / "bad.md"
+        bad.write_text("<!-- /NEEDS:desk -->\n", encoding="utf-8")
+        assert desk_pr_body.main(["--pr", "7", "set", "NEEDS:desk", str(bad)]) == 2
+        assert "marker line" in capsys.readouterr().err
+        assert tools.patched is None
 
-    def test_output_that_is_not_utf8_exits_1_and_does_not_patch(self, gh, desk_file, capsys):
-        gh.body_output = b"old\n\xff\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 1
-        assert len(gh.calls) == 1
-        assert "not UTF-8" in capsys.readouterr().err
+    def test_refuses_a_body_over_the_limit(self, tools, tmp_path, capsys):
+        big = tmp_path / "big.md"
+        big.write_text("x" * desk_pr_body.BODY_LIMIT, encoding="utf-8")
+        assert desk_pr_body.main(["--pr", "7", "set", "MORE:desk", str(big)]) == 2
+        assert "over" in capsys.readouterr().err
+        assert tools.patched is None
 
-    def test_stderr_that_is_not_utf8_still_reports(self, gh, desk_file, capsys):
-        gh.read_code = 1
-        gh.stderr = b"HTTP 502: \xff Bad Gateway"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 1
-        assert "HTTP 502: � Bad Gateway" in capsys.readouterr().err
+    def test_legacy_is_not_writable_on_the_command_line(self, tools, content):
+        with pytest.raises(SystemExit):
+            desk_pr_body.main(["--pr", "7", "set", "LEGACY", str(content)])
 
-    def test_strips_only_the_newline_gh_adds(self, gh, desk_file):
-        gh.body_output = f"old\n{MARKER}\nrows\n\n" + "\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
-        assert gh.patched == f"{DESK.rstrip()}\n{MARKER}\nrows\n\n"
-
-    def test_null_body(self, gh, desk_file):
-        gh.body_output = "\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
-        assert gh.patched == f"{DESK.rstrip()}\n{MARKER}\n"
-
-    def test_body_a_writer_opened_gets_the_desk_part_above_it(self, gh, desk_file):
-        gh.body_output = WRITERS + "\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
-        assert gh.patched == body()
-
-    def test_print_writes_the_body_and_does_not_patch(self, gh, desk_file, capsys):
-        gh.body_output = body(desk="old ledger") + "\n"
-
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file), "--print"]) == 0
-
-        assert len(gh.calls) == 1
-        assert capsys.readouterr().out == body()
-
-    def test_repo_option(self, gh, desk_file):
-        gh.body_output = "\n"
-        assert desk_pr_body.main(["--pr", "12", "--desk", str(desk_file), "--repo", "someone/fork"]) == 0
-        assert gh.calls[0][2] == "repos/someone/fork/pulls/12"
-        assert gh.calls[1][4] == "repos/someone/fork/pulls/12"
-
-    def test_refuses_a_desk_file_with_the_marker(self, gh, tmp_path, capsys):
-        path = tmp_path / "desk.md"
-        path.write_text(f"ledger\n{MARKER}\nwriters\n", encoding="utf-8")
-
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(path)]) == 2
-
-        assert gh.calls == []
-        assert "refusing" in capsys.readouterr().err
-
-    @pytest.mark.parametrize("marker", [END_UPDATES, REVIEW_ITEMS])
-    def test_refuses_a_desk_file_with_a_marker_the_writers_add_rows_at(self, gh, tmp_path, capsys, marker):
-        path = tmp_path / "desk.md"
-        path.write_text(f"ledger\n{marker}\n", encoding="utf-8")
-
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(path)]) == 2
-
-        assert gh.calls == []
-        assert f"refusing {path}: it contains {marker}" in capsys.readouterr().err
-
-    def test_missing_desk_file(self, gh, tmp_path, capsys):
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(tmp_path / "absent.md")]) == 2
-        assert gh.calls == []
+    def test_missing_file(self, tools, tmp_path, capsys):
+        assert desk_pr_body.main(["--pr", "7", "set", "NEEDS:desk", str(tmp_path / "none.md")]) == 2
         assert "cannot read" in capsys.readouterr().err
 
-    def test_pr_must_be_positive(self, gh, desk_file):
-        assert desk_pr_body.main(["--pr", "0", "--desk", str(desk_file)]) == 2
-        assert gh.calls == []
+    def test_pr_must_be_positive(self, tools, content):
+        assert desk_pr_body.main(["--pr", "0", "set", "NEEDS:desk", str(content)]) == 2
+        assert desk_pr_body.main(["set", "NEEDS:desk", str(content)]) == 2
 
-    def test_failed_read_does_not_patch(self, gh, desk_file, capsys):
-        gh.read_code = 1
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 1
-        assert len(gh.calls) == 1
-        assert "HTTP 404" in capsys.readouterr().err
+    def test_failed_read_exits_1_without_patching(self, tools, content, capsys):
+        tools.read_code = 1
+        assert desk_pr_body.main(["--pr", "7", "set", "NEEDS:desk", str(content)]) == 1
+        assert "404" in capsys.readouterr().err
+        assert tools.patched is None
 
-    def test_failed_patch_exits_1_and_removes_the_file(self, gh, desk_file, capsys):
-        gh.body_output = "\n"
-        gh.patch_code = 1
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 1
-        assert not gh.patch_file.exists()
-        assert "failed" in capsys.readouterr().err
+    def test_failed_patch_exits_1(self, tools, content):
+        tools.patch_code = 1
+        assert desk_pr_body.main(["--pr", "7", "set", "NEEDS:desk", str(content)]) == 1
 
-    def test_gh_not_on_path(self, monkeypatch, desk_file, capsys):
-        calls = []
+    def test_gh_not_on_path(self, monkeypatch, content, capsys):
         monkeypatch.setattr(desk_pr_body.shutil, "which", lambda name: None)
-        monkeypatch.setattr(desk_pr_body.subprocess, "run", lambda *args, **kwargs: calls.append(args))
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 1
-        assert calls == []
-        assert "gh is not on PATH" in capsys.readouterr().err
+        assert desk_pr_body.main(["--pr", "7", "set", "NEEDS:desk", str(content)]) == 1
+        assert "not on PATH" in capsys.readouterr().err
 
-    def test_body_keeps_non_ascii_text(self, gh, tmp_path):
-        path = tmp_path / "desk.md"
-        path.write_text("PyCon México: cfp_ext\n", encoding="utf-8")
-        gh.body_output = f"old\n{MARKER}\n| 📊 python-organizers | x | 2026-10-14 |\n" + "\n"
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(path)]) == 0
-        assert gh.patched == f"PyCon México: cfp_ext\n{MARKER}\n| 📊 python-organizers | x | 2026-10-14 |\n"
-
-
-@pytest.mark.skipif(os.name == "nt", reason="the fake gh is a script run through its shebang line")
-class TestWithAGhOnPath:
-    """Run the CLI against a gh script on PATH, so the real subprocess.run reads its output."""
-
-    def test_crlf_body_keeps_the_writers_part_byte_for_byte(self, tmp_path, monkeypatch, desk_file):
-        """GitHub stores a body edited in the web UI with CRLF line ends, and a lone CR can occur too."""
-        writers = "## 🐍 Updates\r\n\r\n| row |\r\n| lone \r return |\r\n<!-- END_UPDATES -->\r\n".encode()
-        printed = f"old ledger\r\n{MARKER}\r\n".encode() + writers + b"\n"
-        sent = tmp_path / "sent.md"
-        bin_dir = tmp_path / "bin"
-        bin_dir.mkdir()
-        script = bin_dir / "gh"
-        script.write_text(
-            f"#!{sys.executable}\n"
-            "import shutil\n"
-            "import sys\n"
-            "args = sys.argv[1:]\n"
-            "if 'PATCH' in args:\n"
-            f"    shutil.copyfile(args[-1].removeprefix('body=@'), {str(sent)!r})\n"
-            "    sys.stdout.write('{\"number\": 7}')\n"
-            "else:\n"
-            f"    sys.stdout.buffer.write({printed!r})\n",
-            encoding="utf-8",
-        )
-        script.chmod(0o755)
-        monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ.get('PATH', '')}")
-
-        assert desk_pr_body.main(["--pr", "7", "--desk", str(desk_file)]) == 0
-
-        assert sent.read_bytes() == f"{DESK.rstrip()}\n{MARKER}\n".encode() + writers
+    def test_carriage_returns_inside_a_block_survive(self, tools, content):
+        crlf = render({"HEAD:desk": HEAD}).replace("\n", "\r\n")
+        tools.body = crlf.replace("<!-- NEEDS:desk -->\r\n", "<!-- NEEDS:desk -->\r\n- [x] ticked\r\n- [ ] open\r\n")
+        assert desk_pr_body.main(["--pr", "7", "set", "COMMITTED:enrich", str(content)]) == 0
+        assert parse(tools.patched)["NEEDS:desk"] == "- [x] ticked\r\n- [ ] open"
