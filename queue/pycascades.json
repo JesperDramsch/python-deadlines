@@ -17,6 +17,25 @@
       "title": "PyCascades 2026 - CFP",
       "url": "https://pretalx.com/pycascades-{% now 'utc' + 'months=11', '%Y' %}/cfp",
       "year": 2026
+    },
+    {
+      "id": "adb5018373e2806e4ad23c977b5445569dd827bb",
+      "kind": "drift",
+      "payload": {
+        "conference": "PyCascades",
+        "diffs": {
+          "cfp": {
+            "data": "2026-10-26 23:59:00 AoE",
+            "source": "2026-11-09 05:00 (America/Los_Angeles)"
+          }
+        },
+        "year": 2027
+      },
+      "received": "2026-10-28T10:41:00Z",
+      "source": "pretalx",
+      "title": "PyCascades",
+      "url": "https://pretalx.com/pycascades-2027/cfp",
+      "year": 2027
     }
   ],
   "series": "PyCascades"
