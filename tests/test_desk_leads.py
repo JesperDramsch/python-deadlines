@@ -1,4 +1,4 @@
-"""Tests for desk_leads: lead importers for pretalx, developers.events and the PyCon registries.
+"""Tests for desk_leads: lead importers for pretalx, developers.events, pycon.org and listing pages.
 
 Nothing here touches the network: every request goes to the responses mock,
 and opening a socket fails the test.
@@ -38,7 +38,6 @@ from desk_leads import pretalx_probe
 from desk_leads import pretalx_slug
 from desk_leads import pycon_org_record
 from desk_leads import registry_paths
-from desk_leads import trademark_items
 from desk_queue import add_items
 from desk_queue import normalise_record
 from desk_worklist import build_worklist
@@ -731,22 +730,6 @@ class TestDevelopersEvents:
         assert "503" in capsys.readouterr().err
 
 
-PSF_CONTENT = """\
-<h1>PyCon Conferences around the World</h1>
-<p>The following are national-level and regional authorized PyCon conferences:</p>
-<blockquote>
-<ul class="simple">
-<li>&quot;Kiwi PyCon&quot;, &quot;PyCon NZ&quot; in New Zealand</li>
-<li>&quot;PyCon MEA (Middle East &amp; Africa)&quot; in Dubai</li>
-<li>&quot;PyCon NP&quot;, &quot;PyCon Nepal&quot; in Nepal</li>
-<li>&quot;PyCon SK&quot;, &quot;PyCon Slovakia&quot; in Slovakia</li>
-<li>&quot;PyCon VE&quot;, &quot;PyCon Venezuela&quot; in Venezuela</li>
-</ul>
-</blockquote>
-<p>If we have forgotten a national or regional PyCon conference in this list, please write to us.</p>
-<ul><li>&quot;Not a PyCon&quot; in a later list</li></ul>
-"""
-
 REGISTRY_FILES = {
     "/_national/pycon-ireland.yml": "---\nname: PyCon Ireland\nflag: ie\nlocation: Ireland\nwebsite: https://python.ie\n---\n",
     "/_national/pycon-dk.yml": (
@@ -764,11 +747,10 @@ REGISTRY_FILES = {
 }
 
 
-def registry_web(web, psf_status=200, broken=None):
-    if psf_status == 200:
-        web.add(responses.GET, desk_leads.PSF_TRADEMARKS_API, json={"content": PSF_CONTENT, "path": "/psf/pycon/"})
-    else:
-        web.add(responses.GET, desk_leads.PSF_TRADEMARKS_API, status=psf_status)
+def registry_web(web, listing_status=200, broken=None):
+    if listing_status != 200:
+        web.add(responses.GET, desk_leads.PYCON_ORG_FILES, status=listing_status)
+        return
     listing = [{"name": path, "hash": "x", "size": 90} for path in REGISTRY_FILES]
     listing += [{"name": "/index.html", "hash": "x", "size": 9}, {"name": "/_national/README.md", "hash": "x"}]
     web.add(responses.GET, desk_leads.PYCON_ORG_FILES, json={"type": "gh", "files": listing})
@@ -780,20 +762,7 @@ def registry_web(web, psf_status=200, broken=None):
             web.add(responses.GET, url, body=text)
 
 
-class TestRegistry:
-    def test_trademark_items(self):
-        assert trademark_items(PSF_CONTENT) == [
-            ["Kiwi PyCon", "PyCon NZ"],
-            ["PyCon MEA (Middle East & Africa)"],
-            ["PyCon NP", "PyCon Nepal"],
-            ["PyCon SK", "PyCon Slovakia"],
-            ["PyCon VE", "PyCon Venezuela"],
-        ]
-
-    def test_trademark_page_without_the_list(self):
-        with pytest.raises(ValueError, match="no list"):
-            trademark_items("<p>Nothing here</p>")
-
+class TestPyconOrg:
     def test_front_matter(self):
         assert front_matter(REGISTRY_FILES["/_regional/pygotham.yml"]) == {
             "name": "PyGotham",
@@ -832,53 +801,20 @@ class TestRegistry:
         with pytest.raises(ValueError, match="no files"):
             registry_paths({"files": None})
 
-    def test_both_registries(self, index, web):
+    def test_untracked_events(self, index, web):
         registry_web(web)
-        records = desk_leads.registry_leads(index)
-        assert [(record["payload"]["registry"], record["payload"]["names"]) for record in records] == [
-            ("psf-trademarks", ["PyCon NP", "PyCon Nepal"]),
-            ("psf-trademarks", ["PyCon VE", "PyCon Venezuela"]),
-            ("pycon.org", ["PyGotham"]),
-        ]
-        assert records[0] == {
-            "source": "registry",
-            "kind": "registry",
-            "title": "PyCon NP",
-            "url": "https://www.python.org/psf/trademarks/pycon/",
-            "year": None,
-            "payload": {
-                "names": ["PyCon NP", "PyCon Nepal"],
-                "change": "untracked",
-                "registry": "psf-trademarks",
-                "evidence_url": "https://www.python.org/psf/trademarks/pycon/",
-            },
-        }
+        records = desk_leads.collect("pycon-org", dataset(), index, TODAY)
+        assert [record["title"] for record in records] == ["PyGotham"]
 
     def test_one_failed_file_is_skipped(self, index, web, capsys):
         registry_web(web, broken="/_regional/pygotham.yml")
-        records = desk_leads.registry_leads(index)
-        assert [record["title"] for record in records] == ["PyCon NP", "PyCon VE"]
+        assert desk_leads.pycon_org_leads(index) == []
         assert "pygotham.yml" in capsys.readouterr().err
 
-    def test_failed_registry_keeps_the_other(self, index, web):
-        registry_web(web, psf_status=500)
-        with pytest.raises(SourceError, match="psf-trademarks") as raised:
-            desk_leads.registry_leads(index)
-        assert [record["title"] for record in raised.value.records] == ["PyGotham"]
-
-    @pytest.mark.parametrize(
-        ("source", "titles"),
-        [("psf-trademarks", ["PyCon NP", "PyCon VE"]), ("pycon-org", ["PyGotham"])],
-    )
-    def test_each_registry_on_its_own(self, index, web, source, titles):
-        registry_web(web)
-        records = desk_leads.collect(source, dataset(), index, TODAY)
-        assert [record["title"] for record in records] == titles
-
-    def test_one_registry_failing_alone_is_an_error(self, index, web):
-        registry_web(web, psf_status=500)
-        with pytest.raises(SourceError, match="psf-trademarks") as raised:
-            desk_leads.collect("psf-trademarks", dataset(), index, TODAY)
+    def test_failed_listing_is_an_error(self, index, web):
+        registry_web(web, listing_status=500)
+        with pytest.raises(SourceError, match="pycon.org") as raised:
+            desk_leads.collect("pycon-org", dataset(), index, TODAY)
         assert raised.value.records == []
 
 
@@ -1026,14 +962,19 @@ class TestCli:
 
     def test_url_needs_the_pretalx_source(self, tmp_path):
         with pytest.raises(SystemExit):
-            main(["registry", "--base", str(tmp_path), "--url", "https://pretalx.com/x/cfp"])
+            main(["pycon-org", "--base", str(tmp_path), "--url", "https://pretalx.com/x/cfp"])
 
-    def test_failed_registry_still_writes_the_other(self, tmp_path, web, capsys):
+    @pytest.mark.parametrize("source", ["registry", "psf-trademarks"])
+    def test_retired_sources_are_refused(self, tmp_path, source):
+        with pytest.raises(SystemExit):
+            main([source, "--base", str(tmp_path)])
+
+    def test_failed_source_exits_1(self, tmp_path, web, capsys):
         write_data(tmp_path)
-        registry_web(web, psf_status=500)
+        registry_web(web, listing_status=500)
         out = tmp_path / "records.jsonl"
-        assert main(["registry", "--base", str(tmp_path), "--out", str(out)]) == 1
-        assert [json.loads(line)["title"] for line in out.read_text(encoding="utf-8").splitlines()] == ["PyGotham"]
+        assert main(["pycon-org", "--base", str(tmp_path), "--out", str(out)]) == 1
+        assert "pycon.org" in capsys.readouterr().err
 
 
 class TestQueueRoundTrip:
@@ -1046,8 +987,7 @@ class TestQueueRoundTrip:
         data = dataset()
         index = TrackingIndex.from_data(data)
         records = []
-        # "registry" reads both registries, so their own sources would only repeat it
-        for source in ("pretalx", "developers-events", "registry"):
+        for source in ("pretalx", "developers-events", "pycon-org"):
             records.extend(desk_leads.collect(source, data, index, TODAY))
 
         for record in records:
@@ -1072,8 +1012,6 @@ class TestQueueRoundTrip:
             (("candidate",), "PyCon Greece", 2027): "new-year-checker",
             (("candidate",), "PyData Lagos", 2027): "scouter",
             (("candidate",), "Python Hellas Summit", 2027): "scouter",
-            (("registry",), "PyCon Nepal", None): "scouter",
-            (("registry",), "PyCon Venezuela", None): "scouter",
             (("registry",), "PyGotham", None): "scouter",
         }
 

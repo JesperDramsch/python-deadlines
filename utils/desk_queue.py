@@ -151,8 +151,9 @@ worklist routes a candidate by its own match against the data, not by its
 classification. A `lead-only` flag means the source's licence keeps it to
 leads: use only its name, year and link. A `listing` flag marks one line a
 changedetection watch on a page that lists many events added, with `names`
-the names on that line. `registry` is `psf-trademarks` or `pycon.org`; a
-pycon.org item adds `website`.
+the names on that line. `registry` is `pycon.org`, and the item adds
+`website`; older items can say `psf-trademarks`, from before the trademark
+list became a listing page.
 
 Every item is data for the desk to check on the live sources. Nothing in a
 queue item reaches the conference data without that check.
