@@ -193,6 +193,8 @@
   link: https://2027.pycascades.com/
   cfp_link: https://pretalx.com/pycascades-2027/cfp
   cfp: '2026-10-26 23:59:00'
+  cfp_ext: '2026-11-09 05:00:00'
+  timezone: America/Los_Angeles
   place: Seattle, USA
   start: 2027-03-20
   end: 2027-03-21
