@@ -6,9 +6,11 @@ name: Check Conference Update
 #
 # conference-change comes from a watch on one conference's pages and queues a
 # signal for that series. listing-change comes from a watch on a page that
-# lists many events (pydata.org/upcoming-events, barcamps.eu and the like) and
-# queues a registry item, which the worklist always gives the scouter: the
-# names and links the diff adds are the finds.
+# lists many events (pydata.org/upcoming-events, conference.scipy.org, the
+# PSF PyCon trademark list), filtered to one event per line. Each added line
+# is checked against the data in code (utils/desk_leads.py listing): a tracked
+# edition is dropped, and the rest are queued as candidates, which the
+# worklist routes to the new-year-checker or the scouter.
 
 on:
   # Triggered by changedetection.io webhook
@@ -101,16 +103,26 @@ jobs:
 
           name, year = clean_watch_title(title)
           name = " ".join(name.split())  # one line, for the step output
-          payload = {"diff": diff, "watch_uuid": watch_uuid, "trigger": trigger}
           if listing:
-              payload["registry"] = "listing"
+              # One event per added line: the next step checks each against
+              # the data. Files, not step outputs, carry the page's text.
+              temp = os.environ["RUNNER_TEMP"]
+              with open(f"{temp}/listing-lines.txt", "w", encoding="utf-8") as f:
+                  f.write(diff if diff.endswith("\n") or not diff else diff + "\n")
+              with open(f"{temp}/listing-url.txt", "w", encoding="utf-8") as f:
+                  f.write(" ".join(resolve_watch_url(url.strip()).split()))
+              with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+                  out.write(f"series={name}\nlisting=true\n")
+              print(f"Checking {len(diff.splitlines())} added line(s) from {name or title}")
+              sys.exit(0)
+          payload = {"diff": diff, "watch_uuid": watch_uuid, "trigger": trigger}
           if event_name == "workflow_dispatch":
               # The run id gives each manual request its own queue id, so
               # asking again with the same inputs is not taken as handled.
               payload["requested"] = os.environ["GITHUB_RUN_ID"]
           record = {
               "source": "changedetection",
-              "kind": "registry" if listing else "signal",
+              "kind": "signal",
               "title": title.strip(),
               # A watch that follows a series sends its URL with the year template in it
               "url": resolve_watch_url(url.strip()),
@@ -121,8 +133,23 @@ jobs:
               f.write(json.dumps(record, ensure_ascii=False) + "\n")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               out.write(f"series={name}\n")
-          print(f"Queueing a {trigger} {record['kind']} item for {name or title}")
+          print(f"Queueing a {trigger} signal for {name or title}")
           BUILD
+
+      - name: Setup Pixi
+        if: steps.record.outputs.listing == 'true'
+        uses: prefix-dev/setup-pixi@v0.11.2
+
+      # Each added line is one event. A line whose edition (or, without a
+      # year, whose series) the data tracks is dropped; the rest become
+      # candidates that the worklist routes like any other.
+      - name: Check the listing lines against the data
+        if: steps.record.outputs.listing == 'true'
+        run: |
+          pixi run python utils/desk_leads.py listing \
+            --lines "$RUNNER_TEMP/listing-lines.txt" \
+            --url "$(cat "$RUNNER_TEMP/listing-url.txt")" \
+            --out "$RUNNER_TEMP/desk-records.jsonl"
 
       - name: Write to the desk queue
         id: queue

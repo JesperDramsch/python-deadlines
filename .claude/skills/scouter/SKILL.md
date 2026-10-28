@@ -14,7 +14,7 @@ The desk hands you the daily `scout` item, or an item about a series no data fil
      - `lead-only`: an aggregator lead. Copy no value from it; take every value from a primary source.
      - `no-website`: the shared sheet has this edition but no website. Search for one.
      - `denylist-review: <domain>: <reason>`: the domain is on the denylist's `review` list. Copy the flag into the `flags` of the find's change set; the critic returns needs-maintainer.
-   - A `registry` item whose payload `registry` is `listing`: a watched page that lists many events changed. Each event name or link the payload's `diff` adds is a find, with the item's `url` as where it came from; fetch that page when the diff is cut short or names an event without a link. A listing page is a lead, never the evidence (step 4).
+     - `listing`: one line a watched page that lists many events added, such as "PyData Amsterdam". The item's `url` is that page and its payload `names` the names on the line. Find the event on the page or by search. A listing page is a lead, never the evidence (step 4).
    - A `maintainer-request` item: the series and URLs the comment names are the find, and the request settles its scope (step 2).
    - The `scout` item: search each of these, with `<year>` standing for this year and next (the year of the worklist's `today`, which the desk gives with the item).
      - Targeted web searches: "PyCon <year>", "PyData <year>", "Python conference call for proposals", "PyDay", "Python Pizza", framework and scientific library names with "conference", and the same in other languages ("conferencia Python", "Python Konferenz").

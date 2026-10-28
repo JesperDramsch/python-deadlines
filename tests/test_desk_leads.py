@@ -897,6 +897,73 @@ def pretalx_web(web):
     not_found(web, "pycongr27", *OTHER_PROBES)
 
 
+LISTING_URL = "https://pydata.org/upcoming-events/"
+LISTING_LINES = [
+    "(added) SciPy India 2026",
+    "SciPy India 2027",
+    "PyData Lagos 2027",
+    "",
+    "+ PyData Berlin",
+    "PyData Lagos 2027",
+    '"Kiwi PyCon", "PyCon NZ" in New Zealand',
+    "“PyCon NP”, “PyCon Nepal” in Nepal",
+    "Brand New Conference",
+]
+
+
+class TestListing:
+    def test_names_are_the_quoted_ones_or_the_line(self):
+        assert desk_leads.listing_names('"PyCon AT", "PyCon Austria" in Austria') == ["PyCon AT", "PyCon Austria"]
+        assert desk_leads.listing_names("“PyCon NP”, “PyCon Nepal” in Nepal") == ["PyCon NP", "PyCon Nepal"]
+        assert desk_leads.listing_names("  PyData Amsterdam ") == ["PyData Amsterdam"]
+
+    def test_drops_what_the_data_tracks_and_routes_the_rest(self, index):
+        records = desk_leads.listing_records(LISTING_LINES, LISTING_URL, index)
+        assert [(r["title"], r["year"], r["payload"]["classification"]) for r in records] == [
+            ("SciPy India 2027", 2027, "MISSING_EDITION"),
+            ("PyData Lagos 2027", 2027, "NEW_SERIES"),
+            ("“PyCon NP”, “PyCon Nepal” in Nepal", None, "NEW_SERIES"),
+            ("Brand New Conference", None, "NEW_SERIES"),
+        ]
+
+    def test_record_shape(self, index):
+        record = desk_leads.listing_records(["SciPy India 2027"], LISTING_URL, index)[0]
+        assert record["source"] == "changedetection"
+        assert record["kind"] == "candidate"
+        assert record["url"] == LISTING_URL
+        assert record["payload"]["flags"] == ["listing"]
+        assert record["payload"]["names"] == ["SciPy India 2027"]
+        assert record["payload"]["fields"] == {"conference": "SciPy India", "year": 2027}
+        assert record["payload"]["matched"]["conference"] == "SciPy India"
+        assert normalise_record(record, NOW)["kind"] == "candidate"
+
+    def test_cli_reads_lines_and_writes_records(self, tmp_path, capsys):
+        write_data(tmp_path)
+        lines = tmp_path / "lines.txt"
+        lines.write_text("\n".join(LISTING_LINES) + "\n", encoding="utf-8")
+        out = tmp_path / "records.jsonl"
+        args = ["listing", "--base", str(tmp_path), "--lines", str(lines), "--url", LISTING_URL, "--out", str(out)]
+        assert main(args) == 0
+        assert len(out.read_text(encoding="utf-8").splitlines()) == 4
+        assert "desk_leads: listing: 4 record(s)" in capsys.readouterr().err
+
+    def test_records_reach_their_skills(self, tmp_path, index):
+        data = dataset()
+        records = desk_leads.listing_records(LISTING_LINES, LISTING_URL, index)
+        assert {result.get("status") for result in add_items(tmp_path, records, NOW)} == {"added"}
+        worklist = build_worklist(data, load_queue(tmp_path), TODAY, scout=False)
+        skills = {item["conference"]: item["skill"] for item in worklist["items"] if item["queue_refs"]}
+        assert skills["SciPy India"] == "new-year-checker"
+        assert skills["PyData Lagos"] == "scouter"
+        assert set(skills.values()) <= {"new-year-checker", "scouter"}
+
+    def test_cli_listing_needs_lines_and_url(self, tmp_path):
+        with pytest.raises(SystemExit):
+            main(["listing", "--base", str(tmp_path), "--url", LISTING_URL])
+        with pytest.raises(SystemExit):
+            main(["pretalx", "--base", str(tmp_path), "--lines", str(tmp_path / "x")])
+
+
 class TestCli:
     def test_appends_json_lines_and_counts(self, tmp_path, web, sleeps, capsys):
         write_data(tmp_path)

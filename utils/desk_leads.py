@@ -15,6 +15,10 @@ every record on the primary source before anything changes.
 - ``registry``: PyCon names on the PSF trademark list, and events in the
   pycon.org registry, that the data does not track (kind ``registry``).
   ``psf-trademarks`` and ``pycon-org`` read one of the two each.
+- ``listing``: the lines a changedetection watch on a page that lists many
+  events saw added, one event per line (kind ``candidate``, flag ``listing``),
+  for the editions and series the data does not track. ``--lines`` names the
+  file, ``--url`` the page.
 
 A find is tracked when it is the same series as an entry in any of the three
 data files, by the rules in AGENTS.md "Names": its name (year and a trailing
@@ -1093,6 +1097,87 @@ def developers_events_records(events: Iterable[Any], index: TrackingIndex, today
     return records
 
 
+def listing_names(line: str) -> list[str]:
+    """Return the event names on one line of a watched listing page.
+
+    Parameters
+    ----------
+    line : str
+        One line, e.g. "PyData Amsterdam" or ``"PyCon AT", "PyCon Austria" in Austria``.
+
+    Returns
+    -------
+    list[str]
+        The quoted names when the line quotes any, else the whole line.
+    """
+    quoted = [name.strip() for name in re.findall(r"[\"“]([^\"“”]+)[\"”]", line) if name.strip()]
+    return quoted or [line.strip()]
+
+
+def listing_records(lines: Iterable[str], page_url: str, index: TrackingIndex) -> list[dict]:
+    """Turn the lines a watched listing page added into candidate records.
+
+    A changedetection watch on a page that lists many events keeps one event
+    per line, so each added line is one find. A line with a year is checked
+    edition by edition; a line without one (a series registry, or a list
+    that names no years) only says whether the series exists.
+
+    Parameters
+    ----------
+    lines : Iterable[str]
+        The added lines.
+    page_url : str
+        The watched page, which is where each find came from.
+    index : TrackingIndex
+        The data's series.
+
+    Returns
+    -------
+    list[dict]
+        One record per line whose series, or whose edition for the line's
+        year, the data does not track, in line order.
+    """
+    records = []
+    seen: set[str] = set()
+    for raw in lines:
+        # diff_added_clean has no markers; strip them anyway in case a body sends diff_added
+        line = re.sub(r"^(?:\(added\)|\+)\s*", "", " ".join(raw.split()))
+        if not line or line in seen:
+            continue
+        seen.add(line)
+        names = listing_names(line)
+        match = NAME_YEAR.search(line)
+        year = int(match[0]) if match else None
+        if year is None:
+            if any(index.is_tracked_name(name) for name in names):
+                continue
+            found = {"classification": "NEW_SERIES", "matched": None}
+        else:
+            results = [index.classify(name, year, None) for name in names]
+            if any(result is None for result in results):
+                continue
+            found = next((r for r in results if r["classification"] != "NEW_SERIES"), results[0])
+        records.append(
+            {
+                "source": "changedetection",
+                "kind": "candidate",
+                "title": line[:200],
+                "url": page_url,
+                "year": year,
+                "payload": {
+                    "classification": found["classification"],
+                    "fields": {"conference": clean_name(names[0]), "year": year},
+                    "source_id": f"{page_url}#{line}",
+                    "evidence_url": page_url,
+                    "matched": found["matched"],
+                    "flags": ["listing"],
+                    "names": names,
+                },
+            },
+        )
+    return records
+
+
 def developers_events_leads(index: TrackingIndex, today: date) -> list[dict]:
     """Fetch developers.events and return its candidate records.
 
@@ -1419,7 +1504,8 @@ def main(argv: list[str] | None = None) -> int:
         before the failure are still written.
     """
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("source", choices=SOURCES)
+    # listing reads the lines a watch saw added, not a source of its own, so collect() leaves it out
+    parser.add_argument("source", choices=(*SOURCES, "listing"))
     parser.add_argument("--base", type=Path, default=Path(), help="Repository root (default: current directory)")
     parser.add_argument(
         "--today",
@@ -1429,14 +1515,32 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, help="File to append the records to (default: stdout)")
     parser.add_argument(
         "--url",
-        help="pretalx only: check just the entries on this CfP page, which may carry a watch's year template",
+        help=(
+            "pretalx: check just the entries on this CfP page, which may carry a watch's year template; "
+            "listing: the watched page the lines came from"
+        ),
     )
+    parser.add_argument("--lines", type=Path, help="listing only: file with the lines the watched page added")
     args = parser.parse_args(argv)
+
+    if args.source == "listing":
+        if args.lines is None or args.url is None:
+            parser.error("the listing source needs --lines and --url")
+        try:
+            lines = args.lines.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError) as error:
+            parser.error(f"cannot read {args.lines}: {error}")
+        records = listing_records(lines, args.url, TrackingIndex.from_data(load_data(args.base)))
+        write_records(records, args.out)
+        print(f"desk_leads: listing: {len(records)} record(s)", file=sys.stderr)
+        return 0
+    if args.lines is not None:
+        parser.error("--lines works with the listing source only")
 
     slug = None
     if args.url is not None:
         if args.source != "pretalx":
-            parser.error("--url works with the pretalx source only")
+            parser.error("--url works with the pretalx and listing sources only")
         slug = pretalx_slug(resolve_watch_url(args.url))
         if slug is None:
             print(f"desk_leads: pretalx: {args.url} is not a pretalx.com event page, nothing to check", file=sys.stderr)

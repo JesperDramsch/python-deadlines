@@ -43,8 +43,15 @@ def dispatch(tmp_path, monkeypatch):
         monkeypatch.setenv("RECORDS", str(records))
         monkeypatch.setenv("GITHUB_OUTPUT", str(output))
         monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
-        runpy.run_path(str(script), run_name="__main__")
-        return json.loads(records.read_text(encoding="utf-8")), output.read_text(encoding="utf-8")
+        monkeypatch.setenv("RUNNER_TEMP", str(tmp_path))
+        code = 0
+        try:
+            runpy.run_path(str(script), run_name="__main__")
+        except SystemExit as exit_:
+            code = exit_.code or 0
+        assert code == 0
+        record = json.loads(records.read_text(encoding="utf-8")) if records.exists() else None
+        return record, output.read_text(encoding="utf-8")
 
     return run
 
@@ -67,27 +74,28 @@ class TestDispatch:
         assert "registry" not in record["payload"]
         assert "series=PyCon Ireland" in output
 
-    def test_listing_change_queues_a_registry_item(self, dispatch):
+    def test_listing_change_hands_its_lines_to_the_data_check(self, dispatch, tmp_path):
         listing = {
             "url": "https://pydata.org/upcoming-events/",
             "title": "PyData Upcoming",
             "watch_uuid": "abc",
-            "diff": "+ PyData Lagos 2027",
+            "diff": "PyData Lagos 2027\nPyData Amsterdam",
         }
-        record, _ = dispatch("listing-change", listing)
-        assert record["source"] == "changedetection"
-        assert record["kind"] == "registry"
-        assert record["payload"] == {
-            "diff": "+ PyData Lagos 2027",
-            "watch_uuid": "abc",
-            "trigger": "website_change",
-            "registry": "listing",
-        }
+        record, output = dispatch("listing-change", listing)
+        assert record is None  # the next step writes the records, one per line it keeps
+        assert "listing=true" in output.splitlines()
+        assert (tmp_path / "listing-lines.txt").read_text(encoding="utf-8") == "PyData Lagos 2027\nPyData Amsterdam\n"
+        assert (tmp_path / "listing-url.txt").read_text(encoding="utf-8") == "https://pydata.org/upcoming-events/"
 
-    @pytest.mark.parametrize("action", ["conference-change", "listing-change"])
-    def test_the_queue_accepts_both(self, dispatch, action):
-        record, _ = dispatch(action, PAYLOAD)
-        assert normalise_record(record)["kind"] == record["kind"]
+    def test_a_signal_is_a_valid_queue_record(self, dispatch):
+        record, output = dispatch("conference-change", PAYLOAD)
+        assert normalise_record(record)["kind"] == "signal"
+        assert "listing=true" not in output
+
+    def test_the_listing_steps_run_only_for_a_listing(self):
+        steps = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))["jobs"]["queue"]["steps"]
+        guarded = [step["name"] for step in steps if step.get("if") == "steps.record.outputs.listing == 'true'"]
+        assert guarded == ["Setup Pixi", "Check the listing lines against the data"]
 
     def test_both_dispatch_types_trigger_the_workflow(self):
         # PyYAML reads the bare key `on` as True
