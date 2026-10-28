@@ -14,11 +14,7 @@ on:
   workflow_dispatch:
     inputs:
       skip_archive:
-        description: 'Skip Web Archive (only add to changedetection)'
-        type: boolean
-        default: false
-      skip_changedetection:
-        description: 'Skip changedetection.io (only archive)'
+        description: 'Skip the Web Archive (only report the new URLs)'
         type: boolean
         default: false
 

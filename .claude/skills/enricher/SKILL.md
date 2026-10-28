@@ -14,7 +14,7 @@ The desk hands you one worklist item about an edition the data holds in any of t
 2. **Fetch** `link`, `cfp_link`, the CfP platform page, every URL in the queue items, and the pages the site links for sponsors, financial aid and its Code of Conduct.
    Done when: every URL has an outcome: fetched, redirected (to where) or failed (how).
 3. **Check every field** against what the sources state:
-   - `cfp` and `cfp_ext`: look for an extension, a second extension included (it replaces `cfp_ext`). A CfP that stays open past its deadline without a stated new date gives no value.
+   - `cfp` and `cfp_ext`: look for an extension, a second extension included (it replaces `cfp_ext`). A CfP that stays open past its deadline without a stated new date gives no value. When the site and the CfP platform state different deadlines or zones, settle it by AGENTS.md "Deadline conflicts" rather than returning `needs-maintainer`.
    - `start`, `end` and `place`, and whether the edition is cancelled (`cfp: Cancelled`).
    - `cfp_link`, `sponsor`, `finaid` and `coc`: each lands on the page it names.
    - `twitter`, `mastodon`, `bluesky` and `youtube`: the conference's own accounts, as its site links them.
@@ -28,7 +28,7 @@ The desk hands you one worklist item about an edition the data holds in any of t
    - `signal`: the payload `diff` shows what changed on a watched page; account for every change in it.
    - `question`: the canonical import asks whether `yaml_value` or `remote_value` is right for `field`. The live site decides: a change when the remote value is right, otherwise `no-change` with the quote that supports the data. `default_answer` is the importer's guess, not evidence.
      - When `field` is `conference`, the question is instead whether the two names are one series, and the import has already written the remote row as its own entry under `remote_value`. When the sources show one series, return `needs-maintainer` naming that entry (`remote_value`, `year`) and the `titles.yml` variation to add (`remote_value` under the `yaml_value` key); otherwise `no-change`.
-   - `drift`: `diffs` maps each field to its value in the data (`data`) and the value the pretalx CfP page at the queue item's `url` enforces (`source`). For `cfp`, `data` is `TBA` or the effective deadline, marked `(cfp_ext)` when it is the extension. pretalx is the platform that enforces the deadline, so under AGENTS.md precedence a later pretalx date wins over the homepage; flag `sources-disagree` when the conference's own prose states another deadline. For `cfp`:
+   - `drift`: `diffs` maps each field to its value in the data (`data`) and the value the pretalx CfP page at the queue item's `url` enforces (`source`). For `cfp`, `data` is `TBA` or the effective deadline, marked `(cfp_ext)` when it is the extension. pretalx is the platform that enforces the deadline, so when it is anchored a later pretalx date wins over the homepage (AGENTS.md "Deadline conflicts", which also covers its zone and converting `cfp`); flag `sources-disagree` when the conference's own prose states another deadline. An unanchored pretalx page is a lead. For `cfp`:
      - `data` is `TBA`: the pretalx deadline is `cfp`.
      - pretalx is later than `data`: its deadline goes in `cfp_ext`.
      - pretalx is earlier: it corrects `cfp` only when a source states it as the original deadline. Otherwise leave `cfp` as it is and flag `sources-disagree`.

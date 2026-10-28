@@ -14,6 +14,7 @@ every record on the primary source before anything changes.
   data does not track (kind ``candidate``).
 - ``registry``: PyCon names on the PSF trademark list, and events in the
   pycon.org registry, that the data does not track (kind ``registry``).
+  ``psf-trademarks`` and ``pycon-org`` read one of the two each.
 
 A find is tracked when it is the same series as an entry in any of the three
 data files, by the rules in AGENTS.md "Names": its name (year and a trailing
@@ -57,6 +58,7 @@ try:
     from cfp_candidates import entry_keys
     from cfp_candidates import load_data
     from cfp_candidates import series_key
+    from desk_queue import resolve_watch_url
     from desk_worklist import effective_deadline
     from sort_yaml import DATEFORMAT
     from tidy_conf.yaml import load_title_mappings
@@ -64,11 +66,14 @@ except ImportError:
     from .cfp_candidates import entry_keys
     from .cfp_candidates import load_data
     from .cfp_candidates import series_key
+    from .desk_queue import resolve_watch_url
     from .desk_worklist import effective_deadline
     from .sort_yaml import DATEFORMAT
     from .tidy_conf.yaml import load_title_mappings
 
-SOURCES = ("pretalx", "developers-events", "registry")
+SOURCES = ("pretalx", "developers-events", "registry", "psf-trademarks", "pycon-org")
+# The two registries "registry" reads together; each also runs on its own
+REGISTRIES = ("psf-trademarks", "pycon-org")
 DATA_FILES = ("conferences", "archive", "legacy")
 USER_AGENT = "pythondeadlin.es desk leads (+https://pythondeadlin.es)"
 TIMEOUT = 20
@@ -940,8 +945,13 @@ def pretalx_probe(index: TrackingIndex, today: date, pages: PageFetcher) -> list
     return records
 
 
-def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date) -> list[dict]:
-    """Run both pretalx checks.
+def pretalx_leads(
+    data: dict[str, list[dict]],
+    index: TrackingIndex,
+    today: date,
+    slug: str | None = None,
+) -> list[dict]:
+    """Run both pretalx checks, or the deadline check for one CfP page.
 
     Parameters
     ----------
@@ -951,6 +961,10 @@ def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date
         The data's series.
     today : date
         The date the run is for.
+    slug : str | None, optional
+        A pretalx event slug. When given, only the upcoming entries on that
+        event's CfP page get the deadline check, and no next edition is
+        probed: a changedetection watch saw that one page change.
 
     Returns
     -------
@@ -963,8 +977,12 @@ def pretalx_leads(data: dict[str, list[dict]], index: TrackingIndex, today: date
         When pages were fetched and every one failed.
     """
     pages = PageFetcher()
-    records = pretalx_drift(data.get("conferences") or [], today, pages)
-    records.extend(pretalx_probe(index, today, pages))
+    conferences = data.get("conferences") or []
+    if slug is not None:
+        conferences = [entry for entry in conferences if (entry_slug(entry) or "").lower() == slug.lower()]
+    records = pretalx_drift(conferences, today, pages)
+    if slug is None:
+        records.extend(pretalx_probe(index, today, pages))
     if pages.all_failed():
         raise SourceError(f"every one of {pages.attempts} page fetches failed", records)
     return records
@@ -1258,13 +1276,15 @@ def pycon_org_record(meta: dict, raw_url: str, index: TrackingIndex) -> dict | N
     }
 
 
-def registry_leads(index: TrackingIndex) -> list[dict]:
-    """Read the PSF trademark list and the pycon.org registry.
+def registry_leads(index: TrackingIndex, parts: Iterable[str] = REGISTRIES) -> list[dict]:
+    """Read the PSF trademark list, the pycon.org registry, or both.
 
     Parameters
     ----------
     index : TrackingIndex
         The data's series.
+    parts : Iterable[str], optional
+        Which registries to read, of REGISTRIES; by default both.
 
     Returns
     -------
@@ -1274,24 +1294,27 @@ def registry_leads(index: TrackingIndex) -> list[dict]:
     Raises
     ------
     SourceError
-        When either registry cannot be read, carrying the other's records.
+        When a registry cannot be read, carrying the other's records.
     """
+    parts = set(parts)
     records: list[dict] = []
     errors = []
-    try:
-        page = fetch_json(PSF_TRADEMARKS_API)
-        content = page.get("content") if isinstance(page, dict) else None
-        if not isinstance(content, str):
-            raise ValueError("no content in the page JSON")
-        records.extend(psf_records(trademark_items(content), index))
-    except (SourceError, ValueError) as error:
-        errors.append(f"psf-trademarks: {error}")
+    if "psf-trademarks" in parts:
+        try:
+            page = fetch_json(PSF_TRADEMARKS_API)
+            content = page.get("content") if isinstance(page, dict) else None
+            if not isinstance(content, str):
+                raise ValueError("no content in the page JSON")
+            records.extend(psf_records(trademark_items(content), index))
+        except (SourceError, ValueError) as error:
+            errors.append(f"psf-trademarks: {error}")
 
-    try:
-        paths = registry_paths(fetch_json(PYCON_ORG_FILES))
-    except (SourceError, ValueError) as error:
-        errors.append(f"pycon.org: {error}")
-        paths = []
+    paths = []
+    if "pycon-org" in parts:
+        try:
+            paths = registry_paths(fetch_json(PYCON_ORG_FILES))
+        except (SourceError, ValueError) as error:
+            errors.append(f"pycon.org: {error}")
     for path in paths:
         raw_url = f"{PYCON_ORG_RAW}{path}"
         try:
@@ -1343,6 +1366,8 @@ def collect(source: str, data: dict[str, list[dict]], index: TrackingIndex, toda
         records = developers_events_leads(index, today)
     elif source == "registry":
         records = registry_leads(index)
+    elif source in REGISTRIES:
+        records = registry_leads(index, (source,))
     else:
         raise ValueError(f"unknown source {source!r}")
     return _unique(records)
@@ -1402,14 +1427,27 @@ def main(argv: list[str] | None = None) -> int:
         help="Date to run for, YYYY-MM-DD (default: today in UTC)",
     )
     parser.add_argument("--out", type=Path, help="File to append the records to (default: stdout)")
+    parser.add_argument(
+        "--url",
+        help="pretalx only: check just the entries on this CfP page, which may carry a watch's year template",
+    )
     args = parser.parse_args(argv)
+
+    slug = None
+    if args.url is not None:
+        if args.source != "pretalx":
+            parser.error("--url works with the pretalx source only")
+        slug = pretalx_slug(resolve_watch_url(args.url))
+        if slug is None:
+            print(f"desk_leads: pretalx: {args.url} is not a pretalx.com event page, nothing to check", file=sys.stderr)
+            return 0
 
     today = args.today or datetime.now(tz=timezone.utc).date()
     data = load_data(args.base)
     index = TrackingIndex.from_data(data)
     status = 0
     try:
-        records = collect(args.source, data, index, today)
+        records = pretalx_leads(data, index, today, slug) if slug else collect(args.source, data, index, today)
     except SourceError as error:
         report(f"{args.source}: {error}")
         records, status = _unique(error.records), 1

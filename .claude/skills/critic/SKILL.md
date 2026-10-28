@@ -19,6 +19,7 @@ For each entry in `changes`, check:
 - A change to an existing entry's `conference`, or one that replaces or clears its `alt_name`, fails (AGENTS.md "Names").
 - A replaced value: `old` is what the data holds, and the source shows it wrong for its own edition, not only for another one (AGENTS.md "Complete data").
 - A set that moves an entry to another year loses no value: every field the entry held is in the moved entry or stays on the edition it belongs to.
+- A change that carries `anchor` (AGENTS.md "Deadline conflicts"): the field is `cfp`, `cfp_ext` or `timezone`; the anchor holds, meaning the platform page is the edition's `cfp_link` as the data holds it now (not one this set changes), or you fetched the anchor page on the conference's `link` host and it links to the platform page with `anchor_quote`; and a `timezone` from a Sessionize offset is a zone of the event's location with that offset on the deadline date. A converted `cfp` names both zones in `reason`; the desk computes its value, so check the zones, not the arithmetic. An anchor that does not hold fails the change.
 
 For each entry in `titles`, check:
 
@@ -54,7 +55,7 @@ A change set flagged `denylist-review` gets `needs-maintainer`, whatever its che
 
 - `accept`: the changes pass and, for a new series, no signal against was found and at least one signal for was. A failing change or variation goes in `drop` with its reason and the rest stand, as long as a new entry keeps every field `utils/tidy_conf/schema.py` requires.
 - `reject`: the domain is on the denylist's `reject` list; the find shows pay-to-present fees, paid publication or no Python content; or nothing usable passes. Give the reason.
-- `needs-maintainer`: everything in between, such as a page that did not render, the denylist's `review` list, mixed signals, or sources that disagree beyond the precedence rule in AGENTS.md.
+- `needs-maintainer`: everything in between, such as a page that did not render, the denylist's `review` list, mixed signals, or sources that disagree beyond the precedence rule in AGENTS.md. A deadline conflict an anchored platform settles (AGENTS.md "Deadline conflicts") is not one of these: when its checks pass, accept it and keep the `sources-disagree` flag for the PR.
 
 Return:
 

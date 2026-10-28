@@ -3,11 +3,17 @@ name: Check Conference Update
 # A changedetection.io watch saw a conference page change. The change goes to
 # the desk queue as it is: the desk checks it against the data and the live
 # site on its next run, so nothing is filtered or edited here.
+#
+# conference-change comes from a watch on one conference's pages and queues a
+# signal for that series. listing-change comes from a watch on a page that
+# lists many events (pydata.org/upcoming-events, barcamps.eu and the like) and
+# queues a registry item, which the worklist always gives the scouter: the
+# names and links the diff adds are the finds.
 
 on:
   # Triggered by changedetection.io webhook
   repository_dispatch:
-    types: [conference-change]
+    types: [conference-change, listing-change]
 
   # Manual trigger for testing
   workflow_dispatch:
@@ -52,17 +58,20 @@ jobs:
 
           sys.path.insert(0, "utils")
           from desk_queue import clean_watch_title
+          from desk_queue import resolve_watch_url
 
           event_name = os.environ["GITHUB_EVENT_NAME"]
           with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as f:
               event = json.load(f)
 
+          listing = False
           if event_name == "repository_dispatch":
               payload = event.get("client_payload") or {}
               url, title = payload.get("url"), payload.get("title")
               diff = payload.get("diff")
               watch_uuid = payload.get("watch_uuid") or None
               trigger = "website_change"
+              listing = event.get("action") == "listing-change"
           else:
               inputs = event.get("inputs") or {}
               url, title = inputs.get("url"), inputs.get("conference_name")
@@ -93,15 +102,18 @@ jobs:
           name, year = clean_watch_title(title)
           name = " ".join(name.split())  # one line, for the step output
           payload = {"diff": diff, "watch_uuid": watch_uuid, "trigger": trigger}
+          if listing:
+              payload["registry"] = "listing"
           if event_name == "workflow_dispatch":
               # The run id gives each manual request its own queue id, so
               # asking again with the same inputs is not taken as handled.
               payload["requested"] = os.environ["GITHUB_RUN_ID"]
           record = {
               "source": "changedetection",
-              "kind": "signal",
+              "kind": "registry" if listing else "signal",
               "title": title.strip(),
-              "url": url.strip(),
+              # A watch that follows a series sends its URL with the year template in it
+              "url": resolve_watch_url(url.strip()),
               "year": year,
               "payload": payload,
           }
@@ -109,7 +121,7 @@ jobs:
               f.write(json.dumps(record, ensure_ascii=False) + "\n")
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               out.write(f"series={name}\n")
-          print(f"Queueing a {trigger} signal for {name or title}")
+          print(f"Queueing a {trigger} {record['kind']} item for {name or title}")
           BUILD
 
       - name: Write to the desk queue

@@ -1,6 +1,6 @@
 # Desk run
 
-The desk is the daily Routine that keeps the conference data complete and current; its saved prompt says only to read and follow this file. Read [AGENTS.md](../../AGENTS.md) first: its listing policy and its name, field and evidence rules apply to every step. Then work through the steps in order. Each ends with a completion criterion: check it before moving on.
+The desk is the scheduled Routine that keeps the conference data complete and current; its saved prompt says only to read and follow this file. Read [AGENTS.md](../../AGENTS.md) first: its listing policy and its name, field and evidence rules apply to every step. Then work through the steps in order. Each ends with a completion criterion: check it before moving on.
 
 ## Ground rules
 
@@ -53,7 +53,7 @@ Done when: the file parses as JSON, you have its item count, it holds exactly on
 
 ### 5. Read maintainer feedback
 
-Skip this step when no rolling PR is open ("Rolling PR"). Otherwise note `date -u +%Y-%m-%dT%H:%M:%SZ` as this run's cut-off (step 7 decides whether it is recorded), and take the previous cut-off from the "Feedback read to" line of the previous run's section in the PR body. List what was posted after the previous cut-off (everything, when there is none), every page of it:
+Skip this step when no rolling PR is open ("Rolling PR"). Otherwise note `date -u +%Y-%m-%dT%H:%M:%SZ` as this run's cut-off (step 7 decides whether it is recorded), and take the previous cut-off from the "Feedback read to" line that `python utils/desk_pr_body.py --pr <n> get HEAD:desk` prints. When it prints none, take it from the first "Feedback read to" line of `get LEGACY` (a body from before the current layout). List what was posted after the previous cut-off (everything, when there is none), every page of it:
 
 - issue comments: `gh api --paginate "repos/REPO/issues/<n>/comments?per_page=100&since=<previous cut-off>"`;
 - review comments: `gh api --paginate "repos/REPO/pulls/<n>/comments?per_page=100&since=<previous cut-off>"`;
@@ -84,7 +84,7 @@ Take the items in worklist order. Several subagents may research at once, for di
 2. **Critic.** Send every change set with result `change`, `new-edition` or `new-series`, and every scouter `lead`, to a fresh `desk-research` subagent (the Agent tool with `subagent_type: desk-research`) with "Read AGENTS.md and .claude/skills/critic/SKILL.md, then review this change set" and the set. When each critic returns, run the tamper check again. Done when each has a verdict and every tamper check found nothing.
 3. **Apply.** Subagents still researching can write to the working tree while you apply this conference, so check the tree before and after your edits.
    1. Before you edit, run the tamper check, then `git status --porcelain --untracked-files=normal`, which must print nothing: the tree holds none of this conference's edits yet, so anything it prints is a stray write.
-   2. For each accepted set (without the fields and variations the critic dropped), edit the data, add its `titles` variations and run the sort (AGENTS.md, "Data mechanics"). Leave out any change to an existing entry's `conference` or `alt_name`, accepted or not: like a variation that would rename an entry, it waits on the maintainer. Note "rename deferred: <conference> <year>: <field> <old> to <new>" for the item's ledger row.
+   2. For each accepted set (without the fields and variations the critic dropped), edit the data, add its `titles` variations and run the sort (AGENTS.md, "Data mechanics"). A `cfp` the set re-expresses in a new zone (AGENTS.md "Deadline conflicts") takes the value `python utils/convert_deadline.py "<old cfp>" --from <old zone, or AoE> --to <new zone>` prints, not the one the set gives; put that command and its output in the commit body. Leave out any change to an existing entry's `conference` or `alt_name`, accepted or not: like a variation that would rename an entry, it waits on the maintainer. Note "rename deferred: <conference> <year>: <field> <old> to <new>" for the item's ledger row.
    3. Before you stage and commit, run the tamper check again and then the stray-write check: compare `git status --porcelain --untracked-files=normal` and `git diff HEAD` with the edits you made for this conference. Only the three data files and `utils/tidy_conf/data/titles.yml` may change. The data files change only in the entries and fields of this conference's accepted sets, with the values those sets give, apart from the sort's own work: inside this conference's entries, the fields it drops or tidies and the `sub` and `location` it adds; elsewhere, entries it moves between the three files or reorders without changing them. `titles.yml` gains only the lines that add this conference's accepted variations: one line per variation, plus the key line when the key is new and the `variations:` line when the key has no list yet. Anything else is a stray write, with one exception. When this conference adds variations and the sort set a `conference` or `alt_name` no accepted set gives, a variation may have renamed an existing entry, and a variation must rename nothing. Restore the three data files and `titles.yml` with `git checkout HEAD -- _data/conferences.yml _data/archive.yml _data/legacy.yml utils/tidy_conf/data/titles.yml`, apply the accepted sets again without their variations, run the sort and check again. When the renames are gone, the variations caused them: leave them out of this commit and note "variations deferred: <variations>, would rename <conference> <year>, ..." for the item's ledger row, since folding those entries into the series is the maintainer's call. When the renames come back, they are a stray write.
    4. Restore a stray write with `git checkout HEAD -- <path>` for a tracked file and `git clean -fd -- <path>` for an untracked one, and note "stray write: <paths>" for this item's ledger row and the final report (step 9). When a stray write after your edits was in one of the three data files or `titles.yml`, restore all four with `git checkout HEAD -- _data/conferences.yml _data/archive.yml _data/legacy.yml utils/tidy_conf/data/titles.yml`, apply your edits again, run the sort and check again; a change that comes back is a stray write still being made. Repeat a check that found a stray write up to five times; when it still finds one, stop and report.
    5. Commit the three data files and `titles.yml`: one commit per conference, covering every edition of that series the item touched and the variations it adds. Subject: `<conference> <year>: <fields changed>`, with `titles` among the fields when it adds variations, or `Add <conference> <year>` for a new entry. Body: per field the old and new value, the URL and the quote, per variation the key, the variation, the URL and the quote, then the critic's flags. Note the commit `git rev-parse HEAD` prints.
@@ -92,7 +92,7 @@ Take the items in worklist order. Several subagents may research at once, for di
 
    Done when the last stray-write check found no stray write, `git show HEAD` holds only this conference's accepted edits and the sort's own work, `git status --short` prints nothing and `git show --stat HEAD` lists only `_data/` files and, when the commit adds variations, `utils/tidy_conf/data/titles.yml`.
 4. **Push.** Follow "Pushing". Done when `git rev-parse HEAD` equals `git rev-parse origin/auto/conference-updates`.
-5. **Ledger.** Add the item's rows ("Ledger") to your scratch ledger and, once a PR can exist (step 7), to the PR body, opening the PR if none is open ("Rolling PR"). This run's section keeps the previous run's "Feedback read to" value. Done when the rows are in the PR body, or in the scratch ledger while no PR can exist.
+5. **Ledger.** Add the item's lines ("Ledger") to your scratch ledger and, once a PR can exist (step 7), write them to the PR body's blocks, opening the PR if none is open ("Rolling PR"). Until step 7, `HEAD:desk` keeps the previous run's "Feedback read to" value. Done when the lines are in the PR body, or in the scratch ledger while no PR can exist.
 
 Done when: every worklist item has its ledger rows.
 
@@ -102,10 +102,10 @@ Start with the tamper check ("Tamper check"), whose first part also covers the g
 
 A PR can exist once `git rev-list --count origin/main..origin/auto/conference-updates` prints more than 0.
 
-- It can: open or update the rolling PR with this run's final counts and rows ("Rolling PR"). Its "Feedback read to" line takes this run's step 5 cut-off once every `maintainer-request` item has settled: its ledger row is `actioned`, `dismissed`, or `deferred` for any reason but a failed subagent. While any request has no row (not reached) or one deferred for a failed subagent, the line keeps the previous run's value, so the next run reads those requests again.
-- It cannot: this run's section, header line included, is the new `ledger/pending.md`, placed above any text already there. Without a `desk-queue` branch (step 3) there is nowhere to keep it: it stays in the final report (step 9), and the writers create the branch on their next run.
+- It can: open or update the rolling PR with this run's final counts and lines ("Rolling PR"). The "Feedback read to" line in `HEAD:desk` takes this run's step 5 cut-off once every `maintainer-request` item has settled: its ledger outcome is `actioned`, `dismissed`, or `deferred` for any reason but a failed subagent. While any request has no outcome (not reached) or one deferred for a failed subagent, the line keeps the previous run's value, so the next run reads those requests again.
+- It cannot: this run's ledger is the new `ledger/pending.md`, placed above any text already there, with one `### HEAD`, `### NEEDS` and `### MORE` heading per block it fills (nothing is committed while no PR can exist). Without a `desk-queue` branch (step 3) there is nowhere to keep it: it stays in the final report (step 9), and the writers create the branch on their next run.
 
-Done when: the tamper check found nothing; `gh api repos/REPO/pulls/<n> --jq .body` starts with this run's "Desk last ran" line and its "Feedback read to" line follows the rule above, or the new `ledger/pending.md` text is ready, or the section is set aside for the report; and, with a `desk-queue` branch, `git -C QUEUE rev-parse HEAD` prints the step 3 commit and `git -C QUEUE status --porcelain` prints nothing.
+Done when: the tamper check found nothing; `python utils/desk_pr_body.py --pr <n> get HEAD:desk` starts with this run's "Desk last ran" line and its "Feedback read to" line follows the rule above, or the new `ledger/pending.md` text is ready, or the ledger is set aside for the report; and, with a `desk-queue` branch, `git -C QUEUE rev-parse HEAD` prints the step 3 commit and `git -C QUEUE status --porcelain` prints nothing.
 
 ### 8. Clean the queue
 
@@ -153,49 +153,24 @@ When a part prints anything else, stop the run there, with nothing more committe
 ### Rolling PR
 
 - Find it: `gh api "repos/REPO/pulls?head=JesperDramsch:auto/conference-updates&state=open" --jq '.[0].number // empty'` prints nothing when none is open.
-- Open it as a draft: `gh api repos/REPO/pulls -f title="🐍 Conference updates" -f head=auto/conference-updates -f base=main -F draft=true -F body=@<file>`, then add the labels the other writers use: `gh api repos/REPO/issues/<n>/labels -f "labels[]=automated" -f "labels[]=conference-update"`.
-- Update it: write the desk's part alone to `<file>` and run `python utils/desk_pr_body.py --pr <n> --desk <file>`. It reads the body and writes it back in one command, since GitHub Actions jobs add to it too; `--print` shows the result without writing.
+- Open it as a draft: `python utils/desk_pr_body.py skeleton > <file>`, then `gh api repos/REPO/pulls -f title="🐍 Conference updates" -f head=auto/conference-updates -f base=main -F draft=true -F body=@<file>`, then add the labels the other writers use: `gh api repos/REPO/issues/<n>/labels -f "labels[]=automated" -f "labels[]=conference-update"`.
+- Update it one block at a time: write the block's content to `<file>` and run `python utils/desk_pr_body.py --pr <n> set <block> <file>`. It reads the body, replaces that block, renders the body again and writes it back in one command, since the GitHub Actions writers add to it too; `--print` shows the result without writing, and `get <block>` prints a block. It refuses content with a marker line and a body over GitHub's 65,536 characters.
 
-The body is the desk's part, a `<!-- DESK_END -->` line, then the writers' part:
+The body says first what needs the maintainer, then what was committed; the evidence lives in the commit bodies (step 6.3), which each Committed line links. The desk writes four blocks; `NEEDS:enrich`, `NEEDS:canonical`, `COMMITTED:enrich` and `COMMITTED:canonical` belong to the Actions writers, and the desk never writes them.
 
-```markdown
-Desk last ran: <YYYY-MM-DD HH:MM UTC>, model <model id>, <N> checked, <M> changed
+- `HEAD:desk`: `Desk last ran: <YYYY-MM-DD HH:MM UTC>, model <model id>, <N> checked, <M> committed, <K> need you`, a blank line, then `Feedback read to: <cut-off, YYYY-MM-DDTHH:MM:SSZ>`. N counts the worklist items processed this run, M the conferences committed, K the open lines of `NEEDS:desk`. "Feedback read to" carries the previous run's value until step 7 settles it; leave the line out while it has no value.
+- `NEEDS:desk`: one `- [ ] **<conference> <year>**: <what the maintainer must decide>, <deciding URL>` line per open decision. Start from the block as `get NEEDS:desk` prints it: keep its unticked lines that are still open, drop its ticked (`- [x]`) lines and the lines this run settled, then add this run's.
+- `COMMITTED:desk`: one `- <YYYY-MM-DD> · [<short hash>](https://github.com/REPO/commit/<hash>): <commit subject>` line per conference commit, then ` · <flags>` when the critic or the ledger flagged anything, such as `no-coc` or `sources-disagree`. Add each run's lines below the block's current content: the block covers every desk commit in this PR.
+- `MORE:desk`: `<details><summary>This run: <D> dismissed, <L> deferred</summary>` with a table `| Item | Source | Outcome | Detail |` of this run's ledger lines that are not in `NEEDS:desk` or `COMMITTED:desk`, then `<details><summary>Earlier runs</summary>` with the previous runs' "Desk last ran" lines and tables, newest first. On this run's first update, move the previous run's table, and the `ledger/pending.md` text from step 3, into "Earlier runs". When `set` refuses a body over the limit, drop the oldest runs and try again.
 
-Feedback read to: <cut-off, YYYY-MM-DDTHH:MM:SSZ>
-
-### Evidence
-
-| Conference | Field | Old | New | Quote | URL |
-| --- | --- | --- | --- | --- | --- |
-
-### Candidates
-
-| Item | Source | Outcome | Detail |
-| --- | --- | --- | --- |
-
-<details><summary>Earlier desk runs</summary>
-
-(earlier runs' sections, newest first)
-
-</details>
-<!-- DESK_END -->
-## 🐍 Automated Conference Updates
-
-| Conference | Commit | Date |
-|------------|--------|------|
-<!-- END_UPDATES -->
-```
-
-- N counts the worklist items processed this run, M the conferences committed. "Feedback read to" carries the previous run's value until step 7 settles it; leave the line out while it has no value. Evidence has one row per changed field and one per added variation (Field `titles`, Old empty, New the variation), grouped by conference; escape `|` inside cells as `\|`.
-- On this run's first update, move the previous run's section, and the `ledger/pending.md` text from step 3, into `<details>`. When the body nears GitHub's 65,536-character limit, drop the oldest runs.
-- Everything from `<!-- DESK_END -->` on belongs to the GitHub Actions writers, who add rows before `<!-- END_UPDATES -->`: `desk_pr_body.py` keeps it byte for byte, and keeps a body without the marker (a writer opened the PR) whole below the desk's part and the marker. A PR the desk opens ends with the writers' empty table shown above.
+A body from before this layout ends up whole in the folded `LEGACY` block on its first update; leave it there.
 
 ### Ledger
 
-Each worklist item gets one Candidates row, except the `scout` item, which gets one row per find: the item (conference and year, the find's name, or the item id), the source (its reasons and queue sources, or the comment URL for a maintainer request), the outcome, and a one-line detail with the deciding URL and any flags, such as a missing CoC or "stray write: <paths>" (step 6.3).
+Each worklist item gets one ledger line, except the `scout` item, which gets one line per find: the item (conference and year, the find's name, or the item id), the source (its reasons and queue sources, or the comment URL for a maintainer request), the outcome, and a one-line detail with the deciding URL and any flags, such as a missing CoC or "stray write: <paths>" (step 6.3). Escape `|` inside table cells as `\|`.
 
-- `actioned`: a change was committed.
-- `dismissed`: checked with nothing to change, out of scope, already tracked, or rejected by the critic (give its reason).
-- `deferred`: a needs-maintainer result or verdict, a lead without exact dates, a legacy suspect, variations that would rename existing entries or a deferred rename (step 6.3) with nothing else of the item committed, or a subagent that failed. For a needs-maintainer result or verdict, a legacy suspect, deferred variations and a deferred rename, the detail says what the maintainer must decide.
+- `actioned`: a change was committed. It goes in `COMMITTED:desk`, one line per commit.
+- `dismissed`: checked with nothing to change, out of scope, already tracked, or rejected by the critic (give its reason). It goes in the `MORE:desk` table; already-tracked scout finds share one line that counts and names them.
+- `deferred`: a needs-maintainer result or verdict, a lead without exact dates, a legacy suspect, variations that would rename existing entries or a deferred rename (step 6.3) with nothing else of the item committed, or a subagent that failed. A needs-maintainer result or verdict, a legacy suspect, deferred variations and a deferred rename go in `NEEDS:desk`, saying what the maintainer must decide; a lead or a failed subagent goes in the `MORE:desk` table.
 
-Deferred variations and renames go in the detail of their item's row whatever its outcome, with the entries they would rename.
+Deferred variations and renames go in `NEEDS:desk` whatever the item's outcome, with the entries they would rename. A deadline conflict settled under AGENTS.md "Deadline conflicts" is not a question for the maintainer: its `sources-disagree` flag goes on its Committed line.

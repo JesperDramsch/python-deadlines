@@ -84,14 +84,6 @@ jobs:
 
           echo "Testing API connectivity..."
 
-          # Debug: Verify secrets are being read (show length, first 4 chars)
-          if [ -n "${{ secrets.CF_ACCESS_CLIENT_ID }}" ]; then
-            CLIENT_ID="${{ secrets.CF_ACCESS_CLIENT_ID }}"
-            CLIENT_SECRET="${{ secrets.CF_ACCESS_CLIENT_SECRET }}"
-            echo "Debug: CF Access Client ID length: ${#CLIENT_ID} chars, starts with: ${CLIENT_ID:0:4}..."
-            echo "Debug: CF Access Client Secret length: ${#CLIENT_SECRET} chars, starts with: ${CLIENT_SECRET:0:4}..."
-          fi
-
           CURL_OUTPUT=$(mktemp)
           CURL_HEADERS=$(mktemp)
 
@@ -215,6 +207,9 @@ jobs:
             exit 1
           fi
 
+          # Kept for the step that pauses watches on links replaced by an archived copy
+          echo "$RESPONSE" > watches.json
+
           # Debug: Show response structure
           RESPONSE_TYPE=$(echo "$RESPONSE" | jq -r 'type')
           echo "Response type: $RESPONSE_TYPE"
@@ -273,6 +268,9 @@ jobs:
           from urllib.parse import urlparse
           from typing import Optional
 
+          sys.path.insert(0, "utils")
+          from watch_templates import rollover_offset
+
           LAST_SHA = os.environ.get('LAST_SHA', '')
 
           # Tag UUIDs
@@ -297,6 +295,18 @@ jobs:
 
           CFP_TAG = "5799f798-2b44-452e-aefa-43874f6c3e1e"
 
+          # Hosts that carry many series, where only the path tells two series
+          # apart (AGENTS.md "Names"): a watch on one series' page there says
+          # nothing about another's, so these never match by domain.
+          MULTI_SERIES_HOSTS = {
+              "pydata.org",
+              "events.linuxfoundation.org",
+              "pretalx.com",
+              "sessionize.com",
+              "web.archive.org",
+              "barcamps.eu",
+          }
+
           URL_FIELDS = {'link': 'Main', 'cfp_link': 'CFP'}
           YEAR_PATTERN = re.compile(r'/(20(?:2[4-9]|3[0-5]))/')
 
@@ -320,21 +330,7 @@ jobs:
                   return loc.get('latitude'), loc.get('longitude')
               return None, None
 
-          def get_start_month(conf: dict) -> Optional[int]:
-              start = conf.get('start')
-              if not start:
-                  return None
-              if hasattr(start, 'month'):
-                  return start.month
-              try:
-                  parts = str(start).split('-')
-                  if len(parts) >= 2:
-                      return int(parts[1])
-              except (ValueError, IndexError):
-                  pass
-              return None
-
-          def template_url(url: str, start_month: Optional[int]) -> str:
+          def template_url(url: str, offset: Optional[int]) -> str:
               """Template years in URL (subdomain or path) with Jinja expressions.
 
               Examples:
@@ -346,11 +342,15 @@ jobs:
                   https://pycon.de/2026/ -> https://pycon.de/{% now ... %}/
                   https://pretalx.com/conference-2026/ -> https://pretalx.com/conference-{% now ... %}/
                   https://pydata.org/london2026/ -> https://pydata.org/london{% now ... %}/
+
+              The offset sets when the watch moves on to the next edition
+              (utils/watch_templates.py): two weeks after the CfP closes, at
+              the latest when the conference starts.
               """
-              if not start_month:
+              if offset is None:
                   return url
 
-              template = f"{{% now 'utc' + 'months={start_month}', '%Y' %}}"
+              template = f"{{% now 'utc' + 'months={offset}', '%Y' %}}"
               parsed = urlparse(url)
               netloc_parts = parsed.netloc.split('.')
 
@@ -516,7 +516,8 @@ jobs:
           def url_exists(url: str, use_base_url: bool = True) -> tuple[bool, str]:
               if url.lower() in existing_urls:
                   return True, "exact URL match"
-              if use_base_url:
+              host = urlparse(url).netloc.lower().removeprefix("www.")
+              if use_base_url and host not in MULTI_SERIES_HOSTS:
                   base = get_base_url(url)
                   if base and base.lower() in existing_urls:
                       return True, "base URL match"
@@ -572,7 +573,7 @@ jobs:
 
           for conf in new_conferences:
               conf_name = f"{conf.get('conference', 'Unknown')} {conf.get('year', '')}".strip()
-              start_month = get_start_month(conf)
+              offset = rollover_offset(conf)
 
               for field, label in URL_FIELDS.items():
                   url = conf.get(field)
@@ -585,13 +586,18 @@ jobs:
                       skipped.append(f"{title}: existed in previous version")
                       continue
 
+                  # An archived copy never changes, so a watch on it would report nothing
+                  if urlparse(url).netloc.lower() == "web.archive.org":
+                      skipped.append(f"{title}: archived copy")
+                      continue
+
                   use_base_url = (field == 'link')
                   exists, reason = url_exists(url, use_base_url=use_base_url)
                   if exists:
                       skipped.append(f"{title}: {reason}")
                       continue
 
-                  final_url = template_url(url, start_month)
+                  final_url = template_url(url, offset)
                   watches_to_add.append({
                       'url': final_url,
                       'original_url': url if final_url != url else None,
@@ -695,6 +701,79 @@ jobs:
             echo "::error::  - Network connectivity issues"
             exit 1
           fi
+
+      # A link the data replaced with its Internet Archive copy is dead or on a
+      # domain someone else now owns: its watch would only report that page.
+      # Pause it (reversible, history kept) rather than delete it.
+      - name: Pause watches on links replaced by an archived copy
+        id: pause-watches
+        if: inputs.dry_run != true
+        env:
+          LAST_SHA: ${{ steps.last-run.outputs.sha }}
+          CHANGEDETECTION_URL: ${{ vars.CHANGEDETECTION_URL }}
+          CHANGEDETECTION_KEY: ${{ secrets.CHANGEDETECTION_KEY }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+        run: |
+          python3 << 'PAUSE'
+          import json
+          import os
+          import subprocess
+          import sys
+
+          import yaml
+
+          sys.path.insert(0, "utils")
+          from archived_watches import live_links
+          from archived_watches import replaced_links
+          from archived_watches import watches_to_pause
+
+          files = ("_data/conferences.yml", "_data/archive.yml", "_data/legacy.yml")
+
+          def entries(ref):
+              found = []
+              for path in files:
+                  if ref:
+                      result = subprocess.run(["git", "show", f"{ref}:{path}"], capture_output=True, text=True)
+                      text = result.stdout if result.returncode == 0 else ""
+                  else:
+                      with open(path, encoding="utf-8") as f:
+                          text = f.read()
+                  found.extend(entry for entry in (yaml.safe_load(text) or []) if isinstance(entry, dict))
+              return found
+
+          current = entries(None)
+          replaced = replaced_links(entries(os.environ["LAST_SHA"]), current)
+          with open("watches.json", encoding="utf-8") as f:
+              watches = json.load(f)
+          if isinstance(watches, list):
+              watches = {watch.get("uuid", str(i)): watch for i, watch in enumerate(watches)}
+          pause = watches_to_pause(watches, [link for _, _, link in replaced], live_links(current))
+          for conference, year, link in replaced:
+              print(f"Replaced by an archived copy: {conference} {year}: {link}")
+          with open("pause.txt", "w", encoding="utf-8") as f:
+              f.write("".join(f"{uuid}\n" for uuid in pause))
+          print(f"Watches to pause: {len(pause)}")
+          PAUSE
+
+          PAUSED=0
+          FAILED=0
+          while read -r UUID; do
+            [ -z "$UUID" ] && continue
+            ARGS=(-sf -X PUT -H "x-api-key: $CHANGEDETECTION_KEY" -H "Content-Type: application/json")
+            if [ -n "$CF_ACCESS_CLIENT_ID" ]; then
+              ARGS+=(-H "CF-Access-Client-Id: $CF_ACCESS_CLIENT_ID" -H "CF-Access-Client-Secret: $CF_ACCESS_CLIENT_SECRET")
+            fi
+            if curl "${ARGS[@]}" -d '{"paused": true}' "$CHANGEDETECTION_URL/api/v1/watch/$UUID" > /dev/null; then
+              echo "  ⏸️ Paused $UUID"
+              PAUSED=$((PAUSED + 1))
+            else
+              echo "::warning title=Pause Failed::Could not pause watch $UUID"
+              FAILED=$((FAILED + 1))
+            fi
+          done < pause.txt
+          echo "paused=$PAUSED" >> "$GITHUB_OUTPUT"
+          echo "Paused $PAUSED, failed $FAILED"
 
       - name: Generate summary
         if: always()

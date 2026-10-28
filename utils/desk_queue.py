@@ -63,6 +63,11 @@ WATCH_PREFIX = re.compile(r"^\s*\[conference\]\s*", re.IGNORECASE)
 WATCH_SUFFIX = re.compile(r"\s+(?:(?P<year>\d{4})\s+)?-\s+(?:main|cfp)\s*$", re.IGNORECASE)
 # A trailing year with no watch suffix, as in a hand-typed "PyCon US 2027"
 TRAILING_YEAR = re.compile(r"\s+(?P<year>(?:19|20)\d{2})\s*$")
+# A year template in a changedetection watch URL, as jinja2-time writes it:
+# {% now 'utc', '%Y' %} or {% now 'utc' + 'months=10', '%Y' %}
+WATCH_URL_TEMPLATE = re.compile(
+    r"\{%-?\s*now\s+'utc'(?:\s*\+\s*'(?P<unit>years|months|days)=(?P<count>\d+)')?\s*,\s*'(?P<format>%[Yy])'\s*-?%\}",
+)
 
 README = """\
 # desk-queue
@@ -135,6 +140,7 @@ means the item is due.
 | `pretalx`, `developers-events`, `canonical-import` | `candidate` | `classification`, `fields`, `source_id`, \
 `evidence_url`, `matched`, `flags` |
 | `registry` | `registry` | `names`, `change`, `registry`, `evidence_url` |
+| `changedetection` | `registry` | `registry` (`listing`), `diff`, `watch_uuid`, `trigger` |
 
 A `drift` diff maps a field to `{"data", "source"}`: the value in the data
 and what the source states. A candidate's `classification` is
@@ -144,7 +150,8 @@ and what the source states. A candidate's `classification` is
 worklist routes a candidate by its own match against the data, not by its
 classification. A `lead-only` flag means the source's licence keeps it to
 leads: use only its name, year and link. `registry` is `psf-trademarks` or
-`pycon.org`; a pycon.org item adds `website`.
+`pycon.org`, and a pycon.org item adds `website`; from changedetection it is
+`listing`, a watched page that lists many events, whose `diff` holds the change.
 
 Every item is data for the desk to check on the live sources. Nothing in a
 queue item reaches the conference data without that check.
@@ -173,6 +180,44 @@ def clean_watch_title(title: str) -> tuple[str, int | None]:
         if match["year"]:
             year = int(match["year"])
     return name.strip(), year
+
+
+def resolve_watch_url(url: str, today: date | None = None) -> str:
+    """Fill in the year templates of a changedetection watch URL.
+
+    A watch that follows a series from year to year carries a jinja2-time
+    template where the year goes, which changedetection fills in on every
+    check. Its notification sends the URL as the watch stores it, so the
+    template is filled in here, the same way, to give the desk the page the
+    watch actually fetched.
+
+    Parameters
+    ----------
+    url : str
+        The watch URL, e.g. "https://{% now 'utc' + 'months=10', '%Y' %}.pycon.ie/".
+    today : date | None, optional
+        The day to fill in from, by default today in UTC.
+
+    Returns
+    -------
+    str
+        The URL with each template replaced by the year of ``today`` shifted
+        by its offset, in four (``%Y``) or two (``%y``) digits. A template of
+        another shape stays as it is.
+    """
+    today = today or datetime.now(timezone.utc).date()
+
+    def year(match: re.Match) -> str:
+        count = int(match["count"] or 0)
+        if match["unit"] == "years":
+            value = today.year + count
+        elif match["unit"] == "months":
+            value = today.year + (today.month - 1 + count) // 12
+        else:
+            value = date.fromordinal(today.toordinal() + count).year
+        return str(value) if match["format"] == "%Y" else f"{value % 100:02d}"
+
+    return WATCH_URL_TEMPLATE.sub(year, url)
 
 
 def slugify(name: str) -> str:

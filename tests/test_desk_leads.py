@@ -16,6 +16,7 @@ import pytest
 import requests
 import responses
 import yaml
+from freezegun import freeze_time
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -865,6 +866,21 @@ class TestRegistry:
             desk_leads.registry_leads(index)
         assert [record["title"] for record in raised.value.records] == ["PyGotham"]
 
+    @pytest.mark.parametrize(
+        ("source", "titles"),
+        [("psf-trademarks", ["PyCon NP", "PyCon VE"]), ("pycon-org", ["PyGotham"])],
+    )
+    def test_each_registry_on_its_own(self, index, web, source, titles):
+        registry_web(web)
+        records = desk_leads.collect(source, dataset(), index, TODAY)
+        assert [record["title"] for record in records] == titles
+
+    def test_one_registry_failing_alone_is_an_error(self, index, web):
+        registry_web(web, psf_status=500)
+        with pytest.raises(SourceError, match="psf-trademarks") as raised:
+            desk_leads.collect("psf-trademarks", dataset(), index, TODAY)
+        assert raised.value.records == []
+
 
 def write_data(base, data=None):
     folder = base / "_data"
@@ -915,6 +931,36 @@ class TestCli:
         assert main(["pretalx", "--base", str(tmp_path), "--today", "2026-10-14", "--out", str(out)]) == 1
         assert "every one of 8 page fetches failed" in capsys.readouterr().err
 
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "https://pretalx.com/pycascades-2027/cfp",
+            "https://pretalx.com/pycascades-{% now 'utc' + 'months=3', '%Y' %}/cfp",
+        ],
+    )
+    def test_url_checks_only_that_page(self, tmp_path, web, sleeps, url):
+        write_data(tmp_path)
+        pretalx_web(web)
+        out = tmp_path / "records.jsonl"
+        with freeze_time("2026-10-14"):
+            assert (
+                main(["pretalx", "--base", str(tmp_path), "--today", "2026-10-14", "--url", url, "--out", str(out)])
+                == 0
+            )
+        records = [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+        assert [(record["kind"], record["title"]) for record in records] == [("drift", "PyCascades")]
+        assert [call.request.url for call in web.calls] == ["https://pretalx.com/pycascades-2027/cfp"]
+
+    def test_url_off_pretalx_checks_nothing(self, tmp_path, web, capsys):
+        write_data(tmp_path)
+        assert main(["pretalx", "--base", str(tmp_path), "--url", "https://pretalx.example.org/x/cfp"]) == 0
+        assert "not a pretalx.com event page" in capsys.readouterr().err
+        assert len(web.calls) == 0
+
+    def test_url_needs_the_pretalx_source(self, tmp_path):
+        with pytest.raises(SystemExit):
+            main(["registry", "--base", str(tmp_path), "--url", "https://pretalx.com/x/cfp"])
+
     def test_failed_registry_still_writes_the_other(self, tmp_path, web, capsys):
         write_data(tmp_path)
         registry_web(web, psf_status=500)
@@ -933,7 +979,8 @@ class TestQueueRoundTrip:
         data = dataset()
         index = TrackingIndex.from_data(data)
         records = []
-        for source in desk_leads.SOURCES:
+        # "registry" reads both registries, so their own sources would only repeat it
+        for source in ("pretalx", "developers-events", "registry"):
             records.extend(desk_leads.collect(source, data, index, TODAY))
 
         for record in records:
