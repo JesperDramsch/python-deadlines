@@ -1,0 +1,20 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "3def4c61c00d4921811d6540f7f4d57493503922",
+      "kind": "signal",
+      "payload": {
+        "diff": "Immerse yourself in a vibrant day of insightful technical talks and interactive discussions designed to foster knowledge exchange and collaboration about. PyTorch Day China is your gateway to connecting with leading experts and peers in the open source AI community, offering you unique opportunities to explore cutting-edge advancements in training, inference, responsible AI, and more. Immerse yourself in a vibrant day of insightful technical talks and interactive discussions designed to foster knowledge exchange and collaboration. PyTorch Day China is your gateway to connecting with leading experts and peers in the open source AI community, offering you unique opportunities to explore cutting-edge advancements in training, inference, responsible AI, and more.",
+        "trigger": "website_change",
+        "watch_uuid": "6d70243a-012c-44d3-98d8-cd7373c4c54f"
+      },
+      "received": "2026-10-28T01:24:12Z",
+      "source": "changedetection",
+      "title": "Pytorch Day China 2026 - Main",
+      "url": "https://www.lfopensource.cn/pytorch-day-china/",
+      "year": 2026
+    }
+  ],
+  "series": "Pytorch Day China"
+}
