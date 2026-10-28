@@ -609,7 +609,9 @@
   alt_name: PyDay Chile Valparaiso
   year: 2026
   link: https://pyday.cl/valparaiso
-  cfp: TBA
+  cfp_link: https://sessionize.com/pyday-valparaiso-2026/
+  cfp: '2026-05-08 23:59:00'
+  timezone: America/Santiago
   place: Valparaiso, Chile
   start: 2026-06-05
   end: 2026-06-05
@@ -2281,6 +2283,24 @@
   - title: PyCon Singapore 2025
     latitude: 1.2899175
     longitude: 103.8519072
+
+- conference: PyDay Valparaiso
+  alt_name: PyDay Chile Valparaiso
+  year: 2025
+  link: https://pyday.cl/2025/valparaiso/
+  cfp_link: https://sessionize.com/pyday-valparaiso-2025/
+  cfp: '2025-05-25 23:59:00'
+  timezone: America/Santiago
+  place: Valparaiso, Chile
+  start: 2025-06-13
+  end: 2025-06-13
+  sponsor: https://pyday.cl/2025/sponsors/
+  coc: https://pyday.cl/2025/conduct/
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2025
+    latitude: -32.5976089
+    longitude: -70.8529753
 
 - conference: AfroPython Conf
   year: 2025
@@ -3968,6 +3988,7 @@
   link: https://www.pyday.cl/valparaiso.html
   cfp_link: https://sessionize.com/pyday-2024/
   cfp: '2024-05-24 23:59:00'
+  timezone: America/Santiago
   place: Valparaiso, Chile
   start: 2024-06-14
   end: 2024-06-14
@@ -5348,6 +5369,22 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: PyDay Valparaiso
+  alt_name: PyDay Chile Valparaiso
+  year: 2023
+  link: https://pyday.cl/2023
+  cfp_link: https://sessionize.com/pyday-chile-2023/
+  cfp: '2023-06-09 23:59:00'
+  timezone: America/Santiago
+  place: Valparaiso, Chile
+  start: 2023-06-16
+  end: 2023-06-16
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2023
+    latitude: -32.5976089
+    longitude: -70.8529753
+
 - conference: PyCon Colombia
   year: 2023
   link: https://2023.pycon.co/
@@ -6303,6 +6340,20 @@
   - title: PyCon Russia 2022
     latitude: 55.625578
     longitude: 37.6063916
+
+- conference: PyDay Valparaiso
+  alt_name: PyDay Chile Valparaiso
+  year: 2022
+  link: https://pyday.cl/2022
+  cfp: TBA
+  place: Valparaiso, Chile
+  start: 2022-07-15
+  end: 2022-07-15
+  sub: DAY
+  location:
+  - title: PyDay Valparaiso 2022
+    latitude: -32.5976089
+    longitude: -70.8529753
 
 - conference: EuroPython
   year: 2022
