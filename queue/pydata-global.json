@@ -3,6 +3,21 @@
     "a5b6d20c858c25f2516eb5ffce4390898fc3549a",
     "79b29ab2d4aa0ab40a97c61365806d54235bb8b6"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "233eff35d6afbfc98ecd5ac6e39717dd16f48c11",
+      "kind": "signal",
+      "payload": {
+        "diff": "Schedule Schedule Schedule",
+        "trigger": "website_change",
+        "watch_uuid": "56a819a6-5e56-4afb-b4c1-752d807001a2"
+      },
+      "received": "2026-10-28T01:25:21Z",
+      "source": "changedetection",
+      "title": "[Conference] Pydata Global",
+      "url": "https://pydata.org/global{% now 'utc' + 'months=2', '%Y' %}",
+      "year": null
+    }
+  ],
   "series": "PyData Global"
 }
