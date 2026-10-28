@@ -3,6 +3,21 @@
     "4e57393810301288132bad6f6d400699c7c0a65f",
     "0325125c44ed743f6c11566370707c5d50e66f9a"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "8a9a128ea7302b6521528796d23ec8d3e610e636",
+      "kind": "signal",
+      "payload": {
+        "diff": "* News * About * Practical * Support",
+        "trigger": "website_change",
+        "watch_uuid": "cdc6d2bc-03cb-4e59-9643-ea4b2498c43e"
+      },
+      "received": "2026-10-28T00:38:21Z",
+      "source": "changedetection",
+      "title": "FOSDEM 2026 - Main",
+      "url": "https://fosdem.org/{% now 'utc' + 'months=13', '%Y' %}/",
+      "year": 2026
+    }
+  ],
   "series": "FOSDEM"
 }
