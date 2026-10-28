@@ -316,7 +316,7 @@
   year: 2026
   link: https://barcamps.eu/python-barcamp-leipzig-2026/
   cfp_link: https://barcamps.eu/python-barcamp-leipzig-2026/sessions
-  cfp: TBA
+  cfp: None
   timezone: Europe/Berlin
   place: Leipzig, Germany
   start: 2026-08-01
@@ -2214,6 +2214,22 @@
     latitude: 45.3349238
     longitude: 14.3067834
 
+- conference: PyCamp Leipzig
+  year: 2025
+  link: https://barcamps.eu/python-barcamp-leipzig-2025/
+  cfp_link: https://barcamps.eu/python-barcamp-leipzig-2025/sessions
+  cfp: None
+  place: Leipzig, Germany
+  start: 2025-06-28
+  end: 2025-06-29
+  sponsor: https://barcamps.eu/python-barcamp-leipzig-2025/sponsoren
+  coc: https://barcamps.eu/python-barcamp-leipzig-2025/coc
+  sub: CAMP
+  location:
+  - title: PyCamp Leipzig 2025
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: PyDay Copiapó
   year: 2025
   link: https://pyday.cl/2025/copiapo/
@@ -2230,20 +2246,6 @@
   - title: PyDay Copiapó 2025
     latitude: -27.5406034
     longitude: -70.4441348
-
-- conference: PyCamp Leipzig
-  year: 2025
-  link: https://barcamps.eu/python-barcamp-leipzig-2025/
-  cfp_link: https://barcamps.eu/python-barcamp-leipzig-2025/sessions
-  cfp: None
-  place: Leipzig, Germany
-  start: 2025-06-21
-  end: 2025-06-24
-  sub: CAMP
-  location:
-  - title: PyCamp Leipzig 2025
-    latitude: 51.3406321
-    longitude: 12.3747329
 
 - conference: Python Nordeste
   year: 2025
@@ -3924,6 +3926,22 @@
     latitude: 39.9533
     longitude: -75.198
 
+- conference: PyCamp Leipzig
+  year: 2024
+  link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/
+  cfp_link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/sessions
+  cfp: None
+  place: Leipzig, Germany
+  start: 2024-06-15
+  end: 2024-06-16
+  sponsor: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/sponsoren
+  coc: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2024/code-of-conduct
+  sub: CAMP
+  location:
+  - title: PyCamp Leipzig 2024
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: PyData London
   year: 2024
   link: https://pydata.org/london2024/
@@ -5186,6 +5204,22 @@
   - title: PyCon South Korea 2023
     latitude: 37.5666791
     longitude: 126.9782914
+
+- conference: PyCamp Leipzig
+  year: 2023
+  link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/
+  cfp_link: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/sessions
+  cfp: None
+  place: Leipzig, Germany
+  start: 2023-07-29
+  end: 2023-07-30
+  sponsor: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/sponsoren
+  coc: https://barcamps.eu/python-barcamp-der-leipzig-python-user-group-2023/code-of-conduct
+  sub: CAMP
+  location:
+  - title: PyCamp Leipzig 2023
+    latitude: 51.3406321
+    longitude: 12.3747329
 
 - conference: North Bay Python
   year: 2023
@@ -6561,8 +6595,9 @@
 - conference: PyCamp Leipzig
   year: 2022
   link: https://barcamps.eu/pycamp-leipzig-2022/
+  cfp_link: https://barcamps.eu/pycamp-leipzig-2022/sessions
   cfp: '2022-01-28 23:59:00'
-  place: Leipzig, Germany
+  place: Online
   start: 2022-01-29
   end: 2022-01-30
   sub: CAMP
