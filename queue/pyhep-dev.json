@@ -1,23 +1,9 @@
 {
   "handled": [
     "e2264215a8304792e6265469658ebe5f97dee06c",
-    "689bc70d8ecd662ae7a01e40a018f011772eb726"
+    "689bc70d8ecd662ae7a01e40a018f011772eb726",
+    "93c4a7a68387e16f660668284fbf4004b4f1bfff"
   ],
-  "items": [
-    {
-      "id": "93c4a7a68387e16f660668284fbf4004b4f1bfff",
-      "kind": "signal",
-      "payload": {
-        "diff": "There is one event in the future. Show There is one event in the future. Hide November 2026 * Export 02 Nov - 06 Nov WLCG/HSF Workshop 2026",
-        "trigger": "website_change",
-        "watch_uuid": "064a1c0d-65ef-4d3f-b340-f4e98a18bf71"
-      },
-      "received": "2026-10-27T19:10:06Z",
-      "source": "changedetection",
-      "title": "[Conference] PyHEP / Dev",
-      "url": "https://indico.cern.ch/category/7971/",
-      "year": null
-    }
-  ],
+  "items": [],
   "series": "PyHEP.dev"
 }
