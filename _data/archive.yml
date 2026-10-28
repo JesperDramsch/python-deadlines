@@ -110,11 +110,15 @@
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
+  cfp_link: https://pycontg.pytogo.org/2026/call-for-speakers
   cfp: '2026-06-04 18:00:00'
+  timezone: UTC
   place: Lomé, Togo
   start: 2026-08-28
   end: 2026-08-30
   sponsor: https://pycontg.pytogo.org/partners
+  finaid: https://pycontg.pytogo.org/2026/access-grant
+  coc: https://pycontg.pytogo.org/2026/coc
   youtube: https://www.youtube.com/@KwekuTech
   sub: PY
   location:
