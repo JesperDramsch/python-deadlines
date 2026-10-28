@@ -80,8 +80,10 @@ jobs:
               *) echo "::error title=Desk leads::Unknown schedule $SCHEDULE"; exit 1 ;;
             esac
           elif [ "$EVENT_NAME" = "repository_dispatch" ] && [ "$ACTION" = "pretalx-change" ]; then
+            # A watch URL may hold a year template, which has spaces. A line
+            # break could add step outputs, so only that is refused.
             case "$PAYLOAD_URL" in
-              *[[:space:]]*) echo "::error title=Desk leads::pretalx-change url holds whitespace"; exit 1 ;;
+              *$'\n'*|*$'\r'*) echo "::error title=Desk leads::pretalx-change url holds a line break"; exit 1 ;;
               https://*) SELECTED="pretalx"; PAGE="$PAYLOAD_URL" ;;
               *) echo "::error title=Desk leads::pretalx-change needs an https url"; exit 1 ;;
             esac
