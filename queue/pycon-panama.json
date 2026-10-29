@@ -3,6 +3,21 @@
     "d49f55b42fc530e4d00824b9ab991a358e9c9c82",
     "e74042fb323b05d1b2af025162f2ded7d468df37"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "718eea709f740d05eb907fe77c45cc36aee53797",
+      "kind": "signal",
+      "payload": {
+        "diff": "PyCon Panamá 2025 InicioAcerca de. AgendaSedesSponsors PyCon Panamá 2025 BIENVENIDOS A PYCON PANAMÁ 2025 No te lo pierdas los días 16 y 17 de octubre. Faltan: Días Horas Minutos ¡La PyCon 2025 ha comenzado! Acerca del evento La PyCon es una conferencia que reúne a entusiastas y profesionales del lenguaje Python en un espacio dinámico, colaborativo y enriquecedor. El evento está diseñado para fomentar la innovación, el aprendizaje continuo y el intercambio de experiencias entre la comunidad. Durante dos días, tendrás la oportunidad de conectar con personas apasionadas por la tecnología y el desarrollo en Python, participar en charlas, talleres y actividades especiales. La entrada es gratuita. ¡Pronto habilitaremos un formulario de registro para que puedas asegurar tu puesto! Consulta nuestra agenda para conocer a los expositores y descubrir los temas que estarán compartiendo con nosotros. Sedes Día 1 Ver mapa Día 2 Ver mapa Saltar al contenido principal PyCon Panamá 2026 * Inicio * Acerca de * Sedes * Agenda * Registro + Registro de asistentes + Información práctica + Convence a tu jefe + Registro de ponentes + Voluntariado * Comunidad + Código de Conducta + Patrocinadores + Preguntas frecuentes PyCon Panamá 2026 Entrada gratuita, con registro previo La conferencia anual de Python en Panamá, organizada por Python Panamá para desarrolladores, estudiantes y entusiastas de la tecnología. Python en la era de la Inteligencia Artificial. Construir. Comprender. Transformar. Registro de asistentes Ver la agenda Fechas del evento 22 y 23 de octubre de 2026 * Jueves 22: jornada híbrida en Universidad del Istmo, Sede Panamá, con transmisión por Google Meet * Viernes 23: encuentro presencial en Universidad del Istmo, Sede Metromall Entrada gratuita, con registro previo Ver direcciones y mapas Acerca del evento Qué es PyCon Panamá y a quién está dirigido. Sedes Direcciones, contacto y mapas de las dos sedes. Registro de asistentes Registra tu interés en asistir al evento. Convocatoria de ponencias Cerró el 20 de septiembre. ¡Gracias por tus propuestas! Voluntariado Cerró el 8 de octubre. ¡Gracias por postularte! Patrocinadores Quiénes hacen posible que el evento sea gratuito. Preguntas frecuentes Asistencia, ponencias y patrocinio.",
+        "trigger": "website_change",
+        "watch_uuid": "59da1f5f-4f00-4459-8874-355383fc196f"
+      },
+      "received": "2026-10-29T03:09:19Z",
+      "source": "changedetection",
+      "title": "PyCon Panamá 2026 - Main",
+      "url": "https://pycon.pa/2026/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Panamá"
 }
