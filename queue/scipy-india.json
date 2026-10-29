@@ -3,6 +3,21 @@
     "d6d916d3a6f3f691d7510999d1946b645b6ccccc",
     "5daa63ad680f3adb8aad10a99c97868e8fd864a0"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "af4fab9ce474b437fa80ad0efbde1f037f6f7a27",
+      "kind": "signal",
+      "payload": {
+        "diff": "The SciPy India 2026 Conference will be held on 19th–20th December, 2026 at the Indian Institute of Technology, Madras, in Chennai, India! Visit the conference website * About us * Past editions * Events * Blog * Contact * Code of Conduct SciPy India 2026 * Programme * Attend + Register + Terms and conditions + Venue and travel + Jobs + Frequently asked questions (FAQ) * Call for proposals * Sponsor us * About + News + Team + Volunteer + Code of Conduct + Past editions + scipy.in * RSS * News feed * YouTube",
+        "trigger": "website_change",
+        "watch_uuid": "970d62b4-d7e9-4f85-913e-c4ee3ee7b74c"
+      },
+      "received": "2026-10-29T00:26:55Z",
+      "source": "changedetection",
+      "title": "SciPy India 2026 - Main",
+      "url": "https://scipy.in/2026/",
+      "year": 2026
+    }
+  ],
   "series": "SciPy India"
 }
