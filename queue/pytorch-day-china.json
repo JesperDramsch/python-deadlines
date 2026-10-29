@@ -14,6 +14,20 @@
       "title": "Pytorch Day China 2026 - Main",
       "url": "https://www.lfopensource.cn/pytorch-day-china/",
       "year": 2026
+    },
+    {
+      "id": "85729dff79cb1892fc3ddb26e1c81734af67f088",
+      "kind": "signal",
+      "payload": {
+        "diff": "* Program + Call For Proposals (CFP) Submit a Proposal * Call For Proposals (CFP)",
+        "trigger": "website_change",
+        "watch_uuid": "6d70243a-012c-44d3-98d8-cd7373c4c54f"
+      },
+      "received": "2026-10-29T01:36:43Z",
+      "source": "changedetection",
+      "title": "Pytorch Day China 2026 - Main",
+      "url": "https://www.lfopensource.cn/pytorch-day-china/",
+      "year": 2026
     }
   ],
   "series": "Pytorch Day China"
