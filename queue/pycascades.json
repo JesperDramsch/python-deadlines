@@ -50,6 +50,20 @@
       "title": "PyCascades 2027 - CFP",
       "url": "https://pretalx.com/pycascades-2027/cfp",
       "year": 2027
+    },
+    {
+      "id": "c256c05afc7ab8ed667523cd16e93cedb0c6f804",
+      "kind": "signal",
+      "payload": {
+        "diff": "Our CFP is open! Our CFP is extended! Get your tickets! Get your tickets!",
+        "trigger": "website_change",
+        "watch_uuid": "230c95a6-f98d-43b0-b069-c65214ea46dc"
+      },
+      "received": "2026-10-29T04:14:39Z",
+      "source": "changedetection",
+      "title": "[Conference] PyCascades",
+      "url": "https://2027.pycascades.com",
+      "year": null
     }
   ],
   "series": "PyCascades"
