@@ -1237,6 +1237,8 @@
   place: Nagoya, Japan
   start: 2025-11-08
   end: 2025-11-08
+  coc: https://tokai.pycon.jp/2025/coc
+  twitter: PyConTokai
   sub: PY
   location:
   - title: PyCon mini Tokai 2025
@@ -2994,10 +2996,11 @@
   year: 2024
   link: https://tokai.pycon.jp/2024/
   cfp: None
-  place: Tokai, Japan
+  place: Nagoya, Japan
   start: 2024-11-16
   end: 2024-11-16
   sponsor: https://docs.google.com/document/d/1uPNhbdBw1P2WcUvEllZWtXnjf1zTHys5lan8FT3p0MU/
+  coc: https://tokai.pycon.jp/2024/coc
   twitter: PyConTokai
   sub: PY
   location:
