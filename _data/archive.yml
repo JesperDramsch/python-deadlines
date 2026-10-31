@@ -444,6 +444,9 @@
   place: Kraków, Poland
   start: 2026-07-18
   end: 2026-07-23
+  sponsor: https://euroscipy.org/sponsoring/
+  coc: https://euroscipy.org/code-of-conduct/
+  twitter: euroSciPy
   sub: SCIPY
   location:
   - title: EuroSciPy 2026
