@@ -349,7 +349,8 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
-- conference: Black Python Devs Leadership Summit
+- conference: Python Community Leadership Summit
+  alt_name: Black Python Devs Leadership Summit
   year: 2026
   link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html
   cfp_link: https://pretalx.com/pyohio-2026/submit/?track=6985-black-python-devs-leadership-summit
