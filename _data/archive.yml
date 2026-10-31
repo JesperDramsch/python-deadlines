@@ -2856,9 +2856,10 @@
   cfp_link: https://pycon.or.tz/speak/
   cfp: '2024-11-12 23:59:00'
   place: Dar Es Salaam, Tanzania
-  start: 2024-12-04
-  end: 2024-12-05
+  start: 2024-12-03
+  end: 2024-12-04
   sponsor: https://pycon.or.tz/sponsor/
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2024
@@ -6771,14 +6772,15 @@
   year: 2021
   link: https://web.archive.org/web/20221202222503/https://pycon.or.tz/2021/
   cfp: '2021-11-15 23:59:00'
-  place: Dar Es Salaam, Tanzania
+  place: Arusha, Tanzania
   start: 2021-12-01
   end: 2021-12-04
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2021
-    latitude: -6.8160837
-    longitude: 39.2803583
+    latitude: -3.3869254
+    longitude: 36.6829927
 
 - conference: Flask Con
   year: 2021
@@ -7290,7 +7292,8 @@
   cfp: '2020-10-24 23:59:00'
   place: Dar es Salaam, Tanzania
   start: 2020-12-14
-  end: 2020-12-16
+  end: 2020-12-15
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2020

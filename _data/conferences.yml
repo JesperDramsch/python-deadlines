@@ -188,6 +188,26 @@
     latitude: 40.190632
     longitude: 116.412144
 
+- conference: PyCon Tanzania
+  alt_name: Python Tanzania Conference
+  year: 2026
+  link: https://pycon.tz/
+  cfp_link: https://pycon.tz/call-for-proposals/
+  cfp: '2026-11-01 23:59:00'
+  timezone: Africa/Dar_es_Salaam
+  place: Dar Es Salaam, Tanzania
+  start: 2026-11-25
+  end: 2026-11-27
+  sponsor: https://pycon.or.tz/sponsor/
+  coc: https://pycon.tz/conduct/
+  twitter: PyconTanzania
+  youtube: https://youtube.com/@pycontanzania
+  sub: PY
+  location:
+  - title: PyCon Tanzania 2026
+    latitude: -6.8160837
+    longitude: 39.2803583
+
 - conference: PyCon Slovakia
   alt_name: PyCon SK
   year: 2027
@@ -1176,24 +1196,6 @@
   bluesky: https://bsky.app/profile/pyladiescon.bsky.social
   youtube: https://www.youtube.com/@PyLadiesGlobal
   sub: PY
-
-- conference: PyCon Tanzania
-  alt_name: Python Tanzania Conference
-  year: 2026
-  link: https://pycon.or.tz/
-  cfp: TBA
-  place: Dar Es Salaam, Tanzania
-  start: 2026-11-14
-  end: 2026-11-16
-  sponsor: https://pycon.or.tz/sponsor/
-  coc: https://pycon.or.tz/conduct/
-  twitter: PyconTanzania
-  youtube: https://youtube.com/@pycontanzania
-  sub: PY
-  location:
-  - title: PyCon Tanzania 2026
-    latitude: -6.8160837
-    longitude: 39.2803583
 
 - conference: FastAPI Conference
   year: 2026
