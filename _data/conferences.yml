@@ -533,6 +533,7 @@
 - conference: PyData Global
   year: 2026
   link: https://pydata.org/global2026/
+  cfp_link: https://pretalx.com/pydata-global-2026/cfp
   cfp: '2026-08-03 23:59:00'
   cfp_ext: '2026-08-24 23:59:00'
   workshop_deadline: '2026-08-03 23:59:00'

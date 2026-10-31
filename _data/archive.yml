@@ -1058,6 +1058,7 @@
   start: 2025-12-09
   end: 2025-12-11
   sponsor: https://pydata.org/global2025/sponsor
+  coc: https://pydata.org/code-of-conduct/
   sub: DATA
 
 - conference: PyData Eindhoven
