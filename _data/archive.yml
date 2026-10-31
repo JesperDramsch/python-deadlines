@@ -444,6 +444,9 @@
   place: Kraków, Poland
   start: 2026-07-18
   end: 2026-07-23
+  sponsor: https://euroscipy.org/sponsoring/
+  coc: https://euroscipy.org/code-of-conduct/
+  twitter: euroSciPy
   sub: SCIPY
   location:
   - title: EuroSciPy 2026
@@ -513,10 +516,14 @@
   year: 2026
   link: https://websummercamp.com/
   cfp_link: https://sessionize.com/web-summer-camp-2026/
-  cfp: '2026-02-28 23:59:59'
+  cfp: '2026-03-01 12:59:59'
+  cfp_ext: '2026-03-10 23:59:00'
+  timezone: Europe/Zagreb
   place: Opatija, Croatia
   start: 2026-07-02
   end: 2026-07-04
+  coc: https://websummercamp.com/2026/code-of-conduct
+  twitter: websummercamp
   sub: WEB
   location:
   - title: Web Summer Camp 2026
@@ -1045,6 +1052,21 @@
     latitude: 35.718741949999995
     longitude: 139.73118058112317
 
+- conference: PyCon Indonesia
+  alt_name: PyCon ID
+  year: 2025
+  link: https://2025.pycon.id/
+  cfp: TBA
+  place: Jakarta, Indonesia
+  start: 2025-12-13
+  end: 2025-12-14
+  coc: https://2025.pycon.id/code-of-conduct
+  sub: PY
+  location:
+  - title: PyCon Indonesia 2025
+    latitude: -6.175247
+    longitude: 106.8270488
+
 - conference: PyData Global
   year: 2025
   link: https://pydata.org/global2025/
@@ -1055,6 +1077,7 @@
   start: 2025-12-09
   end: 2025-12-11
   sponsor: https://pydata.org/global2025/sponsor
+  coc: https://pydata.org/code-of-conduct/
   sub: DATA
 
 - conference: PyData Eindhoven
@@ -1218,6 +1241,8 @@
   place: Nagoya, Japan
   start: 2025-11-08
   end: 2025-11-08
+  coc: https://tokai.pycon.jp/2025/coc
+  twitter: PyConTokai
   sub: PY
   location:
   - title: PyCon mini Tokai 2025
@@ -2212,10 +2237,14 @@
 - conference: Web Summer Camp
   year: 2025
   link: https://websummercamp.com/
+  cfp_link: https://sessionize.com/web-summer-camp-2025/
   cfp: '2025-03-15 23:59:00'
+  timezone: Europe/Zagreb
   place: Opatija, Croatia
   start: 2025-07-03
   end: 2025-07-05
+  coc: https://websummercamp.com/2025/code-of-conduct
+  twitter: websummercamp
   sub: WEB
   location:
   - title: Web Summer Camp 2025
@@ -2827,9 +2856,10 @@
   cfp_link: https://pycon.or.tz/speak/
   cfp: '2024-11-12 23:59:00'
   place: Dar Es Salaam, Tanzania
-  start: 2024-12-04
-  end: 2024-12-05
+  start: 2024-12-03
+  end: 2024-12-04
   sponsor: https://pycon.or.tz/sponsor/
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2024
@@ -2975,10 +3005,11 @@
   year: 2024
   link: https://tokai.pycon.jp/2024/
   cfp: None
-  place: Tokai, Japan
+  place: Nagoya, Japan
   start: 2024-11-16
   end: 2024-11-16
   sponsor: https://docs.google.com/document/d/1uPNhbdBw1P2WcUvEllZWtXnjf1zTHys5lan8FT3p0MU/
+  coc: https://tokai.pycon.jp/2024/coc
   twitter: PyConTokai
   sub: PY
   location:
@@ -3230,6 +3261,7 @@
   place: Panama City, Panamá
   start: 2024-10-16
   end: 2024-10-18
+  coc: https://github.com/pythonpanama/docs/blob/dev/Codigo-de-Conducta.md
   twitter: pythonpanama
   sub: PY
   location:
@@ -4191,6 +4223,7 @@
   place: Maradi, Niger Republic
   start: 2024-04-28
   end: 2024-04-28
+  twitter: pythonniger
   sub: PY
   location:
   - title: Python Niger 2024
@@ -4342,6 +4375,7 @@
   place: Lahore, Pakistan
   start: 2024-03-09
   end: 2024-03-10
+  coc: https://pycon.pk/about/code-of-conduct/
   twitter: PyConPK
   sub: PY
   location:
@@ -6739,14 +6773,15 @@
   year: 2021
   link: https://web.archive.org/web/20221202222503/https://pycon.or.tz/2021/
   cfp: '2021-11-15 23:59:00'
-  place: Dar Es Salaam, Tanzania
+  place: Arusha, Tanzania
   start: 2021-12-01
   end: 2021-12-04
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2021
-    latitude: -6.8160837
-    longitude: 39.2803583
+    latitude: -3.3869254
+    longitude: 36.6829927
 
 - conference: Flask Con
   year: 2021
@@ -7258,7 +7293,8 @@
   cfp: '2020-10-24 23:59:00'
   place: Dar es Salaam, Tanzania
   start: 2020-12-14
-  end: 2020-12-16
+  end: 2020-12-15
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2020

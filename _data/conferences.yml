@@ -170,6 +170,44 @@
     latitude: 47.2654296
     longitude: 11.3927685
 
+- conference: Pytorch Day China
+  year: 2026
+  link: https://www.lfopensource.cn/pytorch-day-china/
+  cfp_link: https://sessionize.com/pytorch-day-china-2026/
+  cfp: '2026-11-10 23:59:00'
+  timezone: Asia/Shanghai
+  place: Beijing, China
+  start: 2026-12-12
+  end: 2026-12-12
+  coc: https://www.lfopensource.cn/pytorch-day-china/attend/code-of-conduct/
+  twitter: pytorch
+  youtube: https://www.youtube.com/pytorch
+  sub: DATA,DAY
+  location:
+  - title: Pytorch Day China 2026
+    latitude: 40.190632
+    longitude: 116.412144
+
+- conference: PyCon Tanzania
+  alt_name: Python Tanzania Conference
+  year: 2026
+  link: https://pycon.tz/
+  cfp_link: https://pycon.tz/call-for-proposals/
+  cfp: '2026-11-01 23:59:00'
+  timezone: Africa/Dar_es_Salaam
+  place: Dar Es Salaam, Tanzania
+  start: 2026-11-25
+  end: 2026-11-27
+  sponsor: https://pycon.or.tz/sponsor/
+  coc: https://pycon.tz/conduct/
+  twitter: PyconTanzania
+  youtube: https://youtube.com/@pycontanzania
+  sub: PY
+  location:
+  - title: PyCon Tanzania 2026
+    latitude: -6.8160837
+    longitude: 39.2803583
+
 - conference: PyCon Slovakia
   alt_name: PyCon SK
   year: 2027
@@ -192,7 +230,7 @@
   year: 2027
   link: https://2027.pycascades.com/
   cfp_link: https://pretalx.com/pycascades-2027/cfp
-  cfp: '2026-10-26 23:59:00'
+  cfp: '2026-10-27 04:59:00'
   cfp_ext: '2026-11-09 05:00:00'
   timezone: America/Los_Angeles
   place: Seattle, USA
@@ -363,6 +401,7 @@
   link: https://pycon.pa/2026/
   cfp_link: https://pycon.pa/2026/ponentes
   cfp: '2026-09-18 23:59:00'
+  cfp_ext: '2026-09-20 23:59:00'
   timezone: America/Panama
   place: Panama City, Panamá
   start: 2026-10-22
@@ -533,6 +572,7 @@
 - conference: PyData Global
   year: 2026
   link: https://pydata.org/global2026/
+  cfp_link: https://pretalx.com/pydata-global-2026/cfp
   cfp: '2026-08-03 23:59:00'
   cfp_ext: '2026-08-24 23:59:00'
   workshop_deadline: '2026-08-03 23:59:00'
@@ -1128,21 +1168,6 @@
     latitude: 35.718741949999995
     longitude: 139.73118058112317
 
-- conference: Pytorch Day China
-  year: 2026
-  link: https://www.lfopensource.cn/pytorch-day-china/
-  cfp: TBA
-  place: Beijing, China
-  start: 2026-12-12
-  end: 2026-12-12
-  coc: https://www.lfopensource.cn/pytorch-day-china/attend/code-of-conduct/
-  youtube: https://www.youtube.com/pytorch
-  sub: DATA,DAY
-  location:
-  - title: Pytorch Day China 2026
-    latitude: 40.190632
-    longitude: 116.412144
-
 - conference: PyDay Santo Domingo
   alt_name: PyDay SDQ
   year: 2026
@@ -1172,24 +1197,6 @@
   bluesky: https://bsky.app/profile/pyladiescon.bsky.social
   youtube: https://www.youtube.com/@PyLadiesGlobal
   sub: PY
-
-- conference: PyCon Tanzania
-  alt_name: Python Tanzania Conference
-  year: 2026
-  link: https://pycon.or.tz/
-  cfp: TBA
-  place: Dar Es Salaam, Tanzania
-  start: 2026-11-14
-  end: 2026-11-16
-  sponsor: https://pycon.or.tz/sponsor/
-  coc: https://pycon.or.tz/conduct/
-  twitter: PyconTanzania
-  youtube: https://youtube.com/@pycontanzania
-  sub: PY
-  location:
-  - title: PyCon Tanzania 2026
-    latitude: -6.8160837
-    longitude: 39.2803583
 
 - conference: FastAPI Conference
   year: 2026
