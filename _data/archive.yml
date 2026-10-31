@@ -516,10 +516,14 @@
   year: 2026
   link: https://websummercamp.com/
   cfp_link: https://sessionize.com/web-summer-camp-2026/
-  cfp: '2026-02-28 23:59:59'
+  cfp: '2026-03-01 12:59:59'
+  cfp_ext: '2026-03-10 23:59:00'
+  timezone: Europe/Zagreb
   place: Opatija, Croatia
   start: 2026-07-02
   end: 2026-07-04
+  coc: https://websummercamp.com/2026/code-of-conduct
+  twitter: websummercamp
   sub: WEB
   location:
   - title: Web Summer Camp 2026
@@ -2233,10 +2237,14 @@
 - conference: Web Summer Camp
   year: 2025
   link: https://websummercamp.com/
+  cfp_link: https://sessionize.com/web-summer-camp-2025/
   cfp: '2025-03-15 23:59:00'
+  timezone: Europe/Zagreb
   place: Opatija, Croatia
   start: 2025-07-03
   end: 2025-07-05
+  coc: https://websummercamp.com/2025/code-of-conduct
+  twitter: websummercamp
   sub: WEB
   location:
   - title: Web Summer Camp 2025
