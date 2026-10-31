@@ -1,23 +1,9 @@
 {
   "handled": [
     "06d1afd6aa0e75e8e9dedf75c8b32be55c6224c4",
-    "59ca013efbcb14901f4daaee71b2ef041af878f2"
+    "59ca013efbcb14901f4daaee71b2ef041af878f2",
+    "7aeb6648d18bfe7e843f3551b4b5a5abfde43148"
   ],
-  "items": [
-    {
-      "id": "7aeb6648d18bfe7e843f3551b4b5a5abfde43148",
-      "kind": "signal",
-      "payload": {
-        "diff": "Özge Çinko Kader Miyanyedi",
-        "trigger": "website_change",
-        "watch_uuid": "48cc2da3-a555-4867-8463-dd4f0b4dd964"
-      },
-      "received": "2026-10-29T21:46:07Z",
-      "source": "changedetection",
-      "title": "Python Pizza Istanbul 2026 - Main",
-      "url": "https://istanbul.python.pizza/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "Python Pizza Istanbul"
 }
