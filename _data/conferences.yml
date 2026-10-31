@@ -170,6 +170,24 @@
     latitude: 47.2654296
     longitude: 11.3927685
 
+- conference: Pytorch Day China
+  year: 2026
+  link: https://www.lfopensource.cn/pytorch-day-china/
+  cfp_link: https://sessionize.com/pytorch-day-china-2026/
+  cfp: '2026-11-10 23:59:00'
+  timezone: Asia/Shanghai
+  place: Beijing, China
+  start: 2026-12-12
+  end: 2026-12-12
+  coc: https://www.lfopensource.cn/pytorch-day-china/attend/code-of-conduct/
+  twitter: pytorch
+  youtube: https://www.youtube.com/pytorch
+  sub: DATA,DAY
+  location:
+  - title: Pytorch Day China 2026
+    latitude: 40.190632
+    longitude: 116.412144
+
 - conference: PyCon Slovakia
   alt_name: PyCon SK
   year: 2027
@@ -1128,21 +1146,6 @@
   - title: PyCon mini Tokyo 2026
     latitude: 35.718741949999995
     longitude: 139.73118058112317
-
-- conference: Pytorch Day China
-  year: 2026
-  link: https://www.lfopensource.cn/pytorch-day-china/
-  cfp: TBA
-  place: Beijing, China
-  start: 2026-12-12
-  end: 2026-12-12
-  coc: https://www.lfopensource.cn/pytorch-day-china/attend/code-of-conduct/
-  youtube: https://www.youtube.com/pytorch
-  sub: DATA,DAY
-  location:
-  - title: Pytorch Day China 2026
-    latitude: 40.190632
-    longitude: 116.412144
 
 - conference: PyDay Santo Domingo
   alt_name: PyDay SDQ
