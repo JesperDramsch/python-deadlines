@@ -6,6 +6,119 @@
     "67f43d2c2897c36e81271cf71fc544d0e61840fc",
     "0ed7d1906fc893a3cf3c5f480a393cf879d47d71"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "d5e098fd775b6d999b010a6b9d8eafc096bb35ae",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Tanzania",
+        "field": "link",
+        "final_url": "https://pycon.tz/",
+        "status": 200,
+        "year": 2026
+      },
+      "received": "2026-11-01T10:52:21Z",
+      "source": "link-check",
+      "title": "PyCon Tanzania",
+      "url": "https://pycon.or.tz/",
+      "year": 2026
+    },
+    {
+      "id": "38524c754c790032051df6c328341d1fa72040f0",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Tanzania",
+        "field": "sponsor",
+        "final_url": "https://pycon.tz/sponsor/",
+        "status": 404,
+        "year": 2026
+      },
+      "received": "2026-11-01T10:52:23Z",
+      "source": "link-check",
+      "title": "PyCon Tanzania",
+      "url": "https://pycon.or.tz/sponsor/",
+      "year": 2026
+    },
+    {
+      "id": "1de4f4774c569380be29a4e4b9e7dbd247b68209",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Tanzania",
+        "field": "coc",
+        "final_url": "https://pycon.tz/conduct/",
+        "status": 200,
+        "year": 2026
+      },
+      "received": "2026-11-01T10:52:26Z",
+      "source": "link-check",
+      "title": "PyCon Tanzania",
+      "url": "https://pycon.or.tz/conduct/",
+      "year": 2026
+    },
+    {
+      "id": "04a74dfbc096c2b116182b6b8d3d717a872f77b8",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Tanzania",
+        "field": "link",
+        "final_url": "https://pycon.tz/",
+        "status": 200,
+        "year": 2024
+      },
+      "received": "2026-11-01T11:07:45Z",
+      "source": "link-check",
+      "title": "PyCon Tanzania",
+      "url": "https://pycon.or.tz/",
+      "year": 2024
+    },
+    {
+      "id": "d753b81d2d80338a8a724e065a3d98513c72c17e",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Tanzania",
+        "field": "cfp_link",
+        "final_url": "https://pycon.tz/speak/",
+        "status": 404,
+        "year": 2024
+      },
+      "received": "2026-11-01T11:07:47Z",
+      "source": "link-check",
+      "title": "PyCon Tanzania",
+      "url": "https://pycon.or.tz/speak/",
+      "year": 2024
+    },
+    {
+      "id": "06e2c31eb631ee7b756a26257d699020306d8e13",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Tanzania",
+        "field": "sponsor",
+        "final_url": "https://pycon.tz/sponsor/",
+        "status": 404,
+        "year": 2024
+      },
+      "received": "2026-11-01T11:07:49Z",
+      "source": "link-check",
+      "title": "PyCon Tanzania",
+      "url": "https://pycon.or.tz/sponsor/",
+      "year": 2024
+    },
+    {
+      "id": "728f6901cc3daf567860abc1cc07ed56fbf34fc0",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Tanzania",
+        "field": "cfp_link",
+        "final_url": "https://pycon.tz/2022/speak/",
+        "status": 404,
+        "year": 2022
+      },
+      "received": "2026-11-01T11:16:25Z",
+      "source": "link-check",
+      "title": "PyCon Tanzania",
+      "url": "https://pycon.or.tz/2022/speak/",
+      "year": 2022
+    }
+  ],
   "series": "PyCon Tanzania"
 }
