@@ -7,6 +7,21 @@
     "166687c02c8493327b5a2cd9c14821249c1fc65b",
     "c256c05afc7ab8ed667523cd16e93cedb0c6f804"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "d5696f967bfbfd277f67d397d872d2e96dbae7ed",
+      "kind": "signal",
+      "payload": {
+        "diff": "Program Sprints",
+        "trigger": "website_change",
+        "watch_uuid": "230c95a6-f98d-43b0-b069-c65214ea46dc"
+      },
+      "received": "2026-11-01T01:57:58Z",
+      "source": "changedetection",
+      "title": "[Conference] PyCascades",
+      "url": "https://2027.pycascades.com",
+      "year": null
+    }
+  ],
   "series": "PyCascades"
 }
