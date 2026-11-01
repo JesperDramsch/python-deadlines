@@ -4,6 +4,21 @@
     "689bc70d8ecd662ae7a01e40a018f011772eb726",
     "93c4a7a68387e16f660668284fbf4004b4f1bfff"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "1cd11434c2526ed4c3aa6f82027b68f2c0a7250b",
+      "kind": "signal",
+      "payload": {
+        "diff": "September 2026 * Export 07 Sept - 09 Sept PyHEP.dev 2026 - \"Python in HEP\" Developer's Workshop There are 58 events in the past. Show There are 58 events in the past. Hide There are 59 events in the past. Show There are 59 events in the past. Hide",
+        "trigger": "website_change",
+        "watch_uuid": "064a1c0d-65ef-4d3f-b340-f4e98a18bf71"
+      },
+      "received": "2026-11-01T18:48:33Z",
+      "source": "changedetection",
+      "title": "[Conference] PyHEP / Dev",
+      "url": "https://indico.cern.ch/category/7971/",
+      "year": null
+    }
+  ],
   "series": "PyHEP.dev"
 }
