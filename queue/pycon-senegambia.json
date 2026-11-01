@@ -2,6 +2,21 @@
   "handled": [
     "711b3d2e77b57e8b08429ec53aee48ca843ac078"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "71c11812205dfa5494ad43394acf49cb44d6eeb8",
+      "kind": "signal",
+      "payload": {
+        "diff": "Get Tickets PyCon Senegambia 2026 Get Your Ticket Choose your pass, then your country and payment method. Prices in CFA francs (FCFA). You pay on the Wave page (Senegal) or the ModemPay page (The Gambia), then report your transaction ID here. Your ticket is confirmed once the organizers have found your payment. * Student Pass 2,500 FCFA ≈ 324 GMD For students: the conference, workshops and a career boost. Included + Full access to the conference + Participation in the workshop + Networking sessions + Career pipeline and fast skills development + Hands-on workshops on Python, Data, AI and Cloud Buy Ticket * Individual Pass 4,000 FCFA ≈ 518 GMD For professionals and enthusiasts: every workshop and a regional network. Included + Full access to the conference + All workshops included + Networking with recruitment leads and founders from Dakar, Banjul and beyond + Showcasing: a chance to demo a side project, join sprints or present your project to attract collaborators Buy Ticket * Business Pass 7,500 FCFA ≈ 971 GMD For companies: two representatives, the workshops and access to talent. Included + Conference access for two company representatives + All workshops included for two people + Access to a curated CV pool for faster recruitment after the event + Market insights gathered from Python developers and startups on their products or services Buy Ticket See the passes",
+        "trigger": "website_change",
+        "watch_uuid": "fa60b81b-6435-4192-a8f8-3cf377826f6b"
+      },
+      "received": "2026-11-01T22:19:40Z",
+      "source": "changedetection",
+      "title": "PyCon Senegambia 2026 - Main",
+      "url": "https://www.pyconsenegambia.org/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Senegambia"
 }
