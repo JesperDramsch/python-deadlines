@@ -65,6 +65,22 @@
     latitude: 52.4111289
     longitude: 4.877231604293446
 
+- conference: import_ bengaluru
+  year: 2026
+  link: https://bangpypers.github.io/import_bengaluru/
+  cfp_link: https://sessionize.com/import_-bengaluru/
+  cfp: '2026-08-27 23:59:00'
+  timezone: Asia/Kolkata
+  place: Bengaluru, India
+  start: 2026-09-06
+  end: 2026-09-06
+  coc: https://bangpypers.github.io/import_bengaluru/coc.html
+  sub: PY
+  location:
+  - title: import_ bengaluru 2026
+    latitude: 12.9767936
+    longitude: 77.590082
+
 - conference: PyCon China
   year: 2026
   link: https://cn.pycon.org/2026/
