@@ -3825,6 +3825,7 @@
   start: 2024-07-29
   end: 2024-07-30
   sponsor: https://pydata.org/vermont2024/sponsorship-opportunities
+  coc: https://pydata.org/vermont2024/about#conduct
   sub: DATA
   location:
   - title: PyData Vermont 2024
