@@ -1554,6 +1554,25 @@
     latitude: 13.7524938
     longitude: 100.4935089
 
+- conference: PyCon Panamá
+  year: 2025
+  link: https://pycon.pa/2025/
+  cfp: TBA
+  place: Panama City, Panamá
+  extra_places:
+  - Online
+  start: 2025-10-16
+  end: 2025-10-17
+  coc: https://pycon.pa/2025/codigo_conducta
+  twitter: pythonpanama
+  sub: PY
+  note: 16 October in person at Cine Universitario UP; 17 October virtual talks over
+    Zoom.
+  location:
+  - title: PyCon Panamá 2025
+    latitude: 8.9714493
+    longitude: -79.5341802
+
 - conference: PyCon Netherlands
   alt_name: PyCon NL
   year: 2025
