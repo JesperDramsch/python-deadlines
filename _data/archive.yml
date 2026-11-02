@@ -545,24 +545,6 @@
     latitude: -1.374035
     longitude: -48.4016623
 
-- conference: Web Summer Camp
-  year: 2026
-  link: https://websummercamp.com/
-  cfp_link: https://sessionize.com/web-summer-camp-2026/
-  cfp: '2026-03-01 12:59:59'
-  cfp_ext: '2026-03-10 23:59:00'
-  timezone: Europe/Zagreb
-  place: Opatija, Croatia
-  start: 2026-07-02
-  end: 2026-07-04
-  coc: https://websummercamp.com/2026/code-of-conduct
-  twitter: websummercamp
-  sub: WEB
-  location:
-  - title: Web Summer Camp 2026
-    latitude: 45.3349238
-    longitude: 14.3067834
-
 - conference: PyCon Singapore
   year: 2026
   link: https://pycon.sg/
