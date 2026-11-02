@@ -21,7 +21,6 @@ import operator
 import sort_yaml
 from tidy_conf.schema import Conference
 
-
 # The fixtures and tests below build dates relative to "now" with spans of a
 # few days to a few weeks. Unfrozen, those spans straddle New Year on some
 # days of the year and the schema rejects them as multi-year conferences.
