@@ -124,6 +124,20 @@
     latitude: 40.63070934919421
     longitude: -8.657472831794745
 
+- conference: Python Developer Day
+  year: 2026
+  link: https://sessionize.com/python-developer-day-2026/
+  cfp: '2026-08-10 23:59:00'
+  timezone: Asia/Bangkok
+  place: Bangkok, Thailand
+  start: 2026-08-30
+  end: 2026-08-30
+  sub: PY
+  location:
+  - title: Python Developer Day 2026
+    latitude: 13.7524938
+    longitude: 100.4935089
+
 - conference: PyCon Togo
   year: 2026
   link: https://pycontg.pytogo.org/
@@ -4255,6 +4269,20 @@
   - title: PyCon US 2024
     latitude: 40.4416941
     longitude: -79.9900861
+
+- conference: Python Developer Day
+  year: 2024
+  link: https://sessionize.com/python-developer-day-thailand-2024
+  cfp: '2024-04-03 23:59:00'
+  timezone: Asia/Bangkok
+  place: Bangkok, Thailand
+  start: 2024-05-11
+  end: 2024-05-11
+  sub: PY
+  location:
+  - title: Python Developer Day 2024
+    latitude: 13.7524938
+    longitude: 100.4935089
 
 - conference: Python Niger
   alt_name: Launching Python Niger
