@@ -2,6 +2,21 @@
   "handled": [
     "566ac76368852fcd9d0d2a2a48c13eb6ab49d369"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "a1ed1b69ed155345172605e0498c2fb5d76e3b80",
+      "kind": "signal",
+      "payload": {
+        "diff": "",
+        "trigger": "website_change",
+        "watch_uuid": "5dfa662e-dcaa-47a3-ab55-bc331ca4f60c"
+      },
+      "received": "2026-11-02T20:27:15Z",
+      "source": "changedetection",
+      "title": "Web Summer Camp 2026 - Main",
+      "url": "https://websummercamp.com/",
+      "year": 2026
+    }
+  ],
   "series": "Web Summer Camp"
 }
