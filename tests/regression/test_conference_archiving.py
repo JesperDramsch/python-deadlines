@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 import pytest
 import yaml
+from freezegun import freeze_time
 
 # Add utils to path for imports
 sys.path.append(str(Path(__file__).parent.parent.parent / "utils"))
@@ -20,9 +21,20 @@ import operator
 import sort_yaml
 from tidy_conf.schema import Conference
 
+# The fixtures and tests below build dates relative to "now" with spans of a
+# few days to a few weeks. Unfrozen, those spans straddle New Year on some
+# days of the year and the schema rejects them as multi-year conferences.
+FROZEN_NOW = "2026-06-15 12:00:00"
+
 
 class TestConferenceArchiving:
     """Test automatic conference archiving logic."""
+
+    @pytest.fixture(autouse=True)
+    def _frozen_clock(self):
+        """Pin the clock mid-year so relative dates never cross a year boundary."""
+        with freeze_time(FROZEN_NOW):
+            yield
 
     @pytest.fixture()
     def past_conference(self):
@@ -81,14 +93,13 @@ class TestConferenceArchiving:
         assert sort_yaml.sort_by_date_passed(future_conf) is False
 
     def test_archive_boundary_conditions(self, edge_case_conference):
-        """Test archiving behavior at boundary conditions."""
-        edge_conf = Conference(**edge_case_conference)
+        """A deadline one hour ago is open in AoE and passed in UTC."""
+        # Without a timezone the deadline is AoE (UTC-12), so "one hour ago"
+        # in UTC wall time is still eleven hours away.
+        assert sort_yaml.sort_by_date_passed(Conference(**edge_case_conference)) is False
 
-        # Conference with CFP 1 hour ago - result depends on exact timing
-        # since sort_by_date_passed compares CFP datetime (not just date)
-        is_passed = sort_yaml.sort_by_date_passed(edge_conf)
-        # Just verify it returns a boolean - the exact result depends on timing
-        assert isinstance(is_passed, bool)
+        utc_conf = Conference(**{**edge_case_conference, "timezone": "UTC"})
+        assert sort_yaml.sort_by_date_passed(utc_conf) is True
 
     def test_archive_with_extended_deadline(self):
         """Test that extended deadlines are handled during archiving.
