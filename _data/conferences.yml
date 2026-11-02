@@ -85,7 +85,8 @@
     latitude: 49.4093582
     longitude: 8.694724
 
-- conference: Black Python Devs Leadership Summit
+- conference: Python Community Leadership Summit
+  alt_name: Black Python Devs Leadership Summit
   year: 2027
   link: https://blackpythondevs.org/events/python-community-leadership-summit-2027-at-pytexas/
   cfp_link: https://pretalx.com/pytexas-2027/cfp
