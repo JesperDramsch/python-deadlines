@@ -1,5 +1,20 @@
 ---
 
+- conference: PyCaxias
+  year: 2026
+  link: https://pycaxias.com.br/
+  cfp: None
+  timezone: America/Sao_Paulo
+  place: Caxias do Sul, Brasil
+  start: 2026-09-26
+  end: 2026-09-26
+  sponsor: https://pycaxias.com.br/#patrocinio
+  sub: PY
+  location:
+  - title: PyCaxias 2026
+    latitude: -29.1685045
+    longitude: -51.1796385
+
 - conference: PyCon Cameroon
   year: 2026
   link: https://pycon.pythoncameroon.org/
