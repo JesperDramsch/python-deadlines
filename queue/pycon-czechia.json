@@ -2,6 +2,21 @@
   "handled": [
     "9af785d8187b0ada1ee3c2b96a5e30cd6ed63c7d"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "636251cf6c111d1fbe5e628631d2efb69f3de39e",
+      "kind": "signal",
+      "payload": {
+        "diff": "* LinkedIn * LinkedIn",
+        "trigger": "website_change",
+        "watch_uuid": "13697854-b3c6-4ca6-85ed-c30c9a76aa56"
+      },
+      "received": "2026-11-04T18:49:35Z",
+      "source": "changedetection",
+      "title": "[conference] PyCon Czechia",
+      "url": "https://cz.pycon.org/2027/",
+      "year": null
+    }
+  ],
   "series": "PyCon Czechia"
 }
