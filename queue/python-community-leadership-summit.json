@@ -2,6 +2,26 @@
   "handled": [
     "d507b0df3b241f67799e178b7fd161ec6e5ade6d"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "0fc38d8c1c8c33f8cb8bbf4de2506a1583bcbe2e",
+      "kind": "question",
+      "payload": {
+        "conference": "Python Community Leadership Summit",
+        "default_answer": false,
+        "field": "link",
+        "question": "For Python Community Leadership Summit in column 'link' would you prefer 'https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html' or keep 'https://blackpythondevs.org/events/black-python-devs-leadership-summit-2026-ohio/'?",
+        "remote_value": "https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html",
+        "source_name": "python-organizers",
+        "yaml_value": "https://blackpythondevs.org/events/black-python-devs-leadership-summit-2026-ohio/",
+        "year": 2026
+      },
+      "received": "2026-11-04T13:14:45Z",
+      "source": "canonical-import",
+      "title": "Python Community Leadership Summit",
+      "url": "https://blackpythondevs.org/events/black-python-devs-leadership-summit-2026-ohio/",
+      "year": 2026
+    }
+  ],
   "series": "Python Community Leadership Summit"
 }

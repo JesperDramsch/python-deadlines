@@ -4,6 +4,26 @@
     "5daa63ad680f3adb8aad10a99c97868e8fd864a0",
     "af4fab9ce474b437fa80ad0efbde1f037f6f7a27"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "6139a6f523a89346504839963b38675a44f48782",
+      "kind": "question",
+      "payload": {
+        "conference": "SciPy India",
+        "default_answer": false,
+        "field": "cfp",
+        "question": "For SciPy India in column 'cfp' would you prefer '2026-11-01 23:59:00' or keep '2026-10-19 23:59:00'?",
+        "remote_value": "2026-11-01 23:59:00",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-10-19 23:59:00",
+        "year": 2026
+      },
+      "received": "2026-11-04T13:14:45Z",
+      "source": "canonical-import",
+      "title": "SciPy India",
+      "url": "https://scipy.in/2026/",
+      "year": 2026
+    }
+  ],
   "series": "SciPy India"
 }
