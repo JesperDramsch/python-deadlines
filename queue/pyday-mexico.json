@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "c33012a47cde710d74f5bed00f1d3fdb5cfc1be2",
-      "kind": "signal",
-      "payload": {
-        "diff": "Explora más eventos con diferentes fechas, precios y formatos para encontrar tu próxima gran experiencia. Explora más eventos con distintas fechas, precios y formatos para encontrar tu próxima gran experiencia. * conferencias en Mexico City * conferencias de Ciencia y tecnología en Mexico City * Mexico City en formato conferencias * Mexico City: Ciencia y tecnología en formato conferencias Explorar eventos similares Eventos similares",
-        "trigger": "website_change",
-        "watch_uuid": "24fdc024-7c20-4503-9ef9-eb2bd2544bab"
-      },
-      "received": "2026-11-03T01:16:39Z",
-      "source": "changedetection",
-      "title": "PyDay Mexico 2026 - Main",
-      "url": "https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029",
-      "year": 2026
-    }
+  "handled": [
+    "c33012a47cde710d74f5bed00f1d3fdb5cfc1be2"
   ],
+  "items": [],
   "series": "PyDay Mexico"
 }

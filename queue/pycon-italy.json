@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "7118407155b45a857bd64fa62d1fd169e90fc0aa",
-      "kind": "signal",
-      "payload": {
-        "diff": "Bologna, May 27 - 30, 2026 We welcome you to PyCon Italia 2026! May 28 Thursday Bologna, June 02 - 05, 2027 We welcome you to PyCon Italia 2027!",
-        "trigger": "website_change",
-        "watch_uuid": "8b1cd498-8a7b-4164-8169-522cc58477e9"
-      },
-      "received": "2026-11-03T03:47:23Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCon Italy",
-      "url": "https://pycon.it/en",
-      "year": null
-    }
+  "handled": [
+    "7118407155b45a857bd64fa62d1fd169e90fc0aa"
   ],
+  "items": [],
   "series": "PyCon Italy"
 }

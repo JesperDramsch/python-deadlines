@@ -1,23 +1,9 @@
 {
   "handled": [
     "3def4c61c00d4921811d6540f7f4d57493503922",
-    "85729dff79cb1892fc3ddb26e1c81734af67f088"
+    "85729dff79cb1892fc3ddb26e1c81734af67f088",
+    "e0f773b0b57650305eda670556c9f0518a93b3c7"
   ],
-  "items": [
-    {
-      "id": "e0f773b0b57650305eda670556c9f0518a93b3c7",
-      "kind": "signal",
-      "payload": {
-        "diff": "in 39 days in 38 days PyTorch Day China 2026 is the premier gathering dedicated to open source AI and the impact of PyTorch Foundation projects. Scheduled for 12 December in China this community-driven event provides an unparalleled platform for PyTorch enthusiasts, machine learning engineers, AI researchers, and industry professionals. PyTorch Day China 2026 is the premier gathering dedicated to open source AI and the impact of PyTorch Foundation projects. Scheduled for December 12 in China this community-driven event provides an unparalleled platform for PyTorch enthusiasts, machine learning engineers, AI researchers, and industry professionals. open, 8 days left open, 7 days left * CFP Close: Tuesday, 10 November at 23:59 China Standard Time (UTC +8) * CFP Notifications: Tuesday, 17 November * Schedule Announced: Wednesday, 18 November * Event Date: Saturday, 12 December * CFP Close: Tuesday, November 10 at 23:59 China Standard Time (UTC +8) * CFP Notifications: Tuesday, November 17 * Schedule Announced: Wednesday, November 18 * Event Date: Saturday, December 12",
-        "trigger": "website_change",
-        "watch_uuid": "3858f365-95f0-4e32-b6a2-ee89d2deed51"
-      },
-      "received": "2026-11-03T13:09:44Z",
-      "source": "changedetection",
-      "title": "Pytorch Day China 2026 - CFP",
-      "url": "https://sessionize.com/pytorch-day-china-2026/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "Pytorch Day China"
 }

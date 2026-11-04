@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "9af785d8187b0ada1ee3c2b96a5e30cd6ed63c7d",
-      "kind": "signal",
-      "payload": {
-        "diff": "PyCon CZ Home Open menu PyCon CZ Home Close menu Home Sponsorship Volunteer Code of Conduct Social * X (formerly Twitter) * Mastodon * Facebook * YouTube * GitHub PyCon CZ 27 16–18 April 2027 Pilsen PyCon CZ 27 16–18 April 2027 Pilsen Follow us on X (Twitter) Mastodon YouTube Follow us on * X (Twitter) * Mastodon * Facebook * YouTube",
-        "trigger": "website_change",
-        "watch_uuid": "13697854-b3c6-4ca6-85ed-c30c9a76aa56"
-      },
-      "received": "2026-11-02T19:19:18Z",
-      "source": "changedetection",
-      "title": "[conference] PyCon Czechia",
-      "url": "https://cz.pycon.org/2027/",
-      "year": null
-    }
+  "handled": [
+    "9af785d8187b0ada1ee3c2b96a5e30cd6ed63c7d"
   ],
+  "items": [],
   "series": "PyCon Czechia"
 }
