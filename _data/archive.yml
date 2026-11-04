@@ -2953,7 +2953,7 @@
 - conference: PyCon Tanzania
   alt_name: Python Tanzania Conference
   year: 2024
-  link: https://pycon.or.tz/
+  link: https://pycon.tz/2024/event/
   cfp_link: https://pycon.or.tz/speak/
   cfp: '2024-11-12 23:59:00'
   place: Dar Es Salaam, Tanzania
@@ -5959,6 +5959,7 @@
   place: Zanzibar, Tanzania
   start: 2022-12-04
   end: 2022-12-08
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2022
