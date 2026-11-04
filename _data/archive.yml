@@ -514,6 +514,7 @@
   place: Rio de Janeiro, RJ
   start: 2026-07-24
   end: 2026-07-26
+  coc: https://github.com/pythonsudeste/codigo-de-conduta
   sub: PY
   location:
   - title: Python Sudeste 2026
@@ -2503,6 +2504,22 @@
   - title: Python Norte 2025
     latitude: -1.438875529
     longitude: -48.4782039189
+
+- conference: Python Sudeste
+  year: 2025
+  link: https://2025.sudeste.python.org.br/
+  cfp_link: https://talks.python.org.br/python-sudeste-2025/cfp
+  cfp: '2025-04-17 23:59:00'
+  timezone: America/Sao_Paulo
+  place: Belo Horizonte, Brazil
+  start: 2025-05-30
+  end: 2025-06-02
+  coc: https://github.com/pythonsudeste/codigo-de-conduta
+  sub: PY
+  location:
+  - title: Python Sudeste 2025
+    latitude: -19.9227318
+    longitude: -43.9450948
 
 - conference: PyCon Italy
   alt_name: PyCon Italia
