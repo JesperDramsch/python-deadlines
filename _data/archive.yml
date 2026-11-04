@@ -5174,7 +5174,10 @@
   end: 2023-09-17
   sponsor: https://web.archive.org/web/20230516214745/https://cz.pycon.org/2023/pycon-cz-sponsorship-prospectus-2023.pdf
   finaid: https://cz.pycon.org/2023/cfp/
+  coc: https://cz.pycon.org/2023/coc/
   twitter: pyconcz
+  mastodon: https://floss.social/@pyconcz
+  youtube: https://www.youtube.com/@PyConCZ
   sub: PY
   location:
   - title: PyCon Czechia 2023
