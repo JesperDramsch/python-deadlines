@@ -2641,7 +2641,9 @@
   year: 2025
   link: https://2025.northbaypython.org/
   cfp_link: https://pretalx.northbaypython.org/nbpy-2025/cfp
-  cfp: '2025-02-22 23:59:00'
+  cfp: '2025-02-08 03:59:00'
+  cfp_ext: '2025-02-22 03:59:00'
+  timezone: America/Los_Angeles
   place: Petaluma, USA
   start: 2025-04-26
   end: 2025-04-27
