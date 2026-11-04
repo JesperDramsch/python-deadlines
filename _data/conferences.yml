@@ -1042,6 +1042,7 @@
   start: 2027-06-02
   end: 2027-06-05
   sponsor: https://2027.pycon.it/en/sponsor
+  finaid: https://2027.pycon.it/en/grants-info
   coc: https://2027.pycon.it/en/code-of-conduct
   twitter: PyConIT
   mastodon: https://social.python.it/@pycon
