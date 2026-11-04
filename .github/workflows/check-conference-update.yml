@@ -138,7 +138,7 @@ jobs:
 
       - name: Setup Pixi
         if: steps.record.outputs.listing == 'true'
-        uses: prefix-dev/setup-pixi@v0.11.2
+        uses: prefix-dev/setup-pixi@v0.11.3
 
       # Each added line is one event. A line whose edition (or, without a
       # year, whose series) the data tracks is dropped; the rest become
