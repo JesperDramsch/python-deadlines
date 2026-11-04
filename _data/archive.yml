@@ -601,10 +601,14 @@
 - conference: Web Summer Camp
   year: 2026
   link: https://websummercamp.com/
-  cfp: TBA
+  cfp_link: https://sessionize.com/web-summer-camp-2026
+  cfp: '2026-03-10 23:59:00'
+  timezone: Europe/Zagreb
   place: Opatija, Croatia
   start: 2026-07-02
   end: 2026-07-04
+  coc: https://websummercamp.com/2026/code-of-conduct
+  twitter: websummercamp
   sub: WEB
   location:
   - title: Web Summer Camp 2026
