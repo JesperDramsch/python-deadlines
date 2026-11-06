@@ -1,13 +1,21 @@
 """Tests for utils/archive_resolve.py: which links of old editions are archived, and how."""
 
+import socket
+import struct
 import sys
+import threading
 from datetime import date
+from http.client import RemoteDisconnected
 from pathlib import Path
 
 import pytest
 import requests
 import responses
 import yaml
+from urllib3.exceptions import MaxRetryError
+from urllib3.exceptions import NameResolutionError
+from urllib3.exceptions import NewConnectionError
+from urllib3.exceptions import ProtocolError
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -27,6 +35,27 @@ TANZANIA_SPONSOR = [
 
 def _edition(year: int, start: date, end: date | None = None, conference: str = "PyCon Tanzania", **fields) -> dict:
     return {"conference": conference, "year": year, "start": start, "end": end or start, **fields}
+
+
+def _wrapped(outer: BaseException, cause: BaseException) -> BaseException:
+    outer.__cause__ = cause
+    return outer
+
+
+def _dns_failure() -> requests.ConnectionError:
+    resolution = NameResolutionError("gone.example", None, socket.gaierror(-2, "Name or service not known"))
+    return requests.ConnectionError(MaxRetryError(None, "/", resolution))
+
+
+def _refused() -> requests.ConnectionError:
+    refused = _wrapped(NewConnectionError(None, "Failed to establish a new connection"), ConnectionRefusedError(111))
+    return requests.ConnectionError(MaxRetryError(None, "/", refused))
+
+
+def _reset() -> requests.ConnectionError:
+    return requests.ConnectionError(
+        ProtocolError("Connection aborted.", ConnectionResetError(104, "Connection reset by peer")),
+    )
 
 
 @pytest.fixture()
@@ -205,22 +234,66 @@ class TestProbe:
         assert links.probe("https://example.org/").broken is broken
 
     @pytest.mark.parametrize(
-        ("error", "broken"),
+        ("error", "kind", "broken"),
         [
-            (requests.ConnectionError("name or service not known"), True),
-            (requests.Timeout("slow"), False),
-            (requests.exceptions.SSLError("bad certificate"), True),
-            (requests.exceptions.InvalidURL("bad url"), False),
+            # The exception chains requests raises, as seen against real hosts and sockets
+            (_dns_failure(), "connection", True),
+            (_refused(), "connection", True),
+            (requests.exceptions.SSLError("certificate has expired"), "connection", True),
+            (_reset(), "reset", False),
+            (
+                requests.ConnectionError(ProtocolError("Connection aborted.", RemoteDisconnected("closed"))),
+                "reset",
+                False,
+            ),
+            (requests.Timeout("slow"), "timeout", False),
+            (requests.exceptions.InvalidURL("bad url"), "InvalidURL", False),
         ],
     )
     @responses.activate
-    def test_errors(self, error, broken):
+    def test_errors(self, error, kind, broken):
         responses.add(responses.GET, "https://example.org/", body=error)
 
         result = links.probe("https://example.org/")
 
         assert result.status is None
+        assert result.error == kind
         assert result.broken is broken
+
+    def test_reset_by_a_live_server_is_not_broken(self):
+        """A site that is up but resets one connection keeps its link."""
+        server = socket.socket()
+        server.bind(("127.0.0.1", 0))
+        server.listen()
+
+        def reset_once():
+            connection, _ = server.accept()
+            connection.recv(1024)
+            # Linger 0 makes close() send a reset instead of a normal end
+            connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
+            connection.close()
+
+        thread = threading.Thread(target=reset_once, daemon=True)
+        thread.start()
+        try:
+            result = links.probe(f"http://127.0.0.1:{server.getsockname()[1]}/")
+        finally:
+            thread.join(timeout=5)
+            server.close()
+
+        assert result.error == "reset"
+        assert not result.broken
+
+    def test_refused_connection_is_broken(self):
+        server = socket.socket()
+        server.bind(("127.0.0.1", 0))
+        port = server.getsockname()[1]
+        server.close()  # nothing listens on the port now
+
+        result = links.probe(f"http://127.0.0.1:{port}/")
+
+        assert result.error == "connection"
+        assert result.broken
 
     @responses.activate
     def test_redirect_elsewhere(self):

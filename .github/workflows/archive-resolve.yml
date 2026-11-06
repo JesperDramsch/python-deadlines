@@ -91,6 +91,7 @@ jobs:
 
       # Below the job timeout, so a slow link check still queues what it found.
       - name: Resolve archive links
+        id: resolve
         timeout-minutes: 150
         env:
           DESK_QUEUE_OUT: ${{ runner.temp }}/desk-records.jsonl
@@ -206,33 +207,40 @@ jobs:
       # The rolling PR body has one block per writer (utils/desk_pr_body.py).
       # This job owns COMMITTED:archive, one line per commit naming the
       # editions it changed, and NEEDS:archive, the links that have no capture
-      # from their edition's time: each run replaces that list with its own.
+      # from their edition's time. Kept links come back every week whether or
+      # not the run changed data, so NEEDS:archive is replaced on every run that
+      # finds an open PR, and emptied when nothing is kept. A run with no change
+      # does not open a PR for it.
       # The script comes from the commit this run started on: the accumulator
       # branch checked out here may not have it yet.
-      - name: Create or update PR
-        if: steps.check_changes.outputs.changed == 'true'
+      - name: Update the rolling PR
+        if: ${{ !cancelled() && steps.resolve.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
+          CHANGED: ${{ steps.check_changes.outputs.changed }}
           COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
         run: |
           SCRIPT="$RUNNER_TEMP/desk_pr_body.py"
           git show "$GITHUB_SHA:utils/desk_pr_body.py" > "$SCRIPT"
 
           PR=$(gh api "repos/$REPO/pulls?head=${REPO%%/*}:$UPDATE_BRANCH&state=open" --jq '.[0].number // empty')
-          if [ -z "$PR" ]; then
-            pixi run python "$SCRIPT" skeleton > "$RUNNER_TEMP/body.md"
-            PR=$(gh api "repos/$REPO/pulls" -f title='🐍 Conference updates' -f head="$UPDATE_BRANCH" -f base=main \
-              -F body=@"$RUNNER_TEMP/body.md" --jq .number)
-            gh api "repos/$REPO/issues/$PR/labels" -f 'labels[]=automated' -f 'labels[]=conference-update' --silent
-            echo "::notice title=PR Created::Opened #$PR for the archive resolve"
+          if [ "$CHANGED" = "true" ] && [ -n "$COMMIT_SHA" ]; then
+            if [ -z "$PR" ]; then
+              pixi run python "$SCRIPT" skeleton > "$RUNNER_TEMP/body.md"
+              PR=$(gh api "repos/$REPO/pulls" -f title='🐍 Conference updates' -f head="$UPDATE_BRANCH" -f base=main \
+                -F body=@"$RUNNER_TEMP/body.md" --jq .number)
+              gh api "repos/$REPO/issues/$PR/labels" -f 'labels[]=automated' -f 'labels[]=conference-update' --silent
+              echo "::notice title=PR Created::Opened #$PR for the archive resolve"
+            fi
+            pixi run python "$SCRIPT" --repo "$REPO" commit-line --sha "$COMMIT_SHA" --label "Archive links" > "$RUNNER_TEMP/line.md"
+            if [ -s "$RUNNER_TEMP/line.md" ]; then
+              pixi run python "$SCRIPT" --repo "$REPO" --pr "$PR" append COMMITTED:archive "$RUNNER_TEMP/line.md"
+            fi
           fi
 
-          pixi run python "$SCRIPT" --repo "$REPO" commit-line --sha "$COMMIT_SHA" --label "Archive links" > "$RUNNER_TEMP/line.md"
-          if [ -s "$RUNNER_TEMP/line.md" ]; then
-            pixi run python "$SCRIPT" --repo "$REPO" --pr "$PR" append COMMITTED:archive "$RUNNER_TEMP/line.md"
-          fi
-          if [ -s "$RUNNER_TEMP/needs.md" ]; then
+          if [ -n "$PR" ]; then
+            touch "$RUNNER_TEMP/needs.md"
             pixi run python "$SCRIPT" --repo "$REPO" --pr "$PR" set NEEDS:archive "$RUNNER_TEMP/needs.md"
           fi
 

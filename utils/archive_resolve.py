@@ -186,12 +186,13 @@ def superseded(entries: list[dict], today: date) -> list[dict]:
     latest: dict[str, date] = {}
     for entry in entries:
         start = to_date(entry.get("start"))
-        if start and (entry.get("conference") not in latest or start > latest[entry["conference"]]):
-            latest[entry["conference"]] = start
+        name = entry.get("conference")
+        if start and (name not in latest or start > latest[name]):
+            latest[name] = start
     result = []
     for entry in entries:
         start, end = to_date(entry.get("start")), to_date(entry.get("end"))
-        if start and end and end < today and start < latest[entry["conference"]]:
+        if start and end and end < today and start < latest[entry.get("conference")]:
             result.append(entry)
     return result
 

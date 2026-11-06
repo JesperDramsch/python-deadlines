@@ -1,10 +1,12 @@
 import re
+import socket
 import time
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
 import requests
 from tqdm import tqdm
+from urllib3.exceptions import NameResolutionError
 
 try:
     from tidy_conf.queue_out import QUEUE_OUT_ENV
@@ -409,8 +411,9 @@ class Probe:
 
         A 404 or 410, a host that does not resolve, a refused connection and
         a failed TLS handshake (an expired or foreign certificate) count. A
-        timeout, a 403 or 429 (often a bot filter) and a 5xx do not: replacing
-        a link is not undone, so only a lasting failure counts.
+        timeout, a connection reset or dropped mid-request, a 403 or 429 (often
+        a bot filter) and a 5xx do not: replacing a link is not undone, so only
+        a lasting failure counts. See ``is_lasting_connection_failure``.
         """
         return self.status in BROKEN_STATUSES or self.error == "connection"
 
@@ -444,11 +447,60 @@ def probe(url: str, timeout: int = 10) -> Probe:
         response = requests.get(url, allow_redirects=True, timeout=timeout, headers=headers)
     except requests.Timeout:
         return Probe(url, url, None, "timeout")
-    except requests.ConnectionError:
-        return Probe(url, url, None, "connection")
+    except requests.ConnectionError as e:
+        # A reset or a dropped connection mid-request is a ConnectionError too,
+        # but says nothing lasting about the site.
+        return Probe(url, url, None, "connection" if is_lasting_connection_failure(e) else "reset")
     except requests.RequestException as e:
         return Probe(url, url, None, type(e).__name__)
     return Probe(url, response.url or url, response.status_code)
+
+
+def _causes(error: BaseException) -> list[BaseException]:
+    """Return an exception and every exception it wraps, through causes, contexts, reasons and arguments.
+
+    Parameters
+    ----------
+    error : BaseException
+        The exception requests raised
+
+    Returns
+    -------
+    list[BaseException]
+        The exceptions found, the outermost first
+    """
+    found: list[BaseException] = []
+    todo: list[object] = [error]
+    while todo:
+        current = todo.pop(0)
+        if not isinstance(current, BaseException) or any(current is seen for seen in found):
+            continue
+        found.append(current)
+        todo.extend((getattr(current, "reason", None), current.__cause__, current.__context__, *current.args))
+    return found
+
+
+def is_lasting_connection_failure(error: requests.ConnectionError) -> bool:
+    """Check whether a connection error means the site is gone rather than briefly unreachable.
+
+    A failed TLS handshake, a host that does not resolve and a refused
+    connection count. A reset or a connection dropped mid-request does not.
+
+    Parameters
+    ----------
+    error : requests.ConnectionError
+        The exception requests raised
+
+    Returns
+    -------
+    bool
+        True for a lasting failure
+    """
+    if isinstance(error, requests.exceptions.SSLError):
+        return True
+    return any(
+        isinstance(cause, ConnectionRefusedError | socket.gaierror | NameResolutionError) for cause in _causes(error)
+    )
 
 
 def parse_mastodon_url(url: str) -> tuple[str, str] | None:
