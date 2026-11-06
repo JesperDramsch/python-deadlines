@@ -171,7 +171,7 @@ class TestEndToEndPipeline:
             mock_split.return_value = (valid_conferences, [], [], [])
 
             # Execute sorting pipeline
-            sort_yaml.sort_data(skip_links=True)
+            sort_yaml.sort_data()
 
             # Verify data transformation chain
             mock_tidy_dates.assert_called_once()
@@ -260,40 +260,6 @@ class TestEndToEndPipeline:
         # Should still validate after processing
         processed_conf = Conference(**processed_data)
         assert processed_conf.conference == "Test Conference"
-
-    @patch("sort_yaml.check_link_availability")
-    @patch("sort_yaml.get_cache")
-    def test_link_checking_integration(self, mock_get_cache, mock_check_link):
-        """Test link checking integration with data processing."""
-        mock_get_cache.return_value = (set(), set())
-        mock_check_link.return_value = "https://updated-link.com"
-
-        # Test data with various link types
-        test_data = [
-            {
-                "conference": "Conference with Links",
-                "year": 2025,
-                "link": "https://original-link.com",
-                "cfp_link": "https://cfp-link.com",
-                "sponsor": "https://sponsor-link.com",
-                "finaid": "https://finaid-link.com",
-                "coc": "https://coc-link.com",
-                "start": "2025-06-01",
-            },
-        ]
-
-        with patch("tqdm.tqdm", side_effect=lambda x, total=None: x):
-            result = sort_yaml.check_links(test_data)
-
-        # All links should be updated
-        assert result[0]["link"] == "https://updated-link.com"
-        assert result[0]["cfp_link"] == "https://updated-link.com"
-        assert result[0]["sponsor"] == "https://updated-link.com"
-        assert result[0]["finaid"] == "https://updated-link.com"
-        assert result[0]["coc"] == "https://updated-link.com"
-
-        # Should have checked all 5 links
-        assert mock_check_link.call_count == 5
 
 
 class TestDataConsistency:
@@ -643,24 +609,6 @@ class TestBusinessLogicIntegration:
         assert len(filtered) == 1, f"Expected 1 conference, got {len(filtered)}"
         assert filtered.iloc[0]["conference"] == "CFP Ext In Range"
 
-    def test_archive_vs_live_link_logic(self):
-        """Test logic for handling archive vs live links."""
-        test_data = [
-            {"conference": "Link Test Conference", "year": 2025, "link": "https://original.com", "start": "2025-06-01"},
-        ]
-
-        with patch("sort_yaml.get_cache", return_value=(set(), set())), patch(
-            "sort_yaml.check_link_availability",
-        ) as mock_check, patch("sort_yaml.time.sleep"), patch("tqdm.tqdm", side_effect=lambda x, total=None: x):
-
-            # Mock return of archive.org URL
-            mock_check.return_value = "https://web.archive.org/web/20250101/https://original.com"
-
-            result = sort_yaml.check_links(test_data)
-
-            # Should update to archive URL
-            assert "archive.org" in result[0]["link"]
-
     def test_timezone_normalization_across_modules(self):
         """Test timezone handling consistency."""
         # Test data with different timezone formats
@@ -797,29 +745,6 @@ class TestRealDataProcessing:
 
         # Should have added a 'sub' field
         assert "sub" in result[0], "auto_add_sub should add 'sub' field"
-
-    @pytest.mark.skip(reason="Requires `responses` library for proper HTTP-level mocking; see audit item #6")
-    def test_check_links_with_http_mock(self):
-        """Test link checking with HTTP-level mocking (not function mocking).
-
-        This addresses audit finding #6: mock at HTTP level, not function level.
-
-        Note: This test should use the `responses` or `httpretty` library
-        for proper HTTP-level mocking instead of mocking requests.get directly.
-        The current Mock approach doesn't properly simulate HTTP responses.
-
-        Example using responses:
-        ```python
-        import responses
-
-        @responses.activate
-        def test_check_links_real():
-            responses.add(responses.GET, "https://pycon.us", status=200)
-            result = sort_yaml.check_links(test_data)
-            assert len(result) == len(test_data)
-        ```
-        """
-        # Skipped - needs `responses` library
 
     def test_sort_by_cfp_with_real_conferences(self):
         """Test sorting actually orders conferences correctly by CFP deadline."""

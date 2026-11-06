@@ -1,9 +1,6 @@
 import re
 import time
-from datetime import datetime
-from datetime import timedelta
-from datetime import timezone
-from pathlib import Path
+from dataclasses import dataclass
 from urllib.parse import urlparse
 
 import requests
@@ -83,7 +80,10 @@ EXPECTED_REDIRECT_TARGETS = {
 # a redirect from one to another site says nothing about the link.
 URL_SHORTENERS = frozenset({"bit.ly", "goo.gl", "tinyurl.com"})
 
-# Redirects to a different site found by check_link_availability. A link that
+# Statuses that mean a page is gone. See ``Probe.broken``.
+BROKEN_STATUSES = frozenset({404, 410})
+
+# Redirects to a different site found by utils/archive_resolve.py. A link that
 # now lands on another site (a lapsed domain, a parked page, a new home for
 # the series) needs a person to look at it, so the link is kept as it is and
 # the redirect is recorded here instead.
@@ -382,195 +382,73 @@ def drop_redundant_link_fields(data: list) -> list:
     return data
 
 
-def get_cache_location():
-    # Check if the URL is cached
-    cache_file = Path("utils", "tidy_conf", "data", ".tmp", "no_archive.txt")
-    cache_file_archived = Path("utils", "tidy_conf", "data", ".tmp", "archived_links.txt")
-    # The cache directory is gitignored, so it does not exist in a fresh checkout
-    cache_file.parent.mkdir(parents=True, exist_ok=True)
-    return cache_file, cache_file_archived
+@dataclass(frozen=True)
+class Probe:
+    """The outcome of one request for a link.
+
+    Attributes
+    ----------
+    url : str
+        The link as stored in the data
+    final_url : str
+        Where the redirect chain ended; the link itself when the request failed
+    status : int | None
+        HTTP status of the final response, or None when there was none
+    error : str | None
+        Why the request failed, or None when a response came back
+    """
+
+    url: str
+    final_url: str
+    status: int | None
+    error: str | None = None
+
+    @property
+    def broken(self) -> bool:
+        """Whether the link is gone, rather than slow, blocked or briefly down.
+
+        A 404 or 410, a host that does not resolve, a refused connection and
+        a failed TLS handshake (an expired or foreign certificate) count. A
+        timeout, a 403 or 429 (often a bot filter) and a 5xx do not: replacing
+        a link is not undone, so only a lasting failure counts.
+        """
+        return self.status in BROKEN_STATUSES or self.error == "connection"
+
+    @property
+    def redirects_elsewhere(self) -> bool:
+        """Whether the link now lands on another site, other than as its kind of link does."""
+        return (
+            self.status is not None
+            and is_different_site(self.url, self.final_url)
+            and not is_expected_redirect(self.url, self.final_url)
+        )
 
 
-def get_cache():
-    cache_file, cache_file_archived = get_cache_location()
-
-    # Create the cache file if it doesn't exist
-    cache_file.touch()
-    cache_file_archived.touch()
-
-    # Read the cache file
-    cache = set(cache_file.read_text(encoding="utf-8").split("\n")[:-1])
-    cache_archived = set(cache_file_archived.read_text(encoding="utf-8").split("\n")[:-1])
-
-    return cache, cache_archived
-
-
-def check_link_availability(
-    url,
-    start,
-    cache=None,
-    cache_archived=None,
-    *,
-    conference: str | None = None,
-    year: int | None = None,
-    field: str | None = None,
-) -> str:
-    """Checks if a URL is available.
-
-    If not, tries to retrieve an archived version from the Wayback Machine.
-    Can't use caching because we have different years for the same url.
-
-    Automatically redirects to the final URL if it was redirected within the same domain.
-
-    A redirect that ends on a different site (see ``is_different_site``) is not
-    treated as healthy: the original URL is returned unchanged, with no Wayback
-    lookup, and the redirect is recorded with ``record_redirect`` for review.
-    A short link that lands where it is expected to (see ``is_expected_redirect``),
-    such as forms.gle on docs.google.com, is not recorded: it is checked like
-    any other link, so on a 200 the original URL is kept and, when the
-    conference is still to come, saved to the Wayback Machine.
-
-    Automatically caches old (5+ years) URLs.
-
-    Note: Some URLs may not be available or archived. These return the original URL and are logged.
+def probe(url: str, timeout: int = 10) -> Probe:
+    """Request a link once, following redirects.
 
     Parameters
     ----------
     url : str
-        URL to check
-    start : datetime.date
-        Start date of the conference the URL belongs to
-    cache : set | None
-        URLs known to have no archived version, read from disk when None
-    cache_archived : set | None
-        URLs already archived, read from disk when None
-    conference : str | None
-        Conference name, only used to describe a recorded redirect
-    year : int | None
-        Conference year, only used to describe a recorded redirect
-    field : str | None
-        Data field holding the URL, only used to describe a recorded redirect
+        The link to request
+    timeout : int
+        Seconds to wait for a response
 
     Returns
     -------
-    str
-        The URL to keep: the original, a same-domain redirect target, or an archived copy
+    Probe
+        The status and final URL, or why there was no response
     """
-    # If it's archived already, return the URL
-    if url.startswith(("https://web.archive.org", "http://web.archive.org")):
-        return url
-
-    # Get the cache
-    if cache is None or cache_archived is None:
-        cache, cache_archived = get_cache()
-
-    cache_file, _ = get_cache_location()
-
-    # Check if the URL is in the cache
-    if url in cache and url not in cache_archived:
-        tqdm.write(f"URL {url} is cached as not found. Returning original URL.")
-        return url
-
-    # If the URL is younger than 5 years, check if it's available
-    if start > datetime.now(tz=timezone.utc).date() - timedelta(days=5 * 365):
-        try:
-            response = requests.get(url, allow_redirects=True, timeout=10)
-            final_url = response.url
-            # A redirect to another site is not a healthy link: keep the URL as it
-            # is and leave the decision to a person. Short links such as
-            # forms.gle redirect to another site by design and are left out.
-            if is_different_site(url, final_url) and not is_expected_redirect(url, final_url):
-                tqdm.write(
-                    f"URL {url} was redirected to a different site: {final_url} "
-                    f"(status code: {response.status_code}). Keeping the original URL for review.",
-                )
-                record_redirect(
-                    url,
-                    final_url,
-                    response.status_code,
-                    conference=conference,
-                    year=year,
-                    field=field,
-                )
-                return url
-            # Check if the final URL is within the same domain as the original URL
-            if urlparse(url).netloc == urlparse(final_url).netloc and final_url != url:
-                # Don't cache the redirect if it suddenly has a query string
-                tqdm.write(f"URL {url} was redirected within the same domain to: {final_url}")
-                if "?" in final_url and "?" not in url:
-                    tqdm.write("Warning: The final URL contains a query string, but the original URL does not.")
-                    # Return original URL to avoid using redirected URL with query string
-                    return url
-                return final_url  # Use the final URL for the rest of the process
-            if response.status_code != 200:
-                tqdm.write(
-                    (
-                        f"Link {url} is not available (status code: {response.status_code})."
-                        "Trying to find an archived version..."
-                    ),
-                )
-            else:
-                if start > datetime.now(tz=timezone.utc).date():
-                    attempt_archive_url(url, cache_archived)
-                return url
-        except requests.RequestException as e:
-            tqdm.write(f"An error occurred: {e}. Trying to find an archived version...")
-
-    # Try to get an archived version from the Wayback Machine or return original URL
-    archive_url = f"https://archive.org/wayback/available?url={url}&timestamp={start.strftime('%Y%m%d%H%M%S')}"
+    headers = {"User-Agent": "Pythondeadlin.es Link Checker/0.2 (https://pythondeadlin.es)"}
     try:
-        archive_response = requests.get(archive_url, timeout=10)
-        # Make sure the status code is valid (200)
-        if archive_response.status_code == 200:
-            data = archive_response.json()
-            # Get the "closest available" snapshot URL to a date
-            if (
-                "archived_snapshots" in data
-                and data["archived_snapshots"]
-                and "closest" in data["archived_snapshots"]
-                and data["archived_snapshots"]["closest"]
-                and data["archived_snapshots"]["closest"].get("available", False)
-            ):
-                archived_url = data["archived_snapshots"]["closest"]["url"].replace(":80/", "/")
-                if archived_url[4] == ":":
-                    archived_url = archived_url[:4] + "s" + archived_url[4:]
-                tqdm.write(f"Found archived version: {archived_url}")
-                return archived_url
-            tqdm.write("No archived version found.")
-            attempt_archive_url(url, cache_archived)
-            with cache_file.open("a") as f:
-                f.write(url + "\n")
-            return url
-
-        tqdm.write("Failed to retrieve archived version.")
-        return url
+        response = requests.get(url, allow_redirects=True, timeout=timeout, headers=headers)
+    except requests.Timeout:
+        return Probe(url, url, None, "timeout")
+    except requests.ConnectionError:
+        return Probe(url, url, None, "connection")
     except requests.RequestException as e:
-        tqdm.write(f"An error occurred while retrieving the archived version: {e}")
-        return url
-
-
-def attempt_archive_url(url, cache=None):
-    """Attempts to archive a URL using the Wayback Machine."""
-    # Read the cache file
-    if cache is None:
-        _, cache = get_cache()
-
-    # Check if the URL is in the cache
-    if url in cache:
-        tqdm.write(f"URL {url} was already archived.")
-        return
-
-    try:
-        tqdm.write(f"Attempting archive of {url}.")
-        headers = {"User-Agent": "Pythondeadlin.es Archival Attempt/0.1 (https://pythondeadlin.es)"}
-        archive_response = requests.get("https://web.archive.org/save/" + url, timeout=30, headers=headers)
-        if archive_response.status_code == 200:
-            _, cache_file = get_cache_location()
-            with cache_file.open("a") as f:
-                f.write(url + "\n")
-            tqdm.write(f"Successfully archived {url}.")
-    except requests.RequestException as e:
-        tqdm.write(f"An error occurred while attempting to archive: {e}")
+        return Probe(url, url, None, type(e).__name__)
+    return Probe(url, response.url or url, response.status_code)
 
 
 def parse_mastodon_url(url: str) -> tuple[str, str] | None:

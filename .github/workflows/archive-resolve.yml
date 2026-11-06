@@ -1,0 +1,253 @@
+name: Archive Resolve
+
+# Weekly. Points old editions' links to the Wayback Machine capture that shows
+# that edition, and checks every link in the data (utils/archive_resolve.py):
+#
+# - A yearless link on a superseded edition (it has ended and a later edition
+#   of the series is in the data) gets the last capture on or before its end
+#   plus 14 days. So does a link that is gone on an edition that has ended.
+#   A link with no such capture stays as it is and is listed in the rolling PR.
+# - A link that now redirects to a different site is queued for the desk to
+#   judge, as the old redirect scan did: a series that moved gets its link
+#   updated, a lapsed or hijacked domain gets an archived copy.
+# - Mastodon accounts that moved are followed.
+#
+# The captures come from archive-new-urls.yml, which saves pages while they
+# show their edition. Both talk to the archive through utils/wayback.py.
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'  # Sundays 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      no_probe:
+        description: 'Only resolve superseded links (no link check, no Mastodon check)'
+        type: boolean
+        default: false
+
+# One group with canonical-source-update.yml and enrich-tba-conferences.yml:
+# all three write to the accumulator branch, so their runs queue behind each
+# other instead of racing. A group keeps one pending run, which a newer run of
+# any of them replaces; the daily crons of the other two limit the loss.
+concurrency:
+  group: auto-conference-updates
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  UPDATE_BRANCH: auto/conference-updates
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+          persist-credentials: true
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Before the branch setup, which runs utils/merge_data.py on a conflict
+      - name: Setup Pixi
+        uses: prefix-dev/setup-pixi@v0.11.2
+
+      - name: Setup accumulator branch
+        id: setup
+        run: |
+          git remote set-url origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+
+          if git ls-remote --heads origin "$UPDATE_BRANCH" | grep -q "$UPDATE_BRANCH"; then
+            echo "::notice title=Branch::Checking out existing accumulator branch"
+            git fetch origin "$UPDATE_BRANCH"
+            git checkout "$UPDATE_BRANCH"
+            echo "existed=true" >> "$GITHUB_OUTPUT"
+            echo "tip=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+            # Sync with main by merging, never rebasing: the desk pushes to this
+            # branch too, and a rebase would rewrite its commits. Data conflicts
+            # go through merge_data.py; any other conflict fails the job.
+            if ! { git merge origin/main --no-edit || { pixi run python utils/merge_data.py && git commit --no-edit; }; }; then
+              CONFLICTS=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
+              git merge --abort 2>/dev/null || true
+              echo "::error title=Branch Sync Conflict::${CONFLICTS:-git merge origin/main failed with no conflicted files}"
+              exit 1
+            fi
+          else
+            echo "::notice title=Branch::Creating new accumulator branch"
+            git checkout -b "$UPDATE_BRANCH"
+            echo "existed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Below the job timeout, so a slow link check still queues what it found.
+      - name: Resolve archive links
+        timeout-minutes: 150
+        env:
+          DESK_QUEUE_OUT: ${{ runner.temp }}/desk-records.jsonl
+          NO_PROBE: ${{ inputs.no_probe }}
+        run: |
+          ARGS=(--changes "$RUNNER_TEMP/changes.md" --needs "$RUNNER_TEMP/needs.md")
+          if [ "$NO_PROBE" = "true" ]; then
+            ARGS+=(--no-probe)
+          fi
+          pixi run python utils/archive_resolve.py "${ARGS[@]}"
+
+      # Redirects found before a failure are still worth queueing.
+      - name: Write to the desk queue
+        id: queue
+        if: ${{ !cancelled() }}
+        uses: ./.github/actions/desk-queue-write
+        with:
+          records: ${{ runner.temp }}/desk-records.jsonl
+          message: Queue links that redirect to other sites
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if git diff --quiet -- _data; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate and sort
+        if: steps.check_changes.outputs.changed == 'true'
+        run: pixi run sort
+
+      - name: Commit and push
+        if: steps.check_changes.outputs.changed == 'true'
+        id: commit
+        env:
+          BRANCH_EXISTED: ${{ steps.setup.outputs.existed }}
+          SETUP_TIP: ${{ steps.setup.outputs.tip }}
+        run: |
+          git add _data/conferences.yml _data/archive.yml _data/legacy.yml
+
+          {
+            echo "chore: point old editions to archived pages"
+            echo
+            if [ -s "$RUNNER_TEMP/changes.md" ]; then
+              cat "$RUNNER_TEMP/changes.md"
+            else
+              echo "Mastodon accounts that moved."
+            fi
+          } > "$RUNNER_TEMP/message.txt"
+          git commit -F "$RUNNER_TEMP/message.txt"
+          # The PR row links this commit, not a merge the retries below may add
+          COMMIT_SHA=$(git rev-parse HEAD)
+
+          # Drop any other tracked change, so a retry merge below can run.
+          git checkout -- .
+
+          # Merging the rolling PR deletes this branch, and a push after that
+          # would recreate it from this run's old history. Stop instead when
+          # the branch existed at setup and is now gone, or no longer holds the
+          # commit this run started from. The next run starts fresh from main.
+          stop_if_rolling_pr_merged() {
+            [ "$BRANCH_EXISTED" = "true" ] || return 0
+            REMOTE_STATUS=0
+            REMOTE=$(git ls-remote --exit-code origin "refs/heads/$UPDATE_BRANCH") || REMOTE_STATUS=$?
+            if [ "$REMOTE_STATUS" = 2 ]; then
+              echo "::error title=Rolling PR Merged::$UPDATE_BRANCH was deleted on origin after this run started: the rolling PR was merged or closed. Not recreating it from old history: the next run starts fresh from main."
+              exit 1
+            fi
+            REMOTE_TIP=${REMOTE%%[[:space:]]*}
+            if [ "$REMOTE_STATUS" = 0 ] && git cat-file -e "$REMOTE_TIP^{commit}" 2>/dev/null \
+              && ! git merge-base --is-ancestor "$SETUP_TIP" "$REMOTE_TIP"; then
+              echo "::error title=Rolling PR Merged::$UPDATE_BRANCH on origin no longer holds the commit this run started from: the rolling PR was merged or closed and the branch started again. Not pushing old history to it: the next run starts fresh from main."
+              exit 1
+            fi
+          }
+
+          # The desk and the other jobs push to this branch too. A rejected push
+          # fetches the branch, merges it (data conflicts through merge_data.py)
+          # and tries again, up to five times. Never force.
+          PUSHED=false
+          for ATTEMPT in 1 2 3 4 5; do
+            stop_if_rolling_pr_merged
+            if git push origin "HEAD:$UPDATE_BRANCH"; then
+              PUSHED=true
+              break
+            fi
+            echo "::warning title=Push Rejected::Push $ATTEMPT of 5 to $UPDATE_BRANCH failed"
+            if [ "$ATTEMPT" = 5 ]; then
+              break
+            fi
+            if ! git fetch origin "$UPDATE_BRANCH"; then
+              sleep $((ATTEMPT * 10))
+              continue
+            fi
+            stop_if_rolling_pr_merged
+            if ! { git merge "origin/$UPDATE_BRANCH" --no-edit || { pixi run python utils/merge_data.py && git commit --no-edit; }; }; then
+              CONFLICTS=$(git diff --name-only --diff-filter=U | paste -sd ' ' -)
+              git merge --abort 2>/dev/null || true
+              echo "::error title=Push Merge Conflict::${CONFLICTS:-git merge origin/$UPDATE_BRANCH failed with no conflicted files}"
+              exit 1
+            fi
+          done
+
+          if [ "$PUSHED" != "true" ]; then
+            echo "::error title=Push Failed::Could not push to $UPDATE_BRANCH after 5 attempts"
+            exit 1
+          fi
+
+          echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+
+      # The rolling PR body has one block per writer (utils/desk_pr_body.py).
+      # This job owns COMMITTED:archive, one line per commit naming the
+      # editions it changed, and NEEDS:archive, the links that have no capture
+      # from their edition's time: each run replaces that list with its own.
+      # The script comes from the commit this run started on: the accumulator
+      # branch checked out here may not have it yet.
+      - name: Create or update PR
+        if: steps.check_changes.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
+        run: |
+          SCRIPT="$RUNNER_TEMP/desk_pr_body.py"
+          git show "$GITHUB_SHA:utils/desk_pr_body.py" > "$SCRIPT"
+
+          PR=$(gh api "repos/$REPO/pulls?head=${REPO%%/*}:$UPDATE_BRANCH&state=open" --jq '.[0].number // empty')
+          if [ -z "$PR" ]; then
+            pixi run python "$SCRIPT" skeleton > "$RUNNER_TEMP/body.md"
+            PR=$(gh api "repos/$REPO/pulls" -f title='🐍 Conference updates' -f head="$UPDATE_BRANCH" -f base=main \
+              -F body=@"$RUNNER_TEMP/body.md" --jq .number)
+            gh api "repos/$REPO/issues/$PR/labels" -f 'labels[]=automated' -f 'labels[]=conference-update' --silent
+            echo "::notice title=PR Created::Opened #$PR for the archive resolve"
+          fi
+
+          pixi run python "$SCRIPT" --repo "$REPO" commit-line --sha "$COMMIT_SHA" --label "Archive links" > "$RUNNER_TEMP/line.md"
+          if [ -s "$RUNNER_TEMP/line.md" ]; then
+            pixi run python "$SCRIPT" --repo "$REPO" --pr "$PR" append COMMITTED:archive "$RUNNER_TEMP/line.md"
+          fi
+          if [ -s "$RUNNER_TEMP/needs.md" ]; then
+            pixi run python "$SCRIPT" --repo "$REPO" --pr "$PR" set NEEDS:archive "$RUNNER_TEMP/needs.md"
+          fi
+
+      - name: Summary
+        if: ${{ !cancelled() }}
+        env:
+          RECORDS: ${{ runner.temp }}/desk-records.jsonl
+          ADDED: ${{ steps.queue.outputs.added }}
+        run: |
+          count() { if [ -s "$1" ]; then wc -l < "$1"; else echo 0; fi; }
+          {
+            echo "## Archive resolve"
+            echo ""
+            echo "- Links pointed to an archived page: $(count "$RUNNER_TEMP/changes.md")"
+            echo "- Links kept, no capture from their edition: $(count "$RUNNER_TEMP/needs.md")"
+            echo "- Links redirecting to another site: $(count "$RECORDS")"
+            echo "- New in the desk queue: ${ADDED:-0}"
+          } >> "$GITHUB_STEP_SUMMARY"

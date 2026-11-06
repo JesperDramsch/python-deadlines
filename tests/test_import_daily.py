@@ -36,6 +36,7 @@ from tidy_conf.deduplicate import deduplicate
 from tidy_conf.interactive_merge import fuzzy_match
 from tidy_conf.interactive_merge import merge_conferences
 from tidy_conf.links import REDUNDANT_LINK_FIELDS
+from tidy_conf.links import Probe
 from tidy_conf.links import drop_redundant_link_fields
 from tidy_conf.schema import get_schema
 
@@ -185,7 +186,7 @@ class TestMergeDuplicates:
         for name, entries in (("conferences", [copy]), ("archive", [stored]), ("legacy", [])):
             (data / f"{name}.yml").write_text(yaml.safe_dump(entries), encoding="utf-8")
 
-        sort_yaml.sort_data(base=str(tmp_path), skip_links=True)
+        sort_yaml.sort_data(base=str(tmp_path))
 
         entries = [
             entry
@@ -330,9 +331,10 @@ class TestImportInJanuary:
 class TestCodeOfConductLinks:
     """coc is a sub-page link like cfp_link, sponsor and finaid."""
 
-    @patch("sort_yaml.get_cache", return_value=(set(), set()))
-    @patch("sort_yaml.check_link_availability", side_effect=lambda url, *_args, **_kwargs: url)
-    def test_check_links_checks_coc(self, mock_check_link, mock_get_cache):
+    def test_link_check_checks_coc(self):
+        """The weekly link check (utils/archive_resolve.py) requests coc like the other URL fields."""
+        import archive_resolve
+
         data = [
             {
                 "conference": "PyCon Testland",
@@ -343,11 +345,22 @@ class TestCodeOfConductLinks:
                 "finaid": "https://2026.pycon.test/finaid/",
                 "coc": "https://2026.pycon.test/coc/",
                 "start": date(2026, 6, 1),
+                "end": date(2026, 6, 1),
             },
         ]
-        sort_yaml.check_links(data)
-        fields = [call.kwargs["field"] for call in mock_check_link.call_args_list]
-        assert fields == ["link", "cfp_link", "sponsor", "finaid", "coc"]
+        requested = []
+        archive_resolve.check_links(
+            data,
+            date(2026, 7, 1),
+            request=lambda url: requested.append(url) or Probe(url, url, 200),
+        )
+        assert requested == [
+            "https://2026.pycon.test/",
+            "https://2026.pycon.test/cfp/",
+            "https://2026.pycon.test/sponsors/",
+            "https://2026.pycon.test/finaid/",
+            "https://2026.pycon.test/coc/",
+        ]
 
     def test_coc_is_a_redundant_link_field(self):
         assert REDUNDANT_LINK_FIELDS == ("cfp_link", "sponsor", "finaid", "coc")

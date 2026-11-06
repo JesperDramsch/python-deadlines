@@ -7,8 +7,7 @@ channels = ["conda-forge"]
 platforms = ["win-64", "osx-arm64", "linux-64"]
 
 [tasks]
-sort = 'python ./utils/sort_yaml.py --skip_links'
-links = 'python ./utils/sort_yaml.py'
+sort = 'python ./utils/sort_yaml.py'
 merge = 'python ./utils/main.py'
 serve = "bundler exec jekyll serve"
 serve-dev = "bundler exec jekyll serve --config _config.yml,_config.dev.yml"

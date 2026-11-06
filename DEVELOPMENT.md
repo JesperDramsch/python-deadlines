@@ -74,9 +74,9 @@ Later configs override earlier ones, so `_config.dev.yml` overrides specific set
    pixi run serve-minimal
    ```
 
-2. **Skip link checking when sorting:**
+2. **Sorting never uses the network for links:**
    ```bash
-   pixi run sort  # Uses --skip_links by default
+   pixi run sort  # Links are checked weekly by archive-resolve.yml
    ```
 
 3. **Use incremental builds:**
