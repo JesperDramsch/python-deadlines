@@ -606,7 +606,7 @@ def write_and_sort(entries: list[dict], root: Path) -> None:
         write_conference_yaml(entries, str(root / DATA_FILES[0]))
         for path in DATA_FILES[1:]:
             write_conference_yaml([], str(root / path))
-        sort_data(base=str(root), skip_links=True)
+        sort_data(base=str(root))
 
         by_place = repeated_pairs(entries)
         expected = Counter(entry_key(entry, by_place) for entry in entries)

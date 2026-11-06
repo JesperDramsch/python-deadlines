@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Read and write the blocks of the rolling PR body that each writer owns.
 
-The rolling PR on ``auto/conference-updates`` has three writers: the desk
-Routine and two GitHub Actions jobs, the canonical-source import
-(``canonical``) and the TBA enrichment (``enrich``). Its body tells the
+The rolling PR on ``auto/conference-updates`` has four writers: the desk
+Routine and three GitHub Actions jobs, the canonical-source import
+(``canonical``), the TBA enrichment (``enrich``) and the archive resolve
+(``archive``). Its body tells the
 maintainer what needs them and what was committed, so every writer adds to the
 same two sections. Each writer owns blocks between marker lines::
 
@@ -54,7 +55,7 @@ from datetime import timezone
 from pathlib import Path
 
 DEFAULT_REPO = "JesperDramsch/python-deadlines"
-WRITERS = ("desk", "enrich", "canonical")
+WRITERS = ("desk", "enrich", "canonical", "archive")
 BLOCKS = (
     "HEAD:desk",
     *(f"NEEDS:{writer}" for writer in WRITERS),
