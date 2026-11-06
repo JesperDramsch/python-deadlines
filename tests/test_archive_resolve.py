@@ -284,7 +284,9 @@ class TestCheckLinks:
         requested = []
 
         archive_resolve.check_links(
-            [entry], TODAY, request=lambda url: requested.append(url) or links.Probe(url, url, 200),
+            [entry],
+            TODAY,
+            request=lambda url: requested.append(url) or links.Probe(url, url, 200),
         )
 
         assert requested == ["https://pycon.tz/conduct/"]
