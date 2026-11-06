@@ -2,6 +2,21 @@
   "handled": [
     "a0396079f271d359a62a7e2fd0a7308589651bcd"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "fae0ae163261078ca41a4ef4059bff77240796e5",
+      "kind": "signal",
+      "payload": {
+        "diff": "Regarder les enregistrements Découvrez l'édition 2026 Rapport de la PyCon Togo 2026 Découvrez l'édition 2026",
+        "trigger": "website_change",
+        "watch_uuid": "953a9a48-b2fd-4aa2-a465-caf0224536bf"
+      },
+      "received": "2026-11-06T23:15:01Z",
+      "source": "changedetection",
+      "title": "PyCon Togo 2026 - Main",
+      "url": "https://pycontg.pytogo.org/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Togo"
 }
