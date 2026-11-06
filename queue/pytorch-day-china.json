@@ -18,6 +18,20 @@
       "title": "Pytorch Day China 2026 - Main",
       "url": "https://www.lfopensource.cn/pytorch-day-china/",
       "year": 2026
+    },
+    {
+      "id": "25d745ccf7665eeb2c50566b47ad6a0786777d2a",
+      "kind": "signal",
+      "payload": {
+        "diff": "Co-Hosted by",
+        "trigger": "website_change",
+        "watch_uuid": "6d70243a-012c-44d3-98d8-cd7373c4c54f"
+      },
+      "received": "2026-11-06T05:31:08Z",
+      "source": "changedetection",
+      "title": "Pytorch Day China 2026 - Main",
+      "url": "https://www.lfopensource.cn/pytorch-day-china/",
+      "year": 2026
     }
   ],
   "series": "Pytorch Day China"
