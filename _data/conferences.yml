@@ -665,12 +665,16 @@
 - conference: PyCon Hong Kong
   year: 2026
   link: https://www.pycon.hk/
+  cfp_link: https://cfp.pycon.hk/pyconhk2026/cfp
   cfp: '2026-06-20 23:59:59'
   timezone: Asia/Hong_Kong
   place: Hong Kong, China
   start: 2026-11-14
   end: 2026-11-15
+  sponsor: https://pycon.hk/2026/en/sponsorships/opportunities/
+  coc: https://pycon.hk/2026/en/code-of-conduct/
   twitter: pyconhk
+  youtube: https://www.youtube.com/c/pyconhk
   sub: PY
   note: Conference dates are tentative pending official confirmation.
   location:

@@ -1723,7 +1723,10 @@
   place: Hong Kong, China
   start: 2025-10-11
   end: 2025-10-11
+  sponsor: https://pycon.hk/2025/sponsorships/opportunities
+  coc: https://pycon.hk/2025/code-of-conduct
   twitter: pyconhk
+  youtube: https://www.youtube.com/c/pyconhk
   sub: PY
   location:
   - title: PyCon Hong Kong 2025
