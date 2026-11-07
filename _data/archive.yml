@@ -4504,6 +4504,8 @@
   place: Bratislava, Slovakia
   start: 2024-03-15
   end: 2024-03-17
+  sponsor: https://2024.pycon.sk/en/sponsors.html
+  coc: https://2024.pycon.sk/en/coc.html
   twitter: pyconsk
   sub: PY
   location:
@@ -6396,6 +6398,9 @@
   place: Bratislava, Slovakia
   start: 2022-09-09
   end: 2022-09-11
+  sponsor: https://2022.pycon.sk/en/sponsors.html
+  coc: https://2022.pycon.sk/en/coc.html
+  twitter: pyconsk
   sub: PY
   location:
   - title: PyCon Slovakia 2022

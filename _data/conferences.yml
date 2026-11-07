@@ -222,8 +222,9 @@
   place: Bratislava, Slovakia
   start: 2027-03-12
   end: 2027-03-13
-  sponsor: https://pycon.sk/#pyc27-partners
+  sponsor: https://pycon.sk/partners/
   finaid: https://docs.google.com/forms/d/e/1FAIpQLSdLmVLPHTYmiHu0bcoOwYCj5GnU4trP9vbKOUPjBzvrXtB_kA/viewform
+  coc: https://pycon.sk/code-of-conduct/
   twitter: pyconsk
   sub: PY
   location:
