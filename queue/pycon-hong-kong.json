@@ -1,44 +1,8 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "5e9445d955f42766ce334f78032c248011b56d69",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Hong Kong",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Hong Kong in column 'link' would you prefer 'https://pycon.hk/2026/' or keep 'https://www.pycon.hk/'?",
-        "remote_value": "https://pycon.hk/2026/",
-        "source_name": "python.org",
-        "yaml_value": "https://www.pycon.hk/",
-        "year": 2026
-      },
-      "received": "2026-11-06T13:11:26Z",
-      "source": "canonical-import",
-      "title": "PyCon Hong Kong",
-      "url": "https://www.pycon.hk/",
-      "year": 2026
-    },
-    {
-      "id": "901bf64d11847fffb19da4457fef02e2bb784339",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Hong Kong",
-        "default_answer": false,
-        "field": "place",
-        "question": "For PyCon Hong Kong in column 'place' would you prefer 'Tseung Kwan O, Hong Kong' or keep 'Hong Kong, China'?",
-        "remote_value": "Tseung Kwan O, Hong Kong",
-        "source_name": "python.org",
-        "yaml_value": "Hong Kong, China",
-        "year": 2026
-      },
-      "received": "2026-11-06T13:11:26Z",
-      "source": "canonical-import",
-      "title": "PyCon Hong Kong",
-      "url": "https://www.pycon.hk/",
-      "year": 2026
-    }
+  "handled": [
+    "5e9445d955f42766ce334f78032c248011b56d69",
+    "901bf64d11847fffb19da4457fef02e2bb784339"
   ],
+  "items": [],
   "series": "PyCon Hong Kong"
 }
