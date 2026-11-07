@@ -71,6 +71,8 @@
   cfp: '2026-12-20 23:59:00'
   timezone: Europe/Berlin
   place: Heidelberg, Germany
+  extra_places:
+  - Online
   start: 2027-04-20
   end: 2027-04-22
   sponsor: https://pycon.de/sponsoring/
@@ -84,24 +86,6 @@
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
     longitude: 8.694724
-
-- conference: Python Community Leadership Summit
-  alt_name: Black Python Devs Leadership Summit
-  year: 2027
-  link: https://blackpythondevs.org/events/python-community-leadership-summit-2027-at-pytexas/
-  cfp_link: https://pretalx.com/pytexas-2027/cfp
-  cfp: '2026-12-11 17:00:00'
-  timezone: America/Chicago
-  place: Austin, USA
-  start: 2027-04-16
-  end: 2027-04-16
-  coc: https://blackpythondevs.org/code-of-conduct/
-  twitter: blackpythondevs
-  sub: PY
-  location:
-  - title: Black Python Devs Leadership Summit 2027
-    latitude: 30.2711286
-    longitude: -97.7436995
 
 - conference: PyTexas
   year: 2027
@@ -122,6 +106,25 @@
   sub: PY
   location:
   - title: PyTexas 2027
+    latitude: 30.2711286
+    longitude: -97.7436995
+
+- conference: Python Community Leadership Summit
+  alt_name: Black Python Devs Leadership Summit
+  year: 2027
+  link: https://blackpythondevs.org/events/python-community-leadership-summit-2027-at-pytexas/
+  cfp_link: https://pretalx.com/pytexas-2027/cfp
+  cfp: '2026-12-11 17:00:00'
+  timezone: America/Chicago
+  place: Austin, USA
+  start: 2027-04-16
+  end: 2027-04-16
+  coc: https://blackpythondevs.org/code-of-conduct/
+  twitter: blackpythondevs
+  youtube: https://youtube.com/@blackpythondevs
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2027
     latitude: 30.2711286
     longitude: -97.7436995
 
@@ -195,6 +198,7 @@
   link: https://pycon.tz/
   cfp_link: https://pycon.tz/call-for-proposals/
   cfp: '2026-11-01 23:59:00'
+  cfp_ext: '2026-11-15 23:59:00'
   timezone: Africa/Dar_es_Salaam
   place: Dar Es Salaam, Tanzania
   start: 2026-11-25
@@ -218,8 +222,9 @@
   place: Bratislava, Slovakia
   start: 2027-03-12
   end: 2027-03-13
-  sponsor: https://pycon.sk/#pyc27-partners
+  sponsor: https://pycon.sk/partners/
   finaid: https://docs.google.com/forms/d/e/1FAIpQLSdLmVLPHTYmiHu0bcoOwYCj5GnU4trP9vbKOUPjBzvrXtB_kA/viewform
+  coc: https://pycon.sk/code-of-conduct/
   twitter: pyconsk
   sub: PY
   location:
@@ -252,7 +257,7 @@
   link: https://scipy.in/2026/
   cfp_link: https://cfp.scipy.in/scipy-india-2026/cfp
   cfp: '2026-10-19 23:59:00'
-  cfp_ext: '2026-11-01 23:59:00'
+  cfp_ext: '2026-11-02 00:30:00'
   workshop_deadline: '2026-11-01 23:59:00'
   tutorial_deadline: '2026-11-01 23:59:00'
   timezone: Asia/Kolkata
@@ -586,27 +591,6 @@
   coc: https://pydata.org/code-of-conduct/
   sub: DATA
 
-- conference: Plone Conference
-  year: 2026
-  link: https://2026.ploneconf.org/
-  cfp_link: https://2026.ploneconf.org/call-for-proposals
-  cfp: '2026-07-31 23:59:00'
-  cfp_ext: '2026-08-16 23:59:00'
-  place: Maastricht, Netherlands
-  start: 2026-09-21
-  end: 2026-09-27
-  sponsor: https://2026.ploneconf.org/sponsors
-  coc: https://2026.ploneconf.org/about/contact/code-of-conduct
-  twitter: ploneconf
-  mastodon: https://plone.social/@ploneconf
-  bluesky: https://bsky.app/profile/plone.org
-  youtube: https://www.youtube.com/@plonecms
-  sub: WEB
-  location:
-  - title: Plone Conference 2026
-    latitude: 50.8513682
-    longitude: 5.6909725
-
 - conference: PyBay
   year: 2026
   link: https://pybay.org/
@@ -681,12 +665,16 @@
 - conference: PyCon Hong Kong
   year: 2026
   link: https://www.pycon.hk/
+  cfp_link: https://cfp.pycon.hk/pyconhk2026/cfp
   cfp: '2026-06-20 23:59:59'
   timezone: Asia/Hong_Kong
   place: Hong Kong, China
   start: 2026-11-14
   end: 2026-11-15
+  sponsor: https://pycon.hk/2026/en/sponsorships/opportunities/
+  coc: https://pycon.hk/2026/en/code-of-conduct/
   twitter: pyconhk
+  youtube: https://www.youtube.com/c/pyconhk
   sub: PY
   note: Conference dates are tentative pending official confirmation.
   location:
@@ -1060,6 +1048,7 @@
   start: 2027-06-02
   end: 2027-06-05
   sponsor: https://2027.pycon.it/en/sponsor
+  finaid: https://2027.pycon.it/en/grants-info
   coc: https://2027.pycon.it/en/code-of-conduct
   twitter: PyConIT
   mastodon: https://social.python.it/@pycon
@@ -1280,35 +1269,3 @@
   - title: EARL 2026
     latitude: 50.8214626
     longitude: -0.1400561
-
-- conference: PyCaxias
-  year: 2026
-  link: https://pycaxias.com.br/
-  cfp: None
-  timezone: America/Sao_Paulo
-  place: Caxias do Sul, Brasil
-  start: 2026-09-26
-  end: 2026-09-26
-  sponsor: https://pycaxias.com.br/#patrocinio
-  sub: PY
-  location:
-  - title: PyCaxias 2026
-    latitude: -29.1685045
-    longitude: -51.1796385
-
-- conference: Pythoncamp Rügen
-  year: 2026
-  link: https://barcamps.eu/pythoncamp-ruegen-2026/
-  cfp_link: https://barcamps.eu/pythoncamp-ruegen-2026/sessions
-  cfp: None
-  timezone: Europe/Berlin
-  place: Rügen, Germany
-  start: 2026-09-26
-  end: 2026-09-27
-  sponsor: https://barcamps.eu/pythoncamp-ruegen-2026/sponsoren
-  mastodon: https://ruhr.social/@pythoncamp
-  sub: CAMP
-  location:
-  - title: Pythoncamp Rügen 2026
-    latitude: 54.4529015
-    longitude: 13.3882344

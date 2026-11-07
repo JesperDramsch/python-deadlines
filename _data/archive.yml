@@ -1,5 +1,58 @@
 ---
 
+- conference: PyCaxias
+  year: 2026
+  link: https://pycaxias.com.br/
+  cfp: None
+  timezone: America/Sao_Paulo
+  place: Caxias do Sul, Brasil
+  start: 2026-09-26
+  end: 2026-09-26
+  sponsor: https://pycaxias.com.br/#patrocinio
+  sub: PY
+  location:
+  - title: PyCaxias 2026
+    latitude: -29.1685045
+    longitude: -51.1796385
+
+- conference: Pythoncamp Rügen
+  year: 2026
+  link: https://barcamps.eu/pythoncamp-ruegen-2026/
+  cfp_link: https://barcamps.eu/pythoncamp-ruegen-2026/sessions
+  cfp: None
+  timezone: Europe/Berlin
+  place: Rügen, Germany
+  start: 2026-09-26
+  end: 2026-09-27
+  sponsor: https://barcamps.eu/pythoncamp-ruegen-2026/sponsoren
+  mastodon: https://ruhr.social/@pythoncamp
+  sub: CAMP
+  location:
+  - title: Pythoncamp Rügen 2026
+    latitude: 54.4529015
+    longitude: 13.3882344
+
+- conference: Plone Conference
+  year: 2026
+  link: https://2026.ploneconf.org/
+  cfp_link: https://2026.ploneconf.org/call-for-proposals
+  cfp: '2026-07-31 23:59:00'
+  cfp_ext: '2026-08-16 23:59:00'
+  place: Maastricht, Netherlands
+  start: 2026-09-21
+  end: 2026-09-27
+  sponsor: https://2026.ploneconf.org/sponsors
+  coc: https://2026.ploneconf.org/about/contact/code-of-conduct
+  twitter: ploneconf
+  mastodon: https://plone.social/@ploneconf
+  bluesky: https://bsky.app/profile/plone.org
+  youtube: https://www.youtube.com/@plonecms
+  sub: WEB
+  location:
+  - title: Plone Conference 2026
+    latitude: 50.8513682
+    longitude: 5.6909725
+
 - conference: PyCon Cameroon
   year: 2026
   link: https://pycon.pythoncameroon.org/
@@ -381,24 +434,6 @@
     latitude: 41.4996574
     longitude: -81.6936772
 
-- conference: Python Community Leadership Summit
-  alt_name: Black Python Devs Leadership Summit
-  year: 2026
-  link: https://blackpythondevs.com/bpd-events/black-python-devs-leadership-summit-2026-ohio.html
-  cfp_link: https://pretalx.com/pyohio-2026/submit/?track=6985-black-python-devs-leadership-summit
-  cfp: '2026-04-20 23:59:00'
-  place: Cleveland, USA
-  start: 2026-07-24
-  end: 2026-07-24
-  coc: https://blackpythondevs.org/code-of-conduct/
-  twitter: blackpythondevs
-  youtube: https://youtube.com/@blackpythondevs
-  sub: PY
-  location:
-  - title: Black Python Devs Leadership Summit 2026
-    latitude: 41.4996574
-    longitude: -81.6936772
-
 - conference: PyCon Armenia
   alt_name: PyData PyCon Yerevan
   year: 2026
@@ -452,6 +487,24 @@
     latitude: 55.7558
     longitude: 37.6173
 
+- conference: Python Community Leadership Summit
+  alt_name: Black Python Devs Leadership Summit
+  year: 2026
+  link: https://blackpythondevs.org/events/black-python-devs-leadership-summit-2026-ohio/
+  cfp_link: https://pretalx.com/pyohio-2026/submit/?track=6985-black-python-devs-leadership-summit
+  cfp: '2026-04-20 23:59:00'
+  place: Cleveland, USA
+  start: 2026-07-24
+  end: 2026-07-24
+  coc: https://blackpythondevs.org/code-of-conduct/
+  twitter: blackpythondevs
+  youtube: https://youtube.com/@blackpythondevs
+  sub: PY
+  location:
+  - title: Black Python Devs Leadership Summit 2026
+    latitude: 41.4996574
+    longitude: -81.6936772
+
 - conference: Python Sudeste
   year: 2026
   link: https://ingressos.python.org.br/sudeste/ingressos
@@ -461,6 +514,7 @@
   place: Rio de Janeiro, RJ
   start: 2026-07-24
   end: 2026-07-26
+  coc: https://github.com/pythonsudeste/codigo-de-conduta
   sub: PY
   location:
   - title: Python Sudeste 2026
@@ -544,6 +598,23 @@
   - title: Python Norte 2026
     latitude: -1.374035
     longitude: -48.4016623
+
+- conference: Web Summer Camp
+  year: 2026
+  link: https://websummercamp.com/
+  cfp_link: https://sessionize.com/web-summer-camp-2026
+  cfp: '2026-03-10 23:59:00'
+  timezone: Europe/Zagreb
+  place: Opatija, Croatia
+  start: 2026-07-02
+  end: 2026-07-04
+  coc: https://websummercamp.com/2026/code-of-conduct
+  twitter: websummercamp
+  sub: WEB
+  location:
+  - title: Web Summer Camp 2026
+    latitude: 45.3349238
+    longitude: 14.3067834
 
 - conference: PyCon Singapore
   year: 2026
@@ -1159,10 +1230,12 @@
   link: https://www.pyconsenegambia.org/en
   cfp_link: https://sessionize.com/pycon-senegambia
   cfp: '2025-09-04 23:59:00'
+  cfp_ext: '2025-09-15 23:59:00'
   timezone: UTC
   place: Banjul, Gambia
   start: 2025-11-28
   end: 2025-11-29
+  twitter: PyconSenegambia
   sub: PY
   location:
   - title: PyCon Senegambia 2025
@@ -1352,6 +1425,7 @@
   place: Petaling Jaya, Malaysia
   start: 2025-11-01
   end: 2025-11-02
+  sponsor: https://www.pycon.my/sponsor
   coc: https://www.pycon.my/coc
   twitter: pyconmy
   sub: PY
@@ -1649,7 +1723,10 @@
   place: Hong Kong, China
   start: 2025-10-11
   end: 2025-10-11
+  sponsor: https://pycon.hk/2025/sponsorships/opportunities
+  coc: https://pycon.hk/2025/code-of-conduct
   twitter: pyconhk
+  youtube: https://www.youtube.com/c/pyconhk
   sub: PY
   location:
   - title: PyCon Hong Kong 2025
@@ -1970,6 +2047,7 @@
   place: Mogadishu, Somalia
   start: 2025-09-03
   end: 2025-09-04
+  coc: https://pycon.org.so/code-of-conduct/
   twitter: PyconSomalia
   sub: PY
   location:
@@ -2430,6 +2508,22 @@
     latitude: -1.438875529
     longitude: -48.4782039189
 
+- conference: Python Sudeste
+  year: 2025
+  link: https://2025.sudeste.python.org.br/
+  cfp_link: https://talks.python.org.br/python-sudeste-2025/cfp
+  cfp: '2025-04-17 23:59:00'
+  timezone: America/Sao_Paulo
+  place: Belo Horizonte, Brazil
+  start: 2025-05-30
+  end: 2025-06-02
+  coc: https://github.com/pythonsudeste/codigo-de-conduta
+  sub: PY
+  location:
+  - title: Python Sudeste 2025
+    latitude: -19.9227318
+    longitude: -43.9450948
+
 - conference: PyCon Italy
   alt_name: PyCon Italia
   year: 2025
@@ -2567,7 +2661,9 @@
   year: 2025
   link: https://2025.northbaypython.org/
   cfp_link: https://pretalx.northbaypython.org/nbpy-2025/cfp
-  cfp: '2025-02-22 23:59:00'
+  cfp: '2025-02-08 03:59:00'
+  cfp_ext: '2025-02-22 03:59:00'
+  timezone: America/Los_Angeles
   place: Petaluma, USA
   start: 2025-04-26
   end: 2025-04-27
@@ -2887,7 +2983,7 @@
 - conference: PyCon Tanzania
   alt_name: Python Tanzania Conference
   year: 2024
-  link: https://pycon.or.tz/
+  link: https://pycon.tz/2024/event/
   cfp_link: https://pycon.or.tz/speak/
   cfp: '2024-11-12 23:59:00'
   place: Dar Es Salaam, Tanzania
@@ -4411,6 +4507,8 @@
   place: Bratislava, Slovakia
   start: 2024-03-15
   end: 2024-03-17
+  sponsor: https://2024.pycon.sk/en/sponsors.html
+  coc: https://2024.pycon.sk/en/coc.html
   twitter: pyconsk
   sub: PY
   location:
@@ -5108,7 +5206,10 @@
   end: 2023-09-17
   sponsor: https://web.archive.org/web/20230516214745/https://cz.pycon.org/2023/pycon-cz-sponsorship-prospectus-2023.pdf
   finaid: https://cz.pycon.org/2023/cfp/
+  coc: https://cz.pycon.org/2023/coc/
   twitter: pyconcz
+  mastodon: https://floss.social/@pyconcz
+  youtube: https://www.youtube.com/@PyConCZ
   sub: PY
   location:
   - title: PyCon Czechia 2023
@@ -5890,6 +5991,7 @@
   place: Zanzibar, Tanzania
   start: 2022-12-04
   end: 2022-12-08
+  coc: https://pycon.tz/conduct/
   sub: PY
   location:
   - title: PyCon Tanzania 2022
@@ -6299,6 +6401,9 @@
   place: Bratislava, Slovakia
   start: 2022-09-09
   end: 2022-09-11
+  sponsor: https://2022.pycon.sk/en/sponsors.html
+  coc: https://2022.pycon.sk/en/coc.html
+  twitter: pyconsk
   sub: PY
   location:
   - title: PyCon Slovakia 2022
@@ -8556,6 +8661,7 @@
   place: Karachi, Pakistan
   start: 2019-10-12
   end: 2019-10-12
+  twitter: PyConPK
   sub: PY
   location:
   - title: PyCon Pakistan 2019
