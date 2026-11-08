@@ -445,7 +445,7 @@ def frozen_on(day):
 def sort_on(day):
     """Run the repository's sort as it would run on the given day."""
     with frozen_on(day):
-        merge_data.sort_data(skip_links=True)
+        merge_data.sort_data()
 
 
 def conflicted():
