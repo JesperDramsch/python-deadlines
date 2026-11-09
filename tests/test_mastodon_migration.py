@@ -359,12 +359,12 @@ class TestCheckMastodonMigration:
 
 
 class TestCheckMastodonMigrationIntegration:
-    """Integration tests for Mastodon migration in check_links."""
+    """Integration tests for following Mastodon migrations in the weekly link check."""
 
     @responses.activate
-    def test_check_links_updates_mastodon(self):
-        """Test that check_links updates migrated Mastodon accounts."""
-        from sort_yaml import check_links
+    def test_follow_mastodon_updates_migrated_account(self):
+        """A migrated account is replaced by its new address."""
+        from archive_resolve import follow_mastodon
 
         old_url = "https://old-instance.social/@pycon"
         new_url = "https://new-instance.social/@pycon"
@@ -406,21 +406,19 @@ class TestCheckMastodonMigrationIntegration:
                 "year": 2025,
                 "link": "https://example.com",
                 "mastodon": old_url,
-                # sort_data runs tidy_dates before check_links, so start is a date
                 "start": date(2025, 6, 1),
             },
         ]
 
-        with patch("tidy_conf.links.time.sleep"), patch("sort_yaml.get_cache") as mock_cache:
-            mock_cache.return_value = (set(), set())
-            result = check_links(data)
+        with patch("tidy_conf.links.time.sleep"):
+            assert follow_mastodon(data) == 1
 
-        assert result[0]["mastodon"] == new_url
+        assert data[0]["mastodon"] == new_url
 
     @responses.activate
-    def test_check_links_preserves_non_migrated(self):
-        """Test that check_links preserves non-migrated Mastodon accounts."""
-        from sort_yaml import check_links
+    def test_follow_mastodon_preserves_non_migrated(self):
+        """An account that did not move is kept."""
+        from archive_resolve import follow_mastodon
 
         url = "https://fosstodon.org/@pycon"
 
@@ -449,13 +447,10 @@ class TestCheckMastodonMigrationIntegration:
                 "year": 2025,
                 "link": "https://example.com",
                 "mastodon": url,
-                # sort_data runs tidy_dates before check_links, so start is a date
                 "start": date(2025, 6, 1),
             },
         ]
 
-        with patch("sort_yaml.get_cache") as mock_cache:
-            mock_cache.return_value = (set(), set())
-            result = check_links(data)
+        assert follow_mastodon(data) == 0
 
-        assert result[0]["mastodon"] == url
+        assert data[0]["mastodon"] == url

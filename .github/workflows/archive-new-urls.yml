@@ -1,5 +1,12 @@
 name: Archive New Conference URLs
 
+# Asks the Wayback Machine to save conference pages while they still show
+# their edition, so the weekly archive resolve (archive-resolve.yml) has a
+# capture to point old editions to once the site moves on. utils/archive_save.py
+# decides what to save: URLs new since the last successful run, and the pages of
+# editions at a save point (around the CfP deadline and the start). Both
+# workflows talk to the archive through utils/wayback.py.
+
 permissions:
   contents: read
 
@@ -14,129 +21,56 @@ on:
   workflow_dispatch:
     inputs:
       skip_archive:
-        description: 'Skip the Web Archive (only report the new URLs)'
+        description: 'Skip the Web Archive (only report the URLs). The run still counts as the last run, so its URLs are not saved later.'
         type: boolean
         default: false
 
+concurrency:
+  group: archive-new-urls
+  cancel-in-progress: false
+
 jobs:
-  check-new-urls:
+  archive:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0 # Full history for finding last run
+          fetch-depth: 0 # Full history for the data at the last run
 
-      - name: Find last successful run commit
+      - name: Find last successful run
         id: last-run
-        run: |
-          last_sha=$(gh run list --workflow="Archive New Conference URLs" --json conclusion,headSha --jq '.[] | select(.conclusion=="success") | .headSha' | head -n1)
-          if [ -n "$last_sha" ]; then
-            echo "sha=$last_sha" >> $GITHUB_OUTPUT
-          else
-            echo "sha=$(git rev-list --max-parents=0 HEAD)" >> $GITHUB_OUTPUT
-          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract new conference entries
-        id: extract
         run: |
-          # Get the diff for conferences.yml
-          DIFF=$(git diff ${{ steps.last-run.outputs.sha }} -- _data/conferences.yml || true)
-
-          if [ -z "$DIFF" ]; then
-            echo "No changes to conferences.yml"
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "has_changes=true" >> $GITHUB_OUTPUT
-
-          # Parse new conference entries from the diff
-          # We need: link, conference name, place, sub
-          python3 << 'EOF'
-          import yaml
-          import subprocess
-          import json
-          import re
-
-          # Get current and previous versions
-          result = subprocess.run(
-              ['git', 'show', '${{ steps.last-run.outputs.sha }}:_data/conferences.yml'],
-              capture_output=True, text=True
-          )
-          old_data = yaml.safe_load(result.stdout) if result.returncode == 0 else []
-
-          with open('_data/conferences.yml', 'r') as f:
-              new_data = yaml.safe_load(f)
-
-          # Create sets of existing URLs (normalize trailing slashes)
-          def normalize_url(url):
-              return url.rstrip('/').lower() if url else ''
-
-          old_urls = {normalize_url(c.get('link', '')) for c in (old_data or [])}
-
-          # Find new entries
-          new_entries = []
-          for conf in (new_data or []):
-              url = normalize_url(conf.get('link', ''))
-              if url and url not in old_urls:
-                  new_entries.append({
-                      'url': conf.get('link', ''),
-                      'name': f"{conf.get('conference', 'Unknown')} {conf.get('year', '')}".strip(),
-                      'place': conf.get('place', ''),
-                      'sub': conf.get('sub', 'PY'),
-                  })
-
-          # Output as JSON for later steps
-          print(f"Found {len(new_entries)} new conference URLs")
-          with open('/tmp/new_conferences.json', 'w') as f:
-              json.dump(new_entries, f)
-
-          # Also output just URLs for backward compatibility
-          urls = [e['url'] for e in new_entries]
-          with open('/tmp/new_urls.txt', 'w') as f:
-              f.write('\n'.join(urls))
-          EOF
-
-          # Set outputs
-          if [ -s /tmp/new_urls.txt ]; then
-            echo "url_count=$(wc -l < /tmp/new_urls.txt)" >> $GITHUB_OUTPUT
+          RUN=$(gh run list --workflow="Archive New Conference URLs" --status success --limit 1 \
+            --json headSha,createdAt --jq '.[0] // empty | "\(.headSha) \(.createdAt[:10])"')
+          if [ -n "$RUN" ]; then
+            echo "sha=${RUN% *}" >> "$GITHUB_OUTPUT"
+            echo "since=${RUN#* }" >> "$GITHUB_OUTPUT"
           else
-            echo "url_count=0" >> $GITHUB_OUTPUT
+            # First run: every URL counts as new, and the last week's save points are due
+            echo "sha=$(git rev-list --max-parents=0 HEAD)" >> "$GITHUB_OUTPUT"
+            echo "since=$(date -u -d '7 days ago' +%F)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Archive to Wayback Machine
-        if: steps.extract.outputs.has_changes == 'true' && steps.extract.outputs.url_count != '0' && inputs.skip_archive != true
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install --quiet requests pyyaml
+
+      - name: Save to the Wayback Machine
+        env:
+          SHA: ${{ steps.last-run.outputs.sha }}
+          SINCE: ${{ steps.last-run.outputs.since }}
+          SKIP_ARCHIVE: ${{ inputs.skip_archive }}
         run: |
-          echo "## Web Archive Results" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-
-          while IFS= read -r url; do
-            [ -z "$url" ] && continue
-            echo "Archiving: $url"
-
-            response=$(curl -s -L -X POST \
-              -A "Python-Deadlines-Bot/1.0 (https://pythondeadlin.es; admin@python-deadlin.es)" \
-              "https://web.archive.org/save/$url" || true)
-            status=$?
-
-            if [ $status -eq 0 ]; then
-              echo "✓ Successfully archived: $url"
-              echo "- ✅ $url" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "⚠ Failed to archive: $url (error $status)"
-              echo "- ⚠️ $url (failed)" >> $GITHUB_STEP_SUMMARY
-            fi
-
-            sleep 5
-          done < /tmp/new_urls.txt
-
-      - name: Summary
-        if: always()
-        run: |
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Total new URLs:** ${{ steps.extract.outputs.url_count }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit range:** ${{ steps.last-run.outputs.sha }}..HEAD" >> $GITHUB_STEP_SUMMARY
+          git show "$SHA:_data/conferences.yml" > "$RUNNER_TEMP/previous.yml" 2>/dev/null || : > "$RUNNER_TEMP/previous.yml"
+          ARGS=(--previous "$RUNNER_TEMP/previous.yml" --since "$SINCE" --summary "$GITHUB_STEP_SUMMARY")
+          if [ "$SKIP_ARCHIVE" = "true" ]; then
+            ARGS+=(--dry-run)
+          fi
+          python utils/archive_save.py "${ARGS[@]}"

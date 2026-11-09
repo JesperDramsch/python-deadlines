@@ -1,5 +1,6 @@
 """Enhanced tests for sort_yaml functionality to increase coverage."""
 
+import inspect
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -561,79 +562,6 @@ class TestSplitData:
         assert total_processed == 1
 
 
-class TestCheckLinks:
-    """Test link checking functionality."""
-
-    @patch("sort_yaml.get_cache")
-    @patch("sort_yaml.check_link_availability")
-    @patch("sort_yaml.time.sleep")
-    def test_check_links_basic(self, mock_sleep, mock_check_link, mock_get_cache):
-        """Test basic link checking functionality."""
-        mock_get_cache.return_value = (set(), set())
-        mock_check_link.return_value = "https://updated.com"
-
-        data = [
-            {
-                "conference": "Test Conference",
-                "year": 2025,
-                "link": "https://original.com",
-                "cfp_link": "https://cfp-original.com",
-                "start": "2025-06-01",
-            },
-        ]
-
-        with patch("tqdm.tqdm", side_effect=lambda x, total=None: x):
-            result = sort_yaml.check_links(data)
-
-        # Should have updated links
-        assert result[0]["link"] == "https://updated.com"
-        assert result[0]["cfp_link"] == "https://updated.com"
-        assert mock_check_link.call_count >= 2
-
-    @patch("sort_yaml.get_cache")
-    @patch("sort_yaml.check_link_availability")
-    @patch("sort_yaml.time.sleep")
-    def test_check_links_archive_org_handling(self, mock_sleep, mock_check_link, mock_get_cache):
-        """Test special handling of archive.org links."""
-        mock_get_cache.return_value = (set(), set())
-
-        # Mock check_link_availability to return archive.org URL
-        mock_check_link.return_value = "https://web.archive.org/web/20250101000000/https://original.com"
-
-        data = [{"conference": "Test Conference", "year": 2025, "link": "https://original.com", "start": "2025-06-01"}]
-
-        with patch("tqdm.tqdm", side_effect=lambda x, total=None: x):
-            result = sort_yaml.check_links(data)
-
-        # Should have updated to archive.org link and called sleep
-        assert "archive.org" in result[0]["link"]
-        mock_sleep.assert_called_with(0.5)
-
-    @patch("sort_yaml.get_cache")
-    @patch("sort_yaml.check_link_availability")
-    def test_check_links_missing_keys(self, mock_check_link, mock_get_cache):
-        """Test link checking with missing keys."""
-        mock_get_cache.return_value = (set(), set())
-        mock_check_link.return_value = "https://updated.com"
-
-        data = [
-            {
-                "conference": "Test Conference",
-                "year": 2025,
-                "link": "https://original.com",
-                # Missing cfp_link, sponsor, finaid
-                "start": "2025-06-01",
-            },
-        ]
-
-        with patch("tqdm.tqdm", side_effect=lambda x, total=None: x):
-            result = sort_yaml.check_links(data)
-
-        # Should only check the link that exists
-        assert mock_check_link.call_count == 1
-        assert result[0]["link"] == "https://updated.com"
-
-
 class TestSortDataIntegration:
     """Test the main sort_data function integration."""
 
@@ -665,39 +593,27 @@ class TestSortDataIntegration:
         before = conferences.read_bytes()
 
         with pytest.raises(ValueError, match="1 conferences failed validation"):
-            sort_yaml.sort_data(base=str(tmp_path), skip_links=True)
+            sort_yaml.sort_data(base=str(tmp_path))
 
         assert conferences.read_bytes() == before
         assert not (data_dir / "archive.yml").exists()
 
 
-class TestCommandLineInterface:
-    """Test command line interface for sort_yaml."""
+class TestOffline:
+    """The sort never touches the network: links are checked by utils/archive_resolve.py."""
 
-    @patch("sort_yaml.sort_data")
-    def test_cli_default_arguments(self, mock_sort_data):
-        """Test CLI with default arguments."""
-        with patch("sys.argv", ["sort_yaml.py"]):
-            # Import and test argument parsing
-            import argparse
+    def test_no_link_checking_in_the_sort(self):
+        assert not hasattr(sort_yaml, "check_links")
+        assert "skip_links" not in inspect.signature(sort_yaml.sort_data).parameters
 
-            parser = argparse.ArgumentParser()
-            parser.add_argument("--skip_links", action="store_true", default=False)
-
-            args = parser.parse_args([])
-            assert args.skip_links is False
-
-    @patch("sort_yaml.sort_data")
-    def test_cli_skip_links_argument(self, mock_sort_data):
-        """Test CLI with --skip_links argument."""
-        with patch("sys.argv", ["sort_yaml.py", "--skip_links"]):
-            import argparse
-
-            parser = argparse.ArgumentParser()
-            parser.add_argument("--skip_links", action="store_true", default=False)
-
-            args = parser.parse_args(["--skip_links"])
-            assert args.skip_links is True
+    def test_sort_makes_no_requests(self, tmp_path):
+        """A full sort with geocoding mocked out sends no HTTP request."""
+        with patch("requests.get", side_effect=AssertionError("network used")), patch(
+            "sort_yaml.add_latlon",
+            side_effect=lambda data: data,
+        ):
+            (tmp_path / "_data").mkdir()
+            sort_yaml.sort_data(base=str(tmp_path))
 
 
 class TestErrorHandlingAndEdgeCases:
@@ -732,19 +648,6 @@ class TestErrorHandlingAndEdgeCases:
         """Test tidy dates with empty data."""
         with patch("tqdm.tqdm", side_effect=lambda x, total=None: x):
             result = sort_yaml.tidy_dates([])
-
-        assert result == []
-
-    def test_check_links_empty_data(self):
-        """Test check links with empty data."""
-        with (
-            patch("sort_yaml.get_cache", return_value=(set(), set())),
-            patch(
-                "tqdm.tqdm",
-                side_effect=lambda x, total=None: x,
-            ),
-        ):
-            result = sort_yaml.check_links([])
 
         assert result == []
 

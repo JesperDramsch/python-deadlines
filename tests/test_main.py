@@ -38,9 +38,9 @@ class TestMainPipeline:
         mock_organizer.assert_called_once()
         assert mock_sort.call_count == 2  # Called twice in pipeline
 
-        # Verify sort_data called with skip_links=True
+        # The sort has no link checking to skip
         for call in mock_sort.call_args_list:
-            assert call[1]["skip_links"] is True
+            assert call == ((), {})
 
         # Verify logging calls
         assert mock_logger_instance.info.call_count >= 7  # Start + 4 steps + completion messages
@@ -294,8 +294,8 @@ class TestStepIntegration:
     @patch("main.organizer_updater")
     @patch("main.official_updater")
     @patch("main.get_tqdm_logger")
-    def test_skip_links_parameter(self, mock_logger, mock_official, mock_organizer, mock_sort):
-        """Test that skip_links=True is passed to sort_data calls."""
+    def test_sort_called_without_arguments(self, mock_logger, mock_official, mock_organizer, mock_sort):
+        """The sort runs offline, so main passes it no link-checking option."""
         mock_logger_instance = Mock()
         mock_logger.return_value = mock_logger_instance
 
@@ -305,11 +305,9 @@ class TestStepIntegration:
 
         main.main()
 
-        # Verify both sort_data calls use skip_links=True
         assert mock_sort.call_count == 2
         for call in mock_sort.call_args_list:
-            assert "skip_links" in call[1]
-            assert call[1]["skip_links"] is True
+            assert call == ((), {})
 
 
 class TestErrorScenarios:

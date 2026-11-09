@@ -32,7 +32,7 @@ def main() -> None:
         # Step 2: Sort and validate data
         logger.info("🔄 Step 2: Sorting and validating data")
         step_start = time.time()
-        sort_data(skip_links=True)
+        sort_data()
         logger.info(f"✅ Data sorting completed in {time.time() - step_start:.2f}s")
 
         # Step 3: Import from Python organizers
@@ -44,7 +44,7 @@ def main() -> None:
         # Step 4: Final sort and validation
         logger.info("🔄 Step 4: Final sorting and validation")
         step_start = time.time()
-        sort_data(skip_links=True)
+        sort_data()
         logger.info(f"✅ Final sorting completed in {time.time() - step_start:.2f}s")
 
         total_time = time.time() - start_time

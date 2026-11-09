@@ -3,11 +3,8 @@
 # Sort and Clean conference data.
 import contextlib
 import datetime
-import operator
-import time
 from datetime import timezone
 from pathlib import Path
-from urllib.parse import urlparse
 
 import pydantic
 import pytz
@@ -21,10 +18,7 @@ try:
     from tidy_conf.countries import normalize_place
     from tidy_conf.date import clean_dates
     from tidy_conf.latlon import add_latlon
-    from tidy_conf.links import check_link_availability
-    from tidy_conf.links import check_mastodon_migration
     from tidy_conf.links import drop_redundant_link_fields
-    from tidy_conf.links import get_cache
     from tidy_conf.schema import Conference
     from tidy_conf.schema import get_schema
     from tidy_conf.titles import tidy_titles
@@ -36,10 +30,7 @@ except ImportError:
     from .tidy_conf.countries import normalize_place
     from .tidy_conf.date import clean_dates
     from .tidy_conf.latlon import add_latlon
-    from .tidy_conf.links import check_link_availability
-    from .tidy_conf.links import check_mastodon_migration
     from .tidy_conf.links import drop_redundant_link_fields
-    from .tidy_conf.links import get_cache
     from .tidy_conf.schema import Conference
     from .tidy_conf.schema import get_schema
     from .tidy_conf.titles import tidy_titles
@@ -251,40 +242,13 @@ def split_data(data: list[Conference]) -> tuple[list, list, list, list]:
     return conf, tba, expired, legacy
 
 
-def check_links(data):
-    """Check the links in the data iteratively."""
-    cache, cache_archived = get_cache()
-    for i, q in tqdm(enumerate(sorted(data, key=operator.itemgetter("year"), reverse=True)), total=len(data)):
-        for key in ("link", "cfp_link", "sponsor", "finaid", "coc"):
-            if key in q:
-                new_link = check_link_availability(
-                    q[key],
-                    q["start"],
-                    cache=cache,
-                    cache_archived=cache_archived,
-                    conference=q.get("conference"),
-                    year=q.get("year"),
-                    field=key,
-                )
-                parsed_url = urlparse(new_link)
-                if q[key] != new_link and parsed_url.hostname and parsed_url.hostname.endswith(".archive.org"):
-                    time.sleep(0.5)
-                q[key] = new_link
-                data[i] = q
-
-        # Check Mastodon account migrations
-        if q.get("mastodon"):
-            new_mastodon = check_mastodon_migration(q["mastodon"])
-            if new_mastodon:
-                q["mastodon"] = new_mastodon
-                data[i] = q
-
-    return data
-
-
 # Sort:
-def sort_data(base="", prefix="", skip_links=False):
-    """Sort and clean the conference data."""
+def sort_data(base="", prefix=""):
+    """Sort and clean the conference data.
+
+    The sort never uses the network for links: utils/archive_resolve.py checks
+    them and replaces old editions' links with archived copies.
+    """
     logger = get_tqdm_logger(__name__)
 
     # Load different data files
@@ -340,13 +304,6 @@ def sort_data(base="", prefix="", skip_links=False):
     # Merge duplicates
     logger.info("🔄 Merging duplicates")
     data = merge_duplicates(data)
-
-    # Check Links
-    if not skip_links:
-        logger.info("🔗 Checking link availability")
-        data = check_links(data)
-    else:
-        logger.info("⏭️  Skipping link checking")
 
     for i, q in enumerate(data.copy()):
         data[i] = order_keywords(q)
@@ -406,7 +363,6 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Sort and clean conference data.")
-    parser.add_argument("--skip_links", action="store_true", help="Skip checking links", default=False)
-    args = parser.parse_args()
+    parser.parse_args()
 
-    sort_data(skip_links=args.skip_links)
+    sort_data()
