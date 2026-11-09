@@ -2,6 +2,21 @@
   "handled": [
     "9a578fdd7f618959962820124b5a832e689737ee"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "e860ff854a3826bb9b927356765b99faa297eff9",
+      "kind": "signal",
+      "payload": {
+        "diff": "× Subscribe to our Professional Monthly Newsletter! Update cookies preferences XtremePython 2027 Online Conference Archives Hello world! Welcome to WordPress. This is your first post. Edit or delete it, then start writing!",
+        "trigger": "website_change",
+        "watch_uuid": "20a829da-4a64-4466-86d8-8afeb415774e"
+      },
+      "received": "2026-11-09T05:49:01Z",
+      "source": "changedetection",
+      "title": "[Conference] Xtreme Python",
+      "url": "https://xtremepython.dev/2027/",
+      "year": null
+    }
+  ],
   "series": "Xtreme Python"
 }
