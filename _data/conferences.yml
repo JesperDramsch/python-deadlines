@@ -57,6 +57,9 @@
   place: Vilnius, Lithuania
   start: 2027-04-28
   end: 2027-04-30
+  coc: https://pycon.lt/code-of-conduct
+  twitter: pyconlt
+  youtube: https://www.youtube.com/@pyconlt
   sub: PY
   location:
   - title: PyCon Lithuania 2027

@@ -1009,6 +1009,9 @@
   start: 2026-04-08
   end: 2026-04-10
   sponsor: https://pycon.lt/2026/partnership
+  coc: https://pycon.lt/code-of-conduct
+  twitter: pyconlt
+  youtube: https://www.youtube.com/@pyconlt
   sub: PY
   location:
   - title: PyCon Lithuania 2026
@@ -2765,7 +2768,9 @@
   start: 2025-04-23
   end: 2025-04-25
   sponsor: https://pycon.lt/2025/partnership
+  coc: https://pycon.lt/code-of-conduct
   twitter: pyconlt
+  youtube: https://www.youtube.com/@pyconlt
   sub: PY
   location:
   - title: PyCon Lithuania 2025
@@ -4527,6 +4532,9 @@
   start: 2024-04-02
   end: 2024-04-06
   sponsor: https://pycon.lt/2024/partnership
+  coc: https://pycon.lt/code-of-conduct
+  twitter: pyconlt
+  youtube: https://www.youtube.com/@pyconlt
   sub: PY
   location:
   - title: PyCon Lithuania 2024
