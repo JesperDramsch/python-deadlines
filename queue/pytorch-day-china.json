@@ -6,6 +6,21 @@
     "f2cc4b56d893f8bf9e6958a3472c61e348a156d4",
     "25d745ccf7665eeb2c50566b47ad6a0786777d2a"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "4535792ca9702e28d48f1ab6c4189cc7394bb964",
+      "kind": "signal",
+      "payload": {
+        "diff": "+",
+        "trigger": "website_change",
+        "watch_uuid": "6d70243a-012c-44d3-98d8-cd7373c4c54f"
+      },
+      "received": "2026-11-10T05:59:16Z",
+      "source": "changedetection",
+      "title": "Pytorch Day China 2026 - Main",
+      "url": "https://www.lfopensource.cn/pytorch-day-china/",
+      "year": 2026
+    }
+  ],
   "series": "Pytorch Day China"
 }
