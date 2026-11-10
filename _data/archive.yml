@@ -1335,6 +1335,9 @@
   start: 2025-11-18
   end: 2025-11-18
   sponsor: https://xtremepython.dev/2025/sponsors/
+  coc: http://www.zindell.com/documents/codeofconduct.pdf
+  twitter: xtremepython
+  youtube: https://www.youtube.com/@xtremepython
   sub: PY
 
 - conference: PyCon Ireland
@@ -3148,6 +3151,7 @@
   start: 2024-11-19
   end: 2024-11-19
   sponsor: https://xtremepython.dev/2024/sponsors/
+  coc: http://www.zindell.com/documents/codeofconduct.pdf
   sub: PY
 
 - conference: PyCon Ireland
@@ -4761,6 +4765,7 @@
   start: 2023-12-05
   end: 2023-12-05
   sponsor: https://xtremepython.dev/2023/sponsors/
+  coc: http://www.zindell.com/documents/codeofconduct.pdf
   sub: PY
 
 - conference: PyCon China
