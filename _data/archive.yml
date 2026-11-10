@@ -16,24 +16,6 @@
     latitude: 37.7681571
     longitude: -122.392929
 
-- conference: PyCon Kenya
-  year: 2026
-  link: https://www.pycon.ke/
-  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
-  cfp: '2026-06-10 00:00:00'
-  cfp_ext: '2026-09-02 01:00:00'
-  timezone: Africa/Nairobi
-  place: Nairobi, Kenya
-  start: 2026-10-02
-  end: 2026-10-03
-  sponsor: https://www.pycon.ke/sponsors
-  coc: https://www.pycon.ke/code-of-conduct
-  sub: PY
-  location:
-  - title: PyCon Kenya 2026
-    latitude: -1.2136405
-    longitude: 36.87930533266044
-
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
@@ -54,6 +36,24 @@
   - title: Django Day Copenhagen 2026
     latitude: 50.0478
     longitude: 12.5604627
+
+- conference: PyCon Kenya
+  year: 2026
+  link: https://www.pycon.ke/
+  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
+  cfp: '2026-06-10 00:00:00'
+  cfp_ext: '2026-09-02 01:00:00'
+  timezone: Africa/Nairobi
+  place: Nairobi, Kenya
+  start: 2026-10-02
+  end: 2026-10-03
+  sponsor: https://www.pycon.ke/sponsors
+  coc: https://www.pycon.ke/code-of-conduct
+  sub: PY
+  location:
+  - title: PyCon Kenya 2026
+    latitude: -1.2136405
+    longitude: 36.87930533266044
 
 - conference: PyCaxias
   year: 2026
