@@ -41,10 +41,14 @@
   cfp: '2026-08-16 23:59:59'
   timezone: Europe/Copenhagen
   place: Copenhagen, Denmark
+  extra_places:
+  - Online
   start: 2026-10-02
   end: 2026-10-02
   sponsor: https://2026.djangoday.dk/#supporters
+  coc: https://2026.djangoday.dk/conduct/
   mastodon: https://fosstodon.org/@djangodenmark
+  youtube: https://www.youtube.com/channel/UCGRsS7kdWNOisZp-4SF3PVA
   sub: WEB
   location:
   - title: Django Day Copenhagen 2026
@@ -3543,11 +3547,14 @@
   year: 2024
   link: https://2024.djangoday.dk/
   cfp_link: https://2024.djangoday.dk/cfp/
-  cfp: '2023-08-31 23:59:59'
+  cfp: '2024-08-31 23:59:59'
   timezone: Europe/Copenhagen
   place: Copenhagen, Denmark
+  extra_places:
+  - Online
   start: 2024-10-04
   end: 2024-10-04
+  coc: https://2024.djangoday.dk/conduct/
   twitter: djangodenmark
   mastodon: https://fosstodon.org/@djangodenmark
   sub: WEB,DAY
@@ -5093,8 +5100,11 @@
   cfp: '2023-08-31 23:59:59'
   timezone: Europe/Copenhagen
   place: Copenhagen, Denmark
+  extra_places:
+  - Online
   start: 2023-10-06
   end: 2023-10-06
+  coc: https://2023.djangoday.dk/conduct/
   twitter: djangodenmark
   mastodon: https://fosstodon.org/@djangodenmark
   sub: WEB,DAY
