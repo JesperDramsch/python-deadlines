@@ -3,6 +3,21 @@
     "9af785d8187b0ada1ee3c2b96a5e30cd6ed63c7d",
     "636251cf6c111d1fbe5e628631d2efb69f3de39e"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "a2ff50264a198e3820b8b698b859f615922c47b6",
+      "kind": "signal",
+      "payload": {
+        "diff": "Home Sponsorship Volunteer Code of Conduct Home Sponsorship Call for Proposals Volunteer Code of Conduct Home Sponsorship Volunteer Code of Conduct Home Sponsorship CFP Call for Proposals Volunteer Code of Conduct CFP open until Call for Proposals Call for Proposals is open! Do you have something to share with the Python community? Send us your idea for a talk or workshop. First-time speakers are very welcome, we can pair you with a mentor. Submit a proposal All the details Deadline Formats Talks on 17–18 April, workshops on 16 April Tracks * Python Core and Tooling * Web, Infrastructure, and Hardware * Community and People * PyData: Data, Science, and AI * Beginners",
+        "trigger": "website_change",
+        "watch_uuid": "13697854-b3c6-4ca6-85ed-c30c9a76aa56"
+      },
+      "received": "2026-11-10T19:08:54Z",
+      "source": "changedetection",
+      "title": "[conference] PyCon Czechia",
+      "url": "https://cz.pycon.org/2027/",
+      "year": null
+    }
+  ],
   "series": "PyCon Czechia"
 }
