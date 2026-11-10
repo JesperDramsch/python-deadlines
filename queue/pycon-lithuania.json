@@ -1,34 +1,8 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "75b219a500d42680b45bb39c88636112fe63c29b",
-      "kind": "signal",
-      "payload": {
-        "diff": "",
-        "trigger": "website_change",
-        "watch_uuid": "77e40389-d71b-4bdb-a25c-20b5635fc61d"
-      },
-      "received": "2026-11-08T01:27:47Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCon Lithuania",
-      "url": "https://pycon.lt/2027",
-      "year": null
-    },
-    {
-      "id": "cb4acf94d1036a6c7ac8c8e3a87d3fce6584957f",
-      "kind": "signal",
-      "payload": {
-        "diff": "* Past talks * Venue * Blog * History * Submit a talk + Schedule + Talks + Speakers + Sprints + CFP + Tickets + Submit a talk + Past talks + Sponsors + Blog",
-        "trigger": "website_change",
-        "watch_uuid": "77e40389-d71b-4bdb-a25c-20b5635fc61d"
-      },
-      "received": "2026-11-09T01:07:30Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCon Lithuania",
-      "url": "https://pycon.lt/2027",
-      "year": null
-    }
+  "handled": [
+    "75b219a500d42680b45bb39c88636112fe63c29b",
+    "cb4acf94d1036a6c7ac8c8e3a87d3fce6584957f"
   ],
+  "items": [],
   "series": "PyCon Lithuania"
 }

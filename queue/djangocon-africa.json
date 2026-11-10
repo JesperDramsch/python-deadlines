@@ -1,20 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "ad7a81991f4ef0d2d16a322d255e3f2b8a1cf4b7",
-      "kind": "signal",
-      "payload": {
-        "diff": "Conference Resources Speaking Conférence Ressources Présentation",
-        "trigger": "website_change",
-        "watch_uuid": "296eb9cb-ff6a-4d49-ba2e-d7633408bb5b"
-      },
-      "received": "2026-11-09T19:34:27Z",
-      "source": "changedetection",
-      "title": "[conference] Djangocon Africa",
-      "url": "https://djangocon.africa",
-      "year": null
-    }
+  "handled": [
+    "ad7a81991f4ef0d2d16a322d255e3f2b8a1cf4b7"
   ],
+  "items": [],
   "series": "Djangocon Africa"
 }
