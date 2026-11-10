@@ -1,5 +1,39 @@
 ---
 
+- conference: PyBay
+  year: 2026
+  link: https://pybay.org/
+  cfp_link: https://pybay.org/speaking/
+  cfp: '2026-07-31 23:59:00'
+  timezone: America/Los_Angeles
+  place: San Francisco, USA
+  start: 2026-10-03
+  end: 2026-10-03
+  sponsor: https://pybay.org/sponsors/sponsor-us/
+  sub: PY
+  location:
+  - title: PyBay 2026
+    latitude: 37.7681571
+    longitude: -122.392929
+
+- conference: PyCon Kenya
+  year: 2026
+  link: https://www.pycon.ke/
+  cfp_link: https://cfp.pycon.ke/pycon-kenya-2026/cfp
+  cfp: '2026-06-10 00:00:00'
+  cfp_ext: '2026-09-02 01:00:00'
+  timezone: Africa/Nairobi
+  place: Nairobi, Kenya
+  start: 2026-10-02
+  end: 2026-10-03
+  sponsor: https://www.pycon.ke/sponsors
+  coc: https://www.pycon.ke/code-of-conduct
+  sub: PY
+  location:
+  - title: PyCon Kenya 2026
+    latitude: -1.2136405
+    longitude: 36.87930533266044
+
 - conference: Django Day Copenhagen
   year: 2026
   link: https://2026.djangoday.dk/
