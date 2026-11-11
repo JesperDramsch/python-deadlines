@@ -34,6 +34,20 @@
       "title": "Pytorch Day China 2026 - Main",
       "url": "https://www.lfopensource.cn/pytorch-day-china/",
       "year": 2026
+    },
+    {
+      "id": "f861329a127e17c2c23551ce03280be3ec7ec3d9",
+      "kind": "signal",
+      "payload": {
+        "diff": "in 38 days Call for Papers is closed . Submissions are no longer possible. Sorry. in 30 days open, 7 days left finished 21 hours ago",
+        "trigger": "website_change",
+        "watch_uuid": "3858f365-95f0-4e32-b6a2-ee89d2deed51"
+      },
+      "received": "2026-11-11T13:19:42Z",
+      "source": "changedetection",
+      "title": "Pytorch Day China 2026 - CFP",
+      "url": "https://sessionize.com/pytorch-day-china-2026/",
+      "year": 2026
     }
   ],
   "series": "Pytorch Day China"
