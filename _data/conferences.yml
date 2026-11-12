@@ -1209,3 +1209,17 @@
   - title: EARL 2026
     latitude: 50.8214626
     longitude: -0.1400561
+
+- conference: PyData Venice Day
+  year: 2027
+  link: https://venice.pydata.org/pydata-venice-day-27/
+  cfp_link: https://sessionize.com/pydata-venice-day
+  cfp: '2026-12-22 23:59:00'
+  timezone: Europe/Rome
+  place: Mestre, Italy
+  start: 2027-02-27
+  end: 2027-02-27
+  twitter: PyDataVenice
+  mastodon: https://mastodon.social/@pydatave
+  youtube: https://www.youtube.com/@PyDataVenice
+  sub: DATA
