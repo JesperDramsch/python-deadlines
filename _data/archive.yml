@@ -439,6 +439,7 @@
     longitude: -38.5269
 
 - conference: PyCon Indonesia
+  alt_name: PyCon ID
   year: 2026
   link: https://pycon.id/
   cfp_link: https://www.papercall.io/pyconid2026
