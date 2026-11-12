@@ -44,7 +44,7 @@ For a `new-series` set or a scouter lead, check the find's domain and each signa
    - no Python content;
    - the hijacked or expired domain of a real series (compare with past editions and Internet Archive snapshots);
    - a page that will not render (HTTP 403, a challenge page, an empty shell): it needs review and never counts as clean.
-3. Signals for: a traceable community organiser (user group, association, PyLadies or PyData chapter); a free CfP on a known platform (pretalx, Sessionize, PaperCall); past editions with recordings.
+3. Signals for: an event page on a sanctioning body's host (AGENTS.md "Evidence and sources"), a strong signal that also counts as a traceable organiser, with the domain checks above applying to that host; a traceable community organiser (user group, association, PyLadies or PyData chapter); a free CfP on a known platform (pretalx, Sessionize, PaperCall); past editions with recordings.
 4. A missing CoC is a flag for the PR (`no-coc`), never a reason to reject.
 
 Done when: every signal above has a noted outcome.

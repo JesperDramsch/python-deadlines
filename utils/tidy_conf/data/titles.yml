@@ -58,8 +58,6 @@ alt_name:
     - PyCon Yerevan
     - PyData PyCon Armenia
     - PyData Yerevan
-  PyCon Asia Pacific:
-    global: PyCon APAC
   PyCon Australia:
     global: PyCon AU
   PyCon Austria:
@@ -195,6 +193,7 @@ alt_name:
     variations:
     - Python Sul (Brazil)
   PythonAsia:
+    global: PyCon APAC
     variations:
     - Python Asia
     - Python Asia Conference
