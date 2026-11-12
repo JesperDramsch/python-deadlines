@@ -2478,7 +2478,8 @@
 - conference: PyCon Singapore
   year: 2025
   link: https://pythonsingapore.github.io/pyconsg-2025/
-  cfp: '2015-04-30 23:59:59'
+  cfp_link: https://forms.gle/qCNLwBz9Cegp8L3V9
+  cfp: '2025-05-01 23:59:00'
   place: Singapore, Singapore
   start: 2025-06-18
   end: 2025-06-20
