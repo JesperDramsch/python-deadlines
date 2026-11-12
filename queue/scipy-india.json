@@ -5,6 +5,21 @@
     "af4fab9ce474b437fa80ad0efbde1f037f6f7a27",
     "6139a6f523a89346504839963b38675a44f48782"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "f7ac4a59ac84c20b1c510ea2d33a7f6e3553d77b",
+      "kind": "signal",
+      "payload": {
+        "diff": "Last few early bird tickets left! Get your ticket Get tickets! Get tickets!",
+        "trigger": "website_change",
+        "watch_uuid": "970d62b4-d7e9-4f85-913e-c4ee3ee7b74c"
+      },
+      "received": "2026-11-12T00:11:15Z",
+      "source": "changedetection",
+      "title": "SciPy India 2026 - Main",
+      "url": "https://scipy.in/2026/",
+      "year": 2026
+    }
+  ],
   "series": "SciPy India"
 }
