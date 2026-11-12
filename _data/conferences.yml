@@ -50,6 +50,7 @@
     longitude: 100.5018
 
 - conference: PyCon Lithuania
+  alt_name: PyCon LT
   year: 2027
   link: https://pycon.lt/2027/
   cfp_link: https://pycon.lt/2027/cfp
