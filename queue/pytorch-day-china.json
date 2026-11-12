@@ -48,6 +48,20 @@
       "title": "Pytorch Day China 2026 - CFP",
       "url": "https://sessionize.com/pytorch-day-china-2026/",
       "year": 2026
+    },
+    {
+      "id": "414c829a7971e7876f90f7590dd78438d4028d1c",
+      "kind": "signal",
+      "payload": {
+        "diff": "register",
+        "trigger": "website_change",
+        "watch_uuid": "6d70243a-012c-44d3-98d8-cd7373c4c54f"
+      },
+      "received": "2026-11-12T06:02:12Z",
+      "source": "changedetection",
+      "title": "Pytorch Day China 2026 - Main",
+      "url": "https://www.lfopensource.cn/pytorch-day-china/",
+      "year": 2026
     }
   ],
   "series": "Pytorch Day China"
