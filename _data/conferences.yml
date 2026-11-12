@@ -1081,22 +1081,6 @@
     latitude: 49.0068705
     longitude: 8.4034195
 
-- conference: FOSDEM
-  alt_name: 'FOSDEM: Python Dev Room'
-  year: 2027
-  link: https://fosdem.org/2027/
-  cfp: TBA
-  place: Brussels, Belgium
-  start: 2027-01-30
-  end: 2027-01-31
-  sponsor: https://fosdem.org/2027/support/sponsors/
-  coc: https://fosdem.org/2027/practical/conduct/
-  sub: PY
-  location:
-  - title: FOSDEM 2027
-    latitude: 50.8465573
-    longitude: 4.351697
-
 - conference: PyCon mini Tokyo
   alt_name: PyCon mini Tokyo with PythonAsia conference
   year: 2026
