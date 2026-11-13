@@ -1,0 +1,31 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "0ae03f64eeb459a56696cbe97734819f95979952",
+      "kind": "candidate",
+      "payload": {
+        "classification": "NEW_SERIES",
+        "evidence_url": "https://barcamps.eu/",
+        "fields": {
+          "conference": "PythonCamp Rügen 26.09. - 27.09. , Project Bay Workation / Coworking, Lietzow Python Barcamp Karlsruhe",
+          "year": 2026
+        },
+        "flags": [
+          "listing"
+        ],
+        "matched": null,
+        "names": [
+          "PythonCamp Rügen 2026 26.09.2026 - 27.09.2026 , Project Bay Workation / Coworking, Lietzow Python Barcamp Karlsruhe 2027"
+        ],
+        "source_id": "https://barcamps.eu/#PythonCamp Rügen 2026 26.09.2026 - 27.09.2026 , Project Bay Workation / Coworking, Lietzow Python Barcamp Karlsruhe 2027"
+      },
+      "received": "2026-11-13T16:42:12Z",
+      "source": "changedetection",
+      "title": "PythonCamp Rügen 2026 26.09.2026 - 27.09.2026 , Project Bay Workation / Coworking, Lietzow Python Barcamp Karlsruhe 2027",
+      "url": "https://barcamps.eu/",
+      "year": 2026
+    }
+  ],
+  "series": "PythonCamp Rügen 26.09. - 27.09. , Project Bay Workation / Coworking, Lietzow Python Barcamp Karlsruhe"
+}
