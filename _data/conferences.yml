@@ -113,6 +113,7 @@
   link: https://2027.pycon.de/
   cfp_link: https://pycon.de/call-for-proposals/
   cfp: '2026-12-20 23:59:59'
+  tutorial_deadline: '2026-12-20 23:59:00'
   timezone: Europe/Berlin
   place: Heidelberg, Germany
   extra_places:
