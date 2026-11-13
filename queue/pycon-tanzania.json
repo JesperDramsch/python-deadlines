@@ -13,6 +13,21 @@
     "06e2c31eb631ee7b756a26257d699020306d8e13",
     "728f6901cc3daf567860abc1cc07ed56fbf34fc0"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "8f8f88b539c27638e3d075258ebe6c36f50ac9e8",
+      "kind": "signal",
+      "payload": {
+        "diff": "Submit a talk Buy tickets",
+        "trigger": "website_change",
+        "watch_uuid": "46be5ae3-87a3-4c7c-a234-4c96d282d3cf"
+      },
+      "received": "2026-11-13T14:53:09Z",
+      "source": "changedetection",
+      "title": "PyCon Tanzania 2026 - Main",
+      "url": "https://pycon.tz/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Tanzania"
 }
