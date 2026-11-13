@@ -1,47 +1,10 @@
 {
   "handled": [
     "6cd4fcebd4fa0ed16f21719a789cb5cafc0f23fc",
-    "3a5eda33543eb5f07fa295cb1163ebd1a4f7cf0c"
+    "3a5eda33543eb5f07fa295cb1163ebd1a4f7cf0c",
+    "772be763581116c10b218f2bf9f8e4ac74b9b401",
+    "c0de32859b42be24fb2a1feb1743377086c38a55"
   ],
-  "items": [
-    {
-      "id": "772be763581116c10b218f2bf9f8e4ac74b9b401",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Germany",
-        "default_answer": false,
-        "field": "start",
-        "question": "For PyCon Germany in column 'start' would you prefer '2027-04-19' or keep '2027-04-20'?",
-        "remote_value": "2027-04-19",
-        "source_name": "python-organizers",
-        "yaml_value": "2027-04-20",
-        "year": 2027
-      },
-      "received": "2026-11-12T13:57:46Z",
-      "source": "canonical-import",
-      "title": "PyCon Germany",
-      "url": "https://2027.pycon.de/",
-      "year": 2027
-    },
-    {
-      "id": "c0de32859b42be24fb2a1feb1743377086c38a55",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Germany",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Germany in column 'end' would you prefer '2027-04-24' or keep '2027-04-22'?",
-        "remote_value": "2027-04-24",
-        "source_name": "python-organizers",
-        "yaml_value": "2027-04-22",
-        "year": 2027
-      },
-      "received": "2026-11-12T13:57:46Z",
-      "source": "canonical-import",
-      "title": "PyCon Germany",
-      "url": "https://2027.pycon.de/",
-      "year": 2027
-    }
-  ],
+  "items": [],
   "series": "PyCon Germany"
 }

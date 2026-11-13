@@ -2,23 +2,9 @@
   "handled": [
     "06d1afd6aa0e75e8e9dedf75c8b32be55c6224c4",
     "59ca013efbcb14901f4daaee71b2ef041af878f2",
-    "7aeb6648d18bfe7e843f3551b4b5a5abfde43148"
+    "7aeb6648d18bfe7e843f3551b4b5a5abfde43148",
+    "e2644089f40191aa061e3eaa6f72111509f5f90d"
   ],
-  "items": [
-    {
-      "id": "e2644089f40191aa061e3eaa6f72111509f5f90d",
-      "kind": "signal",
-      "payload": {
-        "diff": "Ege Akman Cemrehan Çavdar",
-        "trigger": "website_change",
-        "watch_uuid": "48cc2da3-a555-4867-8463-dd4f0b4dd964"
-      },
-      "received": "2026-11-11T20:03:05Z",
-      "source": "changedetection",
-      "title": "Python Pizza Istanbul 2026 - Main",
-      "url": "https://istanbul.python.pizza/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "Python Pizza Istanbul"
 }
