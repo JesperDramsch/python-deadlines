@@ -700,10 +700,12 @@
   link: https://nl.wagtail.space/
   cfp_link: https://nl.wagtail.space/call-for-participation
   cfp: '2026-05-29 23:59:00'
+  cfp_ext: '2026-05-30 09:00:00'
   timezone: Europe/Amsterdam
   place: Rotterdam, Netherlands
   start: 2026-06-12
   end: 2026-06-12
+  coc: https://nl.wagtail.space/code-of-conduct/
   sub: WEB
   location:
   - title: Wagtail Space Netherlands 2026
