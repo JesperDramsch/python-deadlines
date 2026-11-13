@@ -862,6 +862,8 @@
   place: Groningen, Netherlands
   start: 2026-05-08
   end: 2026-05-08
+  sponsor: https://pygrunn.org/#sponsoring
+  coc: https://en-us.confcodeofconduct.com/
   sub: PY
   location:
   - title: PyGrunn 2026
