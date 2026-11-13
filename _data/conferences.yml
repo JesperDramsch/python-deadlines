@@ -33,6 +33,27 @@
     latitude: 47.8454821
     longitude: 16.5249288
 
+- conference: PyCon Czechia
+  alt_name: PyCon CZ
+  year: 2027
+  link: https://cz.pycon.org/2027/
+  cfp_link: https://cz.pycon.org/2027/cfp/
+  cfp: '2027-01-17 23:59:00'
+  place: Pilsen, Czechia
+  start: 2027-04-16
+  end: 2027-04-18
+  sponsor: https://cz.pycon.org/2027/sponsorship/
+  finaid: https://cz.pycon.org/2027/cfp/
+  coc: https://cz.pycon.org/2027/coc/
+  twitter: pyconcz
+  mastodon: https://floss.social/@pyconcz
+  youtube: https://www.youtube.com/@PyConCZ
+  sub: PY
+  location:
+  - title: PyCon Czechia 2027
+    latitude: 49.7477415
+    longitude: 13.3775249
+
 - conference: PyCon Thailand
   year: 2027
   link: https://th.pycon.org/
@@ -1064,25 +1085,6 @@
   - title: PyCon US 2027
     latitude: 33.7690164
     longitude: -118.191604
-
-- conference: PyCon Czechia
-  alt_name: PyCon CZ
-  year: 2027
-  link: https://cz.pycon.org/2027/
-  cfp: TBA
-  place: Pilsen, Czechia
-  start: 2027-04-16
-  end: 2027-04-18
-  sponsor: https://cz.pycon.org/2027/sponsorship/
-  coc: https://cz.pycon.org/2027/coc/
-  twitter: pyconcz
-  mastodon: https://floss.social/@pyconcz
-  youtube: https://www.youtube.com/@PyConCZ
-  sub: PY
-  location:
-  - title: PyCon Czechia 2027
-    latitude: 49.7477415
-    longitude: 13.3775249
 
 - conference: Python BarCamp Karlsruhe
   year: 2027
