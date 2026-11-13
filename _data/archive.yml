@@ -1466,11 +1466,13 @@
   link: https://events.linuxfoundation.org/jupytercon/
   cfp_link: https://sessionize.com/jupytercon25/
   cfp: '2025-07-13 23:59:00'
+  cfp_ext: '2025-07-20 23:59:00'
   timezone: America/Los_Angeles
   place: San Diego, USA
   start: 2025-11-03
   end: 2025-11-05
   sponsor: https://events.linuxfoundation.org/jupytercon/sponsor/
+  coc: https://events.linuxfoundation.org/jupytercon/attend/code-of-conduct/
   twitter: jupyterCon
   sub: DATA
   location:
