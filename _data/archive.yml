@@ -2036,6 +2036,8 @@
   start: 2025-09-12
   end: 2025-09-15
   sponsor: https://in.pycon.org/2025/sponsors/
+  finaid: https://in.pycon.org/2025/attend/scholarships
+  coc: https://in.pycon.org/2025/coc/policy
   mastodon: https://fosstodon.org/@pyconindia
   sub: PY
   location:
@@ -3773,7 +3775,10 @@
   start: 2024-09-20
   end: 2024-09-23
   sponsor: https://in.pycon.org/2024/prospectus.pdf
+  finaid: https://in.pycon.org/2024/scholarship/
+  coc: https://in.pycon.org/2024/code-of-conduct/
   twitter: PyConIndia
+  mastodon: https://fosstodon.org/@pyconindia
   sub: PY
   location:
   - title: PyCon India 2024
