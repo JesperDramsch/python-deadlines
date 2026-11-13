@@ -10,6 +10,9 @@
   start: 2026-10-03
   end: 2026-10-03
   sponsor: https://pybay.org/sponsors/sponsor-us/
+  coc: https://pybay.org/code-of-conduct/code-of-conduct-policy/
+  twitter: py_bay
+  mastodon: https://fosstodon.org/@pybay
   sub: PY
   location:
   - title: PyBay 2026
