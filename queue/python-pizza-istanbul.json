@@ -5,6 +5,21 @@
     "7aeb6648d18bfe7e843f3551b4b5a5abfde43148",
     "e2644089f40191aa061e3eaa6f72111509f5f90d"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "a7484801505947264d3c2593083d5cbb214b2951",
+      "kind": "signal",
+      "payload": {
+        "diff": "Get your ticket! 🎟️ Get your ticket! 🎟️Watch the livestream 🔴 See the schedule 📅Get your ticket! 🎟️ See the schedule 📅Get your ticket! 🎟️Watch the livestream 🔴 Cemrehan Çavdar Özge Çinko Kader Miyanyedi",
+        "trigger": "website_change",
+        "watch_uuid": "48cc2da3-a555-4867-8463-dd4f0b4dd964"
+      },
+      "received": "2026-11-14T20:51:43Z",
+      "source": "changedetection",
+      "title": "Python Pizza Istanbul 2026 - Main",
+      "url": "https://istanbul.python.pizza/",
+      "year": 2026
+    }
+  ],
   "series": "Python Pizza Istanbul"
 }
