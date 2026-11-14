@@ -971,6 +971,20 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: EuroSciPy
+  year: 2027
+  link: https://euroscipy.org/
+  cfp: TBA
+  place: Leipzig, Germany
+  start: 2027-08-16
+  end: 2027-08-21
+  sponsor: https://euroscipy.org/sponsoring
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2027
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: Python Nordeste
   alt_name: PyNE
   year: 2027
