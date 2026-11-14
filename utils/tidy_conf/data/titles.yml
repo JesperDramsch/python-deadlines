@@ -189,6 +189,9 @@ alt_name:
     regexes:
     - Python Pizza \w+
     - \w+ Python Pizza
+  Python Pizza Hamburg:
+    variations:
+    - Hamburg Python Pizza
   Python Sul:
     variations:
     - Python Sul (Brazil)

@@ -10,6 +10,9 @@
   start: 2026-10-03
   end: 2026-10-03
   sponsor: https://pybay.org/sponsors/sponsor-us/
+  coc: https://pybay.org/code-of-conduct/code-of-conduct-policy/
+  twitter: py_bay
+  mastodon: https://fosstodon.org/@pybay
   sub: PY
   location:
   - title: PyBay 2026
@@ -58,7 +61,8 @@
 - conference: PyCaxias
   year: 2026
   link: https://pycaxias.com.br/
-  cfp: None
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLScD8pNEFKBdWY22R0jzD3ItPMHs8YQtBxLpYJw-Wb1W1Of2ZA/viewform
+  cfp: TBA
   timezone: America/Sao_Paulo
   place: Caxias do Sul, Brasil
   start: 2026-09-26
@@ -521,6 +525,9 @@
   end: 2026-07-26
   sponsor: https://2026.pycon.co/#sponsors
   finaid: https://2026.pycon.co/scholarships
+  coc: https://2026.pycon.co/code-of-conduct/
+  twitter: PyConColombia
+  youtube: https://www.youtube.com/pyconcolombia
   sub: PY
   location:
   - title: PyCon Colombia 2026
@@ -693,10 +700,12 @@
   link: https://nl.wagtail.space/
   cfp_link: https://nl.wagtail.space/call-for-participation
   cfp: '2026-05-29 23:59:00'
+  cfp_ext: '2026-05-30 09:00:00'
   timezone: Europe/Amsterdam
   place: Rotterdam, Netherlands
   start: 2026-06-12
   end: 2026-06-12
+  coc: https://nl.wagtail.space/code-of-conduct/
   sub: WEB
   location:
   - title: Wagtail Space Netherlands 2026
@@ -855,6 +864,8 @@
   place: Groningen, Netherlands
   start: 2026-05-08
   end: 2026-05-08
+  sponsor: https://pygrunn.org/#sponsoring
+  coc: https://en-us.confcodeofconduct.com/
   sub: PY
   location:
   - title: PyGrunn 2026
@@ -1466,11 +1477,13 @@
   link: https://events.linuxfoundation.org/jupytercon/
   cfp_link: https://sessionize.com/jupytercon25/
   cfp: '2025-07-13 23:59:00'
+  cfp_ext: '2025-07-20 23:59:00'
   timezone: America/Los_Angeles
   place: San Diego, USA
   start: 2025-11-03
   end: 2025-11-05
   sponsor: https://events.linuxfoundation.org/jupytercon/sponsor/
+  coc: https://events.linuxfoundation.org/jupytercon/attend/code-of-conduct/
   twitter: jupyterCon
   sub: DATA
   location:
@@ -2027,6 +2040,8 @@
   start: 2025-09-12
   end: 2025-09-15
   sponsor: https://in.pycon.org/2025/sponsors/
+  finaid: https://in.pycon.org/2025/attend/scholarships
+  coc: https://in.pycon.org/2025/coc/policy
   mastodon: https://fosstodon.org/@pyconindia
   sub: PY
   location:
@@ -3764,7 +3779,10 @@
   start: 2024-09-20
   end: 2024-09-23
   sponsor: https://in.pycon.org/2024/prospectus.pdf
+  finaid: https://in.pycon.org/2024/scholarship/
+  coc: https://in.pycon.org/2024/code-of-conduct/
   twitter: PyConIndia
+  mastodon: https://fosstodon.org/@pyconindia
   sub: PY
   location:
   - title: PyCon India 2024
@@ -4345,6 +4363,9 @@
   place: Kagoshima, Japan
   start: 2024-05-25
   end: 2024-05-25
+  sponsor: https://www.pykyushu.jp/sponsor2024/
+  twitter: PyConK
+  youtube: https://www.youtube.com/@pyconkyushu4071
   sub: PY
   location:
   - title: PyCon KyuShu 2024
@@ -7518,7 +7539,7 @@
   year: 2020
   link: https://web.archive.org/web/20201005212148/http://scipy.in/2020
   cfp: '2020-12-11 23:59:00'
-  place: Mumbai, India
+  place: Online
   start: 2020-12-19
   end: 2020-12-20
   sub: SCIPY
@@ -8862,8 +8883,10 @@
   tutorial_deadline: '2019-07-15 23:59:00'
   place: Belgrade, Serbia
   start: 2019-10-03
-  end: 2019-10-06
+  end: 2019-10-05
   sponsor: https://web.archive.org/web/20191011102949/https://www.pyconbalkan.com/faq
+  coc: https://pyconbalkan.com/coc
+  twitter: pyconblkn
   sub: PY
   location:
   - title: PyCon Balkan 2019
