@@ -2,6 +2,21 @@
   "handled": [
     "c33012a47cde710d74f5bed00f1d3fdb5cfc1be2"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "6370c34f6dcb30aa3b6141a35ee0a928a7117b7a",
+      "kind": "signal",
+      "payload": {
+        "diff": "Buscar eventos Buscar eventos Buscar eventos",
+        "trigger": "website_change",
+        "watch_uuid": "24fdc024-7c20-4503-9ef9-eb2bd2544bab"
+      },
+      "received": "2026-11-15T01:29:18Z",
+      "source": "changedetection",
+      "title": "PyDay Mexico 2026 - Main",
+      "url": "https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029",
+      "year": 2026
+    }
+  ],
   "series": "PyDay Mexico"
 }
