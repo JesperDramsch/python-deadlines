@@ -734,15 +734,15 @@
 
 - conference: PyTorch Conference
   year: 2026
-  link: https://events.linuxfoundation.org/pytorch-conference-north-america/
+  link: https://web.archive.org/web/20261020021037/https://events.linuxfoundation.org/pytorch-conference-north-america/
   cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
   cfp: '2026-06-07 23:59:00'
   timezone: America/Los_Angeles
   place: San Jose, USA
   start: 2026-10-20
   end: 2026-10-21
-  sponsor: https://events.linuxfoundation.org/pytorch-conference-north-america/sponsor/
-  coc: https://events.linuxfoundation.org/pytorch-conference-north-america/attend/code-of-conduct/
+  sponsor: https://web.archive.org/web/20261022032525/https://events.linuxfoundation.org/pytorch-conference-north-america/sponsor/
+  coc: https://web.archive.org/web/20261029043430/https://events.linuxfoundation.org/pytorch-conference-north-america/attend/code-of-conduct/
   twitter: pytorch
   youtube: https://www.youtube.com/pytorch
   sub: DATA
@@ -1226,22 +1226,3 @@
   - title: PyCon Estonia 2026
     latitude: 59.4372155
     longitude: 24.7453688
-
-- conference: EARL
-  year: 2026
-  link: https://earl-conference.com/
-  cfp: None
-  timezone: Europe/London
-  place: Brighton, UK
-  start: 2026-10-06
-  end: 2026-10-08
-  sponsor: https://earl-conference.com/earl-archive/sponsors/
-  twitter: earlconf
-  youtube: https://www.youtube.com/channel/UCytOFkoZJfinB9rdRIOfRow?view_as=subscriber
-  sub: BIZ
-  note: Final edition under the EARL name; from 2027 the event becomes the International
-    Data Intelligence Summit (5-7 October 2027, Brighton).
-  location:
-  - title: EARL 2026
-    latitude: 50.8214626
-    longitude: -0.1400561
