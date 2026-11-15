@@ -1,0 +1,22 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "2b106d1ab7aa95a8b94091a78a3479f225415111",
+      "kind": "redirect",
+      "payload": {
+        "conference": "SciPy Japan",
+        "field": "link",
+        "final_url": "https://jim5090.wixsite.com/website-7",
+        "status": 200,
+        "year": 2020
+      },
+      "received": "2026-11-15T10:56:30Z",
+      "source": "link-check",
+      "title": "SciPy Japan",
+      "url": "https://www.scipyjapan.scipy.org/",
+      "year": 2020
+    }
+  ],
+  "series": "SciPy Japan"
+}

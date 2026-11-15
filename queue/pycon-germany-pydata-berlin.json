@@ -1,0 +1,54 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "e917332aad999e5ac8388bdd651f6de68ceaf535",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Germany & PyData Berlin",
+        "field": "link",
+        "final_url": "https://2022.pycon.de/",
+        "status": 200,
+        "year": 2021
+      },
+      "received": "2026-11-15T10:55:48Z",
+      "source": "link-check",
+      "title": "PyCon Germany & PyData Berlin",
+      "url": "https://2021.de.pycon.org/",
+      "year": 2021
+    },
+    {
+      "id": "4fa810cc8c0d2211e5ef3c5e07e1903b8da9df2b",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Germany & PyData Berlin",
+        "field": "link",
+        "final_url": "https://pycon.de",
+        "status": 200,
+        "year": 2020
+      },
+      "received": "2026-11-15T10:56:32Z",
+      "source": "link-check",
+      "title": "PyCon Germany & PyData Berlin",
+      "url": "https://de.pycon.org/",
+      "year": 2020
+    },
+    {
+      "id": "594c7f88b70bfdc49dc3130906c88923967ce8d8",
+      "kind": "redirect",
+      "payload": {
+        "conference": "PyCon Germany & PyData Berlin",
+        "field": "sponsor",
+        "final_url": "https://pycon.de",
+        "status": 200,
+        "year": 2019
+      },
+      "received": "2026-11-15T10:58:25Z",
+      "source": "link-check",
+      "title": "PyCon Germany & PyData Berlin",
+      "url": "https://de.pycon.org/sponsors",
+      "year": 2019
+    }
+  ],
+  "series": "PyCon Germany & PyData Berlin"
+}
