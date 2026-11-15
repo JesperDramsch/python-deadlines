@@ -1,0 +1,34 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "0a749c0a679ee1b370c071c96b08ea548b86968d",
+      "kind": "candidate",
+      "payload": {
+        "classification": "MISSING_EDITION",
+        "evidence_url": "https://hamburg.python.pizza/",
+        "fields": {
+          "conference": "Hamburg Python Pizza",
+          "link": "https://hamburg.python.pizza/",
+          "year": 2027
+        },
+        "flags": [
+          "lead-only"
+        ],
+        "matched": {
+          "conference": "Python Pizza Hamburg",
+          "file": "archive",
+          "score": 100,
+          "year": 2023
+        },
+        "source_id": "https://hamburg.python.pizza/"
+      },
+      "received": "2026-11-15T19:49:06Z",
+      "source": "developers-events",
+      "title": "Hamburg Python Pizza",
+      "url": "https://hamburg.python.pizza/",
+      "year": 2027
+    }
+  ],
+  "series": "Python Pizza Hamburg"
+}

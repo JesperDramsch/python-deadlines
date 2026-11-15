@@ -1,0 +1,29 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "c966c78d47f5c36616b30eae932ef85f33dc4586",
+      "kind": "candidate",
+      "payload": {
+        "classification": "NEW_SERIES",
+        "evidence_url": "https://events.linuxfoundation.org/open-nexus-india/",
+        "fields": {
+          "conference": "Open Nexus India Featuring: AGNTSummit + KubeCon + CloudNativeCon + Open Source Summit + PyTorch Conference",
+          "link": "https://events.linuxfoundation.org/open-nexus-india/",
+          "year": 2027
+        },
+        "flags": [
+          "lead-only"
+        ],
+        "matched": null,
+        "source_id": "https://events.linuxfoundation.org/open-nexus-india/"
+      },
+      "received": "2026-11-15T19:49:06Z",
+      "source": "developers-events",
+      "title": "Open Nexus India Featuring: AGNTSummit + KubeCon + CloudNativeCon + Open Source Summit + PyTorch Conference",
+      "url": "https://events.linuxfoundation.org/open-nexus-india/",
+      "year": 2027
+    }
+  ],
+  "series": "Open Nexus India Featuring: AGNTSummit + KubeCon + CloudNativeCon + Open Source Summit + PyTorch Conference"
+}
