@@ -2,6 +2,45 @@
   "handled": [
     "95de1b433630306b6d83d903ec2b1b2468867d23"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "423a2692ac6a1c978bfa21d11571d5154729203b",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Armenia",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Armenia in column 'link' would you prefer 'https://pycon.am' or keep 'https://web.archive.org/web/20260715103320/https://pycon.am/'?",
+        "remote_value": "https://pycon.am",
+        "source_name": "python-organizers",
+        "yaml_value": "https://web.archive.org/web/20260715103320/https://pycon.am/",
+        "year": 2026
+      },
+      "received": "2026-11-15T12:56:15Z",
+      "source": "canonical-import",
+      "title": "PyCon Armenia",
+      "url": "https://web.archive.org/web/20260715103320/https://pycon.am/",
+      "year": 2026
+    },
+    {
+      "id": "4cb4ca979832a26342edf6d770a4a2a181e6fb72",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Armenia",
+        "default_answer": false,
+        "field": "end",
+        "question": "For PyCon Armenia in column 'end' would you prefer '2026-07-26' or keep '2026-07-25'?",
+        "remote_value": "2026-07-26",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-07-25",
+        "year": 2026
+      },
+      "received": "2026-11-15T12:56:15Z",
+      "source": "canonical-import",
+      "title": "PyCon Armenia",
+      "url": "https://web.archive.org/web/20260715103320/https://pycon.am/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Armenia"
 }

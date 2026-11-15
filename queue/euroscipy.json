@@ -2,6 +2,64 @@
   "handled": [
     "0e10b3896eb4a43cd13aafd176ed76f394d92455"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "22bd91affb7a253591f4ff043bc5c0a3b953bcf8",
+      "kind": "question",
+      "payload": {
+        "conference": "EuroSciPy",
+        "default_answer": false,
+        "field": "place",
+        "question": "For EuroSciPy in column 'place' would you prefer 'Krakow, Poland' or keep 'Kraków, Poland'?",
+        "remote_value": "Krakow, Poland",
+        "source_name": "python.org",
+        "yaml_value": "Kraków, Poland",
+        "year": 2026
+      },
+      "received": "2026-11-15T12:56:03Z",
+      "source": "canonical-import",
+      "title": "EuroSciPy",
+      "url": "https://web.archive.org/web/20260721110933/https://euroscipy.org/",
+      "year": 2026
+    },
+    {
+      "id": "8ca34ceff0dc7a5e4dcd264d6a269bbcd3be7de4",
+      "kind": "question",
+      "payload": {
+        "conference": "EuroSciPy",
+        "default_answer": false,
+        "field": "link",
+        "question": "For EuroSciPy in column 'link' would you prefer 'https://euroscipy.org' or keep 'https://web.archive.org/web/20260721110933/https://euroscipy.org/'?",
+        "remote_value": "https://euroscipy.org",
+        "source_name": "python-organizers",
+        "yaml_value": "https://web.archive.org/web/20260721110933/https://euroscipy.org/",
+        "year": 2026
+      },
+      "received": "2026-11-15T12:56:15Z",
+      "source": "canonical-import",
+      "title": "EuroSciPy",
+      "url": "https://web.archive.org/web/20260721110933/https://euroscipy.org/",
+      "year": 2026
+    },
+    {
+      "id": "98c374e6f2f22d5bc6b8e81a8fce22051d9dacab",
+      "kind": "question",
+      "payload": {
+        "conference": "EuroSciPy",
+        "default_answer": false,
+        "field": "cfp_link",
+        "question": "For EuroSciPy in column 'cfp_link' would you prefer 'https://euroscipy.org/call-for-proposals' or keep 'https://web.archive.org/web/20260806172126/https://euroscipy.org/call-for-proposals/'?",
+        "remote_value": "https://euroscipy.org/call-for-proposals",
+        "source_name": "python-organizers",
+        "yaml_value": "https://web.archive.org/web/20260806172126/https://euroscipy.org/call-for-proposals/",
+        "year": 2026
+      },
+      "received": "2026-11-15T12:56:15Z",
+      "source": "canonical-import",
+      "title": "EuroSciPy",
+      "url": "https://web.archive.org/web/20260721110933/https://euroscipy.org/",
+      "year": 2026
+    }
+  ],
   "series": "EuroSciPy"
 }
