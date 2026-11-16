@@ -33,6 +33,27 @@
     latitude: 47.8454821
     longitude: 16.5249288
 
+- conference: PyCon Czechia
+  alt_name: PyCon CZ
+  year: 2027
+  link: https://cz.pycon.org/2027/
+  cfp_link: https://cz.pycon.org/2027/cfp/
+  cfp: '2027-01-17 23:59:00'
+  place: Pilsen, Czechia
+  start: 2027-04-16
+  end: 2027-04-18
+  sponsor: https://cz.pycon.org/2027/sponsorship/
+  finaid: https://cz.pycon.org/2027/cfp/
+  coc: https://cz.pycon.org/2027/coc/
+  twitter: pyconcz
+  mastodon: https://floss.social/@pyconcz
+  youtube: https://www.youtube.com/@PyConCZ
+  sub: PY
+  location:
+  - title: PyCon Czechia 2027
+    latitude: 49.7477415
+    longitude: 13.3775249
+
 - conference: PyCon Thailand
   year: 2027
   link: https://th.pycon.org/
@@ -68,6 +89,24 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: Python Pizza Hamburg
+  year: 2027
+  link: https://hamburg.python.pizza/
+  cfp: '2027-01-10 23:59:00'
+  place: Hamburg, Germany
+  start: 2027-02-27
+  end: 2027-02-27
+  sponsor: https://hamburg.python.pizza/#sponsors
+  coc: https://hamburg.python.pizza/#coc
+  twitter: PythonPizzaConf
+  mastodon: https://fosstodon.org/@pythonpizza
+  youtube: https://www.youtube.com/@PythonPizza
+  sub: PY
+  location:
+  - title: Python Pizza Hamburg 2027
+    latitude: 53.5672881
+    longitude: 9.941726150411604
+
 - conference: PyData Venice Day
   year: 2027
   link: https://venice.pydata.org/pydata-venice-day-27/
@@ -91,7 +130,8 @@
   year: 2027
   link: https://2027.pycon.de/
   cfp_link: https://pycon.de/call-for-proposals/
-  cfp: '2026-12-20 23:59:00'
+  cfp: '2026-12-20 23:59:59'
+  tutorial_deadline: '2026-12-20 23:59:00'
   timezone: Europe/Berlin
   place: Heidelberg, Germany
   extra_places:
@@ -191,6 +231,12 @@
   place: Innsbruck, Austria
   start: 2027-02-17
   end: 2027-02-21
+  sponsor: https://2027.djangocon.eu/sponsors/sponsorship/
+  finaid: https://2027.djangocon.eu/information/grants/
+  coc: https://2027.djangocon.eu/conduct/code_of_conduct/
+  twitter: DjangoConEurope
+  mastodon: https://fosstodon.org/@djangoconeurope
+  youtube: https://www.youtube.com/user/djangoconeurope
   sub: WEB
   location:
   - title: DjangoCon Europe 2027
@@ -515,6 +561,7 @@
   start: 2026-11-14
   end: 2026-11-14
   sponsor: https://istanbul.python.pizza/sponsors/
+  coc: https://istanbul.python.pizza/#coc
   twitter: pythonpizzaist
   sub: PY
   location:
@@ -711,15 +758,16 @@
 
 - conference: PyTorch Conference
   year: 2026
-  link: https://events.linuxfoundation.org/pytorch-conference-north-america/
+  link: https://web.archive.org/web/20261020021037/https://events.linuxfoundation.org/pytorch-conference-north-america/
   cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
   cfp: '2026-06-07 23:59:00'
   timezone: America/Los_Angeles
   place: San Jose, USA
   start: 2026-10-20
   end: 2026-10-21
-  sponsor: https://events.linuxfoundation.org/pytorch-conference-north-america/sponsor/
-  coc: https://events.linuxfoundation.org/pytorch-conference-north-america/attend/code-of-conduct/
+  sponsor: https://web.archive.org/web/20261022032525/https://events.linuxfoundation.org/pytorch-conference-north-america/sponsor/
+  finaid: https://events.linuxfoundation.org/pytorch-conference-north-america/attend/scholarships-travel-funding/
+  coc: https://web.archive.org/web/20261029043430/https://events.linuxfoundation.org/pytorch-conference-north-america/attend/code-of-conduct/
   twitter: pytorch
   youtube: https://www.youtube.com/pytorch
   sub: DATA
@@ -904,6 +952,7 @@
   end: 2027-09-26
   coc: https://www.pycon.jp/policies/code-of-conduct.html
   twitter: pyconjapan
+  youtube: https://www.youtube.com/user/PyConJP
   sub: PY
   location:
   - title: PyCon Japan 2027
@@ -947,6 +996,22 @@
     latitude: 50.294113
     longitude: 18.6657306
 
+- conference: EuroSciPy
+  year: 2027
+  link: https://euroscipy.org/
+  cfp: TBA
+  place: Leipzig, Germany
+  start: 2027-08-16
+  end: 2027-08-21
+  sponsor: https://euroscipy.org/sponsoring
+  coc: https://euroscipy.org/code-of-conduct/
+  twitter: euroSciPy
+  sub: SCIPY
+  location:
+  - title: EuroSciPy 2027
+    latitude: 51.3406321
+    longitude: 12.3747329
+
 - conference: Python Nordeste
   alt_name: PyNE
   year: 2027
@@ -965,7 +1030,7 @@
 
 - conference: PyOhio
   year: 2027
-  link: https://www.pyohio.org/
+  link: https://www.pyohio.org/2027/
   cfp: TBA
   place: Cleveland, USA
   start: 2027-07-24
@@ -1064,25 +1129,6 @@
   - title: PyCon US 2027
     latitude: 33.7690164
     longitude: -118.191604
-
-- conference: PyCon Czechia
-  alt_name: PyCon CZ
-  year: 2027
-  link: https://cz.pycon.org/2027/
-  cfp: TBA
-  place: Pilsen, Czechia
-  start: 2027-04-16
-  end: 2027-04-18
-  sponsor: https://cz.pycon.org/2027/sponsorship/
-  coc: https://cz.pycon.org/2027/coc/
-  twitter: pyconcz
-  mastodon: https://floss.social/@pyconcz
-  youtube: https://www.youtube.com/@PyConCZ
-  sub: PY
-  location:
-  - title: PyCon Czechia 2027
-    latitude: 49.7477415
-    longitude: 13.3775249
 
 - conference: Python BarCamp Karlsruhe
   year: 2027
@@ -1190,39 +1236,3 @@
   - title: PyDay Mexico 2026
     latitude: 19.3207722
     longitude: -99.1514678
-
-- conference: PyCon Estonia
-  alt_name: PyCon EE
-  year: 2026
-  link: https://pycon.ee/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSewbFKG6BEsGXR9ilgsW1wqfmzRR0Pf9XDO5WXTFhrcgrrN3g/viewform
-  cfp: Cancelled
-  cfp_ext: '2026-02-28 23:59:00'
-  place: Tallinn, Estonia
-  start: 2026-10-08
-  end: 2026-10-09
-  sponsor: https://pycon.ee/#sponsors
-  sub: PY
-  location:
-  - title: PyCon Estonia 2026
-    latitude: 59.4372155
-    longitude: 24.7453688
-
-- conference: EARL
-  year: 2026
-  link: https://earl-conference.com/
-  cfp: None
-  timezone: Europe/London
-  place: Brighton, UK
-  start: 2026-10-06
-  end: 2026-10-08
-  sponsor: https://earl-conference.com/earl-archive/sponsors/
-  twitter: earlconf
-  youtube: https://www.youtube.com/channel/UCytOFkoZJfinB9rdRIOfRow?view_as=subscriber
-  sub: BIZ
-  note: Final edition under the EARL name; from 2027 the event becomes the International
-    Data Intelligence Summit (5-7 October 2027, Brighton).
-  location:
-  - title: EARL 2026
-    latitude: 50.8214626
-    longitude: -0.1400561
