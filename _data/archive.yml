@@ -912,11 +912,13 @@
   alt_name: Python Sul (Brazil)
   year: 2026
   link: https://sul.python.org.br/
-  cfp: TBA
+  cfp_link: https://talks.python.org.br/pysul2026/cfp
+  cfp: '2026-03-31 23:59:00'
   timezone: America/Sao_Paulo
   place: Londrina, Brazil
   start: 2026-05-01
   end: 2026-05-03
+  sponsor: https://sul.python.org.br/documents/plano-de-patrocinio-pt-br.pdf
   coc: https://sul.python.org.br/codigo-de-conduta/
   youtube: https://www.youtube.com/@PythonSul
   sub: PY
@@ -1355,6 +1357,7 @@
   link: https://sul.python.org.br/
   cfp_link: https://talks.python.org.br/pysul2025/cfp
   cfp: '2025-10-05 23:59:00'
+  timezone: America/Sao_Paulo
   place: Porto Alegre, Brazil
   start: 2025-11-21
   end: 2025-11-23
