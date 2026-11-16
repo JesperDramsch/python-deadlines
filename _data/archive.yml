@@ -4697,10 +4697,11 @@
   link: https://pycon-2024.python.ph/
   cfp: '2023-12-31 23:59:00'
   timezone: Asia/Manila
-  place: Manila, Philippines
+  place: Makati, Philippines
   start: 2024-02-25
   end: 2024-02-26
   sponsor: https://docs.google.com/forms/d/e/1FAIpQLSfFUgrENuMWS-Ef4DQdDucTYAwVcV-_kPjnTxpiIXVl7fx-_g/closedform
+  coc: https://pycon-2024.python.ph/code-of-conduct/
   twitter: PyConPH
   sub: PY
   location:
