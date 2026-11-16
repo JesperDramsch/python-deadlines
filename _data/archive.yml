@@ -7388,13 +7388,18 @@
 
 - conference: EuroPython
   year: 2021
-  link: https://www.europython.eu/
-  cfp: '2021-05-12 23:59:59'
+  link: https://ep2021.europython.eu/
+  cfp_link: https://ep2021.europython.eu/events/call-for-proposals/
+  cfp: '2021-05-09 23:59:59'
+  cfp_ext: '2021-05-16 23:59:59'
   timezone: Europe/Zurich
   place: Online
   start: 2021-07-26
-  end: 2021-08-02
-  sponsor: https://us.pycon.org/2021/sponsorship/why-sponsor
+  end: 2021-08-01
+  sponsor: https://ep2021.europython.eu/sponsor/
+  finaid: https://ep2021.europython.eu/registration/financial-aid/
+  coc: https://ep2021.europython.eu/coc/
+  twitter: europython
   sub: PY
 
 - conference: Python Nordeste
