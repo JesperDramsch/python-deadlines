@@ -1,5 +1,22 @@
 ---
 
+- conference: PyCon Estonia
+  alt_name: PyCon EE
+  year: 2026
+  link: https://pycon.ee/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSewbFKG6BEsGXR9ilgsW1wqfmzRR0Pf9XDO5WXTFhrcgrrN3g/viewform
+  cfp: Cancelled
+  cfp_ext: '2026-02-28 23:59:00'
+  place: Tallinn, Estonia
+  start: 2026-10-08
+  end: 2026-10-09
+  sponsor: https://pycon.ee/#sponsors
+  sub: PY
+  location:
+  - title: PyCon Estonia 2026
+    latitude: 59.4372155
+    longitude: 24.7453688
+
 - conference: EARL
   year: 2026
   link: https://earl-conference.com/
@@ -2770,6 +2787,8 @@
   sponsor: https://2025.northbaypython.org/sponsor
   coc: https://2025.northbaypython.org/code-of-conduct
   mastodon: https://social.northbaypython.org/@NorthBayPython
+  bluesky: https://bsky.app/profile/northbaypython.org
+  youtube: https://youtube.com/@northbaypython
   sub: PY
   location:
   - title: North Bay Python 2025

@@ -1209,20 +1209,3 @@
   - title: PyDay Mexico 2026
     latitude: 19.3207722
     longitude: -99.1514678
-
-- conference: PyCon Estonia
-  alt_name: PyCon EE
-  year: 2026
-  link: https://pycon.ee/
-  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSewbFKG6BEsGXR9ilgsW1wqfmzRR0Pf9XDO5WXTFhrcgrrN3g/viewform
-  cfp: Cancelled
-  cfp_ext: '2026-02-28 23:59:00'
-  place: Tallinn, Estonia
-  start: 2026-10-08
-  end: 2026-10-09
-  sponsor: https://pycon.ee/#sponsors
-  sub: PY
-  location:
-  - title: PyCon Estonia 2026
-    latitude: 59.4372155
-    longitude: 24.7453688
