@@ -2805,7 +2805,10 @@
   end: 2025-04-27
   sponsor: https://2025.djangocon.eu/sponsors/sponsorship/
   finaid: https://2025.djangocon.eu/information/grants/
+  coc: https://2025.djangocon.eu/conduct/code_of_conduct/
+  twitter: DjangoConEurope
   mastodon: https://fosstodon.org/@djangoconeurope/
+  youtube: https://www.youtube.com/user/djangoconeurope
   sub: WEB
   location:
   - title: DjangoCon Europe 2025

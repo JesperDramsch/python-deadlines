@@ -213,6 +213,12 @@
   place: Innsbruck, Austria
   start: 2027-02-17
   end: 2027-02-21
+  sponsor: https://2027.djangocon.eu/sponsors/sponsorship/
+  finaid: https://2027.djangocon.eu/information/grants/
+  coc: https://2027.djangocon.eu/conduct/code_of_conduct/
+  twitter: DjangoConEurope
+  mastodon: https://fosstodon.org/@djangoconeurope
+  youtube: https://www.youtube.com/user/djangoconeurope
   sub: WEB
   location:
   - title: DjangoCon Europe 2027
