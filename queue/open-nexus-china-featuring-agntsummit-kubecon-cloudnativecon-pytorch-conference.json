@@ -1,34 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "cd47f6856319c020500d40b7357db7c9a77af6e7",
-      "kind": "candidate",
-      "payload": {
-        "classification": "MAYBE",
-        "evidence_url": "https://www.lfopensource.cn/open-nexus-china/",
-        "fields": {
-          "conference": "Open Nexus China Featuring: AGNTSummit + KubeCon + CloudNativeCon + PyTorch Conference",
-          "link": "https://www.lfopensource.cn/open-nexus-china/",
-          "year": 2027
-        },
-        "flags": [
-          "lead-only"
-        ],
-        "matched": {
-          "conference": "Pytorch Day China",
-          "file": "conferences",
-          "score": 50,
-          "year": 2026
-        },
-        "source_id": "https://www.lfopensource.cn/open-nexus-china/"
-      },
-      "received": "2026-11-15T19:49:06Z",
-      "source": "developers-events",
-      "title": "Open Nexus China Featuring: AGNTSummit + KubeCon + CloudNativeCon + PyTorch Conference",
-      "url": "https://www.lfopensource.cn/open-nexus-china/",
-      "year": 2027
-    }
+  "handled": [
+    "cd47f6856319c020500d40b7357db7c9a77af6e7"
   ],
+  "items": [],
   "series": "Open Nexus China Featuring: AGNTSummit + KubeCon + CloudNativeCon + PyTorch Conference"
 }

@@ -1,27 +1,8 @@
 {
   "handled": [
-    "4bd84ba96d5212685f5aad57759800e444c363b4"
+    "4bd84ba96d5212685f5aad57759800e444c363b4",
+    "aa939ee78a2e52ce3c1191b9a05bfa59a6ef4d7c"
   ],
-  "items": [
-    {
-      "id": "aa939ee78a2e52ce3c1191b9a05bfa59a6ef4d7c",
-      "kind": "question",
-      "payload": {
-        "conference": "PyTorch Conference",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyTorch Conference in column 'link' would you prefer 'https://pytorch.org/event/pytorch-conference-2026' or keep 'https://web.archive.org/web/20261020021037/https://events.linuxfoundation.org/pytorch-conference-north-america/'?",
-        "remote_value": "https://pytorch.org/event/pytorch-conference-2026",
-        "source_name": "python-organizers",
-        "yaml_value": "https://web.archive.org/web/20261020021037/https://events.linuxfoundation.org/pytorch-conference-north-america/",
-        "year": 2026
-      },
-      "received": "2026-11-15T12:56:15Z",
-      "source": "canonical-import",
-      "title": "PyTorch Conference",
-      "url": "https://web.archive.org/web/20261020021037/https://events.linuxfoundation.org/pytorch-conference-north-america/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyTorch Conference"
 }
