@@ -8180,12 +8180,17 @@
   alt_name: SciPy
   year: 2020
   link: https://www.scipy2020.scipy.org/
+  cfp_link: https://jim5090.wixsite.com/website/talk-poster-presentations
   cfp: '2020-01-31 23:59:00'
   cfp_ext: '2020-02-15 23:59:00'
   timezone: America/Chicago
   place: Online
   start: 2020-07-06
   end: 2020-07-12
+  sponsor: https://jim5090.wixsite.com/website/sponsors-job-fair
+  finaid: https://jim5090.wixsite.com/website/financial-aid
+  coc: https://jim5090.wixsite.com/website/code-of-conduct
+  twitter: SciPyConf
   sub: SCIPY
 
 - conference: Flask Con
