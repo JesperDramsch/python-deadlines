@@ -89,6 +89,24 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: Python Pizza Hamburg
+  year: 2027
+  link: https://hamburg.python.pizza/
+  cfp: '2027-01-10 23:59:00'
+  place: Hamburg, Germany
+  start: 2027-02-27
+  end: 2027-02-27
+  sponsor: https://hamburg.python.pizza/#sponsors
+  coc: https://hamburg.python.pizza/#coc
+  twitter: PythonPizzaConf
+  mastodon: https://fosstodon.org/@pythonpizza
+  youtube: https://www.youtube.com/@PythonPizza
+  sub: PY
+  location:
+  - title: Python Pizza Hamburg 2027
+    latitude: 53.5672881
+    longitude: 9.941726150411604
+
 - conference: PyData Venice Day
   year: 2027
   link: https://venice.pydata.org/pydata-venice-day-27/
