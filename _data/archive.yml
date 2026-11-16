@@ -7373,11 +7373,13 @@
 - conference: PyOhio
   year: 2021
   link: https://www.pyohio.org/2021/
-  cfp_link: https://pyohio.org/cfp
+  cfp_link: https://www.pyohio.org/2021/speaking/call-for-proposals
   cfp: '2021-05-02 23:59:00'
   place: Columbus, USA
   start: 2021-07-31
-  end: 2021-08-01
+  end: 2021-07-31
+  coc: https://www.pyohio.org/2021/about/code-of-conduct
+  twitter: pyohio
   sub: PY
   location:
   - title: PyOhio 2021
@@ -9282,6 +9284,7 @@
   start: 2019-07-27
   end: 2019-07-28
   sponsor: https://pyohio.org/2019/sponsorship
+  coc: https://www.pyohio.org/2019/about/code-of-conduct
   sub: PY
   location:
   - title: PyOhio 2019
