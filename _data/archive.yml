@@ -5215,6 +5215,7 @@
   start: 2023-10-06
   end: 2023-10-07
   sponsor: https://2023.pygotham.tv/sponsors/prospectus/
+  coc: https://2023.pygotham.tv/about/code-of-conduct/
   sub: PY
   note: Tech talks and short film submissions
 
@@ -8895,6 +8896,7 @@
   start: 2019-10-04
   end: 2019-10-05
   sponsor: https://web.archive.org/web/20191117081327/https://2019.pygotham.org/sponsors/prospectus/
+  coc: https://2019.pygotham.org/about/code-of-conduct/
   sub: PY
   location:
   - title: PyGotham TV 2019
