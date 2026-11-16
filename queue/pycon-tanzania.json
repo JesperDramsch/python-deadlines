@@ -14,6 +14,21 @@
     "728f6901cc3daf567860abc1cc07ed56fbf34fc0",
     "8f8f88b539c27638e3d075258ebe6c36f50ac9e8"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "16e415eecbb65c93a0ef2bbbfee2b3eca677a00a",
+      "kind": "signal",
+      "payload": {
+        "diff": "Submit a proposal What you can submit Open now Closes in -- days -- hours -- mins -- secs Sunday 15 November 2026, 23:59 East Africa Time Tell me when it opens What you can submit Closed The call for proposals has closed Thank you to everyone who submitted.",
+        "trigger": "website_change",
+        "watch_uuid": "2ceb2f37-181a-4e44-b7f6-c9bda9a7a579"
+      },
+      "received": "2026-11-16T12:14:56Z",
+      "source": "changedetection",
+      "title": "PyCon Tanzania 2026 - CFP",
+      "url": "https://pycon.tz/call-for-proposals/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Tanzania"
 }
