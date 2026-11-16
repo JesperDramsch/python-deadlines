@@ -650,8 +650,11 @@
   end: 2026-07-19
   sponsor: https://ep2026.europython.eu/sponsors
   finaid: https://ep2026.europython.eu/finaid
+  coc: https://www.europython-society.org/coc/
   twitter: EuroPython
   mastodon: https://fosstodon.org/@europython
+  bluesky: https://bsky.app/profile/europython.eu
+  youtube: https://www.youtube.com/channel/UC98CzaYuFNAA_gOINFB0e4Q
   sub: PY
   location:
   - title: EuroPython 2026
