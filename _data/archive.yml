@@ -7787,6 +7787,8 @@
   place: Online
   start: 2020-10-30
   end: 2020-10-31
+  sponsor: https://jim5090.wixsite.com/website-7/2020-sponsors
+  coc: https://jim5090.wixsite.com/website-7/code-of-conduct
   sub: SCIPY
 
 - conference: PyCon France
