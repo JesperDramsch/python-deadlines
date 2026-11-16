@@ -985,6 +985,8 @@
   start: 2027-08-16
   end: 2027-08-21
   sponsor: https://euroscipy.org/sponsoring
+  coc: https://euroscipy.org/code-of-conduct/
+  twitter: euroSciPy
   sub: SCIPY
   location:
   - title: EuroSciPy 2027
