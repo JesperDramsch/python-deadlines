@@ -317,6 +317,7 @@ def main(argv: list[str] | None = None) -> int:
 
     results = []
     skipped = []
+    stopped = False
     for i, url in enumerate(urls):
         if i:
             time.sleep(args.delay)
@@ -328,6 +329,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{'saved' if result.ok else 'not saved'}: {url} ({result.detail})")
         results.append(result)
         if result.blocked:
+            stopped = True
             skipped = urls[i + 1 :]
             print(f"The archive turned the run away twice: stopping, {len(skipped)} URLs not tried")
             break
@@ -335,7 +337,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.summary:
         with args.summary.open("a", encoding="utf-8") as f:
             f.write(render_summary(results, len(fresh), len(due), skipped))
-    return 1 if results and results[-1].blocked else 0
+    return 1 if stopped else 0
 
 
 if __name__ == "__main__":

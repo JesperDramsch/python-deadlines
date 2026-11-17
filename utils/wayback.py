@@ -24,6 +24,7 @@ from datetime import date
 from datetime import timedelta
 
 import requests
+from urllib3.exceptions import ReadTimeoutError
 
 CDX_URL = "https://web.archive.org/cdx/search/cdx"
 SAVE_URL = "https://web.archive.org/save/"
@@ -179,6 +180,28 @@ def pick_capture(stamps: list[str], end: date, grace_days: int = END_GRACE_DAYS)
     return max(eligible) if eligible else None
 
 
+def _is_read_timeout(error: requests.ConnectionError) -> bool:
+    """Check whether a ConnectionError is a read timeout while the body downloads.
+
+    requests raises ``ReadTimeout`` when the headers are late, but re-raises a
+    timeout in the body as ``ConnectionError(ReadTimeoutError)``.
+
+    Parameters
+    ----------
+    error : requests.ConnectionError
+        The error a request raised
+
+    Returns
+    -------
+    bool
+        True when the error wraps a urllib3 ``ReadTimeoutError``
+    """
+    return any(isinstance(arg, ReadTimeoutError) for arg in error.args) or isinstance(
+        error.__context__,
+        ReadTimeoutError,
+    )
+
+
 def save(url: str) -> SaveResult:
     """Ask the Wayback Machine to save a page now.
 
@@ -200,8 +223,9 @@ def save(url: str) -> SaveResult:
             timeout=(CONNECT_TIMEOUT, TIMEOUT),
         )
     except requests.ConnectionError as e:
-        # Refused, reset or not answering: the archive, not the page
-        return SaveResult(url, ok=False, detail=f"error: {e}", blocked=True)
+        # Refused, reset or not answering: the archive, not the page. A read
+        # timeout while the body downloads also arrives as a ConnectionError.
+        return SaveResult(url, ok=False, detail=f"error: {e}", blocked=not _is_read_timeout(e))
     except requests.RequestException as e:
         # A read timeout: the capture can still finish on the archive's side
         return SaveResult(url, ok=False, detail=f"error: {e}")
