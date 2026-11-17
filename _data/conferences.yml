@@ -1222,17 +1222,3 @@
   - title: PyCon Davao 2026
     latitude: 7.0648306
     longitude: 125.6080623
-
-- conference: PyDay Mexico
-  alt_name: 'PyDay México: CDMX'
-  year: 2026
-  link: https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029
-  cfp: None
-  place: Ciudad de México, México
-  start: 2026-10-10
-  end: 2026-10-10
-  sub: DAY
-  location:
-  - title: PyDay Mexico 2026
-    latitude: 19.3207722
-    longitude: -99.1514678
