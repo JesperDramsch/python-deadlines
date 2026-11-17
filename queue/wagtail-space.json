@@ -1,0 +1,20 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "9b0ce64acea0f3fc9293c47305c1f173d349c735",
+      "kind": "signal",
+      "payload": {
+        "diff": "Wagtail CMS events around the world Upcoming event Wagtail CMS events around the world Now Upcoming event Now",
+        "trigger": "website_change",
+        "watch_uuid": "4409198b-ee75-4573-bdfb-53bd059296ad"
+      },
+      "received": "2026-11-17T23:18:40Z",
+      "source": "changedetection",
+      "title": "[Conference] Wagtail Space",
+      "url": "https://www.wagtail.space/",
+      "year": null
+    }
+  ],
+  "series": "Wagtail Space"
+}
