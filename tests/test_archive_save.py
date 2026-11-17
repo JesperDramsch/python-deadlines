@@ -227,7 +227,7 @@ class TestMain:
 
 
 class TestTurnedAway:
-    """When the archive turns the run away, the run tries once more, then stops and fails."""
+    """When the archive turns the run away, the run stops at once and fails."""
 
     @pytest.fixture()
     def data(self, tmp_path):
@@ -242,25 +242,9 @@ class TestTurnedAway:
 
     def _run(self, current, previous, summary):
         args = ["--data", str(current), "--previous", str(previous), "--summary", str(summary)]
-        return archive_save.main([*args, "--delay", "0", "--cool-off", "0"])
+        return archive_save.main([*args, "--delay", "0"])
 
-    def test_retry_after_cool_off(self, data, monkeypatch):
-        current, previous, summary = data
-        calls = []
-
-        def save(url):
-            calls.append(url)
-            blocked = len(calls) == 1
-            detail = "HTTP 429" if blocked else "HTTP 200"
-            return wayback.SaveResult(url, ok=not blocked, detail=detail, blocked=blocked)
-
-        monkeypatch.setattr(archive_save.wayback, "save", save)
-
-        assert self._run(current, previous, summary) == 0
-        assert calls == ["https://pycon.tz/", "https://pycon.tz/", "https://gh.pycon.org/", "https://pycon.ke/"]
-        assert "- Saved: 3 of 3" in summary.read_text(encoding="utf-8")
-
-    def test_stops_and_fails_when_turned_away_twice(self, data, monkeypatch):
+    def test_stops_and_fails_when_turned_away(self, data, monkeypatch):
         current, previous, summary = data
         calls = []
 
@@ -272,11 +256,12 @@ class TestTurnedAway:
         monkeypatch.setattr(archive_save.wayback, "save", save)
 
         assert self._run(current, previous, summary) == 1
-        assert calls == ["https://pycon.tz/", "https://gh.pycon.org/", "https://gh.pycon.org/"]
+        assert calls == ["https://pycon.tz/", "https://gh.pycon.org/"]
         report = summary.read_text(encoding="utf-8")
         assert "- https://gh.pycon.org/ (error: refused)" in report
         assert "### Not tried" in report
         assert "- https://pycon.ke/" in report
+        assert "- Saved: 1 of 2" in report
 
     def test_page_failure_does_not_stop_the_run(self, data, monkeypatch):
         current, previous, summary = data

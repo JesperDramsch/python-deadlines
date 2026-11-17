@@ -18,9 +18,9 @@ is saved at most once per run, whichever points it is due for: ``#fragment``
 links to one page count as that page.
 
 When the archive turns the run away (connection refused, rate limited), the run
-waits ``--cool-off`` seconds and tries that page once more. Turned away again,
-it stops and exits 1, so the workflow run fails and the next run starts from
-the last successful one and saves the pages this run could not. A page the
+stops at once and exits 1, so the workflow run fails and the next run starts
+from the last successful one and saves the pages this run could not. Waiting
+for a block to lift would cost minutes and could fail all the same. A page the
 archive fails to capture is reported and does not fail the run.
 
 Only ``_data/conferences.yml`` is read: an edition stays there until well after
@@ -59,7 +59,6 @@ CFP_POINTS = (-14, 0)
 START_POINTS = (-30, -14, 0, 14)
 DEADLINE = re.compile(r"^(\d{4}-\d{2}-\d{2})")
 DEFAULT_DELAY = 5.0
-DEFAULT_COOL_OFF = 60.0
 
 
 def to_date(value: object) -> date | None:
@@ -276,12 +275,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--since", type=date.fromisoformat, help="Day of the last successful run, for save points")
     parser.add_argument("--today", type=date.fromisoformat, help="Day of this run (default: today, UTC)")
     parser.add_argument("--delay", type=float, default=DEFAULT_DELAY, help="Seconds between save requests")
-    parser.add_argument(
-        "--cool-off",
-        type=float,
-        default=DEFAULT_COOL_OFF,
-        help="Seconds to wait before trying once more when the archive turns the run away",
-    )
     parser.add_argument("--summary", type=Path, help="File to append the Markdown report to")
     parser.add_argument("--dry-run", action="store_true", help="List the URLs without saving them")
     return parser
@@ -322,16 +315,12 @@ def main(argv: list[str] | None = None) -> int:
         if i:
             time.sleep(args.delay)
         result = wayback.save(url)
-        if result.blocked:
-            print(f"turned away: {url} ({result.detail}); trying once more in {args.cool_off:g}s")
-            time.sleep(args.cool_off)
-            result = wayback.save(url)
         print(f"{'saved' if result.ok else 'not saved'}: {url} ({result.detail})")
         results.append(result)
         if result.blocked:
             stopped = True
             skipped = urls[i + 1 :]
-            print(f"The archive turned the run away twice: stopping, {len(skipped)} URLs not tried")
+            print(f"The archive turned the run away: stopping, {len(skipped)} URLs not tried")
             break
 
     if args.summary:
