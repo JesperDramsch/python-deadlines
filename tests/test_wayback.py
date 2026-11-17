@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 import requests
 import responses
+from urllib3.exceptions import ReadTimeoutError
 
 sys.path.append(str(Path(__file__).parent.parent / "utils"))
 
@@ -147,6 +148,35 @@ class TestSave:
 
         assert not result.ok
         assert result.detail == "HTTP 429"
+        assert result.blocked
+
+    @responses.activate
+    def test_page_failure_is_not_blocked(self):
+        responses.add(responses.GET, wayback.SAVE_URL + "https://pycon.tz/", status=523)
+
+        result = wayback.save("https://pycon.tz/")
+
+        assert not result.ok
+        assert not result.blocked
+
+    @responses.activate
+    def test_read_timeout_in_body_is_not_blocked(self):
+        stall = ReadTimeoutError(None, wayback.SAVE_URL, "Read timed out.")
+        responses.add(responses.GET, wayback.SAVE_URL + "https://pycon.tz/", body=requests.ConnectionError(stall))
+
+        result = wayback.save("https://pycon.tz/")
+
+        assert not result.ok
+        assert not result.blocked
+
+    @responses.activate
+    def test_read_timeout_is_not_blocked(self):
+        responses.add(responses.GET, wayback.SAVE_URL + "https://pycon.tz/", body=requests.ReadTimeout("slow"))
+
+        result = wayback.save("https://pycon.tz/")
+
+        assert not result.ok
+        assert not result.blocked
 
     @responses.activate
     def test_connection_error(self):
@@ -156,6 +186,7 @@ class TestSave:
 
         assert not result.ok
         assert result.detail.startswith("error:")
+        assert result.blocked
 
 
 class TestLinks:
