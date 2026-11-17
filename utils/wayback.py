@@ -29,6 +29,12 @@ CDX_URL = "https://web.archive.org/cdx/search/cdx"
 SAVE_URL = "https://web.archive.org/save/"
 USER_AGENT = "Pythondeadlin.es Archiver/1.0 (https://pythondeadlin.es)"
 TIMEOUT = 60
+# Seconds to wait for the archive to accept the connection. A refusal arrives at
+# once; a long wait here means the archive is not answering at all.
+CONNECT_TIMEOUT = 10
+# Statuses with which the archive itself turns the client away (rate limit,
+# too many sessions), as opposed to failing to capture one page
+BLOCKED_STATUSES = frozenset({429, 509})
 # Days after an edition's end in which a capture still shows that edition
 END_GRACE_DAYS = 14
 
@@ -52,11 +58,15 @@ class SaveResult:
         True when the archive accepted the request
     detail : str
         The HTTP status, or the error, for the run's report
+    blocked : bool
+        True when the archive turned the client away (connection refused or
+        failed, rate limited) rather than failing on this page
     """
 
     url: str
     ok: bool
     detail: str
+    blocked: bool = False
 
 
 def is_archived(url: str) -> bool:
@@ -180,10 +190,20 @@ def save(url: str) -> SaveResult:
     Returns
     -------
     SaveResult
-        Whether the archive accepted the request, with the status or error
+        Whether the archive accepted the request, with the status or error, and
+        whether the archive turned the client away
     """
     try:
-        response = requests.get(SAVE_URL + url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
+        response = requests.get(
+            SAVE_URL + url,
+            headers={"User-Agent": USER_AGENT},
+            timeout=(CONNECT_TIMEOUT, TIMEOUT),
+        )
+    except requests.ConnectionError as e:
+        # Refused, reset or not answering: the archive, not the page
+        return SaveResult(url, ok=False, detail=f"error: {e}", blocked=True)
     except requests.RequestException as e:
+        # A read timeout: the capture can still finish on the archive's side
         return SaveResult(url, ok=False, detail=f"error: {e}")
-    return SaveResult(url, ok=response.status_code == 200, detail=f"HTTP {response.status_code}")
+    status = response.status_code
+    return SaveResult(url, ok=status == 200, detail=f"HTTP {status}", blocked=status in BLOCKED_STATUSES)
