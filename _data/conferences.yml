@@ -890,26 +890,6 @@
     latitude: 37.9755648
     longitude: 23.7348324
 
-- conference: PyCon Africa
-  year: 2026
-  link: https://africa.pycon.org/
-  cfp_link: https://africa.pycon.org/2026/talks/proposals/
-  cfp: '2026-04-16 23:59:00'
-  place: Kampala, Uganda
-  start: 2026-10-07
-  end: 2026-10-11
-  sponsor: https://africa.pycon.org/2026/sponsor-us/
-  finaid: https://africa.pycon.org/2026/opportunity-grants/
-  coc: https://africa.pycon.org/2026/coc/
-  twitter: pyconafrica
-  mastodon: https://mastodon.social/@pyconafrica
-  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
-  sub: PY
-  location:
-  - title: PyCon Africa 2026
-    latitude: 0.3177137
-    longitude: 32.5813539
-
 - conference: PyCon Germany
   year: 2028
   link: https://pycon.de/
