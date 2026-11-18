@@ -13,8 +13,15 @@ site moves on. This script makes the captures. It saves a URL:
 
 The workflow runs weekly and on pushes to the data, so a point is saved on the
 first run on or after it: every point after ``--since`` and up to ``--today``.
-A CfP with no exact deadline (TBA, None, Cancelled) has no CfP points. Each URL
-is saved at most once per run, whichever points it is due for.
+A CfP with no exact deadline (TBA, None, Cancelled) has no CfP points. Each page
+is saved at most once per run, whichever points it is due for: ``#fragment``
+links to one page count as that page.
+
+When the archive turns the run away (connection refused, rate limited), the run
+stops at once and exits 1, so the workflow run fails and the next run starts
+from the last successful one and saves the pages this run could not. Waiting
+for a block to lift would cost minutes and could fail all the same. A page the
+archive fails to capture is reported and does not fail the run.
 
 Only ``_data/conferences.yml`` is read: an edition stays there until well after
 its last save point.
@@ -37,6 +44,7 @@ from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
 from pathlib import Path
+from urllib.parse import urldefrag
 
 import yaml
 
@@ -96,7 +104,7 @@ def normalise(url: str) -> str:
 
 
 def entry_urls(entry: Mapping) -> list[str]:
-    """Return an entry's live URLs: its URL fields that are not archive links.
+    """Return an entry's live pages: its URL fields that are not archive links.
 
     Parameters
     ----------
@@ -106,14 +114,15 @@ def entry_urls(entry: Mapping) -> list[str]:
     Returns
     -------
     list[str]
-        The URLs, in field order
+        The URLs without ``#fragment``, since the archive saves the page, each
+        once, in field order
     """
     urls = []
     for field in URL_FIELDS:
         value = entry.get(field)
         if value and not wayback.is_archived(str(value)):
-            urls.append(str(value).strip())
-    return urls
+            urls.append(urldefrag(str(value).strip()).url)
+    return list(dict.fromkeys(urls))
 
 
 def save_points(entry: Mapping) -> list[date]:
@@ -203,7 +212,12 @@ def load(path: Path) -> list[dict]:
     return [entry for entry in data or [] if isinstance(entry, dict)]
 
 
-def render_summary(results: list[wayback.SaveResult], new_count: int, due_count: int) -> str:
+def render_summary(
+    results: list[wayback.SaveResult],
+    new_count: int,
+    due_count: int,
+    skipped: list[str] | None = None,
+) -> str:
     """Render the run's report as Markdown for the workflow summary.
 
     Parameters
@@ -214,6 +228,8 @@ def render_summary(results: list[wayback.SaveResult], new_count: int, due_count:
         How many of the URLs were new in the data
     due_count : int
         How many were due for a save point
+    skipped : list[str] | None
+        URLs not tried because the archive turned the run away
 
     Returns
     -------
@@ -231,6 +247,17 @@ def render_summary(results: list[wayback.SaveResult], new_count: int, due_count:
     if failed:
         lines.extend(("", "### Not saved", ""))
         lines.extend(f"- {result.url} ({result.detail})" for result in failed)
+    if skipped:
+        lines.extend(
+            (
+                "",
+                "### Not tried",
+                "",
+                "The archive turned the run away, so the run stopped. The next run saves these.",
+                "",
+            ),
+        )
+        lines.extend(f"- {url}" for url in skipped)
     return "\n".join(lines) + "\n"
 
 
@@ -264,7 +291,8 @@ def main(argv: list[str] | None = None) -> int:
     Returns
     -------
     int
-        0; a page the archive did not save is reported, not an error
+        0, also when the archive failed to capture a page (reported); 1 when the
+        archive turned the run away and the run stopped
     """
     args = build_parser().parse_args(argv)
     today = args.today or datetime.now(tz=timezone.utc).date()
@@ -275,21 +303,30 @@ def main(argv: list[str] | None = None) -> int:
     urls = list(dict.fromkeys(fresh + due))
     print(f"{len(fresh)} new URLs, {len(due)} at a save point, {len(urls)} to save")
 
-    results = []
-    for i, url in enumerate(urls):
-        if args.dry_run:
+    if args.dry_run:
+        for url in urls:
             print(f"would save {url}")
-            continue
+        return 0
+
+    results = []
+    skipped = []
+    stopped = False
+    for i, url in enumerate(urls):
         if i:
             time.sleep(args.delay)
         result = wayback.save(url)
         print(f"{'saved' if result.ok else 'not saved'}: {url} ({result.detail})")
         results.append(result)
+        if result.blocked:
+            stopped = True
+            skipped = urls[i + 1 :]
+            print(f"The archive turned the run away: stopping, {len(skipped)} URLs not tried")
+            break
 
-    if args.summary and not args.dry_run:
+    if args.summary:
         with args.summary.open("a", encoding="utf-8") as f:
-            f.write(render_summary(results, len(fresh), len(due)))
-    return 0
+            f.write(render_summary(results, len(fresh), len(due), skipped))
+    return 1 if stopped else 0
 
 
 if __name__ == "__main__":

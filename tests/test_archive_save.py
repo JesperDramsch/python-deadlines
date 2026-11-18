@@ -135,6 +135,13 @@ class TestNewUrls:
     def test_no_previous_data(self):
         assert archive_save.new_urls([], [_entry()]) == ["https://pycon.tz/"]
 
+    def test_fragment_is_the_same_page(self):
+        previous = [_entry()]
+        current = [_entry(sponsor="https://pycon.tz/#sponsors", coc="https://pycon.tz/#coc")]
+
+        assert archive_save.new_urls(previous, current) == []
+        assert archive_save.entry_urls(current[0]) == ["https://pycon.tz/"]
+
 
 class TestMain:
     """The command saves new and due URLs once each and reports every result."""
@@ -217,3 +224,53 @@ class TestMain:
         archive_save.main(["--data", str(current), "--previous", str(tmp_path / "missing.yml"), "--delay", "0"])
 
         assert saved == ["https://pycon.tz/"]
+
+
+class TestTurnedAway:
+    """When the archive turns the run away, the run stops at once and fails."""
+
+    @pytest.fixture()
+    def data(self, tmp_path):
+        current = tmp_path / "conferences.yml"
+        entries = [
+            _entry(),
+            _entry(conference="PyCon Ghana", link="https://gh.pycon.org/"),
+            _entry(conference="PyCon Kenya", link="https://pycon.ke/"),
+        ]
+        current.write_text(yaml.safe_dump(entries), encoding="utf-8")
+        return current, tmp_path / "missing.yml", tmp_path / "summary.md"
+
+    def _run(self, current, previous, summary):
+        args = ["--data", str(current), "--previous", str(previous), "--summary", str(summary)]
+        return archive_save.main([*args, "--delay", "0"])
+
+    def test_stops_and_fails_when_turned_away(self, data, monkeypatch):
+        current, previous, summary = data
+        calls = []
+
+        def save(url):
+            calls.append(url)
+            ok = url == "https://pycon.tz/"
+            return wayback.SaveResult(url, ok=ok, detail="HTTP 200" if ok else "error: refused", blocked=not ok)
+
+        monkeypatch.setattr(archive_save.wayback, "save", save)
+
+        assert self._run(current, previous, summary) == 1
+        assert calls == ["https://pycon.tz/", "https://gh.pycon.org/"]
+        report = summary.read_text(encoding="utf-8")
+        assert "- https://gh.pycon.org/ (error: refused)" in report
+        assert "### Not tried" in report
+        assert "- https://pycon.ke/" in report
+        assert "- Saved: 1 of 2" in report
+
+    def test_page_failure_does_not_stop_the_run(self, data, monkeypatch):
+        current, previous, summary = data
+        calls = []
+        monkeypatch.setattr(
+            archive_save.wayback,
+            "save",
+            lambda url: calls.append(url) or wayback.SaveResult(url, ok=False, detail="HTTP 523"),
+        )
+
+        assert self._run(current, previous, summary) == 0
+        assert len(calls) == 3
