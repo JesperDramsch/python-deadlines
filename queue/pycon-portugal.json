@@ -1,0 +1,20 @@
+{
+  "handled": [],
+  "items": [
+    {
+      "id": "305721daabc2a2a839af003ca95e9d4eac8d1c91",
+      "kind": "signal",
+      "payload": {
+        "diff": "* Talks Talks + CALL FOR PARTICIPATION + SELECTION PROCESS + SCHEDULE * Information Information + AVEIRO + VENUE + GRANTS + HOSPITALITY + PARTY + T-SHIRTS + FAQS * Sponsors/Jobs Sponsors/Jobs + SPONSORS + JOBS + SPONSORSHIP * Conduct Conduct + CODE OF CONDUCT + RESPONSE GUIDE + PRIVACY GUIDE * Tickets * About About + CONTACT + CREDITS Skip to content * Talks + Call for Participation + Selection Process + Schedule * Information + Leiria + Venue + Grants + Hospitality + Party + T-shirts + FAQs * Sponsors + Sponsors + Sponsorship + Jobs * Conduct + Code of Conduct + Response Guide + Privacy Guide * Tickets * About + Contact + Credits PyCon Portugal 2027 · 22–24 April 2027 · Leiria, Portugal Leiria PyCon Portugal 2027 We're back for the 6th edition 22–24 April 2027 · Leiria, Portugal Whether you are an experienced programmer, a hobby hacker or an absolute beginner, we'd love to welcome you to the Python community. PyCons are hosted all around the world by volunteers from local Python communities. This year we meet in Leiria, with the support of ULO – Universidade de Leiria e do Oeste. Grab your ticket See you in Leiria Castelo de Leiria Praça Rodrigues Lobo The historic centre A university city halfway between Lisbon and Porto, under a medieval castle and a short drive from Batalha, Nazaré and the Atlantic coast. About Leiria Tickets Student from 25€ If you are currently enrolled as a full-time student or are currently without regular income. Buy ticket → Individual from 70€ If you are paying your ticket from your personal money and are not being reimbursed by your employer. Buy ticket → Business from 120€ If your employer is paying for the ticket or reimbursing you for your conference expenses. Buy ticket → Early-bird prices. Ticket sales open on 16 November 2026. Important dates November 2026 16th · Early-bird ticket sales open 20th · Call for Participation opens December 2026 1st · Grant applications open 31st · Call for Participation deadline January 2027 Content review & selection Grant applications deadline (date to be announced) February 2027 Talks & schedule publication Early-bird ticket sales close (date to be announced) April 2027 22nd & 23rd · Main conference 24th · Workshops Previous editions ← → Want a free ticket? CFP Do you have content to share with the community? Call for Participation opens 20 November and closes 31 December 2026. Speakers get in for free. Coming soon Volunteer Do you want to see what's behind the curtain? Volunteer applications will open in early 2027. Get in touch if you can't wait. Apply → Grant Do you need a push to attend PyCon Portugal? Opportunity grant applications open on 1 December 2026. Apply → Cookies With your permission we use Google Analytics cookies to count visits and improve this site. Nothing is loaded until you choose. See our privacy guide. Accept Decline",
+        "trigger": "website_change",
+        "watch_uuid": "f3795938-9f0d-4696-ad30-939da55f4425"
+      },
+      "received": "2026-11-18T04:20:15Z",
+      "source": "changedetection",
+      "title": "[Conference] PyCon Portugal",
+      "url": "https://pycon.pt",
+      "year": null
+    }
+  ],
+  "series": "PyCon Portugal"
+}
