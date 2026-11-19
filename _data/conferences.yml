@@ -540,7 +540,10 @@
   start: 2026-11-18
   end: 2026-11-20
   sponsor: https://wagtail.org/wagtail-space-2026/sponsors/
+  coc: https://wagtail.org/code-of-conduct/
   mastodon: https://fosstodon.org/@wagtail
+  bluesky: https://bsky.app/profile/wagtail.org
+  youtube: https://www.youtube.com/@wagtailcms
   sub: WEB
 
 - conference: PyConf

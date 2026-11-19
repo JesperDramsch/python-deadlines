@@ -1895,7 +1895,10 @@
   start: 2025-10-08
   end: 2025-10-10
   sponsor: https://wagtail.org/wagtail-space-2025/sponsors/
+  coc: https://wagtail.org/code-of-conduct/
   mastodon: https://fosstodon.org/@wagtail
+  bluesky: https://bsky.app/profile/wagtail.org
+  youtube: https://www.youtube.com/@wagtailcms
   sub: WEB
 
 - conference: PyCon Africa
