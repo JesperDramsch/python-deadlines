@@ -21,9 +21,13 @@ capture from the edition's own time, and does the weekly link check:
    on hosts that carry many sites (``SHARED_HOSTS``). The last capture on or
    before the edition's ``end`` plus 14 days (``wayback.pick_capture``)
    replaces the URL, with its full timestamp. When there is none, the URL stays
-   and is listed for the maintainer. When the archive turns the run away, the
-   run stops asking at once and leaves the rest for the next run, which finds
-   the same candidates again; nothing waits for the archive to come back.
+   and is listed for the maintainer. Requests go out one at a time,
+   ``SPACING`` seconds apart, in batches of ``BATCH_SIZE`` with a longer pause
+   between batches. When the archive refuses one,
+   the run waits 10, 20 and 40 seconds (``BACKOFF``), retrying the same request
+   after each wait; still refused, or once the run has waited
+   ``BACKOFF_BUDGET`` seconds in all, it stops asking and leaves the rest for
+   the next run, which finds the same candidates again.
 4. **Mastodon.** Accounts that moved are followed to their new address.
 
 Year URLs (``2024.pycon.de``), the editions that are not superseded and links
@@ -78,7 +82,15 @@ DATA_FILES = ("conferences.yml", "archive.yml", "legacy.yml")
 URL_FIELDS = ("link", "cfp_link", "sponsor", "finaid", "coc")
 # A four-digit year that is not part of a longer number
 YEAR = re.compile(r"(?<!\d)(?:19|20)\d{2}(?!\d)")
-DEFAULT_DELAY = 1.0
+# CDX requests go out one at a time, SPACING seconds apart, in batches of
+# BATCH_SIZE with a pause of DEFAULT_DELAY seconds between batches. After a refusal the same request is
+# retried after each wait in BACKOFF; still refused, the run stops asking. All
+# backoff waits in one run add up to at most BACKOFF_BUDGET seconds.
+BATCH_SIZE = 10
+SPACING = 1.0
+DEFAULT_DELAY = 5.0
+BACKOFF = (10.0, 20.0, 40.0)
+BACKOFF_BUDGET = 180.0
 # Threads for the link check, and how many of them may request one site at a time
 WORKERS = 16
 PER_HOST = 2
@@ -379,6 +391,10 @@ def resolve(
     lookup: Callable[[str], list[str]] | None = None,
     delay: float = DEFAULT_DELAY,
     lookup_host: Callable[[str, list[str], date | None], dict[str, list[str]]] | None = None,
+    batch_size: int = BATCH_SIZE,
+    spacing: float = SPACING,
+    backoff: tuple[float, ...] = BACKOFF,
+    backoff_budget: float = BACKOFF_BUDGET,
 ) -> list[Outcome]:
     """Replace each candidate's URL with the capture that shows its edition.
 
@@ -389,10 +405,18 @@ def resolve(
     lookup : Callable[[str], list[str]] | None
         Lists one page's capture timestamps. Default: ``wayback.captures``
     delay : float
-        Seconds to wait between CDX requests
+        Seconds to wait after every ``batch_size`` CDX requests, instead of ``spacing``
     lookup_host : Callable[[str, list[str], date | None], dict[str, list[str]]] | None
         Lists the captures of several pages on one host, by ``wayback.page_key``.
         Default: ``wayback.host_captures``
+    batch_size : int
+        CDX requests in a batch, before the longer pause
+    spacing : float
+        Seconds to wait between two requests within a batch
+    backoff : tuple[float, ...]
+        Seconds to wait before each retry of a refused request
+    backoff_budget : float
+        The most seconds of backoff waits in one run
 
     Returns
     -------
@@ -413,25 +437,41 @@ def resolve(
             limit = end + timedelta(days=wayback.END_GRACE_DAYS)
             limits[candidate.url] = max(limit, limits.get(candidate.url, limit))
 
+    def ask(host: str | None, urls: list[str]) -> None:
+        if host is None:
+            found[urls[0]] = lookup(urls[0])
+        else:
+            by_key = lookup_host(host, urls, max(limits[url] for url in urls if url in limits))
+            for url in urls:
+                found[url] = by_key.get(wayback.page_key(url), [])
+
     found: dict[str, list[str] | wayback.WaybackError] = {}
     blocked: wayback.WaybackBlockedError | None = None
+    waited = 0.0
     for i, (host, urls) in enumerate(lookup_plan(todo)):
-        if i:
-            time.sleep(delay)
-        try:
-            if host is None:
-                found[urls[0]] = lookup(urls[0])
-            else:
-                by_key = lookup_host(host, urls, max(limits[url] for url in urls if url in limits))
+        pause = delay if i % batch_size == 0 else spacing
+        if i and pause:
+            time.sleep(pause)
+        retries = iter(backoff)
+        while True:
+            try:
+                ask(host, urls)
+            except wayback.WaybackBlockedError as e:
+                wait = next(retries, None)
+                if wait is None or waited + wait > backoff_budget:
+                    blocked = e
+                    break
+                waited += wait
+                print(f"The archive refused a request, retrying in {wait:g} s: {e}", flush=True)
+                time.sleep(wait)
+                continue
+            except wayback.WaybackError as e:
                 for url in urls:
-                    found[url] = by_key.get(wayback.page_key(url), [])
-        except wayback.WaybackBlockedError as e:
-            blocked = e
-            print(f"The archive turned the run away, stopping lookups: {e}", flush=True)
+                    found[url] = e
             break
-        except wayback.WaybackError as e:
-            for url in urls:
-                found[url] = e
+        if blocked:
+            print(f"The archive is still refusing, stopping lookups: {blocked}", flush=True)
+            break
 
     outcomes = []
     for candidate in todo:
@@ -537,7 +577,18 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--base", type=Path, default=Path(), help="Repository root")
     parser.add_argument("--today", type=date.fromisoformat, help="Day of the run (default: today, UTC)")
     parser.add_argument("--no-probe", action="store_true", help="Skip the link check and the Mastodon check")
-    parser.add_argument("--delay", type=float, default=DEFAULT_DELAY, help="Seconds between CDX lookups")
+    parser.add_argument(
+        "--spacing",
+        type=float,
+        default=SPACING,
+        help="Seconds between two CDX requests within a batch",
+    )
+    parser.add_argument(
+        "--delay",
+        type=float,
+        default=DEFAULT_DELAY,
+        help=f"Seconds to wait after every {BATCH_SIZE} CDX requests",
+    )
     parser.add_argument("--changes", type=Path, help="File to write the replaced URLs to, as Markdown")
     parser.add_argument("--needs", type=Path, help="File to write the URLs with no capture to, as a checklist")
     parser.add_argument("--summary", type=Path, help="File to append the run's counts to, as Markdown")
@@ -569,7 +620,7 @@ def main(argv: list[str] | None = None) -> int:
         candidates += check_links(entries, today)
         moved = follow_mastodon(entries)
 
-    outcomes = resolve(candidates, delay=args.delay)
+    outcomes = resolve(candidates, delay=args.delay, spacing=args.spacing)
     by_kind: dict[str, list[Outcome]] = defaultdict(list)
     for outcome in outcomes:
         by_kind[outcome.kind].append(outcome)

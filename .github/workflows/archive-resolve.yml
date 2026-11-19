@@ -7,9 +7,10 @@ name: Archive Resolve
 #   of the series is in the data) gets the last capture on or before its end
 #   plus 14 days. So does a link that is gone on an edition that has ended.
 #   A link with no such capture stays as it is and is listed in the rolling PR.
-#   Captures are looked up with one CDX request per host where it can. At the
-#   archive's first refusal the run stops asking, without waiting, and the
-#   next run picks up the links still left.
+#   Captures are looked up with one CDX request per host where it can, one
+#   request at a time, 1 s apart, with 5 s instead after every 10th. A refused request is
+#   retried after 10, 20 and 40 s (3 minutes of waiting per run at most);
+#   still refused, the run stops asking and the next run picks up the rest.
 # - A link that now redirects to a different site is queued for the desk to
 #   judge, as the old redirect scan did: a series that moved gets its link
 #   updated, a lapsed or hijacked domain gets an archived copy.
@@ -46,8 +47,17 @@ env:
 jobs:
   resolve:
     runs-on: ubuntu-latest
-    # The link check runs in threads and the lookups stop at the archive's
-    # first refusal, so a healthy run takes minutes; this only caps a hung one.
+    # One group with the other Wayback Machine job (archive-new-urls.yml /
+    # archive-resolve.yml), so the two never send the archive requests at the
+    # same time from two runners. A group keeps one pending job, which a newer
+    # one replaces: a replaced save run loses nothing (the next run starts from
+    # the last successful one), and a replaced resolve run waits a week.
+    concurrency:
+      group: wayback
+      cancel-in-progress: false
+    # The link check runs in threads and the lookups back off at most 3 minutes
+    # in all before they stop, so a healthy run takes minutes; this only caps a
+    # hung one.
     timeout-minutes: 30
 
     steps:

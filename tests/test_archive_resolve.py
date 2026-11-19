@@ -175,6 +175,7 @@ class TestResolve:
             [c for c in candidates if c.field == "sponsor"],
             lookup=lambda url: TANZANIA_SPONSOR,
             delay=0,
+            spacing=0,
         )
 
         expected = "https://web.archive.org/web/20241004214743/https://pycon.or.tz/sponsor/"
@@ -188,7 +189,12 @@ class TestResolve:
         candidates = [archive_resolve.Candidate(entry, "link", url, "superseded") for entry in entries]
         lookups = []
 
-        archive_resolve.resolve(candidates, lookup=lambda u: lookups.append(u) or ["20221020000000"], delay=0)
+        archive_resolve.resolve(
+            candidates,
+            lookup=lambda u: lookups.append(u) or ["20221020000000"],
+            delay=0,
+            spacing=0,
+        )
 
         assert lookups == [url]
         # Each edition gets the capture from its own time, from the same listing
@@ -198,14 +204,19 @@ class TestResolve:
     def test_field_listed_twice_is_resolved_once(self, tanzania):
         candidate = archive_resolve.superseded_candidates(tanzania, TODAY)[0]
 
-        outcomes = archive_resolve.resolve([candidate, candidate], lookup=lambda url: TANZANIA_SPONSOR, delay=0)
+        outcomes = archive_resolve.resolve(
+            [candidate, candidate],
+            lookup=lambda url: TANZANIA_SPONSOR,
+            delay=0,
+            spacing=0,
+        )
 
         assert len(outcomes) == 1
 
     def test_no_capture_keeps_the_url(self, tanzania):
         candidate = archive_resolve.superseded_candidates(tanzania, TODAY)[0]
 
-        (outcome,) = archive_resolve.resolve([candidate], lookup=lambda url: ["20261018085052"], delay=0)
+        (outcome,) = archive_resolve.resolve([candidate], lookup=lambda url: ["20261018085052"], delay=0, spacing=0)
 
         assert outcome.new_url is None
         assert outcome.detail == "no capture on or before 2024-12-04"
@@ -217,7 +228,7 @@ class TestResolve:
         def fail(url):
             raise wayback.WaybackError("CDX request returned HTTP 503")
 
-        (outcome,) = archive_resolve.resolve([candidate], lookup=fail, delay=0)
+        (outcome,) = archive_resolve.resolve([candidate], lookup=fail, delay=0, spacing=0)
 
         assert outcome.new_url is None
         assert outcome.detail.startswith("lookup failed")
@@ -409,6 +420,8 @@ class TestMain:
                 "--no-probe",
                 "--delay",
                 "0",
+                "--spacing",
+                "0",
                 "--changes",
                 str(repo / "changes.md"),
                 "--needs",
@@ -498,7 +511,7 @@ class TestResolveByHost:
             asked.append((host, urls, until))
             return {"pycon.ru": ["20240804181747"], "pycon.ru/cfp": ["20240717201233"]}
 
-        outcomes = archive_resolve.resolve(candidates, lookup=pytest.fail, lookup_host=lookup_host, delay=0)
+        outcomes = archive_resolve.resolve(candidates, lookup=pytest.fail, lookup_host=lookup_host, delay=0, spacing=0)
 
         assert asked == [
             (
@@ -520,15 +533,22 @@ class TestResolveByHost:
             candidates,
             lookup_host=lambda host, urls, until: {"pycon.ru": ["20240804181747"]},
             delay=0,
+            spacing=0,
         )
 
         assert [o.kind for o in outcomes] == ["replaced", "no-capture"]
 
 
 class TestTurnedAway:
-    """At the archive's first refusal the run stops asking and leaves the rest for the next run."""
+    """After a refusal the run backs off 10, 20 and 40 s, then stops and leaves the rest for the next run."""
 
-    def test_stops_at_the_first_refusal(self):
+    @pytest.fixture()
+    def slept(self, monkeypatch):
+        slept: list[float] = []
+        monkeypatch.setattr(archive_resolve.time, "sleep", slept.append)
+        return slept
+
+    def test_stops_once_backoff_is_spent(self, slept):
         candidates = _candidates("https://a.org/", "https://b.org/", "https://c.org/")
         asked = []
 
@@ -538,32 +558,85 @@ class TestTurnedAway:
                 raise wayback.WaybackBlockedError("Connection refused")
             return ["20241001000000"]
 
-        outcomes = archive_resolve.resolve(candidates, lookup=lookup, delay=0)
+        outcomes = archive_resolve.resolve(candidates, lookup=lookup, delay=0, spacing=0)
 
-        assert asked == ["https://a.org/", "https://b.org/"]
+        assert asked == ["https://a.org/"] + ["https://b.org/"] * 4
+        assert slept == [10.0, 20.0, 40.0]
         assert [o.kind for o in outcomes] == ["replaced", "deferred", "deferred"]
         assert candidates[2].entry["link"] == "https://c.org/"
 
-    def test_does_not_wait_after_a_refusal(self, monkeypatch):
-        slept = []
-        monkeypatch.setattr(archive_resolve.time, "sleep", slept.append)
+    def test_refusal_that_lifts_carries_on(self, slept):
+        refusals = iter([True, True])
 
+        def lookup(url):
+            if url == "https://b.org/" and next(refusals, False):
+                raise wayback.WaybackBlockedError("Connection refused")
+            return ["20241001000000"]
+
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/", "https://b.org/", "https://c.org/"),
+            lookup=lookup,
+            delay=0,
+            spacing=0,
+        )
+
+        assert slept == [10.0, 20.0]
+        assert [o.kind for o in outcomes] == ["replaced", "replaced", "replaced"]
+
+    def test_each_refusal_starts_the_backoff_again(self, slept):
+        refused = {"https://a.org/": iter([True]), "https://b.org/": iter([True])}
+
+        def lookup(url):
+            if next(refused[url], False):
+                raise wayback.WaybackBlockedError("Connection refused")
+            return ["20241001000000"]
+
+        archive_resolve.resolve(_candidates("https://a.org/", "https://b.org/"), lookup=lookup, delay=0, spacing=0)
+
+        assert slept == [10.0, 10.0]
+
+    def test_backoff_budget_caps_the_waiting(self, slept):
         def refuse(url):
             raise wayback.WaybackBlockedError("Connection refused")
 
-        archive_resolve.resolve(_candidates("https://a.org/", "https://b.org/"), lookup=refuse, delay=1)
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/"),
+            lookup=refuse,
+            delay=0,
+            spacing=0,
+            backoff_budget=25,
+        )
 
-        assert slept == []
+        assert slept == [10.0]
+        assert [o.kind for o in outcomes] == ["deferred"]
 
-    def test_other_failures_do_not_stop_the_run(self):
+    def test_other_failures_do_not_stop_the_run(self, slept):
         def lookup(url):
             if url == "https://a.org/":
                 raise wayback.WaybackError("HTTP 503")
             return ["20241001000000"]
 
-        outcomes = archive_resolve.resolve(_candidates("https://a.org/", "https://b.org/"), lookup=lookup, delay=0)
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/", "https://b.org/"),
+            lookup=lookup,
+            delay=0,
+            spacing=0,
+        )
 
         assert [o.kind for o in outcomes] == ["failed", "replaced"]
+        assert slept == []
+
+
+class TestBatches:
+    def test_pause_after_every_batch(self, monkeypatch):
+        slept: list[float] = []
+        monkeypatch.setattr(archive_resolve.time, "sleep", slept.append)
+        candidates = _candidates(*(f"https://site{n}.org/" for n in range(25)))
+
+        archive_resolve.resolve(candidates, lookup=lambda url: [], delay=5, batch_size=10, spacing=1)
+
+        # 1 s between requests within a batch, 5 s instead after every 10th
+        assert slept == [1] * 9 + [5] + [1] * 9 + [5] + [1] * 4
 
 
 class TestNeedsList:
