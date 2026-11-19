@@ -11,13 +11,19 @@ capture from the edition's own time, and does the weekly link check:
    (``link``, ``cfp_link``, ``sponsor``, ``finaid``, ``coc``) that holds no
    four-digit year and is not an archive link already is a candidate.
 2. **Link check** (skipped with ``--no-probe``). Every live URL in the data is
-   requested once. A URL that redirects to another site is queued for the desk
+   requested once, ``WORKERS`` at a time in threads of this one process and at
+   most ``PER_HOST`` at a time per site. A URL that redirects to another site is queued for the desk
    (``DESK_QUEUE_OUT``), as before. A URL that is gone (see ``Probe.broken``)
    on an edition that has ended is a candidate.
-3. **Replacement.** For each candidate, one CDX request lists the page's
-   captures. The last capture on or before the edition's ``end`` plus 14 days
-   (``wayback.pick_capture``) replaces the URL, with its full timestamp. When
-   there is none, or the lookup fails, the URL stays as it is and is reported.
+3. **Replacement.** CDX lists each candidate page's captures: one request per
+   host for the pages of a host with several candidates (a filter on the
+   archive's side keeps the answer to those pages), one per page otherwise and
+   on hosts that carry many sites (``SHARED_HOSTS``). The last capture on or
+   before the edition's ``end`` plus 14 days (``wayback.pick_capture``)
+   replaces the URL, with its full timestamp. When there is none, the URL stays
+   and is listed for the maintainer. When the archive turns the run away, the
+   run stops asking at once and leaves the rest for the next run, which finds
+   the same candidates again; nothing waits for the archive to come back.
 4. **Mastodon.** Accounts that moved are followed to their new address.
 
 Year URLs (``2024.pycon.de``), the editions that are not superseded and links
@@ -35,15 +41,19 @@ Usage::
 import argparse
 import re
 import sys
+import threading
 import time
 from collections import defaultdict
 from collections.abc import Callable
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import date
 from datetime import datetime
+from datetime import timedelta
 from datetime import timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 import yaml
 
@@ -54,6 +64,7 @@ try:
     from tidy_conf.links import check_mastodon_migration
     from tidy_conf.links import probe
     from tidy_conf.links import record_redirect
+    from tidy_conf.links import site_host
 except ImportError:
     from . import wayback
     from .tidy_conf import write_conference_yaml
@@ -61,12 +72,43 @@ except ImportError:
     from .tidy_conf.links import check_mastodon_migration
     from .tidy_conf.links import probe
     from .tidy_conf.links import record_redirect
+    from .tidy_conf.links import site_host
 
 DATA_FILES = ("conferences.yml", "archive.yml", "legacy.yml")
 URL_FIELDS = ("link", "cfp_link", "sponsor", "finaid", "coc")
 # A four-digit year that is not part of a longer number
 YEAR = re.compile(r"(?<!\d)(?:19|20)\d{2}(?!\d)")
 DEFAULT_DELAY = 1.0
+# Threads for the link check, and how many of them may request one site at a time
+WORKERS = 16
+PER_HOST = 2
+# Hosts that carry many unrelated sites: a whole-host CDX query there would
+# scan far more than the few pages asked for, so their pages are looked up one by one
+SHARED_HOSTS = frozenset(
+    {
+        "docs.google.com",
+        "drive.google.com",
+        "forms.gle",
+        "github.com",
+        "pydata.org",
+        "pretalx.com",
+        "sessionize.com",
+        "papercall.io",
+        "events.linuxfoundation.org",
+        "indico.cern.ch",
+        "eventbrite.com",
+        "meetup.com",
+        "easychair.org",
+        "youtube.com",
+        "bit.ly",
+        "goo.gl",
+        "tinyurl.com",
+        "lu.ma",
+        "luma.com",
+    },
+)
+# Most "no capture" lines the rolling PR lists; the rest are counted
+NEEDS_LIMIT = 50
 
 
 @dataclass(frozen=True)
@@ -103,11 +145,16 @@ class Outcome:
         The archive link that replaced the URL, or None when it was kept
     detail : str
         Why it was kept, or which capture replaced it
+    kind : str
+        "replaced"; "no-capture" when the archive has none from the edition's
+        time; "failed" when the lookup failed; "deferred" when the archive
+        turned the run away before the lookup
     """
 
     candidate: Candidate
     new_url: str | None
     detail: str
+    kind: str = "replaced"
 
 
 def to_date(value: object) -> date | None:
@@ -250,9 +297,10 @@ def check_links(
             if url:
                 by_url[url].append((entry, field))
 
+    results = request_all(list(by_url), request)
     candidates = []
     for url, uses in by_url.items():
-        result = request(url)
+        result = results[url]
         for entry, field in uses:
             if result.redirects_elsewhere:
                 record_redirect(
@@ -266,14 +314,71 @@ def check_links(
             end = to_date(entry.get("end"))
             if result.broken and end and end < today:
                 candidates.append(Candidate(entry, field, url, "broken"))
-    print(f"Checked {len(by_url)} URLs: {len(candidates)} broken on editions that have ended")
+    print(f"Checked {len(by_url)} URLs: {len(candidates)} broken on editions that have ended", flush=True)
     return candidates
+
+
+def request_all(urls: list[str], request: Callable[[str], Probe]) -> dict[str, Probe]:
+    """Request URLs in threads: ``WORKERS`` at once, at most ``PER_HOST`` per site.
+
+    Parameters
+    ----------
+    urls : list[str]
+        The URLs, each once
+    request : Callable[[str], Probe]
+        Requests one URL
+
+    Returns
+    -------
+    dict[str, Probe]
+        Each URL's result
+    """
+    limits: dict[str, threading.Semaphore] = {}
+    for url in urls:
+        limits.setdefault(site_host(url), threading.Semaphore(PER_HOST))
+
+    def one(url: str) -> Probe:
+        with limits[site_host(url)]:
+            return request(url)
+
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        return dict(zip(urls, pool.map(one, urls), strict=True))
+
+
+def lookup_plan(candidates: list[Candidate]) -> list[tuple[str | None, list[str]]]:
+    """Group the candidates' URLs into CDX requests.
+
+    Parameters
+    ----------
+    candidates : list[Candidate]
+        The URL fields to resolve
+
+    Returns
+    -------
+    list[tuple[str | None, list[str]]]
+        One item per request: the host and its URLs for a whole-host request,
+        or None and a single URL for a page request; in candidate order
+    """
+    by_host: dict[str, list[str]] = defaultdict(list)
+    for candidate in candidates:
+        host = urlparse(candidate.url).hostname or ""
+        host = host.lower().removeprefix("www.")
+        if candidate.url not in by_host[host]:
+            by_host[host].append(candidate.url)
+    plan: list[tuple[str | None, list[str]]] = []
+    for host, urls in by_host.items():
+        if len(urls) > 1 and host and host not in SHARED_HOSTS:
+            plan.append((host, urls))
+        else:
+            plan.extend((None, [url]) for url in urls)
+    return plan
 
 
 def resolve(
     candidates: Iterable[Candidate],
     lookup: Callable[[str], list[str]] | None = None,
     delay: float = DEFAULT_DELAY,
+    lookup_host: Callable[[str, list[str], date | None], dict[str, list[str]]] | None = None,
 ) -> list[Outcome]:
     """Replace each candidate's URL with the capture that shows its edition.
 
@@ -282,9 +387,12 @@ def resolve(
     candidates : Iterable[Candidate]
         The URL fields to resolve; a field listed twice is resolved once
     lookup : Callable[[str], list[str]] | None
-        Lists a page's capture timestamps; called once per URL. Default: ``wayback.captures``
+        Lists one page's capture timestamps. Default: ``wayback.captures``
     delay : float
-        Seconds to wait between lookups
+        Seconds to wait between CDX requests
+    lookup_host : Callable[[str, list[str], date | None], dict[str, list[str]]] | None
+        Lists the captures of several pages on one host, by ``wayback.page_key``.
+        Default: ``wayback.host_captures``
 
     Returns
     -------
@@ -292,29 +400,52 @@ def resolve(
         One outcome per URL field
     """
     lookup = lookup or wayback.captures
-    found: dict[str, list[str] | wayback.WaybackError] = {}
-    outcomes = []
-    done = set()
+    lookup_host = lookup_host or wayback.host_captures
+    unique: dict[tuple[int, str], Candidate] = {}
     for candidate in candidates:
-        key = (id(candidate.entry), candidate.field)
-        if key in done:
+        unique.setdefault((id(candidate.entry), candidate.field), candidate)
+    todo = list(unique.values())
+
+    limits: dict[str, date] = {}
+    for candidate in todo:
+        end = to_date(candidate.entry.get("end"))
+        if end:
+            limit = end + timedelta(days=wayback.END_GRACE_DAYS)
+            limits[candidate.url] = max(limit, limits.get(candidate.url, limit))
+
+    found: dict[str, list[str] | wayback.WaybackError] = {}
+    blocked: wayback.WaybackBlockedError | None = None
+    for i, (host, urls) in enumerate(lookup_plan(todo)):
+        if i:
+            time.sleep(delay)
+        try:
+            if host is None:
+                found[urls[0]] = lookup(urls[0])
+            else:
+                by_key = lookup_host(host, urls, max(limits[url] for url in urls if url in limits))
+                for url in urls:
+                    found[url] = by_key.get(wayback.page_key(url), [])
+        except wayback.WaybackBlockedError as e:
+            blocked = e
+            print(f"The archive turned the run away, stopping lookups: {e}", flush=True)
+            break
+        except wayback.WaybackError as e:
+            for url in urls:
+                found[url] = e
+
+    outcomes = []
+    for candidate in todo:
+        stamps = found.get(candidate.url)
+        if stamps is None:
+            outcomes.append(Outcome(candidate, None, f"not looked up: {blocked}", "deferred"))
             continue
-        done.add(key)
-        if candidate.url not in found:
-            if found:
-                time.sleep(delay)
-            try:
-                found[candidate.url] = lookup(candidate.url)
-            except wayback.WaybackError as e:
-                found[candidate.url] = e
-        stamps = found[candidate.url]
         if isinstance(stamps, wayback.WaybackError):
-            outcomes.append(Outcome(candidate, None, f"lookup failed: {stamps}"))
+            outcomes.append(Outcome(candidate, None, f"lookup failed: {stamps}", "failed"))
             continue
         end = to_date(candidate.entry.get("end"))
         stamp = wayback.pick_capture(stamps, end)
         if not stamp:
-            outcomes.append(Outcome(candidate, None, f"no capture on or before {end}"))
+            outcomes.append(Outcome(candidate, None, f"no capture on or before {end}", "no-capture"))
             continue
         new_url = wayback.archive_url(stamp, candidate.url)
         candidate.entry[candidate.field] = new_url
@@ -408,7 +539,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--no-probe", action="store_true", help="Skip the link check and the Mastodon check")
     parser.add_argument("--delay", type=float, default=DEFAULT_DELAY, help="Seconds between CDX lookups")
     parser.add_argument("--changes", type=Path, help="File to write the replaced URLs to, as Markdown")
-    parser.add_argument("--needs", type=Path, help="File to write the URLs that were kept to, as a checklist")
+    parser.add_argument("--needs", type=Path, help="File to write the URLs with no capture to, as a checklist")
+    parser.add_argument("--summary", type=Path, help="File to append the run's counts to, as Markdown")
     return parser
 
 
@@ -431,28 +563,82 @@ def main(argv: list[str] | None = None) -> int:
     entries = [entry for file_entries in files.values() for entry in file_entries]
 
     candidates = superseded_candidates(entries, today)
-    print(f"{len(candidates)} yearless URLs on superseded editions")
+    print(f"{len(candidates)} yearless URLs on superseded editions", flush=True)
     moved = 0
     if not args.no_probe:
         candidates += check_links(entries, today)
         moved = follow_mastodon(entries)
-        print(f"{moved} Mastodon accounts moved")
 
     outcomes = resolve(candidates, delay=args.delay)
-    replaced = [outcome for outcome in outcomes if outcome.new_url]
-    kept = [outcome for outcome in outcomes if not outcome.new_url]
-    print(f"Replaced {len(replaced)} URLs, kept {len(kept)}")
+    by_kind: dict[str, list[Outcome]] = defaultdict(list)
+    for outcome in outcomes:
+        by_kind[outcome.kind].append(outcome)
     for outcome in outcomes:
         print(describe(outcome))
+    report = summary(by_kind, moved)
+    print(report, flush=True)
 
-    if replaced or moved:
+    if by_kind["replaced"] or moved:
         for path, file_entries in files.items():
             write_conference_yaml(file_entries, path)
     if args.changes:
-        args.changes.write_text("".join(f"{describe(o)}\n" for o in replaced), encoding="utf-8")
+        args.changes.write_text("".join(f"{describe(o)}\n" for o in by_kind["replaced"]), encoding="utf-8")
     if args.needs:
-        args.needs.write_text("".join(f"{describe(o)}\n" for o in kept), encoding="utf-8")
+        args.needs.write_text(needs_list(by_kind["no-capture"]), encoding="utf-8")
+    if args.summary:
+        with args.summary.open("a", encoding="utf-8") as f:
+            f.write(report)
     return 0
+
+
+def needs_list(outcomes: list[Outcome], limit: int = NEEDS_LIMIT) -> str:
+    """Render the URLs that have no capture from their edition's time, for the rolling PR.
+
+    Only these need a person: a failed or deferred lookup is tried again on the
+    next run. The list is cut at ``limit`` lines to keep the PR body under
+    GitHub's size limit; the run log has every line.
+
+    Parameters
+    ----------
+    outcomes : list[Outcome]
+        The "no-capture" outcomes
+    limit : int
+        The most lines to list
+
+    Returns
+    -------
+    str
+        A Markdown checklist, empty when there is nothing to list
+    """
+    lines = [f"{describe(outcome)}\n" for outcome in outcomes[:limit]]
+    if len(outcomes) > limit:
+        lines.append(f"- {len(outcomes) - limit} more without a capture: see the Archive Resolve run log\n")
+    return "".join(lines)
+
+
+def summary(by_kind: dict[str, list[Outcome]], moved: int) -> str:
+    """Render the run's counts as Markdown.
+
+    Parameters
+    ----------
+    by_kind : dict[str, list[Outcome]]
+        Outcomes by kind
+    moved : int
+        Mastodon accounts updated
+
+    Returns
+    -------
+    str
+        The report
+    """
+    return (
+        "## Archive resolve\n\n"
+        f"- Pointed to an archived page: {len(by_kind.get('replaced', []))}\n"
+        f"- No capture from their edition's time: {len(by_kind.get('no-capture', []))}\n"
+        f"- Lookup failed: {len(by_kind.get('failed', []))}\n"
+        f"- Left for the next run (the archive turned this one away): {len(by_kind.get('deferred', []))}\n"
+        f"- Mastodon accounts moved: {moved}\n"
+    )
 
 
 if __name__ == "__main__":
