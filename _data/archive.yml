@@ -154,6 +154,8 @@
   start: 2026-09-26
   end: 2026-09-27
   sponsor: https://barcamps.eu/pythoncamp-ruegen-2026/sponsoren
+  coc: https://barcamps.eu/pythoncamp-ruegen-2026/code-of-conduct
+  twitter: pythoncamp
   mastodon: https://ruhr.social/@pythoncamp
   sub: CAMP
   location:
@@ -2062,6 +2064,9 @@
   start: 2025-09-20
   end: 2025-09-21
   sponsor: https://barcamps.eu/pyr2025/sponsoren
+  coc: https://barcamps.eu/pyr2025/coc
+  twitter: pythoncamp
+  mastodon: https://ruhr.social/@pythoncamp
   sub: CAMP
   location:
   - title: Pythoncamp Rügen 2025
