@@ -427,7 +427,7 @@ class Probe:
         )
 
 
-def probe(url: str, timeout: int = 10) -> Probe:
+def probe(url: str, timeout: int = 5) -> Probe:
     """Request a link once, following redirects.
 
     Parameters

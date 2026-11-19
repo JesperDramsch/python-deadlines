@@ -7,6 +7,10 @@ name: Archive Resolve
 #   of the series is in the data) gets the last capture on or before its end
 #   plus 14 days. So does a link that is gone on an edition that has ended.
 #   A link with no such capture stays as it is and is listed in the rolling PR.
+#   Captures are looked up with one CDX request per host where it can, one
+#   request at a time, 1 s apart, with 5 s instead after every 10th. A refused request is
+#   retried after 10, 20 and 40 s (3 minutes of waiting per run at most);
+#   still refused, the run stops asking and the next run picks up the rest.
 # - A link that now redirects to a different site is queued for the desk to
 #   judge, as the old redirect scan did: a series that moved gets its link
 #   updated, a lapsed or hijacked domain gets an archived copy.
@@ -43,7 +47,18 @@ env:
 jobs:
   resolve:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    # One group with the other Wayback Machine job (archive-new-urls.yml /
+    # archive-resolve.yml), so the two never send the archive requests at the
+    # same time from two runners. A group keeps one pending job, which a newer
+    # one replaces: a replaced save run loses nothing (the next run starts from
+    # the last successful one), and a replaced resolve run waits a week.
+    concurrency:
+      group: wayback
+      cancel-in-progress: false
+    # The link check runs in threads, and the lookups stop after 10 minutes in
+    # all (3 of them backing off at most), leaving the rest for the next run,
+    # so a healthy run takes minutes; this only caps a hung one.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
@@ -92,12 +107,14 @@ jobs:
       # Below the job timeout, so a slow link check still queues what it found.
       - name: Resolve archive links
         id: resolve
-        timeout-minutes: 150
+        timeout-minutes: 20
         env:
           DESK_QUEUE_OUT: ${{ runner.temp }}/desk-records.jsonl
           NO_PROBE: ${{ inputs.no_probe }}
+          # Print as it runs, so the log shows where the time goes
+          PYTHONUNBUFFERED: '1'
         run: |
-          ARGS=(--changes "$RUNNER_TEMP/changes.md" --needs "$RUNNER_TEMP/needs.md")
+          ARGS=(--changes "$RUNNER_TEMP/changes.md" --needs "$RUNNER_TEMP/needs.md" --summary "$RUNNER_TEMP/summary.md")
           if [ "$NO_PROBE" = "true" ]; then
             ARGS+=(--no-probe)
           fi
@@ -207,9 +224,11 @@ jobs:
       # The rolling PR body has one block per writer (utils/desk_pr_body.py).
       # This job owns COMMITTED:archive, one line per commit naming the
       # editions it changed, and NEEDS:archive, the links that have no capture
-      # from their edition's time. Kept links come back every week whether or
-      # not the run changed data, so NEEDS:archive is replaced on every run that
-      # finds an open PR, and emptied when nothing is kept. A run with no change
+      # from their edition's time (at most 50 lines, so the body stays under
+      # GitHub's limit; lookups that failed or were left for the next run are
+      # not listed, since the next run tries them again). That list comes back
+      # every week whether or not the run changed data, so NEEDS:archive is
+      # replaced on every run that finds an open PR, and emptied when empty. A run with no change
       # does not open a PR for it.
       # The script comes from the commit this run started on: the accumulator
       # branch checked out here may not have it yet.
@@ -252,10 +271,7 @@ jobs:
         run: |
           count() { if [ -s "$1" ]; then wc -l < "$1"; else echo 0; fi; }
           {
-            echo "## Archive resolve"
-            echo ""
-            echo "- Links pointed to an archived page: $(count "$RUNNER_TEMP/changes.md")"
-            echo "- Links kept, no capture from their edition: $(count "$RUNNER_TEMP/needs.md")"
+            if [ -s "$RUNNER_TEMP/summary.md" ]; then cat "$RUNNER_TEMP/summary.md"; else echo "## Archive resolve"; echo; fi
             echo "- Links redirecting to another site: $(count "$RECORDS")"
             echo "- New in the desk queue: ${ADDED:-0}"
           } >> "$GITHUB_STEP_SUMMARY"

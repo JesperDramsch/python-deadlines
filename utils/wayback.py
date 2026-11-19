@@ -22,6 +22,7 @@ import re
 from dataclasses import dataclass
 from datetime import date
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import requests
 from urllib3.exceptions import ReadTimeoutError
@@ -45,6 +46,15 @@ TIMESTAMP = re.compile(r"^\d{14}$")
 
 class WaybackError(Exception):
     """A Wayback Machine request that failed or returned something unusable."""
+
+
+class WaybackBlockedError(WaybackError):
+    """The archive turned the client away: a refused connection or a rate limit.
+
+    Unlike a failed lookup for one page, every further request in the same run
+    would fail the same way, so the caller stops and leaves the rest for its
+    next run.
+    """
 
 
 @dataclass(frozen=True)
@@ -112,6 +122,62 @@ def archive_url(timestamp: str, url: str) -> str:
     return f"https://web.archive.org/web/{timestamp}/{url}"
 
 
+def _cdx(params: dict[str, str | list[str]], what: str) -> list[list]:
+    """Send one CDX request and return its rows without the header row.
+
+    Parameters
+    ----------
+    params : dict[str, str | list[str]]
+        Query parameters; a list sends the parameter once per value
+    what : str
+        What the request is for, for error messages
+
+    Returns
+    -------
+    list[list]
+        The rows; empty when the archive has none
+
+    Raises
+    ------
+    WaybackBlockedError
+        When the archive refuses the connection or rate limits the client
+    WaybackError
+        When the request fails otherwise or the answer is not a CDX listing
+    """
+    try:
+        response = requests.get(
+            CDX_URL,
+            params={"output": "json", **params},
+            headers={"User-Agent": USER_AGENT},
+            timeout=(CONNECT_TIMEOUT, TIMEOUT),
+        )
+    except requests.ConnectionError as e:
+        msg = f"CDX request for {what} failed: {e}"
+        if _is_read_timeout(e):
+            raise WaybackError(msg) from e
+        raise WaybackBlockedError(msg) from e
+    except requests.RequestException as e:
+        msg = f"CDX request for {what} failed: {e}"
+        raise WaybackError(msg) from e
+    if response.status_code in BLOCKED_STATUSES:
+        msg = f"CDX request for {what} returned HTTP {response.status_code}"
+        raise WaybackBlockedError(msg)
+    if response.status_code != 200:
+        msg = f"CDX request for {what} returned HTTP {response.status_code}"
+        raise WaybackError(msg)
+    if not response.text.strip():
+        return []
+    try:
+        rows = response.json()
+    except ValueError as e:
+        msg = f"CDX answer for {what} is not JSON"
+        raise WaybackError(msg) from e
+    if not isinstance(rows, list):
+        msg = f"CDX answer for {what} is not a listing"
+        raise WaybackError(msg)
+    return [row for row in rows[1:] if isinstance(row, list) and row]
+
+
 def captures(url: str) -> list[str]:
     """List the timestamps of a page's successful captures, oldest first.
 
@@ -130,32 +196,107 @@ def captures(url: str) -> list[str]:
 
     Raises
     ------
+    WaybackBlockedError
+        When the archive refuses the connection or rate limits the client
     WaybackError
-        When the request fails or the answer is not a CDX listing. A failed
-        lookup is not the same as a page with no captures.
+        When the request fails otherwise or the answer is not a CDX listing.
+        A failed lookup is not the same as a page with no captures.
     """
-    params = {"url": url, "output": "json", "fl": "timestamp,statuscode", "filter": "statuscode:200"}
-    try:
-        response = requests.get(CDX_URL, params=params, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
-    except requests.RequestException as e:
-        msg = f"CDX request for {url} failed: {e}"
-        raise WaybackError(msg) from e
-    if response.status_code != 200:
-        msg = f"CDX request for {url} returned HTTP {response.status_code}"
-        raise WaybackError(msg)
-    if not response.text.strip():
-        return []
-    try:
-        rows = response.json()
-    except ValueError as e:
-        msg = f"CDX answer for {url} is not JSON"
-        raise WaybackError(msg) from e
-    if not isinstance(rows, list):
-        msg = f"CDX answer for {url} is not a listing"
-        raise WaybackError(msg)
-    # The first row is the header: ["timestamp", "statuscode"]
-    stamps = [str(row[0]) for row in rows[1:] if isinstance(row, list) and row and TIMESTAMP.match(str(row[0]))]
-    return sorted(stamps)
+    rows = _cdx({"url": url, "fl": "timestamp,statuscode", "filter": "statuscode:200"}, url)
+    return sorted(str(row[0]) for row in rows if TIMESTAMP.match(str(row[0])))
+
+
+def page_key(url: str) -> str:
+    """Return the key under which the archive files a page.
+
+    CDX treats ``www.`` and the bare host, http and https, a trailing slash
+    and a #fragment as the same page, so the key drops them all.
+
+    Parameters
+    ----------
+    url : str
+        A page's URL
+
+    Returns
+    -------
+    str
+        Host without ``www.``, path without a trailing slash, and the query
+    """
+    parsed = urlparse(str(url).strip())
+    host = (parsed.hostname or "").lower().removeprefix("www.")
+    key = host + parsed.path.rstrip("/")
+    return f"{key}?{parsed.query}" if parsed.query else key
+
+
+def _original_pattern(host: str, urls: list[str]) -> str:
+    """Build the regex that keeps only the given pages of a host in a CDX answer.
+
+    Parameters
+    ----------
+    host : str
+        The host, without ``www.``
+    urls : list[str]
+        Pages on that host
+
+    Returns
+    -------
+    str
+        A regex for CDX's ``original`` field
+    """
+    tails = []
+    for url in urls:
+        parsed = urlparse(str(url).strip())
+        tail = re.escape(parsed.path.rstrip("/"))
+        if parsed.query:
+            tail += re.escape("?" + parsed.query)
+        tails.append(tail)
+    alternatives = "|".join(sorted(set(tails)))
+    return rf"^https?://(www\.)?{re.escape(host)}(:\d+)?({alternatives})/?$"
+
+
+def host_captures(host: str, urls: list[str], until: date | None = None) -> dict[str, list[str]]:
+    """List the captures of several pages on one host with a single CDX request.
+
+    The request asks for every capture under the host, and a filter on the
+    archive's side keeps only the given pages, so the answer stays small.
+
+    Parameters
+    ----------
+    host : str
+        The host, without ``www.``
+    urls : list[str]
+        Pages on that host
+    until : date | None
+        The last day a capture can be useful; later ones are not listed
+
+    Returns
+    -------
+    dict[str, list[str]]
+        ``page_key`` of each page to its capture timestamps, oldest first; a
+        page with no capture is missing
+
+    Raises
+    ------
+    WaybackBlockedError
+        When the archive refuses the connection or rate limits the client
+    WaybackError
+        When the request fails otherwise or the answer is not a CDX listing
+    """
+    params: dict[str, str | list[str]] = {
+        "url": f"{host}/*",
+        "fl": "original,timestamp",
+        "filter": ["statuscode:200", f"original:{_original_pattern(host, urls)}"],
+    }
+    # No collapse: CDX collapses adjacent lines, and in a whole-host answer the
+    # last capture of one page sits next to the first of the next, so a page's
+    # only capture on a day another page was captured would be dropped.
+    if until:
+        params["to"] = until.strftime("%Y%m%d")
+    found: dict[str, list[str]] = {}
+    for row in _cdx(params, f"{host} ({len(urls)} pages)"):
+        if len(row) >= 2 and TIMESTAMP.match(str(row[1])):
+            found.setdefault(page_key(str(row[0])), []).append(str(row[1]))
+    return {key: sorted(stamps) for key, stamps in found.items()}
 
 
 def pick_capture(stamps: list[str], end: date, grace_days: int = END_GRACE_DAYS) -> str | None:
