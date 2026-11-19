@@ -1,22 +1,8 @@
 {
   "handled": [
-    "3e68f42680df021671d452d8dfb9130b9ecafada"
+    "3e68f42680df021671d452d8dfb9130b9ecafada",
+    "029592813236389c574e238c92ad6d20f5188edd"
   ],
-  "items": [
-    {
-      "id": "029592813236389c574e238c92ad6d20f5188edd",
-      "kind": "signal",
-      "payload": {
-        "diff": "* VENUE VENUE Clarion Hotel Stockholm PyCon Sweden 2026 takes place at Clarion Hotel Stockholm, in the Skanstull area. Ringvägen 98 118 60 Stockholm, Sweden Get directions on OpenStreetMap Get directions on Google Maps",
-        "trigger": "website_change",
-        "watch_uuid": "ddb66379-3d74-4c6a-b492-c0f323eea9b8"
-      },
-      "received": "2026-11-18T22:45:45Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCon Sweden",
-      "url": "https://pycon.se/",
-      "year": null
-    }
-  ],
+  "items": [],
   "series": "PyCon Sweden"
 }

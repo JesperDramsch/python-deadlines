@@ -2,23 +2,9 @@
   "handled": [
     "187e62693a53e37ef3c64a170cb3dc48e9cd4a33",
     "c21db77ce8eb6ed59b71f70c854b8f7bfdf2b881",
-    "75d360233ede876746397b990bb823400edde712"
+    "75d360233ede876746397b990bb823400edde712",
+    "a744d307c8e6377b21f2bfcc6e97af30375d0dd4"
   ],
-  "items": [
-    {
-      "id": "a744d307c8e6377b21f2bfcc6e97af30375d0dd4",
-      "kind": "signal",
-      "payload": {
-        "diff": "\"slides\": \"https://docs.google.com/presentation/d/18qEgEurg2j2YulYZT4b3l9zjUP9uLa-JpfBclxYhvy0/edit\" \"slides\": \"/slides/2026/pieter-your-agent-needs-more-than-an-API.pdf\"",
-        "trigger": "website_change",
-        "watch_uuid": "52257547-ffdc-42a9-8c11-484c544f209f"
-      },
-      "received": "2026-11-17T04:35:18Z",
-      "source": "changedetection",
-      "title": "FastAPI Conference 2026 - Main",
-      "url": "https://fastapiconf.com/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "FastAPI Conference"
 }

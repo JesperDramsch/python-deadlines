@@ -1,31 +1,7 @@
 {
-  "handled": [],
-  "items": [
-    {
-      "id": "c3054c1bfaeacab47b2b8f9127ff0f718a7e0987",
-      "kind": "candidate",
-      "payload": {
-        "classification": "NEW_SERIES",
-        "evidence_url": "https://barcamps.eu/",
-        "fields": {
-          "conference": "Python Barcamp Karlsruhe Python BarCamp Leipzig",
-          "year": 2027
-        },
-        "flags": [
-          "listing"
-        ],
-        "matched": null,
-        "names": [
-          "Python Barcamp Karlsruhe 2027 Python BarCamp Leipzig 2027"
-        ],
-        "source_id": "https://barcamps.eu/#Python Barcamp Karlsruhe 2027 Python BarCamp Leipzig 2027"
-      },
-      "received": "2026-11-18T17:07:57Z",
-      "source": "changedetection",
-      "title": "Python Barcamp Karlsruhe 2027 Python BarCamp Leipzig 2027",
-      "url": "https://barcamps.eu/",
-      "year": 2027
-    }
+  "handled": [
+    "c3054c1bfaeacab47b2b8f9127ff0f718a7e0987"
   ],
+  "items": [],
   "series": "Python Barcamp Karlsruhe Python BarCamp Leipzig"
 }

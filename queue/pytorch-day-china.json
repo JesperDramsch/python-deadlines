@@ -8,23 +8,9 @@
     "4535792ca9702e28d48f1ab6c4189cc7394bb964",
     "765a3007f6548fb25d582193d269dc02c6aa951c",
     "f861329a127e17c2c23551ce03280be3ec7ec3d9",
-    "414c829a7971e7876f90f7590dd78438d4028d1c"
+    "414c829a7971e7876f90f7590dd78438d4028d1c",
+    "c71877326c90963d056ce3a944865b0077a5404c"
   ],
-  "items": [
-    {
-      "id": "c71877326c90963d056ce3a944865b0077a5404c",
-      "kind": "signal",
-      "payload": {
-        "diff": "+ Call For Proposals (CFP) + Schedule view the schedule * Call For Proposals (CFP) * Schedule",
-        "trigger": "website_change",
-        "watch_uuid": "6d70243a-012c-44d3-98d8-cd7373c4c54f"
-      },
-      "received": "2026-11-18T09:24:55Z",
-      "source": "changedetection",
-      "title": "Pytorch Day China 2026 - Main",
-      "url": "https://www.lfopensource.cn/pytorch-day-china/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "Pytorch Day China"
 }
