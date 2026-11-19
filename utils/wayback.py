@@ -286,8 +286,10 @@ def host_captures(host: str, urls: list[str], until: date | None = None) -> dict
         "url": f"{host}/*",
         "fl": "original,timestamp",
         "filter": ["statuscode:200", f"original:{_original_pattern(host, urls)}"],
-        "collapse": "timestamp:8",
     }
+    # No collapse: CDX collapses adjacent lines, and in a whole-host answer the
+    # last capture of one page sits next to the first of the next, so a page's
+    # only capture on a day another page was captured would be dropped.
     if until:
         params["to"] = until.strftime("%Y%m%d")
     found: dict[str, list[str]] = {}

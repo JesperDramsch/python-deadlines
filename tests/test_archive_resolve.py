@@ -471,7 +471,7 @@ class TestMain:
         report = (repo / "summary.md").read_text(encoding="utf-8")
         assert "- Pointed to an archived page: 1" in report
         assert "- No capture from their edition's time: 2" in report
-        assert "- Left for the next run (the archive turned this one away): 0" in report
+        assert "- Left for the next run (refused, or out of time): 0" in report
 
 
 def _candidates(*urls: str, end: date = date(2024, 12, 4)) -> list[archive_resolve.Candidate]:
@@ -627,6 +627,26 @@ class TestTurnedAway:
         assert slept == []
 
 
+class TestTimeBudget:
+    def test_out_of_time_leaves_the_rest_for_the_next_run(self, monkeypatch):
+        monkeypatch.setattr(archive_resolve.time, "sleep", lambda s: None)
+        ticks = iter([0, 0, 0, 700])  # start, before a, before b, before c
+        asked = []
+
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/", "https://b.org/", "https://c.org/"),
+            lookup=lambda url: asked.append(url) or ["20241001000000"],
+            delay=0,
+            spacing=0,
+            time_budget=600,
+            clock=lambda: next(ticks),
+        )
+
+        assert asked == ["https://a.org/", "https://b.org/"]
+        assert [o.kind for o in outcomes] == ["replaced", "replaced", "deferred"]
+        assert "600 s" in outcomes[2].detail
+
+
 class TestBatches:
     def test_pause_after_every_batch(self, monkeypatch):
         slept: list[float] = []
@@ -684,3 +704,19 @@ class TestRequestAll:
 
         assert set(results) == set(urls)
         assert max(most.values()) <= archive_resolve.PER_HOST
+
+    def test_hosts_are_interleaved(self, monkeypatch):
+        monkeypatch.setattr(archive_resolve, "WORKERS", 1)
+        order = []
+        lock = threading.Lock()
+
+        def request(url):
+            with lock:
+                order.append(url)
+            return links.Probe(url, url, 200)
+
+        urls = [f"https://big.org/{n}" for n in range(4)] + ["https://small.org/"]
+
+        archive_resolve.request_all(urls, request)
+
+        assert order[:2] == ["https://big.org/0", "https://small.org/"]

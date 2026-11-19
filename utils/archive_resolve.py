@@ -27,7 +27,9 @@ capture from the edition's own time, and does the weekly link check:
    the run waits 10, 20 and 40 seconds (``BACKOFF``), retrying the same request
    after each wait; still refused, or once the run has waited
    ``BACKOFF_BUDGET`` seconds in all, it stops asking and leaves the rest for
-   the next run, which finds the same candidates again.
+   the next run, which finds the same candidates again. It does the same once
+   the lookups have taken ``TIME_BUDGET`` seconds, so a slow archive cannot run
+   the step into its timeout and lose the replacements already found.
 4. **Mastodon.** Accounts that moved are followed to their new address.
 
 Year URLs (``2024.pycon.de``), the editions that are not superseded and links
@@ -56,6 +58,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from itertools import zip_longest
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -91,6 +94,10 @@ SPACING = 1.0
 DEFAULT_DELAY = 5.0
 BACKOFF = (10.0, 20.0, 40.0)
 BACKOFF_BUDGET = 180.0
+# Seconds the lookups may take in all. A slow archive that still answers is
+# never refused, so this keeps the run inside its step timeout: what is not
+# looked up by then waits for the next run, as after a refusal.
+TIME_BUDGET = 600.0
 # Threads for the link check, and how many of them may request one site at a time
 WORKERS = 16
 PER_HOST = 2
@@ -346,15 +353,20 @@ def request_all(urls: list[str], request: Callable[[str], Probe]) -> dict[str, P
         Each URL's result
     """
     limits: dict[str, threading.Semaphore] = {}
+    by_host: dict[str, list[str]] = defaultdict(list)
     for url in urls:
         limits.setdefault(site_host(url), threading.Semaphore(PER_HOST))
+        by_host[site_host(url)].append(url)
+    # Round robin over the hosts, so the workers are not all queued on the two
+    # slots of one big host (pydata.org, pretalx.com) while others wait
+    order = [url for group in zip_longest(*by_host.values()) for url in group if url is not None]
 
     def one(url: str) -> Probe:
         with limits[site_host(url)]:
             return request(url)
 
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        return dict(zip(urls, pool.map(one, urls), strict=True))
+        return dict(zip(order, pool.map(one, order), strict=True))
 
 
 def lookup_plan(candidates: list[Candidate]) -> list[tuple[str | None, list[str]]]:
@@ -395,6 +407,8 @@ def resolve(
     spacing: float = SPACING,
     backoff: tuple[float, ...] = BACKOFF,
     backoff_budget: float = BACKOFF_BUDGET,
+    time_budget: float = TIME_BUDGET,
+    clock: Callable[[], float] = time.monotonic,
 ) -> list[Outcome]:
     """Replace each candidate's URL with the capture that shows its edition.
 
@@ -417,6 +431,10 @@ def resolve(
         Seconds to wait before each retry of a refused request
     backoff_budget : float
         The most seconds of backoff waits in one run
+    time_budget : float
+        The most seconds the lookups may take; the rest is left for the next run
+    clock : Callable[[], float]
+        Returns the current time in seconds, for the time budget
 
     Returns
     -------
@@ -447,8 +465,14 @@ def resolve(
 
     found: dict[str, list[str] | wayback.WaybackError] = {}
     blocked: wayback.WaybackBlockedError | None = None
+    stop_reason = ""
     waited = 0.0
+    started = clock()
     for i, (host, urls) in enumerate(lookup_plan(todo)):
+        if clock() - started > time_budget:
+            stop_reason = f"the lookups used their {time_budget:g} s"
+            print(f"Stopping lookups: {stop_reason}", flush=True)
+            break
         pause = delay if i % batch_size == 0 else spacing
         if i and pause:
             time.sleep(pause)
@@ -470,6 +494,7 @@ def resolve(
                     found[url] = e
             break
         if blocked:
+            stop_reason = str(blocked)
             print(f"The archive is still refusing, stopping lookups: {blocked}", flush=True)
             break
 
@@ -477,7 +502,7 @@ def resolve(
     for candidate in todo:
         stamps = found.get(candidate.url)
         if stamps is None:
-            outcomes.append(Outcome(candidate, None, f"not looked up: {blocked}", "deferred"))
+            outcomes.append(Outcome(candidate, None, f"not looked up: {stop_reason}", "deferred"))
             continue
         if isinstance(stamps, wayback.WaybackError):
             outcomes.append(Outcome(candidate, None, f"lookup failed: {stamps}", "failed"))
@@ -687,7 +712,7 @@ def summary(by_kind: dict[str, list[Outcome]], moved: int) -> str:
         f"- Pointed to an archived page: {len(by_kind.get('replaced', []))}\n"
         f"- No capture from their edition's time: {len(by_kind.get('no-capture', []))}\n"
         f"- Lookup failed: {len(by_kind.get('failed', []))}\n"
-        f"- Left for the next run (the archive turned this one away): {len(by_kind.get('deferred', []))}\n"
+        f"- Left for the next run (refused, or out of time): {len(by_kind.get('deferred', []))}\n"
         f"- Mastodon accounts moved: {moved}\n"
     )
 

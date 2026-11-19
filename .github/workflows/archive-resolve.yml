@@ -55,9 +55,9 @@ jobs:
     concurrency:
       group: wayback
       cancel-in-progress: false
-    # The link check runs in threads and the lookups back off at most 3 minutes
-    # in all before they stop, so a healthy run takes minutes; this only caps a
-    # hung one.
+    # The link check runs in threads, and the lookups stop after 10 minutes in
+    # all (3 of them backing off at most), leaving the rest for the next run,
+    # so a healthy run takes minutes; this only caps a hung one.
     timeout-minutes: 30
 
     steps:

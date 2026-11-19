@@ -296,7 +296,8 @@ class TestHostCaptures:
         params = responses.calls[0].request.params
         assert params["url"] == "pycon.ru/*"
         assert params["to"] == "20241218"
-        assert params["collapse"] == "timestamp:8"
+        # Collapsing adjacent lines would merge one page's capture into another's
+        assert "collapse" not in params
 
     @responses.activate
     def test_filter_keeps_only_the_given_pages(self):
