@@ -107,6 +107,26 @@
     latitude: 53.5672881
     longitude: 9.941726150411604
 
+- conference: PyCon Portugal
+  alt_name: PyCon PT
+  year: 2027
+  link: https://2027.pycon.pt/
+  cfp_link: https://2027.pycon.pt/talks/cfp/
+  cfp: '2026-12-31 23:59:00'
+  place: Leiria, Portugal
+  start: 2027-04-22
+  end: 2027-04-24
+  sponsor: https://2027.pycon.pt/sponsors/sponsorship/
+  finaid: https://2027.pycon.pt/information/grants/
+  coc: https://2027.pycon.pt/conduct/code_of_conduct/
+  twitter: PyConPT
+  youtube: https://www.youtube.com/@pyconportugal
+  sub: PY
+  location:
+  - title: PyCon Portugal 2027
+    latitude: 39.7437902
+    longitude: -8.8071119
+
 - conference: PyData Venice Day
   year: 2027
   link: https://venice.pydata.org/pydata-venice-day-27/
