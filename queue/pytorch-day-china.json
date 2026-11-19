@@ -11,6 +11,21 @@
     "414c829a7971e7876f90f7590dd78438d4028d1c",
     "c71877326c90963d056ce3a944865b0077a5404c"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "8f103b4d72673988589fad821c9f44cefc07d725",
+      "kind": "signal",
+      "payload": {
+        "diff": "+ Program Committee * Program Committee",
+        "trigger": "website_change",
+        "watch_uuid": "6d70243a-012c-44d3-98d8-cd7373c4c54f"
+      },
+      "received": "2026-11-19T09:39:34Z",
+      "source": "changedetection",
+      "title": "Pytorch Day China 2026 - Main",
+      "url": "https://www.lfopensource.cn/pytorch-day-china/",
+      "year": 2026
+    }
+  ],
   "series": "Pytorch Day China"
 }
