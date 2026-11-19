@@ -170,6 +170,28 @@
     latitude: 49.4093582
     longitude: 8.694724
 
+- conference: PyCon US
+  year: 2027
+  link: https://us.pycon.org/2027/
+  cfp_link: https://us.pycon.org/2027/speaking/talks/
+  cfp: '2026-12-19 23:59:00'
+  timezone: America/Los_Angeles
+  place: Long Beach, USA
+  start: 2027-05-12
+  end: 2027-05-18
+  sponsor: https://us.pycon.org/2027/sponsorship/
+  finaid: https://us.pycon.org/2027/about/diversity/
+  coc: https://policies.python.org/us.pycon.org/code-of-conduct/
+  twitter: pycon
+  mastodon: https://fosstodon.org/@pycon
+  bluesky: https://bsky.app/profile/pycon.us
+  youtube: https://www.youtube.com/c/pyconus
+  sub: PY
+  location:
+  - title: PyCon US 2027
+    latitude: 33.7690164
+    longitude: -118.191604
+
 - conference: PyTexas
   year: 2027
   link: https://www.pytexas.org/2027/
@@ -1113,26 +1135,6 @@
   - title: PyCon Angola 2027
     latitude: -8.8272699
     longitude: 13.2439512
-
-- conference: PyCon US
-  year: 2027
-  link: https://us.pycon.org/2027/
-  cfp: TBA
-  place: Long Beach, USA
-  start: 2027-05-12
-  end: 2027-05-18
-  sponsor: https://us.pycon.org/2027/sponsorship/
-  finaid: https://us.pycon.org/2027/about/diversity/
-  coc: https://policies.python.org/us.pycon.org/code-of-conduct/
-  twitter: pycon
-  mastodon: https://fosstodon.org/@pycon
-  bluesky: https://bsky.app/profile/pycon.us
-  youtube: https://www.youtube.com/c/pyconus
-  sub: PY
-  location:
-  - title: PyCon US 2027
-    latitude: 33.7690164
-    longitude: -118.191604
 
 - conference: Python BarCamp Karlsruhe
   year: 2027
