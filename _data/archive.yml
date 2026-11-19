@@ -2217,11 +2217,13 @@
   link: https://pydata.org/berlin2025/
   cfp_link: https://cfp.pydata.org/berlin2025/cfp
   cfp: '2025-05-04 23:59:59'
+  cfp_ext: '2025-05-11 23:59:59'
   timezone: Europe/Berlin
   place: Berlin, Germany
   start: 2025-09-01
   end: 2025-09-03
   sponsor: https://pydata.org/berlin2025/sponsorship-opportunites
+  finaid: https://pydata.org/berlin2025/financial-aid
   coc: https://pydata.org/berlin2025/about#conduct
   twitter: pydataberlin
   sub: DATA
