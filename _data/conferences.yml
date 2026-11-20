@@ -107,6 +107,26 @@
     latitude: 53.5672881
     longitude: 9.941726150411604
 
+- conference: PyCon Portugal
+  alt_name: PyCon PT
+  year: 2027
+  link: https://2027.pycon.pt/
+  cfp_link: https://2027.pycon.pt/talks/cfp/
+  cfp: '2026-12-31 23:59:00'
+  place: Leiria, Portugal
+  start: 2027-04-22
+  end: 2027-04-24
+  sponsor: https://2027.pycon.pt/sponsors/sponsorship/
+  finaid: https://2027.pycon.pt/information/grants/
+  coc: https://2027.pycon.pt/conduct/code_of_conduct/
+  twitter: PyConPT
+  youtube: https://www.youtube.com/@pyconportugal
+  sub: PY
+  location:
+  - title: PyCon Portugal 2027
+    latitude: 39.7437902
+    longitude: -8.8071119
+
 - conference: PyData Venice Day
   year: 2027
   link: https://venice.pydata.org/pydata-venice-day-27/
@@ -149,6 +169,28 @@
   - title: PyCon Germany & PyData Conference 2027
     latitude: 49.4093582
     longitude: 8.694724
+
+- conference: PyCon US
+  year: 2027
+  link: https://us.pycon.org/2027/
+  cfp_link: https://us.pycon.org/2027/speaking/talks/
+  cfp: '2026-12-19 23:59:00'
+  timezone: America/Los_Angeles
+  place: Long Beach, USA
+  start: 2027-05-12
+  end: 2027-05-18
+  sponsor: https://us.pycon.org/2027/sponsorship/
+  finaid: https://us.pycon.org/2027/about/diversity/
+  coc: https://policies.python.org/us.pycon.org/code-of-conduct/
+  twitter: pycon
+  mastodon: https://fosstodon.org/@pycon
+  bluesky: https://bsky.app/profile/pycon.us
+  youtube: https://www.youtube.com/c/pyconus
+  sub: PY
+  location:
+  - title: PyCon US 2027
+    latitude: 33.7690164
+    longitude: -118.191604
 
 - conference: PyTexas
   year: 2027
@@ -201,6 +243,7 @@
   start: 2026-12-11
   end: 2026-12-11
   sponsor: https://www.pylimaperu.org/pyday#sponsors
+  coc: https://www.pylimaperu.org/codigo-de-conducta
   youtube: https://www.youtube.com/@pylimaperu
   sub: DAY
   location:
@@ -519,7 +562,10 @@
   start: 2026-11-18
   end: 2026-11-20
   sponsor: https://wagtail.org/wagtail-space-2026/sponsors/
+  coc: https://wagtail.org/code-of-conduct/
   mastodon: https://fosstodon.org/@wagtail
+  bluesky: https://bsky.app/profile/wagtail.org
+  youtube: https://www.youtube.com/@wagtailcms
   sub: WEB
 
 - conference: PyConf
@@ -871,45 +917,6 @@
     latitude: 41.3866666
     longitude: 2.1636166
 
-- conference: PyCon Greece
-  year: 2026
-  link: https://2026.pycon.gr/
-  cfp_link: https://2026.pycon.gr/en/program/cfp-faq
-  cfp: '2026-05-10 23:59:00'
-  cfp_ext: '2026-05-17 23:59:00'
-  timezone: Europe/Athens
-  place: Athens, Greece
-  start: 2026-10-12
-  end: 2026-10-13
-  sponsor: https://2026.pycon.gr/en/sponsors
-  coc: https://2026.pycon.gr/en/attend/code-of-conduct/
-  youtube: https://www.youtube.com/@pycongreece
-  sub: PY
-  location:
-  - title: PyCon Greece 2026
-    latitude: 37.9755648
-    longitude: 23.7348324
-
-- conference: PyCon Africa
-  year: 2026
-  link: https://africa.pycon.org/
-  cfp_link: https://africa.pycon.org/2026/talks/proposals/
-  cfp: '2026-04-16 23:59:00'
-  place: Kampala, Uganda
-  start: 2026-10-07
-  end: 2026-10-11
-  sponsor: https://africa.pycon.org/2026/sponsor-us/
-  finaid: https://africa.pycon.org/2026/opportunity-grants/
-  coc: https://africa.pycon.org/2026/coc/
-  twitter: pyconafrica
-  mastodon: https://mastodon.social/@pyconafrica
-  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
-  sub: PY
-  location:
-  - title: PyCon Africa 2026
-    latitude: 0.3177137
-    longitude: 32.5813539
-
 - conference: PyCon Germany
   year: 2028
   link: https://pycon.de/
@@ -980,6 +987,7 @@
     longitude: -117.374238
 
 - conference: PyCon Poland
+  alt_name: PyCon PL
   year: 2027
   link: https://pl.pycon.org/2027
   cfp_link: https://pyconpl.confreg.pl/
@@ -1110,26 +1118,6 @@
     latitude: -8.8272699
     longitude: 13.2439512
 
-- conference: PyCon US
-  year: 2027
-  link: https://us.pycon.org/2027/
-  cfp: TBA
-  place: Long Beach, USA
-  start: 2027-05-12
-  end: 2027-05-18
-  sponsor: https://us.pycon.org/2027/sponsorship/
-  finaid: https://us.pycon.org/2027/about/diversity/
-  coc: https://policies.python.org/us.pycon.org/code-of-conduct/
-  twitter: pycon
-  mastodon: https://fosstodon.org/@pycon
-  bluesky: https://bsky.app/profile/pycon.us
-  youtube: https://www.youtube.com/c/pyconus
-  sub: PY
-  location:
-  - title: PyCon US 2027
-    latitude: 33.7690164
-    longitude: -118.191604
-
 - conference: Python BarCamp Karlsruhe
   year: 2027
   link: https://barcamps.eu/pythonbarcamp-karlsruhe-2027/
@@ -1222,17 +1210,3 @@
   - title: PyCon Davao 2026
     latitude: 7.0648306
     longitude: 125.6080623
-
-- conference: PyDay Mexico
-  alt_name: 'PyDay México: CDMX'
-  year: 2026
-  link: https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029
-  cfp: None
-  place: Ciudad de México, México
-  start: 2026-10-10
-  end: 2026-10-10
-  sub: DAY
-  location:
-  - title: PyDay Mexico 2026
-    latitude: 19.3207722
-    longitude: -99.1514678

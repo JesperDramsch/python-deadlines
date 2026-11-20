@@ -171,6 +171,9 @@ alt_name:
     variations:
     - PyLadies Conference
     - PyLadies Con
+  PyTorch Conference:
+    variations:
+    - PyTorch Conference North America
   Python Brasil:
     variations:
     - Python Brazil

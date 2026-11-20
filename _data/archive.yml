@@ -1,5 +1,38 @@
 ---
 
+- conference: PyCon Greece
+  year: 2026
+  link: https://2026.pycon.gr/
+  cfp_link: https://2026.pycon.gr/en/program/cfp-faq
+  cfp: '2026-05-10 23:59:00'
+  cfp_ext: '2026-05-17 23:59:00'
+  timezone: Europe/Athens
+  place: Athens, Greece
+  start: 2026-10-12
+  end: 2026-10-13
+  sponsor: https://2026.pycon.gr/en/sponsors
+  coc: https://2026.pycon.gr/en/attend/code-of-conduct/
+  youtube: https://www.youtube.com/@pycongreece
+  sub: PY
+  location:
+  - title: PyCon Greece 2026
+    latitude: 37.9755648
+    longitude: 23.7348324
+
+- conference: PyDay Mexico
+  alt_name: 'PyDay México: CDMX'
+  year: 2026
+  link: https://www.eventbrite.com.mx/e/pyday-mexico-2026-cdmx-tickets-1989262280029
+  cfp: None
+  place: Ciudad de México, México
+  start: 2026-10-10
+  end: 2026-10-10
+  sub: DAY
+  location:
+  - title: PyDay Mexico 2026
+    latitude: 19.3207722
+    longitude: -99.1514678
+
 - conference: PyCon Estonia
   alt_name: PyCon EE
   year: 2026
@@ -16,6 +49,26 @@
   - title: PyCon Estonia 2026
     latitude: 59.4372155
     longitude: 24.7453688
+
+- conference: PyCon Africa
+  year: 2026
+  link: https://africa.pycon.org/
+  cfp_link: https://africa.pycon.org/2026/talks/proposals/
+  cfp: '2026-04-16 23:59:00'
+  place: Kampala, Uganda
+  start: 2026-10-07
+  end: 2026-10-11
+  sponsor: https://africa.pycon.org/2026/sponsor-us/
+  finaid: https://africa.pycon.org/2026/opportunity-grants/
+  coc: https://africa.pycon.org/2026/coc/
+  twitter: pyconafrica
+  mastodon: https://mastodon.social/@pyconafrica
+  youtube: https://www.youtube.com/embed/nH9fLYR0Kfo
+  sub: PY
+  location:
+  - title: PyCon Africa 2026
+    latitude: 0.3177137
+    longitude: 32.5813539
 
 - conference: EARL
   year: 2026
@@ -120,6 +173,8 @@
   start: 2026-09-26
   end: 2026-09-27
   sponsor: https://barcamps.eu/pythoncamp-ruegen-2026/sponsoren
+  coc: https://barcamps.eu/pythoncamp-ruegen-2026/code-of-conduct
+  twitter: pythoncamp
   mastodon: https://ruhr.social/@pythoncamp
   sub: CAMP
   location:
@@ -1147,8 +1202,10 @@
   place: Online
   start: 2026-03-04
   end: 2026-03-04
+  twitter: pycharm
   mastodon: https://fosstodon.org/@t_redactyl
   bluesky: https://bsky.app/profile/pycharm.dev
+  youtube: https://www.youtube.com/@PyCharmIDE
   sub: PY
 
 - conference: Python BarCamp Karlsruhe
@@ -1861,7 +1918,10 @@
   start: 2025-10-08
   end: 2025-10-10
   sponsor: https://wagtail.org/wagtail-space-2025/sponsors/
+  coc: https://wagtail.org/code-of-conduct/
   mastodon: https://fosstodon.org/@wagtail
+  bluesky: https://bsky.app/profile/wagtail.org
+  youtube: https://www.youtube.com/@wagtailcms
   sub: WEB
 
 - conference: PyCon Africa
@@ -2023,6 +2083,9 @@
   start: 2025-09-20
   end: 2025-09-21
   sponsor: https://barcamps.eu/pyr2025/sponsoren
+  coc: https://barcamps.eu/pyr2025/coc
+  twitter: pythoncamp
+  mastodon: https://ruhr.social/@pythoncamp
   sub: CAMP
   location:
   - title: Pythoncamp Rügen 2025
@@ -2180,11 +2243,13 @@
   link: https://pydata.org/berlin2025/
   cfp_link: https://cfp.pydata.org/berlin2025/cfp
   cfp: '2025-05-04 23:59:59'
+  cfp_ext: '2025-05-11 23:59:59'
   timezone: Europe/Berlin
   place: Berlin, Germany
   start: 2025-09-01
   end: 2025-09-03
   sponsor: https://pydata.org/berlin2025/sponsorship-opportunites
+  finaid: https://pydata.org/berlin2025/financial-aid
   coc: https://pydata.org/berlin2025/about#conduct
   twitter: pydataberlin
   sub: DATA
