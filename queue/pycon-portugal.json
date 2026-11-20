@@ -2,6 +2,21 @@
   "handled": [
     "305721daabc2a2a839af003ca95e9d4eac8d1c91"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "52abb31958eb48e402a8c2be16a21e5f6af0f4be",
+      "kind": "signal",
+      "payload": {
+        "diff": "Coming soon Submit →",
+        "trigger": "website_change",
+        "watch_uuid": "f3795938-9f0d-4696-ad30-939da55f4425"
+      },
+      "received": "2026-11-20T04:25:18Z",
+      "source": "changedetection",
+      "title": "[Conference] PyCon Portugal",
+      "url": "https://pycon.pt",
+      "year": null
+    }
+  ],
   "series": "PyCon Portugal"
 }
