@@ -1,8 +1,10 @@
 """Tests for utils/wayback.py: CDX capture lists, the capture rule and saves."""
 
+import re
 import sys
 from datetime import date
 from pathlib import Path
+from urllib.parse import parse_qsl
 
 import pytest
 import requests
@@ -220,3 +222,104 @@ class TestLinks:
     def test_archive_url_needs_a_capture_timestamp(self, timestamp):
         with pytest.raises(ValueError, match="14-digit"):
             wayback.archive_url(timestamp, "https://pycon.or.tz/")
+
+
+class TestTurnedAway:
+    """A refusal or a rate limit is WaybackBlockedError, so the caller can stop; other failures are not."""
+
+    @responses.activate
+    def test_refused_connection(self):
+        responses.add(responses.GET, wayback.CDX_URL, body=requests.ConnectionError("Connection refused"))
+
+        with pytest.raises(wayback.WaybackBlockedError):
+            wayback.captures("https://example.org/")
+
+    @pytest.mark.parametrize("status", [429, 509])
+    @responses.activate
+    def test_rate_limited(self, status):
+        responses.add(responses.GET, wayback.CDX_URL, status=status)
+
+        with pytest.raises(wayback.WaybackBlockedError):
+            wayback.captures("https://example.org/")
+
+    @responses.activate
+    def test_server_error_is_not_a_refusal(self):
+        responses.add(responses.GET, wayback.CDX_URL, status=503)
+
+        with pytest.raises(wayback.WaybackError) as raised:
+            wayback.captures("https://example.org/")
+        assert not isinstance(raised.value, wayback.WaybackBlockedError)
+
+
+class TestPageKey:
+    @pytest.mark.parametrize(
+        ("url", "key"),
+        [
+            ("https://www.pycon.ru/", "pycon.ru"),
+            ("http://pycon.ru", "pycon.ru"),
+            ("https://pycon.ru/cfp/", "pycon.ru/cfp"),
+            ("https://pycon.se/#sponsorship", "pycon.se"),
+            ("https://Example.org/a?b=1", "example.org/a?b=1"),
+        ],
+    )
+    def test_key(self, url, key):
+        assert wayback.page_key(url) == key
+
+
+class TestHostCaptures:
+    """One request for several pages of a host, filtered on the archive's side to those pages."""
+
+    @responses.activate
+    def test_groups_captures_by_page(self):
+        responses.add(
+            responses.GET,
+            wayback.CDX_URL,
+            json=[
+                ["original", "timestamp"],
+                ["https://pycon.ru/", "20240804181747"],
+                ["https://www.pycon.ru/", "20240718054236"],
+                ["https://pycon.ru/cfp", "20240717201233"],
+                ["https://www.pycon.ru/cfp/", "20240601000000"],
+            ],
+        )
+
+        found = wayback.host_captures(
+            "pycon.ru",
+            ["https://www.pycon.ru/", "https://www.pycon.ru/cfp"],
+            until=date(2024, 12, 18),
+        )
+
+        assert found == {
+            "pycon.ru": ["20240718054236", "20240804181747"],
+            "pycon.ru/cfp": ["20240601000000", "20240717201233"],
+        }
+        params = responses.calls[0].request.params
+        assert params["url"] == "pycon.ru/*"
+        assert params["to"] == "20241218"
+        # Collapsing adjacent lines would merge one page's capture into another's
+        assert "collapse" not in params
+
+    @responses.activate
+    def test_filter_keeps_only_the_given_pages(self):
+        responses.add(responses.GET, wayback.CDX_URL, json=[["original", "timestamp"]])
+
+        wayback.host_captures(
+            "pycon.ru",
+            ["https://www.pycon.ru/", "https://pycon.ru/cfp", "https://pycon.ru/partneram"],
+        )
+
+        query = responses.calls[0].request.url
+        filters = [value for key, value in parse_qsl(query.split("?", 1)[1]) if key == "filter"]
+        assert filters[0] == "statuscode:200"
+        pattern = filters[1].removeprefix("original:")
+        for kept in ("https://pycon.ru/", "https://www.pycon.ru", "http://pycon.ru/cfp/", "https://pycon.ru/partneram"):
+            assert re.match(pattern, kept), kept
+        for dropped in ("https://pycon.ru/oferta/", "https://pycon.ru/cfpx", "https://evil.org/pycon.ru/cfp"):
+            assert not re.match(pattern, dropped), dropped
+
+    @responses.activate
+    def test_refusal_raises_blocked(self):
+        responses.add(responses.GET, wayback.CDX_URL, status=429)
+
+        with pytest.raises(wayback.WaybackBlockedError):
+            wayback.host_captures("pycon.ru", ["https://pycon.ru/"])

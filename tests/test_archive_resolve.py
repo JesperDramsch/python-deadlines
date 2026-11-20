@@ -4,6 +4,7 @@ import socket
 import struct
 import sys
 import threading
+import time
 from datetime import date
 from http.client import RemoteDisconnected
 from pathlib import Path
@@ -174,6 +175,7 @@ class TestResolve:
             [c for c in candidates if c.field == "sponsor"],
             lookup=lambda url: TANZANIA_SPONSOR,
             delay=0,
+            spacing=0,
         )
 
         expected = "https://web.archive.org/web/20241004214743/https://pycon.or.tz/sponsor/"
@@ -187,7 +189,12 @@ class TestResolve:
         candidates = [archive_resolve.Candidate(entry, "link", url, "superseded") for entry in entries]
         lookups = []
 
-        archive_resolve.resolve(candidates, lookup=lambda u: lookups.append(u) or ["20221020000000"], delay=0)
+        archive_resolve.resolve(
+            candidates,
+            lookup=lambda u: lookups.append(u) or ["20221020000000"],
+            delay=0,
+            spacing=0,
+        )
 
         assert lookups == [url]
         # Each edition gets the capture from its own time, from the same listing
@@ -197,14 +204,19 @@ class TestResolve:
     def test_field_listed_twice_is_resolved_once(self, tanzania):
         candidate = archive_resolve.superseded_candidates(tanzania, TODAY)[0]
 
-        outcomes = archive_resolve.resolve([candidate, candidate], lookup=lambda url: TANZANIA_SPONSOR, delay=0)
+        outcomes = archive_resolve.resolve(
+            [candidate, candidate],
+            lookup=lambda url: TANZANIA_SPONSOR,
+            delay=0,
+            spacing=0,
+        )
 
         assert len(outcomes) == 1
 
     def test_no_capture_keeps_the_url(self, tanzania):
         candidate = archive_resolve.superseded_candidates(tanzania, TODAY)[0]
 
-        (outcome,) = archive_resolve.resolve([candidate], lookup=lambda url: ["20261018085052"], delay=0)
+        (outcome,) = archive_resolve.resolve([candidate], lookup=lambda url: ["20261018085052"], delay=0, spacing=0)
 
         assert outcome.new_url is None
         assert outcome.detail == "no capture on or before 2024-12-04"
@@ -216,7 +228,7 @@ class TestResolve:
         def fail(url):
             raise wayback.WaybackError("CDX request returned HTTP 503")
 
-        (outcome,) = archive_resolve.resolve([candidate], lookup=fail, delay=0)
+        (outcome,) = archive_resolve.resolve([candidate], lookup=fail, delay=0, spacing=0)
 
         assert outcome.new_url is None
         assert outcome.detail.startswith("lookup failed")
@@ -394,6 +406,11 @@ class TestMain:
 
     def _run(self, repo, monkeypatch, lookup):
         monkeypatch.setattr(archive_resolve.wayback, "captures", lookup)
+        monkeypatch.setattr(
+            archive_resolve.wayback,
+            "host_captures",
+            lambda host, urls, until: {wayback.page_key(url): lookup(url) for url in urls if lookup(url)},
+        )
         archive_resolve.main(
             [
                 "--base",
@@ -403,10 +420,14 @@ class TestMain:
                 "--no-probe",
                 "--delay",
                 "0",
+                "--spacing",
+                "0",
                 "--changes",
                 str(repo / "changes.md"),
                 "--needs",
                 str(repo / "needs.md"),
+                "--summary",
+                str(repo / "summary.md"),
             ],
         )
 
@@ -441,3 +462,261 @@ class TestMain:
 
         assert (repo / "_data" / "archive.yml").read_text(encoding="utf-8") == before
         assert (repo / "changes.md").read_text(encoding="utf-8") == ""
+
+    def test_summary_counts(self, repo, monkeypatch):
+        captures = {"https://pycon.or.tz/sponsor/": TANZANIA_SPONSOR}
+
+        self._run(repo, monkeypatch, lambda url: captures.get(url, []))
+
+        report = (repo / "summary.md").read_text(encoding="utf-8")
+        assert "- Pointed to an archived page: 1" in report
+        assert "- No capture from their edition's time: 2" in report
+        assert "- Left for the next run (refused, or out of time): 0" in report
+
+
+def _candidates(*urls: str, end: date = date(2024, 12, 4)) -> list[archive_resolve.Candidate]:
+    return [archive_resolve.Candidate(_edition(2024, end, end, link=url), "link", url, "superseded") for url in urls]
+
+
+class TestLookupPlan:
+    """Pages of one host share a request; shared hosts and lone pages get their own."""
+
+    def test_pages_of_a_host_share_one_request(self):
+        plan = archive_resolve.lookup_plan(
+            _candidates("https://www.pycon.ru/", "https://pycon.ru/cfp", "https://pycon.tz/conduct/"),
+        )
+
+        assert plan == [
+            ("pycon.ru", ["https://www.pycon.ru/", "https://pycon.ru/cfp"]),
+            (None, ["https://pycon.tz/conduct/"]),
+        ]
+
+    def test_shared_hosts_are_looked_up_page_by_page(self):
+        urls = ("https://docs.google.com/forms/d/a/viewform", "https://docs.google.com/forms/d/b/viewform")
+
+        assert archive_resolve.lookup_plan(_candidates(*urls)) == [(None, [urls[0]]), (None, [urls[1]])]
+
+    def test_url_used_twice_is_asked_for_once(self):
+        plan = archive_resolve.lookup_plan(_candidates("https://pycon.se/", "https://pycon.se/", "https://pycon.se/x"))
+
+        assert plan == [("pycon.se", ["https://pycon.se/", "https://pycon.se/x"])]
+
+
+class TestResolveByHost:
+    def test_host_request_answers_every_page(self):
+        candidates = _candidates("https://www.pycon.ru/", "https://pycon.ru/cfp", "https://pycon.ru/#sponsors")
+        asked = []
+
+        def lookup_host(host, urls, until):
+            asked.append((host, urls, until))
+            return {"pycon.ru": ["20240804181747"], "pycon.ru/cfp": ["20240717201233"]}
+
+        outcomes = archive_resolve.resolve(candidates, lookup=pytest.fail, lookup_host=lookup_host, delay=0, spacing=0)
+
+        assert asked == [
+            (
+                "pycon.ru",
+                ["https://www.pycon.ru/", "https://pycon.ru/cfp", "https://pycon.ru/#sponsors"],
+                date(2024, 12, 18),
+            ),
+        ]
+        assert [o.new_url for o in outcomes] == [
+            "https://web.archive.org/web/20240804181747/https://www.pycon.ru/",
+            "https://web.archive.org/web/20240717201233/https://pycon.ru/cfp",
+            "https://web.archive.org/web/20240804181747/https://pycon.ru/#sponsors",
+        ]
+
+    def test_page_missing_from_the_host_answer_has_no_capture(self):
+        candidates = _candidates("https://pycon.ru/", "https://pycon.ru/partneram")
+
+        outcomes = archive_resolve.resolve(
+            candidates,
+            lookup_host=lambda host, urls, until: {"pycon.ru": ["20240804181747"]},
+            delay=0,
+            spacing=0,
+        )
+
+        assert [o.kind for o in outcomes] == ["replaced", "no-capture"]
+
+
+class TestTurnedAway:
+    """After a refusal the run backs off 10, 20 and 40 s, then stops and leaves the rest for the next run."""
+
+    @pytest.fixture()
+    def slept(self, monkeypatch):
+        slept: list[float] = []
+        monkeypatch.setattr(archive_resolve.time, "sleep", slept.append)
+        return slept
+
+    def test_stops_once_backoff_is_spent(self, slept):
+        candidates = _candidates("https://a.org/", "https://b.org/", "https://c.org/")
+        asked = []
+
+        def lookup(url):
+            asked.append(url)
+            if url == "https://b.org/":
+                raise wayback.WaybackBlockedError("Connection refused")
+            return ["20241001000000"]
+
+        outcomes = archive_resolve.resolve(candidates, lookup=lookup, delay=0, spacing=0)
+
+        assert asked == ["https://a.org/"] + ["https://b.org/"] * 4
+        assert slept == [10.0, 20.0, 40.0]
+        assert [o.kind for o in outcomes] == ["replaced", "deferred", "deferred"]
+        assert candidates[2].entry["link"] == "https://c.org/"
+
+    def test_refusal_that_lifts_carries_on(self, slept):
+        refusals = iter([True, True])
+
+        def lookup(url):
+            if url == "https://b.org/" and next(refusals, False):
+                raise wayback.WaybackBlockedError("Connection refused")
+            return ["20241001000000"]
+
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/", "https://b.org/", "https://c.org/"),
+            lookup=lookup,
+            delay=0,
+            spacing=0,
+        )
+
+        assert slept == [10.0, 20.0]
+        assert [o.kind for o in outcomes] == ["replaced", "replaced", "replaced"]
+
+    def test_each_refusal_starts_the_backoff_again(self, slept):
+        refused = {"https://a.org/": iter([True]), "https://b.org/": iter([True])}
+
+        def lookup(url):
+            if next(refused[url], False):
+                raise wayback.WaybackBlockedError("Connection refused")
+            return ["20241001000000"]
+
+        archive_resolve.resolve(_candidates("https://a.org/", "https://b.org/"), lookup=lookup, delay=0, spacing=0)
+
+        assert slept == [10.0, 10.0]
+
+    def test_backoff_budget_caps_the_waiting(self, slept):
+        def refuse(url):
+            raise wayback.WaybackBlockedError("Connection refused")
+
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/"),
+            lookup=refuse,
+            delay=0,
+            spacing=0,
+            backoff_budget=25,
+        )
+
+        assert slept == [10.0]
+        assert [o.kind for o in outcomes] == ["deferred"]
+
+    def test_other_failures_do_not_stop_the_run(self, slept):
+        def lookup(url):
+            if url == "https://a.org/":
+                raise wayback.WaybackError("HTTP 503")
+            return ["20241001000000"]
+
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/", "https://b.org/"),
+            lookup=lookup,
+            delay=0,
+            spacing=0,
+        )
+
+        assert [o.kind for o in outcomes] == ["failed", "replaced"]
+        assert slept == []
+
+
+class TestTimeBudget:
+    def test_out_of_time_leaves_the_rest_for_the_next_run(self, monkeypatch):
+        monkeypatch.setattr(archive_resolve.time, "sleep", lambda s: None)
+        ticks = iter([0, 0, 0, 700])  # start, before a, before b, before c
+        asked = []
+
+        outcomes = archive_resolve.resolve(
+            _candidates("https://a.org/", "https://b.org/", "https://c.org/"),
+            lookup=lambda url: asked.append(url) or ["20241001000000"],
+            delay=0,
+            spacing=0,
+            time_budget=600,
+            clock=lambda: next(ticks),
+        )
+
+        assert asked == ["https://a.org/", "https://b.org/"]
+        assert [o.kind for o in outcomes] == ["replaced", "replaced", "deferred"]
+        assert "600 s" in outcomes[2].detail
+
+
+class TestBatches:
+    def test_pause_after_every_batch(self, monkeypatch):
+        slept: list[float] = []
+        monkeypatch.setattr(archive_resolve.time, "sleep", slept.append)
+        candidates = _candidates(*(f"https://site{n}.org/" for n in range(25)))
+
+        archive_resolve.resolve(candidates, lookup=lambda url: [], delay=5, batch_size=10, spacing=1)
+
+        # 1 s between requests within a batch, 5 s instead after every 10th
+        assert slept == [1] * 9 + [5] + [1] * 9 + [5] + [1] * 4
+
+
+class TestNeedsList:
+    """Only URLs with no capture need a person, and the list is capped for the PR body."""
+
+    def _outcome(self, kind, n=0):
+        (candidate,) = _candidates(f"https://example{n}.org/")
+        return archive_resolve.Outcome(candidate, None, "detail", kind)
+
+    def test_lists_only_what_it_is_given(self):
+        text = archive_resolve.needs_list([self._outcome("no-capture")])
+
+        assert text.startswith("- [ ] PyCon Tanzania 2024: `link` https://example0.org/")
+        assert text.count("\n") == 1
+
+    def test_capped(self):
+        text = archive_resolve.needs_list([self._outcome("no-capture", n) for n in range(5)], limit=2)
+
+        assert text.splitlines()[-1] == "- 3 more without a capture: see the Archive Resolve run log"
+        assert len(text.splitlines()) == 3
+
+    def test_empty(self):
+        assert archive_resolve.needs_list([]) == ""
+
+
+class TestRequestAll:
+    def test_every_url_answered_and_sites_not_overloaded(self):
+        lock = threading.Lock()
+        running: dict[str, int] = {}
+        most: dict[str, int] = {}
+
+        def request(url):
+            host = links.site_host(url)
+            with lock:
+                running[host] = running.get(host, 0) + 1
+                most[host] = max(most.get(host, 0), running[host])
+            time.sleep(0.01)
+            with lock:
+                running[host] -= 1
+            return links.Probe(url, url, 200)
+
+        urls = [f"https://site{n % 3}.org/page{n}" for n in range(30)]
+
+        results = archive_resolve.request_all(urls, request)
+
+        assert set(results) == set(urls)
+        assert max(most.values()) <= archive_resolve.PER_HOST
+
+    def test_hosts_are_interleaved(self, monkeypatch):
+        monkeypatch.setattr(archive_resolve, "WORKERS", 1)
+        order = []
+        lock = threading.Lock()
+
+        def request(url):
+            with lock:
+                order.append(url)
+            return links.Probe(url, url, 200)
+
+        urls = [f"https://big.org/{n}" for n in range(4)] + ["https://small.org/"]
+
+        archive_resolve.request_all(urls, request)
+
+        assert order[:2] == ["https://big.org/0", "https://small.org/"]
