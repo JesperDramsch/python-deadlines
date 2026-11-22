@@ -2217,7 +2217,12 @@
   place: Chicago, USA
   start: 2025-09-08
   end: 2025-09-12
+  sponsor: https://2025.djangocon.us/sponsors/
+  finaid: https://2025.djangocon.us/opportunity-grants/
+  coc: https://2025.djangocon.us/conduct/
+  twitter: djangocon
   mastodon: https://fosstodon.org/@djangocon
+  bluesky: https://bsky.app/profile/djangocon.us
   sub: WEB
   location:
   - title: DjangoCon US 2025
