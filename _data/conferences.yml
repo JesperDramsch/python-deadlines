@@ -93,7 +93,7 @@
   year: 2027
   link: https://hamburg.python.pizza/
   cfp: '2027-01-10 23:59:00'
-  place: Hamburg, Germany
+  place: Hamburg, Germany, and Online
   start: 2027-02-27
   end: 2027-02-27
   sponsor: https://hamburg.python.pizza/#sponsors
@@ -1116,6 +1116,19 @@
     latitude: 49.0068705
     longitude: 8.4034195
 
+- conference: PyCon Tajikistan
+  year: 2026
+  link: https://pycon.tj/
+  cfp: TBA
+  place: Dushanbe, Tajikistan
+  start: 2026-12-12
+  end: 2026-12-12
+  sub: PY
+  location:
+  - title: PyCon Tajikistan 2026
+    latitude: 38.5856814
+    longitude: 68.760331
+
 - conference: PyCon mini Tokyo
   alt_name: PyCon mini Tokyo with PythonAsia conference
   year: 2026
@@ -1160,6 +1173,19 @@
   bluesky: https://bsky.app/profile/pyladiescon.bsky.social
   youtube: https://www.youtube.com/@PyLadiesGlobal
   sub: PY
+
+- conference: PyLadies Asia Conference
+  year: 2026
+  link: https://pyladies.kr/en/
+  cfp: TBA
+  place: Seoul, South Korea
+  start: 2026-11-29
+  end: 2026-11-29
+  sub: PY
+  location:
+  - title: PyLadies Asia Conference 2026
+    latitude: 37.5666791
+    longitude: 126.9782914
 
 - conference: FastAPI Conference
   year: 2026
