@@ -615,24 +615,6 @@
     latitude: 41.1088
     longitude: 29.0176
 
-- conference: PyCon Netherlands
-  alt_name: PyCon NL
-  year: 2026
-  link: https://pycon-nl.org/
-  cfp_link: https://forms.gle/iiFnW8oZ8p9do4TR7
-  cfp: '2026-08-23 23:59:00'
-  place: Utrecht, Netherlands
-  start: 2026-10-15
-  end: 2026-10-15
-  sponsor: https://www.pycon-nl.org/call-for-sponsors
-  coc: https://www.pynl.org/code-of-conduct/
-  mastodon: https://mastodon.social/@pycon_nl/
-  sub: PY
-  location:
-  - title: PyCon Netherlands 2026
-    latitude: 52.090833
-    longitude: 5.121667
-
 - conference: PyCon Sweden
   alt_name: PyCon SE
   year: 2026

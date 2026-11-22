@@ -1,5 +1,23 @@
 ---
 
+- conference: PyCon Netherlands
+  alt_name: PyCon NL
+  year: 2026
+  link: https://pycon-nl.org/
+  cfp_link: https://forms.gle/iiFnW8oZ8p9do4TR7
+  cfp: '2026-08-23 23:59:00'
+  place: Utrecht, Netherlands
+  start: 2026-10-15
+  end: 2026-10-15
+  sponsor: https://www.pycon-nl.org/call-for-sponsors
+  coc: https://www.pynl.org/code-of-conduct/
+  mastodon: https://mastodon.social/@pycon_nl/
+  sub: PY
+  location:
+  - title: PyCon Netherlands 2026
+    latitude: 52.090833
+    longitude: 5.121667
+
 - conference: PyCon Greece
   year: 2026
   link: https://2026.pycon.gr/
@@ -353,7 +371,9 @@
   sponsor: https://pycontg.pytogo.org/partners
   finaid: https://pycontg.pytogo.org/2026/access-grant
   coc: https://pycontg.pytogo.org/2026/coc
-  youtube: https://www.youtube.com/@KwekuTech
+  twitter: pytogo_org
+  mastodon: https://techhub.social/@pytogo_org
+  youtube: https://www.youtube.com/@PythonTogo
   sub: PY
   location:
   - title: PyCon Togo 2026
@@ -2314,13 +2334,17 @@
 - conference: PyCon Togo
   year: 2025
   link: https://pycontg.pytogo.org/
-  cfp_link: https://pycontg.pytogo.org/proposal
-  cfp: '2025-08-01 23:59:00'
-  timezone: Africa/Lome
+  cfp_link: https://pycontg.pytogo.org/2025/proposal
+  cfp: '2025-06-30 16:00:00'
+  timezone: UTC
   place: Lome, Togo
   start: 2025-08-23
   end: 2025-08-23
-  sponsor: https://pycontg.pytogo.org/sponsor
+  sponsor: https://pycontg.pytogo.org/2025/sponsors
+  coc: https://pycontg.pytogo.org/2025/code-of-conduct
+  twitter: pytogo_org
+  mastodon: https://techhub.social/@pytogo_org
+  youtube: https://www.youtube.com/@PythonTogo
   sub: PY
   location:
   - title: PyCon Togo 2025
