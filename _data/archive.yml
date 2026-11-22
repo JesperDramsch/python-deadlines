@@ -6264,6 +6264,22 @@
     latitude: -6.09994425
     longitude: 39.32094431715264
 
+- conference: PyData Eindhoven
+  year: 2022
+  link: https://pydata.org/eindhoven2022/
+  cfp: TBA
+  place: Eindhoven, Netherlands
+  start: 2022-12-02
+  end: 2022-12-02
+  sponsor: https://pydata.org/eindhoven2022/sponsors/
+  coc: https://pydata.org/eindhoven2022/conduct/
+  twitter: PydataEindhoven
+  sub: DATA
+  location:
+  - title: PyData Eindhoven 2022
+    latitude: 51.4383999131
+    longitude: 5.46712979814
+
 - conference: PyCon Chile
   year: 2022
   link: https://web.archive.org/web/20230925093306/https://pycon.cl/2022/
