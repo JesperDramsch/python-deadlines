@@ -3994,6 +3994,7 @@
   place: Gelilot, Israel
   start: 2024-09-16
   end: 2024-09-16
+  sponsor: https://pycon.org.il/2024/pages/sponsors.html
   coc: https://pycon.org.il/2024/pages/code-of-conduct.html
   twitter: PyConIL
   mastodon: https://tooot.im/@pyconil/
@@ -5778,11 +5779,14 @@
   cfp_link: https://cfp.pycon.org.il/conference2023/cfp
   cfp: '2023-04-02 22:59:00'
   timezone: Africa/Cairo
-  place: Israel, Israel
+  place: Ramat Gan, Israel
   start: 2023-07-04
   end: 2023-07-05
   sponsor: https://web.archive.org/web/20231207055744/https://2023.pycon.org.il/
+  coc: https://pycon.org.il/2023/code.html
   twitter: PyConIL
+  mastodon: https://tooot.im/@pyconil/
+  youtube: https://www.youtube.com/@PyConIsrael
   sub: PY
   location:
   - title: PyCon Israel 2023
@@ -6874,11 +6878,13 @@
 - conference: PyCon Israel
   year: 2022
   link: https://web.archive.org/web/20220629094715/https://pycon.org.il/2022/
+  cfp_link: https://cfp.pycon.org.il/conference2022/cfp
   cfp: '2022-04-30 23:59:59'
   timezone: Asia/Jerusalem
   place: Ramat-Gan, Israel
   start: 2022-06-28
   end: 2022-06-29
+  twitter: PyConIL
   sub: PY
   location:
   - title: PyCon Israel 2022
@@ -7625,12 +7631,15 @@
 
 - conference: PyCon Israel
   year: 2021
-  link: https://web.archive.org/web/20210629094715/https://pycon.org.il/2022/
+  link: https://pycon.org.il/2021/
+  cfp_link: https://cfp.pycon.org.il/conference2021/cfp
   cfp: '2021-04-01 23:59:59'
   timezone: Asia/Jerusalem
-  place: Ramat-Gan, Israel
+  place: Online
   start: 2021-05-02
   end: 2021-05-03
+  twitter: PyConIL
+  youtube: https://www.youtube.com/channel/UC-SbPEAZ4Ik2cowdR_Wyfag
   sub: PY
   location:
   - title: PyCon Israel 2021
@@ -9626,10 +9635,14 @@
 - conference: PyCon Israel
   year: 2019
   link: https://web.archive.org/web/20190120010757/https://il.pycon.org/2019/
+  cfp_link: https://cfp.pycon.org.il/conference/cfp
   cfp: '2019-04-01 23:59:00'
   place: Ramat Gan, Israel
   start: 2019-06-02
   end: 2019-06-05
+  coc: https://pycon.org.il/2019/blog/code-of-conduct/
+  twitter: PyConIL
+  youtube: https://www.youtube.com/channel/UC-SbPEAZ4Ik2cowdR_Wyfag
   sub: PY
   location:
   - title: PyCon Israel 2019

@@ -4306,6 +4306,8 @@
   place: Ramat Gan, Israel
   start: 2018-06-04
   end: 2018-06-06
+  coc: https://pycon.org.il/2018/en/code-of-conduct/
+  youtube: https://www.youtube.com/channel/UC-SbPEAZ4Ik2cowdR_Wyfag
   sub: PY
   location:
   - title: PyCon Israel 2018
