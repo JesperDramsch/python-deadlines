@@ -7,6 +7,26 @@
     "865683257fe33b897057a2bced79e5def6bbf886",
     "55808f058769118130e8bc9ee25f6da9b777e1d1"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "474d8ca0d1ccfdf75691d65610af4cba4a3bd1a2",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Austria",
+        "default_answer": false,
+        "field": "link",
+        "question": "For PyCon Austria in column 'link' would you prefer 'https://pycon.at' or keep 'https://web.archive.org/web/20260421123738/https://pycon.at/'?",
+        "remote_value": "https://pycon.at",
+        "source_name": "python-organizers",
+        "yaml_value": "https://web.archive.org/web/20260421123738/https://pycon.at/",
+        "year": 2026
+      },
+      "received": "2026-11-22T13:34:19Z",
+      "source": "canonical-import",
+      "title": "PyCon Austria",
+      "url": "https://web.archive.org/web/20260421123738/https://pycon.at/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Austria"
 }
