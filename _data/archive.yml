@@ -1008,6 +1008,7 @@
 - conference: PyCamp España
   year: 2026
   link: https://pycamp.es/2026/
+  cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSeLQSNjgXHhYzOzAcdqyun2_7Pfu_ezRKxvr0hD6Uc8lqP0Bg/viewform
   cfp: TBA
   place: Castilblanco de los Arroyos, Spain
   start: 2026-04-30
@@ -6022,6 +6023,21 @@
   - title: PyCon Germany & PyData Berlin 2023
     latitude: 52.5170365
     longitude: 13.3888599
+
+- conference: PyCamp España
+  year: 2023
+  link: https://pycamp.es/2023/
+  cfp: TBA
+  place: Vilablareix, Spain
+  start: 2023-04-07
+  end: 2023-04-10
+  finaid: https://docs.google.com/forms/d/e/1FAIpQLSc3v3XB0iCzknoqbSSOhxlLBsdOY-5zgUkdBcTS1VxmStkI-g/viewform?usp=sharing
+  twitter: pycampes
+  sub: CAMP
+  location:
+  - title: PyCamp España 2023
+    latitude: 41.9569396
+    longitude: 2.7728439
 
 - conference: PyTexas
   year: 2023
