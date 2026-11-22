@@ -8217,6 +8217,8 @@
   place: Online
   start: 2020-08-04
   end: 2020-08-08
+  coc: https://pyconafrica.pythonanywhere.com/2020/coc/
+  twitter: pyconafrica
   sub: PY
 
 - conference: Piter Py
