@@ -1,36 +1,9 @@
 {
   "handled": [
-    "305721daabc2a2a839af003ca95e9d4eac8d1c91"
+    "305721daabc2a2a839af003ca95e9d4eac8d1c91",
+    "52abb31958eb48e402a8c2be16a21e5f6af0f4be",
+    "892bd35c40e25891fc58885b473b22d88282db22"
   ],
-  "items": [
-    {
-      "id": "52abb31958eb48e402a8c2be16a21e5f6af0f4be",
-      "kind": "signal",
-      "payload": {
-        "diff": "Coming soon Submit →",
-        "trigger": "website_change",
-        "watch_uuid": "f3795938-9f0d-4696-ad30-939da55f4425"
-      },
-      "received": "2026-11-20T04:25:18Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCon Portugal",
-      "url": "https://pycon.pt",
-      "year": null
-    },
-    {
-      "id": "892bd35c40e25891fc58885b473b22d88282db22",
-      "kind": "signal",
-      "payload": {
-        "diff": "Early-bird prices. Ticket sales open on 16 November 2026. Early-bird prices. November 2026 16th · Early-bird ticket sales open 20th · Call for Participation opens November 2026 16th · Early-bird ticket sales open ✓ (done) 20th · Call for Participation opens ✓ (done)",
-        "trigger": "website_change",
-        "watch_uuid": "f3795938-9f0d-4696-ad30-939da55f4425"
-      },
-      "received": "2026-11-21T04:15:20Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCon Portugal",
-      "url": "https://pycon.pt",
-      "year": null
-    }
-  ],
+  "items": [],
   "series": "PyCon Portugal"
 }

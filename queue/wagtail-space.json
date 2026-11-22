@@ -1,22 +1,8 @@
 {
   "handled": [
-    "9b0ce64acea0f3fc9293c47305c1f173d349c735"
+    "9b0ce64acea0f3fc9293c47305c1f173d349c735",
+    "dfa4e72622fc92b58abea1e0e9d1653f23b9c6b7"
   ],
-  "items": [
-    {
-      "id": "dfa4e72622fc92b58abea1e0e9d1653f23b9c6b7",
-      "kind": "signal",
-      "payload": {
-        "diff": "Wagtail CMS events around the world Now Past events About Now Wagtail CMS events around the world Past events",
-        "trigger": "website_change",
-        "watch_uuid": "4409198b-ee75-4573-bdfb-53bd059296ad"
-      },
-      "received": "2026-11-21T00:48:10Z",
-      "source": "changedetection",
-      "title": "[Conference] Wagtail Space",
-      "url": "https://www.wagtail.space/",
-      "year": null
-    }
-  ],
+  "items": [],
   "series": "Wagtail Space"
 }
