@@ -13,6 +13,21 @@
     "f30952e077ddd393466583c3be1c8f29d45f58b9",
     "80d732b3779f8f9850877def6e6cb35b134ab931"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "85eacb59e1babd40d14595ece6592a12f576516c",
+      "kind": "signal",
+      "payload": {
+        "diff": "* PyCon DE 2027 Is Live ORGANIZERS · Oct 21, 2026 * T-Shirt Sizes ORGANIZERS · Oct 21, 2026 * This Year, We're Skipping the Call for Committees Alexander · Aug 18, 2026 * Plan Your Stay: One Week in Heidelberg ORGANIZERS · Nov 23, 2026 * The Call for Proposals Is Open ORGANIZERS · Nov 4, 2026 * Edition I Sold Out in Eight Days ORGANIZERS · Oct 29, 2026",
+        "trigger": "website_change",
+        "watch_uuid": "e52061e0-49cc-419e-8355-b9c7d430abc6"
+      },
+      "received": "2026-11-23T18:49:08Z",
+      "source": "changedetection",
+      "title": "PyCon Germany & PyData Conference 2026 - Main",
+      "url": "https://2027.pycon.de/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Germany & PyData Conference"
 }
