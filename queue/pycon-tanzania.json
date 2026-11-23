@@ -15,6 +15,21 @@
     "8f8f88b539c27638e3d075258ebe6c36f50ac9e8",
     "16e415eecbb65c93a0ef2bbbfee2b3eca677a00a"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "9ee6e8c48c85bbb1bfd1b8de7f190081cf0b580a",
+      "kind": "signal",
+      "payload": {
+        "diff": "Tell me when it opens What you can submit Meet the speakers What you can submit",
+        "trigger": "website_change",
+        "watch_uuid": "2ceb2f37-181a-4e44-b7f6-c9bda9a7a579"
+      },
+      "received": "2026-11-23T12:17:41Z",
+      "source": "changedetection",
+      "title": "PyCon Tanzania 2026 - CFP",
+      "url": "https://pycon.tz/call-for-proposals/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Tanzania"
 }
