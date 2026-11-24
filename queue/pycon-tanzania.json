@@ -29,6 +29,20 @@
       "title": "PyCon Tanzania 2026 - CFP",
       "url": "https://pycon.tz/call-for-proposals/",
       "year": 2026
+    },
+    {
+      "id": "a16556bd875468b043e652cdc62cc99360c03769",
+      "kind": "signal",
+      "payload": {
+        "diff": "* Django Girls 25 Nov 2026 Dar es Salaam, Arusha and Zanzibar * Django 25 Nov 2026 Dar es Salaam, Arusha and Zanzibar",
+        "trigger": "website_change",
+        "watch_uuid": "2ceb2f37-181a-4e44-b7f6-c9bda9a7a579"
+      },
+      "received": "2026-11-24T12:32:26Z",
+      "source": "changedetection",
+      "title": "PyCon Tanzania 2026 - CFP",
+      "url": "https://pycon.tz/call-for-proposals/",
+      "year": 2026
     }
   ],
   "series": "PyCon Tanzania"
