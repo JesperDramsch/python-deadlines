@@ -13,37 +13,10 @@
     "06e2c31eb631ee7b756a26257d699020306d8e13",
     "728f6901cc3daf567860abc1cc07ed56fbf34fc0",
     "8f8f88b539c27638e3d075258ebe6c36f50ac9e8",
-    "16e415eecbb65c93a0ef2bbbfee2b3eca677a00a"
+    "16e415eecbb65c93a0ef2bbbfee2b3eca677a00a",
+    "9ee6e8c48c85bbb1bfd1b8de7f190081cf0b580a",
+    "a16556bd875468b043e652cdc62cc99360c03769"
   ],
-  "items": [
-    {
-      "id": "9ee6e8c48c85bbb1bfd1b8de7f190081cf0b580a",
-      "kind": "signal",
-      "payload": {
-        "diff": "Tell me when it opens What you can submit Meet the speakers What you can submit",
-        "trigger": "website_change",
-        "watch_uuid": "2ceb2f37-181a-4e44-b7f6-c9bda9a7a579"
-      },
-      "received": "2026-11-23T12:17:41Z",
-      "source": "changedetection",
-      "title": "PyCon Tanzania 2026 - CFP",
-      "url": "https://pycon.tz/call-for-proposals/",
-      "year": 2026
-    },
-    {
-      "id": "a16556bd875468b043e652cdc62cc99360c03769",
-      "kind": "signal",
-      "payload": {
-        "diff": "* Django Girls 25 Nov 2026 Dar es Salaam, Arusha and Zanzibar * Django 25 Nov 2026 Dar es Salaam, Arusha and Zanzibar",
-        "trigger": "website_change",
-        "watch_uuid": "2ceb2f37-181a-4e44-b7f6-c9bda9a7a579"
-      },
-      "received": "2026-11-24T12:32:26Z",
-      "source": "changedetection",
-      "title": "PyCon Tanzania 2026 - CFP",
-      "url": "https://pycon.tz/call-for-proposals/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyCon Tanzania"
 }

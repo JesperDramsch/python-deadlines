@@ -7,23 +7,9 @@
     "166687c02c8493327b5a2cd9c14821249c1fc65b",
     "c256c05afc7ab8ed667523cd16e93cedb0c6f804",
     "d5696f967bfbfd277f67d397d872d2e96dbae7ed",
-    "e7882bc1e7bed06e74385a3e327830e9487b6dbe"
+    "e7882bc1e7bed06e74385a3e327830e9487b6dbe",
+    "f422189a7861b190cfaa096bef179af3d1a64bb0"
   ],
-  "items": [
-    {
-      "id": "f422189a7861b190cfaa096bef179af3d1a64bb0",
-      "kind": "signal",
-      "payload": {
-        "diff": "The Conference The Team Code of Conduct Health and Safety Policy Accessibility Grants The Conference The Team Code of Conduct Health and Safety Policy Accessibility Grants Volunteer",
-        "trigger": "website_change",
-        "watch_uuid": "230c95a6-f98d-43b0-b069-c65214ea46dc"
-      },
-      "received": "2026-11-25T01:05:26Z",
-      "source": "changedetection",
-      "title": "[Conference] PyCascades",
-      "url": "https://2027.pycascades.com",
-      "year": null
-    }
-  ],
+  "items": [],
   "series": "PyCascades"
 }

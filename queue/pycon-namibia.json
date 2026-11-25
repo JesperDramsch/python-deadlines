@@ -3,47 +3,10 @@
     "3a3681ea6ddeb1814ee8f5b5662ea1073b40ba8a",
     "98c73ce284d8bb5df1a6375525a50bd13130bb34",
     "6c7b9cd7a0baa8e50d49cff6a9fa0ae923d77f91",
-    "df6bf042629eccceabdf56304161c7708ac83993"
+    "df6bf042629eccceabdf56304161c7708ac83993",
+    "7bde9764761f91ebbf20e98f0a3e568852017345",
+    "6f7378a44eae72d5b0e7deb570b875fca7a175f9"
   ],
-  "items": [
-    {
-      "id": "7bde9764761f91ebbf20e98f0a3e568852017345",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Namibia",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon Namibia in column 'link' would you prefer 'https://na.pycon.org' or keep 'https://web.archive.org/web/20260305140619/https://na.pycon.org/'?",
-        "remote_value": "https://na.pycon.org",
-        "source_name": "python-organizers",
-        "yaml_value": "https://web.archive.org/web/20260305140619/https://na.pycon.org/",
-        "year": 2026
-      },
-      "received": "2026-11-22T13:34:19Z",
-      "source": "canonical-import",
-      "title": "PyCon Namibia",
-      "url": "https://web.archive.org/web/20260305140619/https://na.pycon.org/",
-      "year": 2026
-    },
-    {
-      "id": "6f7378a44eae72d5b0e7deb570b875fca7a175f9",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Namibia",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Namibia in column 'end' would you prefer '2026-02-27' or keep '2026-02-26'?",
-        "remote_value": "2026-02-27",
-        "source_name": "python-organizers",
-        "yaml_value": "2026-02-26",
-        "year": 2026
-      },
-      "received": "2026-11-22T13:34:19Z",
-      "source": "canonical-import",
-      "title": "PyCon Namibia",
-      "url": "https://web.archive.org/web/20260305140619/https://na.pycon.org/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyCon Namibia"
 }
