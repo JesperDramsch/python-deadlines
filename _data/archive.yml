@@ -8509,6 +8509,8 @@
   place: Online
   start: 2020-05-16
   end: 2020-05-23
+  sponsor: https://fwdays.com/en/page/partners-offer
+  coc: https://fwdays.com/en/page/code-of-conduct
   sub: WEB
 
 - conference: PyGrunn
@@ -8693,9 +8695,11 @@
   link: https://fwdays.com/en/event/python-fwdays-Online-conference
   cfp_link: https://docs.google.com/forms/d/e/1FAIpQLSde6NvTplJa_S8AwDYbXPHqCrUDlEGvaq_78xD2VyPgV6Cz6g/viewform
   cfp: '2019-11-28 23:59:00'
-  place: Kyiv, Ukraine
+  place: Online
   start: 2019-12-14
   end: 2019-12-14
+  sponsor: https://fwdays.com/en/page/partners-offer
+  coc: https://fwdays.com/en/page/code-of-conduct
   sub: PY
   location:
   - title: Python fwdays 2019
