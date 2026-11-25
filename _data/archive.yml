@@ -3044,6 +3044,11 @@
   end: 2025-04-13
   sponsor: https://www.pytexas.org/2025/sponsors/sponsor-us/
   finaid: https://www.pytexas.org/2025/attend/in-person/#grants
+  coc: https://www.pytexas.org/2025/about/#code-of-conduct
+  twitter: pytexas
+  mastodon: https://fosstodon.org/@pytexas
+  bluesky: https://bsky.app/profile/pytexas.org
+  youtube: https://www.youtube.com/c/pytexas
   sub: PY
   location:
   - title: PyTexas 2025
@@ -4725,6 +4730,9 @@
   end: 2024-04-21
   sponsor: https://pytexas.org/2024/sponsors/sponsor-us/
   finaid: https://forms.gle/rTWhsoayZ7JRU2hR9
+  coc: https://pytexas.org/2024/about/#code-of-conduct
+  twitter: pytexas
+  youtube: https://www.youtube.com/c/pytexas
   sub: PY
   location:
   - title: PyTexas 2024
