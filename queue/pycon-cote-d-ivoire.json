@@ -2,6 +2,26 @@
   "handled": [
     "494aee9b3bd0fb58f5ab0533cd1b93947f15f9ae"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "427bb6869ebab86654053a61f044b7f67ad9ba84",
+      "kind": "question",
+      "payload": {
+        "conference": "PyCon Côte d’Ivoire",
+        "default_answer": false,
+        "field": "cfp",
+        "question": "For PyCon Côte d’Ivoire in column 'cfp' would you prefer '2026-12-01 23:59:59' or keep '2026-11-15 23:59:59'?",
+        "remote_value": "2026-12-01 23:59:59",
+        "source_name": "python-organizers",
+        "yaml_value": "2026-11-15 23:59:59",
+        "year": 2027
+      },
+      "received": "2026-11-25T15:59:50Z",
+      "source": "canonical-import",
+      "title": "PyCon Côte d’Ivoire",
+      "url": "https://pycon.ci/",
+      "year": 2027
+    }
+  ],
   "series": "PyCon Côte d’Ivoire"
 }
