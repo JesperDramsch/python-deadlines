@@ -2,6 +2,21 @@
   "handled": [
     "40a6e8d8675563faf0c846b8363fec9c6d0f2b39"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "fd6c31fa9ffb643c5caafcb2c12979a244c6e3dc",
+      "kind": "signal",
+      "payload": {
+        "diff": "+ Our Sponsors",
+        "trigger": "website_change",
+        "watch_uuid": "fd0305e4-f405-40d8-aab5-1b6ac9f2666b"
+      },
+      "received": "2026-11-25T00:35:47Z",
+      "source": "changedetection",
+      "title": "[Conference] PyTexas",
+      "url": "https://www.pytexas.org/2027",
+      "year": null
+    }
+  ],
   "series": "PyTexas"
 }
