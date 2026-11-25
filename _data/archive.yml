@@ -1,5 +1,39 @@
 ---
 
+- conference: PyCon Taiwan
+  alt_name: PyCon TW
+  year: 2026
+  link: https://tw.pycon.org/2026/en-us
+  cfp_link: https://tw.pycon.org/2026/en-us/speaking/cfp
+  cfp: '2026-06-01 23:59:59'
+  place: Taipei, Taiwan
+  start: 2026-10-17
+  end: 2026-10-18
+  sponsor: https://tw.pycon.org/2026/en-us/sponsor
+  coc: https://tw.pycon.org/2026/en-us/about/code-of-conduct
+  twitter: pycontw
+  youtube: https://www.youtube.com/channel/UCHLnNgRnfGYDzPCCH8qGbQw
+  sub: PY
+  location:
+  - title: PyCon Taiwan 2026
+    latitude: 25.033
+    longitude: 121.5654
+
+- conference: PyCon Davao
+  year: 2026
+  link: https://pycon-davao.durianpy.org/
+  cfp_link: https://forms.gle/3pRdF5pYaQY2XZn28
+  cfp: None
+  place: Davao City, Philippines
+  start: 2026-10-17
+  end: 2026-10-18
+  sponsor: https://pycon-davao.durianpy.org/sponsorship-prospectus
+  sub: PY
+  location:
+  - title: PyCon Davao 2026
+    latitude: 7.0648306
+    longitude: 125.6080623
+
 - conference: PyCon Netherlands
   alt_name: PyCon NL
   year: 2026
@@ -17,6 +51,25 @@
   - title: PyCon Netherlands 2026
     latitude: 52.090833
     longitude: 5.121667
+
+- conference: PyCon South Africa
+  alt_name: PyCon ZA
+  year: 2026
+  link: https://za.pycon.org/
+  cfp_link: https://za.pycon.org/pages/speaking/how_to_apply/
+  cfp: '2026-08-14 23:59:00'
+  tutorial_deadline: '2026-08-14 23:59:00'
+  timezone: Africa/Johannesburg
+  place: Rondebosch, South Africa
+  start: 2026-10-14
+  end: 2026-10-18
+  twitter: PyConZA
+  mastodon: https://fosstodon.org/@PyConZA
+  sub: PY
+  location:
+  - title: PyCon South Africa 2026
+    latitude: -33.959834
+    longitude: 18.473872
 
 - conference: PyCon Greece
   year: 2026
@@ -3138,6 +3191,8 @@
   start: 2025-02-08
   end: 2025-02-09
   sponsor: https://2025.pycascades.com/sponsors/become-a-sponsor/
+  finaid: https://2025.pycascades.com/about/grants/
+  coc: https://2025.pycascades.com/about/code-of-conduct/
   twitter: pyCascades
   mastodon: https://hachyderm.io/@pycascades
   sub: PY
@@ -4682,6 +4737,8 @@
   start: 2024-04-05
   end: 2024-04-08
   sponsor: https://2024.pycascades.com/sponsors/become-a-sponsor/
+  finaid: https://2024.pycascades.com/about/grants/
+  coc: https://2024.pycascades.com/about/code-of-conduct/
   twitter: pyCascades
   mastodon: https://hachyderm.io/@pycascades
   sub: PY

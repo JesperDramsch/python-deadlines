@@ -637,25 +637,6 @@
     latitude: 59.3251172
     longitude: 18.0710935
 
-- conference: PyCon South Africa
-  alt_name: PyCon ZA
-  year: 2026
-  link: https://za.pycon.org/
-  cfp_link: https://za.pycon.org/pages/speaking/how_to_apply/
-  cfp: '2026-08-14 23:59:00'
-  tutorial_deadline: '2026-08-14 23:59:00'
-  timezone: Africa/Johannesburg
-  place: Rondebosch, South Africa
-  start: 2026-10-14
-  end: 2026-10-18
-  twitter: PyConZA
-  mastodon: https://fosstodon.org/@PyConZA
-  sub: PY
-  location:
-  - title: PyCon South Africa 2026
-    latitude: -33.959834
-    longitude: 18.473872
-
 - conference: PyData Global
   year: 2026
   link: https://pydata.org/global2026/
@@ -804,25 +785,6 @@
   - title: PyTorch Conference 2026
     latitude: 37.3382082
     longitude: -121.8863286
-
-- conference: PyCon Taiwan
-  alt_name: PyCon TW
-  year: 2026
-  link: https://tw.pycon.org/2026/en-us
-  cfp_link: https://tw.pycon.org/2026/en-us/speaking/cfp
-  cfp: '2026-06-01 23:59:59'
-  place: Taipei, Taiwan
-  start: 2026-10-17
-  end: 2026-10-18
-  sponsor: https://tw.pycon.org/2026/en-us/sponsor
-  coc: https://tw.pycon.org/2026/en-us/about/code-of-conduct
-  twitter: pycontw
-  youtube: https://www.youtube.com/channel/UCHLnNgRnfGYDzPCCH8qGbQw
-  sub: PY
-  location:
-  - title: PyCon Taiwan 2026
-    latitude: 25.033
-    longitude: 121.5654
 
 - conference: Swiss Python Summit
   year: 2026
@@ -1206,18 +1168,3 @@
   - title: FastAPI Conference 2026
     latitude: 52.386807
     longitude: 4.8698442
-
-- conference: PyCon Davao
-  year: 2026
-  link: https://pycon-davao.durianpy.org/
-  cfp_link: https://forms.gle/3pRdF5pYaQY2XZn28
-  cfp: None
-  place: Davao City, Philippines
-  start: 2026-10-17
-  end: 2026-10-18
-  sponsor: https://pycon-davao.durianpy.org/sponsorship-prospectus
-  sub: PY
-  location:
-  - title: PyCon Davao 2026
-    latitude: 7.0648306
-    longitude: 125.6080623
