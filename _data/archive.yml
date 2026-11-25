@@ -1,5 +1,20 @@
 ---
 
+- conference: PyCon Davao
+  year: 2026
+  link: https://pycon-davao.durianpy.org/
+  cfp_link: https://forms.gle/3pRdF5pYaQY2XZn28
+  cfp: None
+  place: Davao City, Philippines
+  start: 2026-10-17
+  end: 2026-10-18
+  sponsor: https://pycon-davao.durianpy.org/sponsorship-prospectus
+  sub: PY
+  location:
+  - title: PyCon Davao 2026
+    latitude: 7.0648306
+    longitude: 125.6080623
+
 - conference: PyCon Taiwan
   alt_name: PyCon TW
   year: 2026
@@ -18,21 +33,6 @@
   - title: PyCon Taiwan 2026
     latitude: 25.033
     longitude: 121.5654
-
-- conference: PyCon Davao
-  year: 2026
-  link: https://pycon-davao.durianpy.org/
-  cfp_link: https://forms.gle/3pRdF5pYaQY2XZn28
-  cfp: None
-  place: Davao City, Philippines
-  start: 2026-10-17
-  end: 2026-10-18
-  sponsor: https://pycon-davao.durianpy.org/sponsorship-prospectus
-  sub: PY
-  location:
-  - title: PyCon Davao 2026
-    latitude: 7.0648306
-    longitude: 125.6080623
 
 - conference: PyCon Netherlands
   alt_name: PyCon NL

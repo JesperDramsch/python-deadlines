@@ -233,6 +233,19 @@
     latitude: 30.2711286
     longitude: -97.7436995
 
+- conference: PyCon Angola
+  year: 2027
+  link: https://ao.pycon.org/
+  cfp: '2026-11-30 23:59:00'
+  place: Luanda, Angola
+  start: 2027-05-20
+  end: 2027-05-26
+  sub: PY
+  location:
+  - title: PyCon Angola 2027
+    latitude: -8.8272699
+    longitude: 13.2439512
+
 - conference: PyDay Lima
   year: 2026
   link: https://www.pylimaperu.org/pyday
@@ -254,11 +267,13 @@
 - conference: PyCon Côte d’Ivoire
   year: 2027
   link: https://pycon.ci/
+  cfp_link: https://pycon.ci/participer/cfp
   cfp: '2026-11-15 23:59:59'
   timezone: Africa/Abidjan
   place: Abidjan, Côte d'Ivoire
   start: 2027-01-22
   end: 2027-01-23
+  sponsor: https://pycon.ci/evenement/offre-sponsoring
   sub: PY
   location:
   - title: PyCon Côte d'Ivoire 2027
@@ -1065,19 +1080,6 @@
   - title: PyCon Italy 2027
     latitude: 44.4938203
     longitude: 11.3426327
-
-- conference: PyCon Angola
-  year: 2027
-  link: https://ao.pycon.org/
-  cfp: TBA
-  place: Luanda, Angola
-  start: 2027-05-20
-  end: 2027-05-26
-  sub: PY
-  location:
-  - title: PyCon Angola 2027
-    latitude: -8.8272699
-    longitude: 13.2439512
 
 - conference: PyTorch Conference Europe
   year: 2027
