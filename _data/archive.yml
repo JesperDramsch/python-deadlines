@@ -1202,6 +1202,22 @@
     latitude: 54.6870458
     longitude: 25.2829111
 
+- conference: PyTorch Conference Europe
+  year: 2026
+  link: https://pytorch.org/event/pytorch-conference-europe/
+  cfp_link: https://sessionize.com/pytorch-conference-europe-2026
+  cfp: '2026-02-08 23:59:00'
+  timezone: Europe/Paris
+  place: Paris, France
+  start: 2026-04-07
+  end: 2026-04-08
+  youtube: https://www.youtube.com/pytorch
+  sub: DATA
+  location:
+  - title: PyTorch Conference Europe 2026
+    latitude: 48.8588897
+    longitude: 2.3200410217200766
+
 - conference: PyCamp Argentina
   year: 2026
   link: https://pyar.discourse.group/t/pycamp-2026/1526

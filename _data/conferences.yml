@@ -1079,6 +1079,20 @@
     latitude: -8.8272699
     longitude: 13.2439512
 
+- conference: PyTorch Conference Europe
+  year: 2027
+  link: https://events.linuxfoundation.org/pytorch-conference-europe/
+  cfp: TBA
+  place: Amsterdam, Netherlands
+  start: 2027-04-08
+  end: 2027-04-09
+  coc: https://events.linuxfoundation.org/pytorch-conference-europe/attend/code-of-conduct/
+  sub: DATA
+  location:
+  - title: PyTorch Conference Europe 2027
+    latitude: 52.4111289
+    longitude: 4.877231604293446
+
 - conference: Python BarCamp Karlsruhe
   year: 2027
   link: https://barcamps.eu/pythonbarcamp-karlsruhe-2027/
