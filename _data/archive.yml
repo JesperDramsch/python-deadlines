@@ -4362,10 +4362,12 @@
 - conference: PyHEP
   year: 2024
   link: https://indico.cern.ch/event/1384010/
+  cfp_link: https://indico.cern.ch/event/1384010/abstracts/
   cfp: '2024-06-05 21:29:00'
   place: Online
   start: 2024-07-01
   end: 2024-07-04
+  coc: https://indico.cern.ch/event/1384010/page/32780-code-of-conduct
   sub: PY
 
 - conference: North Bay Python
