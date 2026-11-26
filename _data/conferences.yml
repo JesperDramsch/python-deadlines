@@ -550,22 +550,6 @@
     latitude: 8.9714493
     longitude: -79.5341802
 
-- conference: Jupyter Day
-  year: 2026
-  link: https://events.linuxfoundation.org/jupyter-day/
-  cfp_link: https://sessionize.com/jupyterday-2026/
-  cfp: '2026-09-13 23:59:00'
-  timezone: America/Los_Angeles
-  place: San Jose, USA
-  start: 2026-10-19
-  end: 2026-10-19
-  sponsor: https://events.linuxfoundation.org/jupyter-day/sponsor/
-  sub: DATA,DAY
-  location:
-  - title: Jupyter Day 2026
-    latitude: 37.3382082
-    longitude: -121.8863286
-
 - conference: Wagtail Space
   year: 2026
   link: https://wagtail.org/wagtail-space-2026/
@@ -839,22 +823,6 @@
   - title: Compute! Paris 2026
     latitude: 48.8588897
     longitude: 2.3200410217200766
-
-- conference: Python Brasil
-  year: 2026
-  link: https://2026.pythonbrasil.org.br/
-  cfp_link: https://talks.python.org.br/pybr26/cfp
-  cfp: '2026-05-24 00:00:00'
-  timezone: America/Sao_Paulo
-  place: Florianópolis, Brazil
-  start: 2026-10-14
-  end: 2026-10-19
-  mastodon: https://pynews.com.br/@pythonbrasil
-  sub: PY
-  location:
-  - title: Python Brasil 2026
-    latitude: -27.5953778
-    longitude: -48.5480367
 
 - conference: PyCon Spain
   year: 2026
