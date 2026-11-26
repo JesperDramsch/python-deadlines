@@ -14,6 +14,21 @@
     "80d732b3779f8f9850877def6e6cb35b134ab931",
     "85eacb59e1babd40d14595ece6592a12f576516c"
   ],
-  "items": [],
+  "items": [
+    {
+      "id": "171f374bdf7b4e9a735079536fa1147f709c29ce",
+      "kind": "signal",
+      "payload": {
+        "diff": "",
+        "trigger": "website_change",
+        "watch_uuid": "e52061e0-49cc-419e-8355-b9c7d430abc6"
+      },
+      "received": "2026-11-26T18:19:06Z",
+      "source": "changedetection",
+      "title": "PyCon Germany & PyData Conference 2026 - Main",
+      "url": "https://2027.pycon.de/",
+      "year": 2026
+    }
+  ],
   "series": "PyCon Germany & PyData Conference"
 }
