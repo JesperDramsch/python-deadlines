@@ -752,27 +752,6 @@
     latitude: 34.0194704
     longitude: -118.491227
 
-- conference: PyTorch Conference
-  year: 2026
-  link: https://web.archive.org/web/20261020021037/https://events.linuxfoundation.org/pytorch-conference-north-america/
-  cfp_link: https://sessionize.com/pytorch-conference-north-america-2026/
-  cfp: '2026-06-07 23:59:00'
-  timezone: America/Los_Angeles
-  place: San Jose, USA
-  start: 2026-10-20
-  end: 2026-10-21
-  sponsor: https://web.archive.org/web/20261022032525/https://events.linuxfoundation.org/pytorch-conference-north-america/sponsor/
-  finaid: https://web.archive.org/web/20261012025823/https://events.linuxfoundation.org/pytorch-conference-north-america/attend/scholarships-travel-funding/
-  coc: https://web.archive.org/web/20261029043430/https://events.linuxfoundation.org/pytorch-conference-north-america/attend/code-of-conduct/
-  twitter: pytorch
-  youtube: https://www.youtube.com/pytorch
-  sub: DATA
-  note: Separate poster session CfP open until 2026-07-26.
-  location:
-  - title: PyTorch Conference 2026
-    latitude: 37.3382082
-    longitude: -121.8863286
-
 - conference: Swiss Python Summit
   year: 2026
   link: https://python-summit.ch/
