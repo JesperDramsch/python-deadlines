@@ -2,28 +2,9 @@
   "handled": [
     "d3c98f56fc1fc094fd6466eed7dde5991773619d",
     "b8ffdf35c444110c0850b71ab5d6d69351f868fe",
-    "b749f40a909ab09c9255ac471eb772818207dda5"
+    "b749f40a909ab09c9255ac471eb772818207dda5",
+    "e364097e810cc4d41a5abe67a0b5e147a26cc100"
   ],
-  "items": [
-    {
-      "id": "e364097e810cc4d41a5abe67a0b5e147a26cc100",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon mini Tokyo",
-        "default_answer": false,
-        "field": "link",
-        "question": "For PyCon mini Tokyo in column 'link' would you prefer 'https://pythonasia.org/blog/pycon-mini-tokyo-pythonasia-2026-conference' or keep 'https://pyconjp.connpass.com/event/404336/'?",
-        "remote_value": "https://pythonasia.org/blog/pycon-mini-tokyo-pythonasia-2026-conference",
-        "source_name": "python-organizers",
-        "yaml_value": "https://pyconjp.connpass.com/event/404336/",
-        "year": 2026
-      },
-      "received": "2026-11-25T15:59:50Z",
-      "source": "canonical-import",
-      "title": "PyCon mini Tokyo",
-      "url": "https://pyconjp.connpass.com/event/404336/",
-      "year": 2026
-    }
-  ],
+  "items": [],
   "series": "PyCon mini Tokyo"
 }

@@ -1,46 +1,9 @@
 {
   "handled": [
-    "fcfc054c8a59f6f465fc176cb371bf21d3f8c720"
+    "fcfc054c8a59f6f465fc176cb371bf21d3f8c720",
+    "31205863809feac29af07445b6ad498c9cd710d2",
+    "3c47058622520b081d5bd43c4156e066690dacda"
   ],
-  "items": [
-    {
-      "id": "31205863809feac29af07445b6ad498c9cd710d2",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Angola",
-        "default_answer": false,
-        "field": "place",
-        "question": "For PyCon Angola in column 'place' would you prefer 'Namibe, Angola' or keep 'Luanda, Angola'?",
-        "remote_value": "Namibe, Angola",
-        "source_name": "python-organizers",
-        "yaml_value": "Luanda, Angola",
-        "year": 2027
-      },
-      "received": "2026-11-25T15:59:50Z",
-      "source": "canonical-import",
-      "title": "PyCon Angola",
-      "url": "https://ao.pycon.org/",
-      "year": 2027
-    },
-    {
-      "id": "3c47058622520b081d5bd43c4156e066690dacda",
-      "kind": "question",
-      "payload": {
-        "conference": "PyCon Angola",
-        "default_answer": false,
-        "field": "end",
-        "question": "For PyCon Angola in column 'end' would you prefer '2027-05-25' or keep '2027-05-26'?",
-        "remote_value": "2027-05-25",
-        "source_name": "python-organizers",
-        "yaml_value": "2027-05-26",
-        "year": 2027
-      },
-      "received": "2026-11-25T15:59:50Z",
-      "source": "canonical-import",
-      "title": "PyCon Angola",
-      "url": "https://ao.pycon.org/",
-      "year": 2027
-    }
-  ],
+  "items": [],
   "series": "PyCon Angola"
 }
